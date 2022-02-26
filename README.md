@@ -9,7 +9,6 @@
 ## Build
 
 1. `./gradlew clean shadowjar` (output is in /build/libs)
-2. (optional) `docker build . --tag komf`
 
 ## Run
 
@@ -24,7 +23,7 @@ Requires Java 11 or higher
 version: "2.1"
 services:
   komf:
-    image: komf
+    image: sndxr/komf:latest
     container_name: komf
     ports:
       - 8075:8075
