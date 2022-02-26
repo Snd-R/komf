@@ -80,3 +80,10 @@ logLevel: INFO #or env:KOMF_LOG_LEVEL
 `POST /match/series/{seriesId}` attempt to automatically match series
 
 `POST /match/library/{libraryId}` attempt to automatically match series of a library
+
+## TODO
+
+- database to keep track of matched series and thumbnails for consequent scans
+- update book metadata when new book is added
+- detect existing thumbnails
+- webui?
