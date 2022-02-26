@@ -65,7 +65,6 @@ class KomgaClient(
             .url(
                 baseUrl.newBuilder()
                     .addPathSegments("api/v1/series/${seriesId.id}/thumbnails")
-                    .addQueryParameter("selected", "true")
                     .build()
             )
             .post(requestBody)

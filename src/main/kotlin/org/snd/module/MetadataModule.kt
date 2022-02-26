@@ -21,7 +21,7 @@ class MetadataModule(
 ) {
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor { message ->
-            KotlinLogging.logger(OkHttpClient::class.java.name).info { message }
+            KotlinLogging.logger {}.debug { message }
         }.setLevel(HttpLoggingInterceptor.Level.BASIC))
         .build()
 

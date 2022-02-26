@@ -25,7 +25,7 @@ class KomgaModule(
         .readTimeout(0, SECONDS)
         .addInterceptor(BasicAuthInterceptor(config.komgaUser, config.komgaPassword))
         .addInterceptor(HttpLoggingInterceptor { message ->
-            KotlinLogging.logger {}.info { message }
+            KotlinLogging.logger {}.debug { message }
         }.setLevel(BASIC))
         .build()
 
