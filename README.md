@@ -26,7 +26,7 @@ services:
     image: sndxr/komf:latest
     container_name: komf
     ports:
-      - 8075:8075
+      - 8085:8085
     environment: # optional env config
       - KOMF_KOMGA_BASE_URI=http://komga:8080
       - KOMF_KOMGA_USER=admin@example.org
