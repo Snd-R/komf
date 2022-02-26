@@ -1,0 +1,27 @@
+### Gradle
+.gradle
+!gradle/wrapper/gradle-wrapper.jar
+
+### Logs
+*.log
+*.log.*.gz
+
+### Temporary files
+*.tmp
+*.bak
+
+### IntelliJ IDEA
+.idea/*
+!/.idea/codeStyles/
+!/.idea/runConfigurations/
+*.iws
+*.iml
+*.ipr
+
+### NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
