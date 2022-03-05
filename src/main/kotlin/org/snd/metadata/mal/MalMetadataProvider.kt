@@ -7,8 +7,8 @@ import org.snd.metadata.mal.model.SearchResult
 import org.snd.metadata.mal.model.SearchResults
 import org.snd.metadata.mal.model.toSeriesMetadata
 import org.snd.metadata.mal.model.toSeriesSearchResult
-import org.snd.model.SeriesMetadata
-import org.snd.model.SeriesSearchResult
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesSearchResult
 
 
 class MalMetadataProvider(
@@ -48,11 +48,11 @@ class MalMetadataProvider(
 
     private fun getSimilarity(name: String, searchResult: SearchResult): Double {
         val titles = listOf(
-            searchResult.title,
-            searchResult.alternative_titles.en,
-            searchResult.alternative_titles.ja,
-        ) + searchResult.alternative_titles.synonyms
+            searchResult.title.uppercase(),
+            searchResult.alternative_titles.en.uppercase(),
+            searchResult.alternative_titles.ja.uppercase(),
+        ) + searchResult.alternative_titles.synonyms.map { it.uppercase() }
 
-        return titles.maxOf { similarity.apply(name, it) }
+        return titles.maxOf { similarity.apply(name.uppercase(), it) }
     }
 }

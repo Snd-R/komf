@@ -1,10 +1,12 @@
 package org.snd.metadata.mangaupdates.model
 
+import org.snd.metadata.Provider.MANGA_UPDATES
+import org.snd.metadata.ProviderSeriesId
 import org.snd.metadata.mangaupdates.model.Status.*
 import org.snd.metadata.mangaupdates.model.Status.UNKNOWN
 import org.snd.metadata.mangaupdates.model.Type.*
-import org.snd.model.SeriesMetadata
-import org.snd.model.Thumbnail
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.Thumbnail
 import java.net.URI
 import java.time.Year
 
@@ -82,20 +84,24 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         Type.UNKNOWN -> null
         else -> null
     }
-    val authors = authors.map { org.snd.model.Author(it.name, "writer") } +
-            artists.map { org.snd.model.Author(it.name, "artist") }
+    val authors = authors.map { org.snd.metadata.model.Author(it.name, "writer") } +
+            artists.map { org.snd.metadata.model.Author(it.name, "artist") }
 
     val tags = allCategories.ifEmpty { categories }.map { it.name }
 
     return SeriesMetadata(
         status = status,
         title = title,
+        titleSort = title,
         summary = description,
         publisher = originalPublisher?.name,
         readingDirection = readingDirection,
         genres = genres,
         tags = tags,
         authors = authors,
-        thumbnail = thumbnail
+        thumbnail = thumbnail,
+
+        id = ProviderSeriesId(id.toString()),
+        provider = MANGA_UPDATES
     )
 }

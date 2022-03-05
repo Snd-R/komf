@@ -8,6 +8,7 @@ import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
 import org.snd.config.KomgaConfig
 import org.snd.infra.BasicAuthInterceptor
 import org.snd.infra.HttpClient
+import org.snd.infra.SimpleCookieJar
 import org.snd.komga.KomgaClient
 import org.snd.komga.KomgaEventListener
 import org.snd.komga.KomgaService
@@ -16,16 +17,19 @@ import java.util.concurrent.TimeUnit.SECONDS
 class KomgaModule(
     config: KomgaConfig,
     jsonModule: JsonModule,
+    repositoryModule: RepositoryModule,
     metadataModule: MetadataModule
 ) : AutoCloseable {
-    private val httpClient = OkHttpClient.Builder().build()
+    private val httpClient = OkHttpClient.Builder()
+        .cookieJar(SimpleCookieJar())
+        .build()
 
     private val komgaHttpClient = httpClient
         .newBuilder()
         .readTimeout(0, SECONDS)
         .addInterceptor(BasicAuthInterceptor(config.komgaUser, config.komgaPassword))
         .addInterceptor(HttpLoggingInterceptor { message ->
-            KotlinLogging.logger {}.debug { message }
+            KotlinLogging.logger {}.info { message }
         }.setLevel(BASIC))
         .build()
 
@@ -48,7 +52,8 @@ class KomgaModule(
 
     val komgaService = KomgaService(
         komgaClient = komgaClient,
-        metadataProviders = metadataModule.metadataProviders
+        metadataProviders = metadataModule.metadataProviders,
+        matchedSeriesRepository = repositoryModule.matchedSeriesRepository
     )
 
     private val komgaEventListener = KomgaEventListener(

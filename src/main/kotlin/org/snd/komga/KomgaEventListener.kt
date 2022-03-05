@@ -44,6 +44,7 @@ class KomgaEventListener(
         logger.debug { "event source closed $eventSource" }
     }
 
+    @Synchronized
     override fun onEvent(eventSource: EventSource, id: String?, type: String?, data: String) {
         logger.debug { "event: $type data: $data" }
         when (type) {
@@ -63,10 +64,8 @@ class KomgaEventListener(
                 if (seriesEvents.isNotEmpty()) {
                     val event = moshi.adapter<TaskQueueStatusEvent>().fromJson(data) ?: throw RuntimeException()
                     if (event.count == 0) {
-                        seriesEvents.forEach { komgaService.matchSeriesMetadata(SeriesId(it.seriesId)) }
-//                        bookEvents.forEach { komgaService.matchBookMetadata(SeriesId(it.seriesId), BookId(it.bookId)) }
-//                        val events = bookEvents.groupBy({ it.seriesId }, { it.bookId })
-//                        events.keys.forEach { komgaService.matchSeriesMetadata(SeriesId(it)) }
+                        val events = bookEvents.groupBy({ it.seriesId }, { it.bookId })
+                        events.keys.forEach { komgaService.matchSeriesMetadata(SeriesId(it)) }
                         seriesEvents.clear()
                         bookEvents.clear()
                     }

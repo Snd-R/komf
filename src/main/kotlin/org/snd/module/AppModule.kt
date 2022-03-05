@@ -7,7 +7,9 @@ class AppModule(
 ) : AutoCloseable {
     private val jsonModule = JsonModule()
 
-     val metadataModule = MetadataModule(
+    private val repositoryModule = RepositoryModule(appConfig.database)
+
+    private val metadataModule = MetadataModule(
         config = appConfig.metadataProviders,
         jsonModule = jsonModule
     )
@@ -15,6 +17,7 @@ class AppModule(
     private val komgaModule = KomgaModule(
         config = appConfig.komga,
         jsonModule = jsonModule,
+        repositoryModule = repositoryModule,
         metadataModule = metadataModule
     )
 

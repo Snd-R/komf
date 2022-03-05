@@ -25,7 +25,7 @@ class MetadataModule(
         }.setLevel(HttpLoggingInterceptor.Level.BASIC))
         .build()
 
-    private val malHttpClient = config.mal?.let {
+    private val malHttpClient = config.mal.let {
         if (it.enabled)
             HttpClient(
                 client = okHttpClient.newBuilder()
@@ -45,7 +45,7 @@ class MetadataModule(
 
     private val malMetadataProvider = malClient?.let { MalMetadataProvider(it) }
 
-    private val mangaUpdatesClient = config.mangaUpdates?.let {
+    private val mangaUpdatesClient = config.mangaUpdates.let {
         if (it.enabled)
             MangaUpdatesClient(
                 HttpClient(
@@ -63,8 +63,8 @@ class MetadataModule(
     private val mangaUpdatesMetadataProvider = mangaUpdatesClient?.let { MangaUpdatesMetadataProvider(it) }
 
     val metadataProviders = run {
-        val malPriority = config.mal?.priority ?: 999
-        val mangaUpdatesPriority = config.mangaUpdates?.priority ?: 999
+        val malPriority = config.mal.priority
+        val mangaUpdatesPriority = config.mangaUpdates.priority
 
         val malProvider = malMetadataProvider?.let { Provider.MAL to (it to malPriority) }
         val mangaUpdatesProvider = mangaUpdatesMetadataProvider?.let {

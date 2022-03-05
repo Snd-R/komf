@@ -11,7 +11,7 @@ data class SeriesJson(
     val alternative_titles: AlternativeTitlesJson? = null,
     val start_date: String? = null,
     val end_date: String? = null,
-    val synopsys: String? = null,
+    val synopsis: String? = null,
     val mean: Double? = null,
     val rank: Int? = null,
     val popularity: Int? = null,

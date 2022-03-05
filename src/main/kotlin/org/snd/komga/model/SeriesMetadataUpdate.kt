@@ -1,7 +1,7 @@
 package org.snd.komga.model
 
 import com.squareup.moshi.JsonClass
-import org.snd.model.SeriesMetadata
+import org.snd.metadata.model.SeriesMetadata
 
 @JsonClass(generateAdapter = true)
 data class SeriesMetadataUpdate(

@@ -13,7 +13,7 @@ class SeriesJsonAdapter {
             title = json.title,
             alternativeTitles = json.alternative_titles?.let { altTitlesFromJson(it) },
             mainPicture = json.main_picture?.let { pictureFromJson(it) },
-            synopsys = json.synopsys,
+            synopsis = json.synopsis,
             status = Series.Status.valueOf(json.status.uppercase()),
             genres = json.genres.mapTo(HashSet()) { it.name },
             authors = json.authors.map { authorFromJson(it) },

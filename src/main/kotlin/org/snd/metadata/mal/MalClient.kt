@@ -7,7 +7,7 @@ import okhttp3.Request
 import org.snd.infra.HttpClient
 import org.snd.metadata.mal.model.SearchResults
 import org.snd.metadata.mal.model.Series
-import org.snd.model.Thumbnail
+import org.snd.metadata.model.Thumbnail
 
 
 class MalClient(

@@ -10,6 +10,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.snd.infra.HttpClient
 import org.snd.infra.MEDIA_TYPE_JSON
 import org.snd.komga.model.*
+import org.snd.metadata.model.Thumbnail
 
 class KomgaClient(
     private val client: HttpClient,
@@ -35,7 +36,7 @@ class KomgaClient(
                 baseUrl.newBuilder()
                     .addPathSegments("api/v1/series")
                     .addQueryParameter("unpaged", unpaged.toString())
-                    .addQueryParameter("libraryId", libraryId.id)
+                    .addQueryParameter("library_id", libraryId.id)
                     .build()
             )
             .build()
@@ -57,14 +58,27 @@ class KomgaClient(
         client.execute(request)
     }
 
-    fun updateSeriesThumbnail(seriesId: SeriesId, thumbnail: ByteArray) {
+    fun getSeriesThumbnails(seriesId: SeriesId): Collection<SeriesThumbnail> {
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/v1/series/${seriesId.id}/thumbnails")
+                    .build()
+            )
+            .build()
+
+        return parseJson(client.execute(request))
+    }
+
+    fun uploadSeriesThumbnail(seriesId: SeriesId, thumbnail: Thumbnail, selected: Boolean = false) {
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
-            .addFormDataPart("file", "thumbnail", thumbnail.toRequestBody("image/jpeg".toMediaType()))
+            .addFormDataPart("file", "thumbnail", thumbnail.thumbnail.toRequestBody("image/jpeg".toMediaType()))
             .build()
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
                     .addPathSegments("api/v1/series/${seriesId.id}/thumbnails")
+                    .addQueryParameter("selected", selected.toString())
                     .build()
             )
             .post(requestBody)
@@ -72,6 +86,18 @@ class KomgaClient(
 
         client.execute(request)
 
+    }
+
+    fun deleteSeriesThumbnail(seriesId: SeriesId, thumbnailId: ThumbnailId) {
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/v1/series/${seriesId.id}/thumbnails/${thumbnailId.id}")
+                    .build()
+            ).delete()
+            .build()
+
+        client.execute(request)
     }
 
     fun getBook(bookId: BookId) {

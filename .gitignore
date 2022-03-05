@@ -25,3 +25,5 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+
+/database.sqlite

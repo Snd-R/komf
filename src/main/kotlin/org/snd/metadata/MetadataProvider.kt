@@ -1,7 +1,7 @@
 package org.snd.metadata
 
-import org.snd.model.SeriesMetadata
-import org.snd.model.SeriesSearchResult
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesSearchResult
 
 interface MetadataProvider {
     fun getSeriesMetadata(seriesId: ProviderSeriesId): SeriesMetadata

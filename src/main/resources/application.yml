@@ -1,18 +1,20 @@
 komga:
-  baseUri: ${env:KOMF_KOMGA_BASE_URI:-"http://localhost:8080"}
-  komgaUser: ${env:KOMF_KOMGA_USER:-"admin@example.org"}
-  komgaPassword: ${env:KOMF_KOMGA_PASSWORD:-"admin"}
+  baseUri: "http://localhost:8080"
+  komgaUser: "admin@example.org"
+  komgaPassword: "admin"
   eventListener:
-    enabled: ${env:KOMF_KOMGA_EVENT_LISTENER_ENABLED:-true}
+    enabled: true
     libraries: []
+database:
+  file: ${env:KOMF_CONFIG_DIR:-.}/database.sqlite
 metadataProviders:
   mal:
-    clientId: ${env:KOMF_MAL_CLIENT_ID:-""}
-    priority: ${env:KOMF_MAL_PRIORITY:-20}
-    enabled: ${env:KOMF_MAL_ENABLED:-false}
+    clientId: ""
+    priority: 20
+    enabled: false
   mangaUpdates:
-    priority: ${env:KOMF_MANGAUPDATES_PRIORITY:-10}
-    enabled: ${env:KOMF_MANGAUPDATES_ENABLED:-true}
+    priority: 10
+    enabled: true
 server:
-  port: ${env:KOMF_SERVER_PORT:-8085}
-logLevel: ${env:KOMF_LOG_LEVEL:-INFO}
+  port: 8085
+logLevel: INFO

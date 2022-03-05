@@ -13,6 +13,7 @@
 ## Run
 
 ### Jar
+
 Requires Java 11 or higher
 
 `java -jar komf-1.0-SNAPSHOT-all.jar <path to config>`
@@ -33,7 +34,7 @@ services:
       - KOMF_KOMGA_PASSWORD=admin
       - KOMF_LOG_LEVEL=INFO
     volumes:
-      - /path/to/config:/config #optional path to dir with application.yml
+      - /path/to/config:/config #path to directory with application.yml and database file
     restart: unless-stopped
 ```
 
@@ -45,45 +46,39 @@ komga:
   komgaUser: admin@example.org #or env:KOMF_KOMGA_USER
   komgaPassword: admin #or env:KOMF_KOMGA_PASSWORD
   eventListener:
-    enabled: true #or env:KOMF_KOMGA_EVENT_LISTENER_ENABLED
-    libraries: #Listen events only from specified libraries 
-      - 07XF6HK1WHZKF
-    #libraries: []  #listen to all events
+    enabled: true
+    libraries: []  #listen to all events if empty
+database:
+  file: /config/database.sqlite
 metadataProviders:
   mal: #requires clientId. See https://myanimelist.net/forum/?topicid=1973077
-    clientId: "" #or env:KOMF_MAL_CLIENT_ID
-    priority: 20 #or env:KOMF_MAL_PRIORITY
-    enabled: false #or env:KOMF_MAL_ENABLED
+    clientId: "" 
+    priority: 20
+    enabled: false
   mangaUpdates:
-    priority: 10 #or env:KOMF_MANGAUPDATES_PRIORITY
-    enabled: true #or env:KOMF_MANGAUPDATES_ENABLED
+    priority: 10
+    enabled: true
 server:
-  port: 8075 #or env:KOMF_SERVER_PORT
+  port: 8085 #or env:KOMF_SERVER_PORT
 logLevel: INFO #or env:KOMF_LOG_LEVEL
 ```
 
-## REST endpoints
+## Http endpoints
 
 `GET /providers` - list of enabled metadata providers
 
 `GET /search?name=...` - search results from enabled metadata providers
 
 `POST /identify` - set series metadata from specified provider
+
 ```json
 {
   "seriesId": "07XF6HKAWHHV4",
   "provider": "MANGA_UPDATES",
   "providerSeriesId": "1"
-  
 }
 ```
-`POST /match/series/{seriesId}` attempt to automatically match series
 
-`POST /match/library/{libraryId}` attempt to automatically match series of a library
+`POST /match/series/{seriesId}`try to match series. Optional `provider` param can be passed to use only specified provider
 
-## TODO
-
-- database to keep track of matched series and thumbnails for consequent scans
-- update book metadata when new book is added
-- detect existing thumbnails
-- webui?
+`POST /match/library/{libraryId}` try to match series of a library. Optional `provider` param can be passed

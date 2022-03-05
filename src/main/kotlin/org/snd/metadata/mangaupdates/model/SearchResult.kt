@@ -1,7 +1,7 @@
 package org.snd.metadata.mangaupdates.model
 
 import org.snd.metadata.Provider
-import org.snd.model.SeriesSearchResult
+import org.snd.metadata.model.SeriesSearchResult
 import java.time.Year
 
 data class SearchResult(

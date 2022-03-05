@@ -6,8 +6,8 @@ import org.snd.metadata.ProviderSeriesId
 import org.snd.metadata.mangaupdates.model.SearchResult
 import org.snd.metadata.mangaupdates.model.toSeriesMetadata
 import org.snd.metadata.mangaupdates.model.toSeriesSearchResult
-import org.snd.model.SeriesMetadata
-import org.snd.model.SeriesSearchResult
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesSearchResult
 
 class MangaUpdatesMetadataProvider(
     private val client: MangaUpdatesClient,
@@ -37,7 +37,7 @@ class MangaUpdatesMetadataProvider(
 
     private fun bestMatch(name: String, searchResults: Collection<SearchResult>): SearchResult? {
         return searchResults
-            .map { Pair(similarity.apply(name, it.title), it) }
+            .map { Pair(similarity.apply(name.uppercase(), it.title.uppercase()), it) }
             .filter { (score, _) -> score > 0.9 }
             .maxByOrNull { (score, _) -> score }
             ?.second

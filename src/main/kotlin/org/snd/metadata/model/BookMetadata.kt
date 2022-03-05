@@ -1,4 +1,4 @@
-package org.snd.model
+package org.snd.metadata.model
 
 import java.time.LocalDate
 

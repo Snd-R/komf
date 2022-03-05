@@ -1,6 +1,12 @@
-package org.snd.model
+package org.snd.metadata.model
+
+import org.snd.metadata.Provider
+import org.snd.metadata.ProviderSeriesId
 
 data class SeriesMetadata(
+    val id: ProviderSeriesId,
+    val provider: Provider,
+
     val status: Status? = null,
     val title: String? = null,
     val titleSort: String? = null,

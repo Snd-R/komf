@@ -1,7 +1,7 @@
 package org.snd.metadata.mal.model
 
 import org.snd.metadata.Provider
-import org.snd.model.SeriesSearchResult
+import org.snd.metadata.model.SeriesSearchResult
 
 data class SearchResults(
     val results: List<SearchResult>,

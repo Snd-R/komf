@@ -11,7 +11,7 @@ import org.snd.komga.model.LibraryId
 import org.snd.komga.model.SeriesId
 import org.snd.metadata.Provider
 import org.snd.metadata.ProviderSeriesId
-import org.snd.model.SeriesSearchResult
+import org.snd.metadata.model.SeriesSearchResult
 import java.util.concurrent.ExecutorService
 
 class KomfController(
@@ -52,13 +52,15 @@ class KomfController(
 
     private fun matchSeries(ctx: Context): Context {
         val seriesId = SeriesId(ctx.pathParam("id"))
-        komgaService.matchSeriesMetadata(seriesId)
+        val provider = ctx.queryParam("provider")?.let { Provider.valueOf(it.uppercase()) }
+        komgaService.matchSeriesMetadata(seriesId, provider)
         return ctx.status(NO_CONTENT)
     }
 
     private fun matchLibrary(ctx: Context): Context {
         val libraryId = LibraryId(ctx.pathParam("id"))
-        taskHandler.submit { komgaService.matchLibraryMetadata(libraryId) }
+        val provider = ctx.queryParam("provider")?.let { Provider.valueOf(it.uppercase()) }
+        taskHandler.submit { komgaService.matchLibraryMetadata(libraryId, provider) }
 
         return ctx.status(ACCEPTED)
     }

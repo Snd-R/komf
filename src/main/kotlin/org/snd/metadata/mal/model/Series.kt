@@ -1,10 +1,12 @@
 package org.snd.metadata.mal.model
 
-import org.snd.model.SeriesMetadata
-import org.snd.model.SeriesMetadata.ReadingDirection.LEFT_TO_RIGHT
-import org.snd.model.SeriesMetadata.ReadingDirection.RIGHT_TO_LEFT
-import org.snd.model.SeriesMetadata.Status.*
-import org.snd.model.Thumbnail
+import org.snd.metadata.Provider.MAL
+import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesMetadata.ReadingDirection.LEFT_TO_RIGHT
+import org.snd.metadata.model.SeriesMetadata.ReadingDirection.RIGHT_TO_LEFT
+import org.snd.metadata.model.SeriesMetadata.Status.*
+import org.snd.metadata.model.Thumbnail
 import java.time.ZonedDateTime
 
 data class Series(
@@ -12,7 +14,7 @@ data class Series(
     val title: String,
     val alternativeTitles: AlternativeTitles? = null,
     val mainPicture: Picture? = null,
-    val synopsys: String? = null,
+    val synopsis: String? = null,
     val status: Status,
     val genres: Set<String> = emptySet(),
     val authors: List<Author> = emptyList(),
@@ -102,17 +104,22 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         Series.MediaType.OEL -> RIGHT_TO_LEFT
         Series.MediaType.LIGHT_NOVEL -> null
     }
-    val authors = authors.map { org.snd.model.Author("${it.firstName} ${it.lastName}", it.role) }
+    val authors = authors.map { org.snd.metadata.model.Author("${it.firstName} ${it.lastName}", it.role) }
 
     return SeriesMetadata(
         status = status,
         title = title,
-        summary = synopsys,
+        titleSort = title,
+        summary = synopsis ?: "",
         publisher = serialization.joinToString { it.name },
         readingDirection = readingDirection,
         genres = genres,
         authors = authors,
-        thumbnail = thumbnail
+        thumbnail = thumbnail,
+        tags = emptyList(),
+
+        id = ProviderSeriesId(id.toString()),
+        provider = MAL
     )
 }
 

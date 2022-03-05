@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class AppConfig(
     val metadataProviders: MetadataProvidersConfig,
     val komga: KomgaConfig,
+    val database: DatabaseConfig,
     val server: ServerConfig,
     val logLevel: String
 )
@@ -19,6 +20,9 @@ data class KomgaConfig(
 )
 
 @Serializable
+data class DatabaseConfig(val file: String)
+
+@Serializable
 data class KomgaEventListenerConfig(
     val enabled: Boolean,
     val libraries: Collection<String>
@@ -26,8 +30,8 @@ data class KomgaEventListenerConfig(
 
 @Serializable
 data class MetadataProvidersConfig(
-    val mal: MalConfig?,
-    val mangaUpdates: MangaUpdatesConfig?
+    val mal: MalConfig,
+    val mangaUpdates: MangaUpdatesConfig
 )
 
 
@@ -46,5 +50,5 @@ data class MangaUpdatesConfig(
 
 @Serializable
 data class ServerConfig(
-    val port: Int = 8075
+    val port: Int = 8085
 )

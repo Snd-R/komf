@@ -7,7 +7,7 @@ import okhttp3.Request
 import org.snd.infra.HttpClient
 import org.snd.metadata.mangaupdates.model.SearchResult
 import org.snd.metadata.mangaupdates.model.Series
-import org.snd.model.Thumbnail
+import org.snd.metadata.model.Thumbnail
 
 class MangaUpdatesClient(
     private val client: HttpClient,
