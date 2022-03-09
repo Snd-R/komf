@@ -30,13 +30,14 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun getSeries(libraryId: LibraryId, unpaged: Boolean): Page<Series> {
+    fun getSeries(libraryId: LibraryId, unpaged: Boolean, page: Int = 0): Page<Series> {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
                     .addPathSegments("api/v1/series")
                     .addQueryParameter("unpaged", unpaged.toString())
                     .addQueryParameter("library_id", libraryId.id)
+                    .addQueryParameter("page", page.toString())
                     .build()
             )
             .build()

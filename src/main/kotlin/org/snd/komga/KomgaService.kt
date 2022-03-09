@@ -30,9 +30,9 @@ class KomgaService(
     }
 
     fun matchSeriesMetadata(seriesId: SeriesId, provider: Provider? = null) {
-        logger.info { "attempting to match series $seriesId" }
         if (provider != null) {
             val series = komgaClient.getSeries(seriesId)
+            logger.info { "attempting to match series ${series.name} ${series.id}" }
             val metadataProvider = metadataProviders[provider] ?: throw RuntimeException()
             metadataProvider.matchSeriesMetadata(series.name)?.let { meta -> updateSeriesMetadata(seriesId, meta) }
             return
@@ -47,6 +47,7 @@ class KomgaService(
         }
 
         val series = komgaClient.getSeries(seriesId)
+        logger.info { "attempting to match series ${series.name} ${series.id}" }
         metadataProviders.values
             .firstNotNullOfOrNull { it.matchSeriesMetadata(series.name) }
             ?.let {
@@ -63,10 +64,12 @@ class KomgaService(
     }
 
     fun matchLibraryMetadata(libraryId: LibraryId, provider: Provider? = null) {
+        var page = 0
         do {
-            val page = komgaClient.getSeries(libraryId, false)
-            page.content.forEach { matchSeriesMetadata(it.seriesId(), provider) }
-        } while (!page.last)
+            val currentPage = komgaClient.getSeries(libraryId, false, page)
+            currentPage.content.forEach { matchSeriesMetadata(it.seriesId(), provider) }
+            page++
+        } while (!currentPage.last)
     }
 
     fun availableProviders(): Set<Provider> = metadataProviders.keys
