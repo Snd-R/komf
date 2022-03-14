@@ -60,7 +60,7 @@ class NautiljonParser {
             .getElementsByTag("li")
         val (country, startYear) = parseCountryAndStartYear(dataEntries)
         val authorsStory = parseAuthorsStory(dataEntries)
-        val authorsArt = parseAuthorsArt(dataEntries) ?: authorsStory
+        val authorsArt = parseAuthorsArt(dataEntries).ifEmpty { authorsStory }
         val (numberOfVolumes, status) = parseNumberOfVolumesAndStatus(dataEntries)
 
         return Series(
