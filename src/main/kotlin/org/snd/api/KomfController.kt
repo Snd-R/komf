@@ -60,7 +60,14 @@ class KomfController(
     private fun matchLibrary(ctx: Context): Context {
         val libraryId = LibraryId(ctx.pathParam("id"))
         val provider = ctx.queryParam("provider")?.let { Provider.valueOf(it.uppercase()) }
-        taskHandler.submit { komgaService.matchLibraryMetadata(libraryId, provider) }
+
+        taskHandler.submit {
+            try {
+                komgaService.matchLibraryMetadata(libraryId, provider)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
 
         return ctx.status(ACCEPTED)
     }
