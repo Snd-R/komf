@@ -1,0 +1,6 @@
+CREATE TABLE MATCHED_BOOKS
+(
+    BOOK_ID      varchar NOT NULL PRIMARY KEY,
+    SERIES_ID    varchar NOT NULL,
+    THUMBNAIL_ID varchar
+);

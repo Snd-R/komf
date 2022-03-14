@@ -10,7 +10,7 @@ import okhttp3.Response
 import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources
-import org.snd.komga.model.SeriesId
+import org.snd.komga.model.dto.SeriesId
 import org.snd.komga.model.event.BookEvent
 import org.snd.komga.model.event.SeriesEvent
 import org.snd.komga.model.event.TaskQueueStatusEvent

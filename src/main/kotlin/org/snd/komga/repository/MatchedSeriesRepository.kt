@@ -1,7 +1,7 @@
 package org.snd.komga.repository
 
 import org.snd.komga.model.MatchedSeries
-import org.snd.komga.model.SeriesId
+import org.snd.komga.model.dto.SeriesId
 
 interface MatchedSeriesRepository {
 

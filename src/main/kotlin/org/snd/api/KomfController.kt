@@ -7,8 +7,8 @@ import io.javalin.http.ContentType.APPLICATION_JSON
 import io.javalin.http.Context
 import io.javalin.http.HttpCode.*
 import org.snd.komga.KomgaService
-import org.snd.komga.model.LibraryId
-import org.snd.komga.model.SeriesId
+import org.snd.komga.model.dto.LibraryId
+import org.snd.komga.model.dto.SeriesId
 import org.snd.metadata.Provider
 import org.snd.metadata.ProviderSeriesId
 import org.snd.metadata.model.SeriesSearchResult

@@ -2,42 +2,18 @@ package org.snd.metadata.mangaupdates
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.snd.metadata.mangaupdates.model.*
+import org.snd.metadata.mangaupdates.model.Author
+import org.snd.metadata.mangaupdates.model.Category
+import org.snd.metadata.mangaupdates.model.Publisher
+import org.snd.metadata.mangaupdates.model.RelatedSeries
+import org.snd.metadata.mangaupdates.model.SearchResult
+import org.snd.metadata.mangaupdates.model.Series
+import org.snd.metadata.mangaupdates.model.Status
+import org.snd.metadata.mangaupdates.model.Type
 import java.net.URI
 import java.time.Year
 
 class MangaUpdatesParser {
-
-//    fun parseSearchResults(results: String): Collection<SearchResult> {
-//        val document = Jsoup.parse(results)
-//        val mainContent = requireNotNull(document.getElementById("main_content"))
-//        val seriesInfo = mainContent.getElementsByTag("h3")
-//            .firstOrNull { e -> e.text().equals("Series Info") } ?: return emptyList()
-//
-//        val searchResults = ArrayList<SearchResult>()
-//        val series = seriesInfo.nextElementSibling()!!.getElementsByClass("text")
-//        for (i in 0 until series.size - 1 step 4) {
-//            val link = series[i].getElementsByTag("a").next().first()!!
-//            val id = link.attr("href").removePrefix("https://www.mangaupdates.com/series.html?id=").toInt()
-//            val title = link.text()
-//            val genres = series[i + 1].getElementsByTag("a").first()!!
-//                .attr("title").split(",")
-//            val year = series[i + 2].text().toIntOrNull()
-//            val rating = series[i + 3].text().toDoubleOrNull()
-//
-//            searchResults.add(
-//                SearchResult(
-//                    id = id,
-//                    title = title,
-//                    genres = genres,
-//                    year = year?.let { Year.of(it) },
-//                    rating = rating
-//                )
-//            )
-//        }
-//        return searchResults
-//    }
-
 
     fun parseSeriesSearch(results: String): Collection<SearchResult> {
         val document = Jsoup.parse(results)

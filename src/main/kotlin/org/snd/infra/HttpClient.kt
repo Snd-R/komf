@@ -4,8 +4,9 @@ import io.github.resilience4j.ratelimiter.RateLimiter
 import io.github.resilience4j.ratelimiter.RateLimiterConfig
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
-import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.IOException
 import java.util.function.Supplier
 
@@ -28,18 +29,6 @@ open class HttpClient(
                 response.body?.string() ?: ""
             }
         }
-    }
-
-    fun executeAsync(request: Request) {
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                response.use { if (!response.isSuccessful) throw IOException("Unexpected code $response") }
-            }
-        })
     }
 
     fun executeWithByteResponse(request: Request): ByteArray {

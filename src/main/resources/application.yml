@@ -4,17 +4,24 @@ komga:
   komgaPassword: "admin"
   eventListener:
     enabled: true
-    libraries: []
+    libraries: [ ]
+  metadataUpdate:
+    bookThumbnails: false
+    seriesThumbnails: true
 database:
   file: ${env:KOMF_CONFIG_DIR:-.}/database.sqlite
 metadataProviders:
+  mangaUpdates:
+    priority: 10
+    enabled: true
   mal:
     clientId: ""
     priority: 20
     enabled: false
-  mangaUpdates:
-    priority: 10
-    enabled: true
+  nautiljon:
+    priority: 30
+    enabled: false
+    fetchBookMetadata: false
 server:
   port: 8085
 logLevel: INFO

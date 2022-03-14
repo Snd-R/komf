@@ -16,7 +16,14 @@ data class KomgaConfig(
     val baseUri: String,
     val komgaUser: String,
     val komgaPassword: String,
-    val eventListener: KomgaEventListenerConfig
+    val eventListener: KomgaEventListenerConfig,
+    val metadataUpdate: MetadataUpdateConfig
+)
+
+@Serializable
+data class MetadataUpdateConfig(
+    val bookThumbnails: Boolean,
+    val seriesThumbnails: Boolean
 )
 
 @Serializable
@@ -31,7 +38,8 @@ data class KomgaEventListenerConfig(
 @Serializable
 data class MetadataProvidersConfig(
     val mal: MalConfig,
-    val mangaUpdates: MangaUpdatesConfig
+    val mangaUpdates: MangaUpdatesConfig,
+    val nautiljon: NautiljonConfig
 )
 
 
@@ -46,6 +54,13 @@ data class MalConfig(
 data class MangaUpdatesConfig(
     val priority: Int,
     val enabled: Boolean,
+)
+
+@Serializable
+data class NautiljonConfig(
+    val priority: Int,
+    val enabled: Boolean,
+    val fetchBookMetadata: Boolean,
 )
 
 @Serializable

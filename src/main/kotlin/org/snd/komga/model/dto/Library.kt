@@ -1,4 +1,4 @@
-package org.snd.komga
+package org.snd.komga.model.dto
 
 import com.squareup.moshi.JsonClass
 

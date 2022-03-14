@@ -1,3 +1,3 @@
-package org.snd.komga.model
+package org.snd.komga.model.dto
 
 data class LibraryId(val id: String)

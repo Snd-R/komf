@@ -4,8 +4,8 @@ import org.jooq.DSLContext
 import org.snd.jooq.Tables.MATCHED_SERIES
 import org.snd.jooq.tables.records.MatchedSeriesRecord
 import org.snd.komga.model.MatchedSeries
-import org.snd.komga.model.SeriesId
-import org.snd.komga.model.ThumbnailId
+import org.snd.komga.model.dto.SeriesId
+import org.snd.komga.model.dto.ThumbnailId
 import org.snd.metadata.Provider
 import org.snd.metadata.ProviderSeriesId
 

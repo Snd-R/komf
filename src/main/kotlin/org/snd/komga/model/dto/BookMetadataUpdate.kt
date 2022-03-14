@@ -1,7 +1,6 @@
-package org.snd.komga.model
+package org.snd.komga.model.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.metadata.model.SeriesMetadata
 import java.time.LocalDate
 
 
@@ -38,8 +37,4 @@ data class AuthorUpdate(
 data class WebLinkUpdate(
     val label: String? = null,
     val url: String? = null
-)
-
-fun SeriesMetadata.toBookMetadataUpdate() = BookMetadataUpdate(
-    authors = authors?.map { AuthorUpdate(it.name, it.role) }
 )

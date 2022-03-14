@@ -3,8 +3,6 @@ package org.snd.metadata.mangaupdates.model
 import org.snd.metadata.Provider.MANGA_UPDATES
 import org.snd.metadata.ProviderSeriesId
 import org.snd.metadata.mangaupdates.model.Status.*
-import org.snd.metadata.mangaupdates.model.Status.UNKNOWN
-import org.snd.metadata.mangaupdates.model.Type.*
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.Thumbnail
 import java.net.URI
@@ -76,14 +74,6 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         else -> null
     }
 
-    val readingDirection = when (type) {
-        MANGA -> SeriesMetadata.ReadingDirection.RIGHT_TO_LEFT
-        DOUJINSHI -> SeriesMetadata.ReadingDirection.RIGHT_TO_LEFT
-        MANHWA -> SeriesMetadata.ReadingDirection.LEFT_TO_RIGHT
-        MANHUA -> SeriesMetadata.ReadingDirection.RIGHT_TO_LEFT
-        Type.UNKNOWN -> null
-        else -> null
-    }
     val authors = authors.map { org.snd.metadata.model.Author(it.name, "writer") } +
             artists.map { org.snd.metadata.model.Author(it.name, "artist") }
 
@@ -95,7 +85,6 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         titleSort = title,
         summary = description,
         publisher = originalPublisher?.name,
-        readingDirection = readingDirection,
         genres = genres,
         tags = tags,
         authors = authors,

@@ -1,4 +1,4 @@
-package org.snd.komga.model
+package org.snd.komga.model.dto
 
 import com.squareup.moshi.JsonClass
 import org.snd.metadata.model.SeriesMetadata

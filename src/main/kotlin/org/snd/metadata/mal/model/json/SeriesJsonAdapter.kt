@@ -2,7 +2,11 @@ package org.snd.metadata.mal.model.json
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson
-import org.snd.metadata.mal.model.*
+import org.snd.metadata.mal.model.AlternativeTitles
+import org.snd.metadata.mal.model.Author
+import org.snd.metadata.mal.model.Picture
+import org.snd.metadata.mal.model.Serialization
+import org.snd.metadata.mal.model.Series
 import org.snd.metadata.mal.model.Series.NSFW
 
 class SeriesJsonAdapter {

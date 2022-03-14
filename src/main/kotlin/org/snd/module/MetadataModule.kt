@@ -12,6 +12,8 @@ import org.snd.metadata.mal.MalClientInterceptor
 import org.snd.metadata.mal.MalMetadataProvider
 import org.snd.metadata.mangaupdates.MangaUpdatesClient
 import org.snd.metadata.mangaupdates.MangaUpdatesMetadataProvider
+import org.snd.metadata.nautiljon.NautiljonClient
+import org.snd.metadata.nautiljon.NautiljonMetadataProvider
 import java.time.Duration
 
 
@@ -62,15 +64,35 @@ class MetadataModule(
     }
     private val mangaUpdatesMetadataProvider = mangaUpdatesClient?.let { MangaUpdatesMetadataProvider(it) }
 
+    private val nautiljonMetadataProvider = config.nautiljon.let {
+        if (it.enabled) {
+            NautiljonMetadataProvider(
+                NautiljonClient(
+                    HttpClient(
+                        client = okHttpClient.newBuilder().build(),
+                        name = "nautiljon",
+                        rateLimiterConfig = RateLimiterConfig.custom()
+                            .limitRefreshPeriod(Duration.ofSeconds(5))
+                            .limitForPeriod(3)
+                            .timeoutDuration(Duration.ofSeconds(5))
+                            .build()
+                    )
+                ),
+                it.fetchBookMetadata
+            )
+        } else null
+    }
+
     val metadataProviders = run {
         val malPriority = config.mal.priority
         val mangaUpdatesPriority = config.mangaUpdates.priority
+        val nautiljonPriority = config.nautiljon.priority
 
         val malProvider = malMetadataProvider?.let { Provider.MAL to (it to malPriority) }
-        val mangaUpdatesProvider = mangaUpdatesMetadataProvider?.let {
-            Provider.MANGA_UPDATES to (it to mangaUpdatesPriority)
-        }
-        sequenceOf(malProvider, mangaUpdatesProvider).filterNotNull()
+        val mangaUpdatesProvider = mangaUpdatesMetadataProvider?.let { Provider.MANGA_UPDATES to (it to mangaUpdatesPriority) }
+        val nautiljonProvider = nautiljonMetadataProvider?.let { Provider.NAUTILJON to (it to nautiljonPriority) }
+
+        sequenceOf(malProvider, mangaUpdatesProvider, nautiljonProvider).filterNotNull()
             .sortedBy { it.second.second }
             .map { it.first to it.second.first }
             .toMap()

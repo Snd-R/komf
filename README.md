@@ -47,17 +47,24 @@ komga:
   komgaPassword: admin #or env:KOMF_KOMGA_PASSWORD
   eventListener:
     enabled: true
-    libraries: []  #listen to all events if empty
+    libraries: [ ]  #listen to all events if empty
+  metadataUpdate:
+    bookThumbnails: false #update book thumbnails
+    seriesThumbnails: true #update series thumbnails
 database:
-  file: /config/database.sqlite
+  file: ./database.sqlite
 metadataProviders:
-  mal: #requires clientId. See https://myanimelist.net/forum/?topicid=1973077
-    clientId: "" 
-    priority: 20
-    enabled: false
   mangaUpdates:
     priority: 10
     enabled: true
+  mal: #requires clientId. See https://myanimelist.net/forum/?topicid=1973077
+    clientId: ""
+    priority: 20
+    enabled: false
+  nautiljon:
+    priority: 30
+    enabled: false
+    fetchBookMetadata: false #fetch volume information and thumbnails if available. Can take a while to load
 server:
   port: 8085 #or env:KOMF_SERVER_PORT
 logLevel: INFO #or env:KOMF_LOG_LEVEL
@@ -79,6 +86,7 @@ logLevel: INFO #or env:KOMF_LOG_LEVEL
 }
 ```
 
-`POST /match/series/{seriesId}`try to match series. Optional `provider` param can be passed to use only specified provider
+`POST /match/series/{seriesId}`try to match series. Optional `provider` param can be passed to use only specified
+provider
 
 `POST /match/library/{libraryId}` try to match series of a library. Optional `provider` param can be passed

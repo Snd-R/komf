@@ -53,7 +53,9 @@ class KomgaModule(
     val komgaService = KomgaService(
         komgaClient = komgaClient,
         metadataProviders = metadataModule.metadataProviders,
-        matchedSeriesRepository = repositoryModule.matchedSeriesRepository
+        matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
+        matchedBookRepository = repositoryModule.matchedBookRepository,
+        config.metadataUpdate
     )
 
     private val komgaEventListener = KomgaEventListener(
