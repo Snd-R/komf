@@ -4,63 +4,64 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AppConfig(
-    val metadataProviders: MetadataProvidersConfig,
-    val komga: KomgaConfig,
-    val database: DatabaseConfig,
-    val server: ServerConfig,
-    val logLevel: String
+    val metadataProviders: MetadataProvidersConfig = MetadataProvidersConfig(),
+    val komga: KomgaConfig = KomgaConfig(),
+    val database: DatabaseConfig = DatabaseConfig(),
+    val server: ServerConfig = ServerConfig(),
+    val logLevel: String = "INFO"
 )
 
 @Serializable
 data class KomgaConfig(
-    val baseUri: String,
-    val komgaUser: String,
-    val komgaPassword: String,
-    val eventListener: KomgaEventListenerConfig,
-    val metadataUpdate: MetadataUpdateConfig
+    val baseUri: String = "http://localhost:8080",
+    val komgaUser: String = "admin@example.org",
+    val komgaPassword: String = "admin",
+    val eventListener: KomgaEventListenerConfig = KomgaEventListenerConfig(),
+    val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig()
 )
 
 @Serializable
 data class MetadataUpdateConfig(
-    val bookThumbnails: Boolean,
-    val seriesThumbnails: Boolean
+    val bookThumbnails: Boolean = false,
+    val seriesThumbnails: Boolean = true
 )
 
 @Serializable
-data class DatabaseConfig(val file: String)
+data class DatabaseConfig(
+    val file: String = "./database.sqlite"
+)
 
 @Serializable
 data class KomgaEventListenerConfig(
-    val enabled: Boolean,
-    val libraries: Collection<String>
+    val enabled: Boolean = true,
+    val libraries: Collection<String> = emptyList()
 )
 
 @Serializable
 data class MetadataProvidersConfig(
-    val mal: MalConfig,
-    val mangaUpdates: MangaUpdatesConfig,
-    val nautiljon: NautiljonConfig
-)
-
-
-@Serializable
-data class MalConfig(
-    val clientId: String,
-    val priority: Int,
-    val enabled: Boolean,
+    val mal: MalConfig = MalConfig(),
+    val mangaUpdates: MangaUpdatesConfig = MangaUpdatesConfig(),
+    val nautiljon: NautiljonConfig = NautiljonConfig()
 )
 
 @Serializable
 data class MangaUpdatesConfig(
-    val priority: Int,
-    val enabled: Boolean,
+    val priority: Int = 10,
+    val enabled: Boolean = true,
+)
+
+@Serializable
+data class MalConfig(
+    val clientId: String = "",
+    val priority: Int = 20,
+    val enabled: Boolean = false,
 )
 
 @Serializable
 data class NautiljonConfig(
-    val priority: Int,
-    val enabled: Boolean,
-    val fetchBookMetadata: Boolean,
+    val priority: Int = 30,
+    val enabled: Boolean = false,
+    val fetchBookMetadata: Boolean = false,
 )
 
 @Serializable

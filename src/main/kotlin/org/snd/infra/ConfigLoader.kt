@@ -1,7 +1,6 @@
 package org.snd.infra
 
 import com.charleskorn.kaml.Yaml
-import org.apache.commons.text.StringSubstitutor
 import org.snd.config.AppConfig
 import java.nio.file.Files
 import java.nio.file.Path
@@ -11,9 +10,10 @@ class ConfigLoader {
 
     fun loadConfig(path: Path?): AppConfig {
         val configRaw = loadFromEnv() ?: loadFromArgs(path) ?: loadDefault()
-        val envResolved = StringSubstitutor.createInterpolator().replace(configRaw)
-        val config = Yaml.default.decodeFromString(AppConfig.serializer(), envResolved)
-        return overrideFromEnvVariables(config)
+        return configRaw?.let {
+            val config = Yaml.default.decodeFromString(AppConfig.serializer(), it)
+            overrideFromEnvVariables(config)
+        } ?: overrideFromEnvVariables(AppConfig())
     }
 
     private fun loadFromEnv(): String? {
@@ -31,8 +31,8 @@ class ConfigLoader {
         }
     }
 
-    private fun loadDefault(): String {
-        return AppConfig::class.java.getResource("/application.yml")!!.readText()
+    private fun loadDefault(): String? {
+        return AppConfig::class.java.getResource("/application.yml")?.readText()
     }
 
     private fun overrideFromEnvVariables(config: AppConfig): AppConfig {
