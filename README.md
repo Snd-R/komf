@@ -52,7 +52,7 @@ komga:
     bookThumbnails: false #update book thumbnails
     seriesThumbnails: true #update series thumbnails
 database:
-  file: ./database.sqlite
+  file: ./database.sqlite #database file location. do not override if used with docker
 metadataProviders:
   mangaUpdates:
     priority: 10

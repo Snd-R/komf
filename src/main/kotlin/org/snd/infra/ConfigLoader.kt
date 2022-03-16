@@ -36,6 +36,8 @@ class ConfigLoader {
     }
 
     private fun overrideFromEnvVariables(config: AppConfig): AppConfig {
+        val databaseConfig = config.database
+        val databaseFile = System.getenv("KOMF_CONFIG_DIR")?.let { "$it/database.sqlite" } ?: databaseConfig.file
         val komgaConfig = config.komga
         val komgaBaseUri = System.getenv("KOMF_KOMGA_BASE_URI") ?: komgaConfig.baseUri
         val komgaUser = System.getenv("KOMF_KOMGA_USER") ?: komgaConfig.komgaUser
@@ -50,6 +52,9 @@ class ConfigLoader {
                 baseUri = komgaBaseUri,
                 komgaUser = komgaUser,
                 komgaPassword = komgaPassword
+            ),
+            database = databaseConfig.copy(
+                file = databaseFile
             ),
             server = serverConfig.copy(port = serverPort),
             logLevel = logLevel
