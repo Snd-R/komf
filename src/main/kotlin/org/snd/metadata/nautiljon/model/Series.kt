@@ -2,6 +2,7 @@ package org.snd.metadata.nautiljon.model
 
 import org.snd.metadata.Provider
 import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.Thumbnail
 import org.snd.metadata.model.VolumeMetadata
@@ -38,8 +39,16 @@ fun Series.toSeriesMetadata(volumeMetadata: List<VolumeMetadata>, thumbnail: Thu
         else -> null
     }
 
-    val authors = authorsStory.map { org.snd.metadata.model.Author(it, "writer") } +
-            authorsArt.map { org.snd.metadata.model.Author(it, "artist") }
+    val artistRoles = listOf(
+        PENCILLER,
+        INKER,
+        COLORIST,
+        LETTERER,
+        COVER
+    )
+
+    val authors = authorsStory.map { org.snd.metadata.model.Author(it, WRITER.name) } +
+            authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role.name) } }
 
     return SeriesMetadata(
         id = ProviderSeriesId(id.id),

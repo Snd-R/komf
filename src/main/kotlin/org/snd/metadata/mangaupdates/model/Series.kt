@@ -3,6 +3,7 @@ package org.snd.metadata.mangaupdates.model
 import org.snd.metadata.Provider.MANGA_UPDATES
 import org.snd.metadata.ProviderSeriesId
 import org.snd.metadata.mangaupdates.model.Status.*
+import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.Thumbnail
 import java.net.URI
@@ -74,8 +75,18 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         else -> null
     }
 
-    val authors = authors.map { org.snd.metadata.model.Author(it.name, "writer") } +
-            artists.map { org.snd.metadata.model.Author(it.name, "artist") }
+    val artistRoles = listOf(
+        PENCILLER,
+        INKER,
+        COLORIST,
+        LETTERER,
+        COVER
+    )
+
+    val authors = authors.map { org.snd.metadata.model.Author(it.name, WRITER.name) } +
+            artists.flatMap { artist ->
+                artistRoles.map { role -> org.snd.metadata.model.Author(artist.name, role.name) }
+            }
 
     val tags = allCategories.ifEmpty { categories }.map { it.name }
 

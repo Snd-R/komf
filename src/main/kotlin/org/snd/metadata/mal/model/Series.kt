@@ -2,6 +2,7 @@ package org.snd.metadata.mal.model
 
 import org.snd.metadata.Provider.MAL
 import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesMetadata.Status.*
 import org.snd.metadata.model.Thumbnail
@@ -90,14 +91,39 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         Series.Status.ON_HIATUS -> HIATUS
         Series.Status.DISCONTINUED -> ABANDONED
     }
-    val authors = authors.map { org.snd.metadata.model.Author("${it.firstName} ${it.lastName}", it.role) }
+    val artistRoles = listOf(
+        PENCILLER,
+        INKER,
+        COLORIST,
+        LETTERER,
+        COVER
+    )
+
+    val authors = authors.flatMap { author ->
+        when (author.role) {
+            "Art" -> {
+                artistRoles.map { role -> org.snd.metadata.model.Author("${author.firstName} ${author.lastName}", role.name) }
+            }
+            "Story" -> {
+                listOf(org.snd.metadata.model.Author("${author.firstName} ${author.lastName}", WRITER.name))
+            }
+            "Story & Art" -> {
+                artistRoles.map { role ->
+                    org.snd.metadata.model.Author(
+                        "${author.firstName} ${author.lastName}",
+                        role.name
+                    )
+                } + org.snd.metadata.model.Author("${author.firstName} ${author.lastName}", WRITER.name)
+            }
+            else -> emptyList()
+        }
+    }
 
     return SeriesMetadata(
         status = status,
         title = title,
         titleSort = title,
         summary = synopsis ?: "",
-        publisher = serialization.joinToString { it.name },
         genres = genres,
         authors = authors,
         thumbnail = thumbnail,

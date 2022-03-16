@@ -48,7 +48,9 @@ class MalClient(
         val request = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments("v2/manga")
                 .addQueryParameter("fields", "alternative_titles")
-                .addQueryParameter("q", name).build()
+                .addQueryParameter("q", name)
+                .addQueryParameter("nsfw", "true")
+                .build()
         ).build()
 
         return parseJson(client.execute(request))
