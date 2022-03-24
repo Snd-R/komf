@@ -29,12 +29,12 @@ class NautiljonMetadataProvider(
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val searchResults = client.searchSeries(seriesName).take(limit)
+        val searchResults = client.searchSeries(seriesName.take(400)).take(limit)
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
     override fun matchSeriesMetadata(seriesName: String): SeriesMetadata? {
-        val searchResults = client.searchSeries(seriesName)
+        val searchResults = client.searchSeries(seriesName.take(400))
         val match = bestMatch(seriesName, searchResults)?.let { client.getSeries(it.id) }
 
         return match?.let {

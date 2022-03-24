@@ -24,12 +24,12 @@ class MalMetadataProvider(
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        return malClient.searchSeries(seriesName).results.take(limit)
+        return malClient.searchSeries(seriesName.take(64)).results.take(limit)
             .map { it.toSeriesSearchResult() }
     }
 
     override fun matchSeriesMetadata(seriesName: String): SeriesMetadata? {
-        val searchResults = malClient.searchSeries(seriesName)
+        val searchResults = malClient.searchSeries(seriesName.take(64))
         val match = bestMatch(seriesName, searchResults)?.let { malClient.getSeries(it.id) }
 
         return match?.let {
