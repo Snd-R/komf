@@ -219,17 +219,21 @@ class NautiljonParser {
     }
 
     private fun parseVolumeOriginalReleaseDate(dataEntries: Elements): LocalDate? {
-        return dataEntries
-            .firstOrNull { it.child(0).text().equals("Date de parution VO :") }
-            ?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
-            ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
+        return runCatching {
+            dataEntries
+                .firstOrNull { it.child(0).text().equals("Date de parution VO :") }
+                ?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
+                ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
+        }.getOrNull()
     }
 
     private fun parseVolumeFrenchReleaseDate(dataEntries: Elements): LocalDate? {
-        return dataEntries
-            .firstOrNull { it.child(0).text().equals("Date de parution VF :") }
-            ?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
-            ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
+        return runCatching {
+            dataEntries
+                .firstOrNull { it.child(0).text().equals("Date de parution VF :") }
+                ?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
+                ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
+        }.getOrNull()
     }
 
     private fun parseNumberOfPages(dataEntries: Elements): Int? {
