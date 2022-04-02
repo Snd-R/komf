@@ -22,6 +22,7 @@ metadataProviders:
     priority: 30
     enabled: false
     fetchBookMetadata: false
+    useOriginalPublisher: false
 server:
   port: 8085
 logLevel: INFO

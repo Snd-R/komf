@@ -62,6 +62,9 @@ data class NautiljonConfig(
     val priority: Int = 30,
     val enabled: Boolean = false,
     val fetchBookMetadata: Boolean = false,
+    val useOriginalPublisher: Boolean = false,
+    val originalPublisherTag: String? = null,
+    val frenchPublisherTag: String? = null
 )
 
 @Serializable

@@ -9,12 +9,11 @@ import org.snd.metadata.model.VolumeMetadata
 import org.snd.metadata.nautiljon.model.SearchResult
 import org.snd.metadata.nautiljon.model.SeriesId
 import org.snd.metadata.nautiljon.model.VolumeId
-import org.snd.metadata.nautiljon.model.toBookMetadata
-import org.snd.metadata.nautiljon.model.toSeriesMetadata
 import org.snd.metadata.nautiljon.model.toSeriesSearchResult
 
 class NautiljonMetadataProvider(
     private val client: NautiljonClient,
+    private val metadataMapper: NautiljonSeriesMetadataMapper,
     private val fetchBookMetadata: Boolean
 ) : MetadataProvider {
     private val similarity = JaroWinklerSimilarity()
@@ -25,7 +24,7 @@ class NautiljonMetadataProvider(
 
         val bookMetadata = series.volumeIds.mapNotNull { getBookMetadata(series.id, it) }
 
-        return series.toSeriesMetadata(bookMetadata, thumbnail)
+        return metadataMapper.toSeriesMetadata(series, bookMetadata, thumbnail)
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
@@ -40,7 +39,7 @@ class NautiljonMetadataProvider(
         return match?.let {
             val thumbnail = client.getSeriesThumbnail(it)
             val bookMetadata = it.volumeIds.mapNotNull { volumeId -> getBookMetadata(it.id, volumeId) }
-            it.toSeriesMetadata(bookMetadata, thumbnail)
+            metadataMapper.toSeriesMetadata(it, bookMetadata, thumbnail)
         }
     }
 
@@ -52,7 +51,7 @@ class NautiljonMetadataProvider(
         val volume = client.getVolume(seriesId, volumeId)
         val thumbnail = client.getVolumeThumbnail(volume)
 
-        return volume.toBookMetadata(thumbnail)
+        return metadataMapper.toBookMetadata(volume, thumbnail)
     }
 
     private fun bestMatch(name: String, searchResults: Collection<SearchResult>): SearchResult? {

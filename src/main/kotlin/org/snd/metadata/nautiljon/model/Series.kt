@@ -1,11 +1,5 @@
 package org.snd.metadata.nautiljon.model
 
-import org.snd.metadata.Provider
-import org.snd.metadata.ProviderSeriesId
-import org.snd.metadata.model.AuthorRole.*
-import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.Thumbnail
-import org.snd.metadata.model.VolumeMetadata
 import java.time.Year
 
 data class Series(
@@ -30,41 +24,3 @@ data class Series(
 
     val volumeIds: Collection<VolumeId>
 )
-
-fun Series.toSeriesMetadata(volumeMetadata: List<VolumeMetadata>, thumbnail: Thumbnail? = null): SeriesMetadata {
-    val status = when (status) {
-        "En cours" -> SeriesMetadata.Status.ONGOING
-        "En attente" -> SeriesMetadata.Status.ONGOING
-        "Terminé" -> SeriesMetadata.Status.ENDED
-        else -> null
-    }
-
-    val artistRoles = listOf(
-        PENCILLER,
-        INKER,
-        COLORIST,
-        LETTERER,
-        COVER
-    )
-
-    val authors = authorsStory.map { org.snd.metadata.model.Author(it, WRITER.name) } +
-            authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role.name) } }
-
-    return SeriesMetadata(
-        id = ProviderSeriesId(id.id),
-        provider = Provider.NAUTILJON,
-
-        status = status,
-        title = title,
-        titleSort = title,
-        summary = description,
-        publisher = originalPublisher,
-        genres = genres,
-        tags = themes,
-        authors = authors,
-        thumbnail = thumbnail,
-        totalBookCount = numberOfVolumes,
-
-        volumeMetadata = volumeMetadata
-    )
-}

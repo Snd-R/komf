@@ -14,6 +14,7 @@ import org.snd.metadata.mangaupdates.MangaUpdatesClient
 import org.snd.metadata.mangaupdates.MangaUpdatesMetadataProvider
 import org.snd.metadata.nautiljon.NautiljonClient
 import org.snd.metadata.nautiljon.NautiljonMetadataProvider
+import org.snd.metadata.nautiljon.NautiljonSeriesMetadataMapper
 import java.time.Duration
 
 
@@ -64,6 +65,12 @@ class MetadataModule(
     }
     private val mangaUpdatesMetadataProvider = mangaUpdatesClient?.let { MangaUpdatesMetadataProvider(it) }
 
+    private val nautiljonSeriesMetadataMapper = NautiljonSeriesMetadataMapper(
+        config.nautiljon.useOriginalPublisher,
+        config.nautiljon.originalPublisherTag,
+        config.nautiljon.frenchPublisherTag,
+    )
+
     private val nautiljonMetadataProvider = config.nautiljon.let {
         if (it.enabled) {
             NautiljonMetadataProvider(
@@ -78,6 +85,7 @@ class MetadataModule(
                             .build()
                     )
                 ),
+                nautiljonSeriesMetadataMapper,
                 it.fetchBookMetadata
             )
         } else null
