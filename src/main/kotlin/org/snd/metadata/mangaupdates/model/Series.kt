@@ -54,7 +54,6 @@ enum class Status {
     ONGOING,
     CANCELLED,
     HIATUS,
-    UNKNOWN
 }
 
 enum class Type {
@@ -62,7 +61,6 @@ enum class Type {
     DOUJINSHI,
     MANHWA,
     MANHUA,
-    UNKNOWN
 }
 
 fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
@@ -71,8 +69,7 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         ONGOING -> SeriesMetadata.Status.ONGOING
         CANCELLED -> SeriesMetadata.Status.ABANDONED
         HIATUS -> SeriesMetadata.Status.HIATUS
-        UNKNOWN -> null
-        else -> null
+        else -> SeriesMetadata.Status.ONGOING
     }
 
     val artistRoles = listOf(
@@ -94,8 +91,8 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         status = status,
         title = title,
         titleSort = title,
-        summary = description,
-        publisher = originalPublisher?.name,
+        summary = description ?: "",
+        publisher = originalPublisher?.name ?: "",
         genres = genres,
         tags = tags,
         authors = authors,

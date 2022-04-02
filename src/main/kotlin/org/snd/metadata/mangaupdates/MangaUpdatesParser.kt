@@ -113,7 +113,7 @@ class MangaUpdatesParser {
     private fun parseType(element: Element): Type? {
         if (element.text() == "N/A") return null
         return runCatching { Type.valueOf(element.text().trim().uppercase()) }
-            .getOrDefault(Type.UNKNOWN)
+            .getOrNull()
     }
 
     private fun parseRelatedSeries(element: Element): List<RelatedSeries> {
@@ -138,7 +138,7 @@ class MangaUpdatesParser {
 
         return "\\(.*\\)".toRegex().find(element.text())?.value?.removeSurrounding("(", ")")?.let {
             runCatching { Status.valueOf(it.uppercase()) }
-                .getOrDefault(Status.UNKNOWN)
+                .getOrNull()
         }
     }
 

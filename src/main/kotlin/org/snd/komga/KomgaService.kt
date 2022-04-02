@@ -90,8 +90,7 @@ class KomgaService(
 
     private fun updateBookMetadata(seriesId: SeriesId, seriesMeta: SeriesMetadata) {
         val books = komgaClient.getBooks(seriesId, true).content
-        val test = matchBooksToMedata(books, seriesMeta.volumeMetadata)
-        test.forEach { (book, volumeMeta) ->
+        matchBooksToMedata(books, seriesMeta.volumeMetadata).forEach { (book, volumeMeta) ->
             if (volumeMeta != null) {
                 updateBookMetadata(seriesId, book.bookId(), volumeMeta)
 
