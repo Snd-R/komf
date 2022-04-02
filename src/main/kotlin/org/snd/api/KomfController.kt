@@ -7,8 +7,8 @@ import io.javalin.http.ContentType.APPLICATION_JSON
 import io.javalin.http.Context
 import io.javalin.http.HttpCode.*
 import org.snd.komga.KomgaService
-import org.snd.komga.model.dto.LibraryId
-import org.snd.komga.model.dto.SeriesId
+import org.snd.komga.model.dto.KomgaLibraryId
+import org.snd.komga.model.dto.KomgaSeriesId
 import org.snd.metadata.Provider
 import org.snd.metadata.ProviderSeriesId
 import org.snd.metadata.model.SeriesSearchResult
@@ -42,7 +42,7 @@ class KomfController(
     private fun identifySeries(ctx: Context): Context {
         val request = moshi.adapter<IdentifySeriesRequest>().fromJson(ctx.body()) ?: return ctx.status(BAD_REQUEST)
         komgaService.setSeriesMetadata(
-            SeriesId(request.seriesId),
+            KomgaSeriesId(request.seriesId),
             Provider.valueOf(request.provider.uppercase()),
             ProviderSeriesId(request.providerSeriesId)
         )
@@ -51,14 +51,14 @@ class KomfController(
     }
 
     private fun matchSeries(ctx: Context): Context {
-        val seriesId = SeriesId(ctx.pathParam("id"))
+        val seriesId = KomgaSeriesId(ctx.pathParam("id"))
         val provider = ctx.queryParam("provider")?.let { Provider.valueOf(it.uppercase()) }
         komgaService.matchSeriesMetadata(seriesId, provider)
         return ctx.status(NO_CONTENT)
     }
 
     private fun matchLibrary(ctx: Context): Context {
-        val libraryId = LibraryId(ctx.pathParam("id"))
+        val libraryId = KomgaLibraryId(ctx.pathParam("id"))
         val provider = ctx.queryParam("provider")?.let { Provider.valueOf(it.uppercase()) }
 
         taskHandler.submit {

@@ -1,11 +1,11 @@
 package org.snd.komga.repository
 
 import org.snd.komga.model.MatchedSeries
-import org.snd.komga.model.dto.SeriesId
+import org.snd.komga.model.dto.KomgaSeriesId
 
 interface MatchedSeriesRepository {
 
-    fun findFor(seriesId: SeriesId): MatchedSeries?
+    fun findFor(seriesId: KomgaSeriesId): MatchedSeries?
 
     fun insert(matchedSeries: MatchedSeries)
 

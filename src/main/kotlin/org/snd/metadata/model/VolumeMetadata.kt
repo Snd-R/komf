@@ -1,8 +1,5 @@
 package org.snd.metadata.model
 
-import org.snd.komga.model.dto.AuthorUpdate
-import org.snd.komga.model.dto.BookMetadataUpdate
-import org.snd.komga.model.dto.WebLinkUpdate
 import java.time.LocalDate
 
 
@@ -22,16 +19,6 @@ data class VolumeMetadata(
     val endChapter: Int?,
 
     val thumbnail: Thumbnail? = null,
-)
-
-fun VolumeMetadata.toBookMetadataUpdate() = BookMetadataUpdate(
-    title = title,
-    summary = summary,
-    releaseDate = releaseDate,
-    authors = authors?.map { AuthorUpdate(it.name, it.role) },
-    tags = tags,
-    isbn = isbn,
-    links = links?.map { WebLinkUpdate(it.label, it.url) }
 )
 
 data class Chapter(

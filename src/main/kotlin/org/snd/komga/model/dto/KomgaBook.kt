@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
-data class Book(
+data class KomgaBook(
     val id: String,
     val seriesId: String,
     val seriesTitle: String,
@@ -19,22 +19,22 @@ data class Book(
     val sizeBytes: Long,
     val size: String,
     val media: Media,
-    val metadata: BookMetadata,
+    val metadata: KomgaBookMetadata,
     val readProgress: ReadProgress?,
     val deleted: Boolean,
     val fileHash: String,
 ) {
-    fun bookId(): BookId = BookId(id)
+    fun bookId(): KomgaBookId = KomgaBookId(id)
 }
 
 @JsonClass(generateAdapter = true)
-data class BookMetadata(
+data class KomgaBookMetadata(
     val title: String,
     val summary: String,
     val number: String,
     val numberSort: Float,
     val releaseDate: LocalDate?,
-    val authors: List<Author>,
+    val authors: List<KomgaAuthor>,
     val tags: Set<String>,
     val isbn: String,
     val links: List<WebLink>,

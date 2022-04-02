@@ -12,6 +12,7 @@ import org.snd.infra.SimpleCookieJar
 import org.snd.komga.KomgaClient
 import org.snd.komga.KomgaEventListener
 import org.snd.komga.KomgaService
+import org.snd.komga.MetadataUpdateMapper
 import java.util.concurrent.TimeUnit.SECONDS
 
 class KomgaModule(
@@ -55,7 +56,8 @@ class KomgaModule(
         metadataProviders = metadataModule.metadataProviders,
         matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
         matchedBookRepository = repositoryModule.matchedBookRepository,
-        config.metadataUpdate
+        config.metadataUpdate,
+        MetadataUpdateMapper()
     )
 
     private val komgaEventListener = KomgaEventListener(

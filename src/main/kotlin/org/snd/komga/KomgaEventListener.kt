@@ -10,7 +10,7 @@ import okhttp3.Response
 import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources
-import org.snd.komga.model.dto.SeriesId
+import org.snd.komga.model.dto.KomgaSeriesId
 import org.snd.komga.model.event.BookEvent
 import org.snd.komga.model.event.SeriesEvent
 import org.snd.komga.model.event.TaskQueueStatusEvent
@@ -65,7 +65,7 @@ class KomgaEventListener(
                     val event = moshi.adapter<TaskQueueStatusEvent>().fromJson(data) ?: throw RuntimeException()
                     if (event.count == 0) {
                         val events = bookEvents.groupBy({ it.seriesId }, { it.bookId })
-                        events.keys.forEach { komgaService.matchSeriesMetadata(SeriesId(it)) }
+                        events.keys.forEach { komgaService.matchSeriesMetadata(KomgaSeriesId(it)) }
                         seriesEvents.clear()
                         bookEvents.clear()
                     }

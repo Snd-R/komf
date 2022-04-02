@@ -3,7 +3,7 @@ package org.snd.komga.model.dto
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class Library(
+data class KomgaLibrary(
     val id: String,
     val name: String,
     val root: String,

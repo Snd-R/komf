@@ -3,7 +3,7 @@ package org.snd.komga.model.dto
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class Series(
+data class KomgaSeries(
     val id: String,
     val name: String,
     val url: String,
@@ -11,14 +11,14 @@ data class Series(
     val booksReadCount: Int,
     val booksUnreadCount: Int,
     val booksInProgressCount: Int,
-    val metadata: SeriesMetadata,
+    val metadata: KomgaSeriesMetadata,
     val deleted: Boolean,
 ) {
-    fun seriesId(): SeriesId = SeriesId(id)
+    fun seriesId(): KomgaSeriesId = KomgaSeriesId(id)
 }
 
 @JsonClass(generateAdapter = true)
-data class SeriesMetadata(
+data class KomgaSeriesMetadata(
     val status: String,
     val statusLock: Boolean,
     val title: String,

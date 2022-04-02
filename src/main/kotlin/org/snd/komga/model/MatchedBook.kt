@@ -1,11 +1,11 @@
 package org.snd.komga.model
 
-import org.snd.komga.model.dto.BookId
-import org.snd.komga.model.dto.SeriesId
-import org.snd.komga.model.dto.ThumbnailId
+import org.snd.komga.model.dto.KomgaBookId
+import org.snd.komga.model.dto.KomgaSeriesId
+import org.snd.komga.model.dto.KomgaThumbnailId
 
 data class MatchedBook(
-    val bookId: BookId,
-    val seriesId: SeriesId,
-    val thumbnailId: ThumbnailId?,
+    val bookId: KomgaBookId,
+    val seriesId: KomgaSeriesId,
+    val thumbnailId: KomgaThumbnailId?,
 )

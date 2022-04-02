@@ -4,8 +4,8 @@ import org.jooq.DSLContext
 import org.snd.jooq.Tables.MATCHED_SERIES
 import org.snd.jooq.tables.records.MatchedSeriesRecord
 import org.snd.komga.model.MatchedSeries
-import org.snd.komga.model.dto.SeriesId
-import org.snd.komga.model.dto.ThumbnailId
+import org.snd.komga.model.dto.KomgaSeriesId
+import org.snd.komga.model.dto.KomgaThumbnailId
 import org.snd.metadata.Provider
 import org.snd.metadata.ProviderSeriesId
 
@@ -13,7 +13,7 @@ class JooqMatchedSeriesRepository(
     private val dsl: DSLContext,
 ) : MatchedSeriesRepository {
 
-    override fun findFor(seriesId: SeriesId): MatchedSeries? {
+    override fun findFor(seriesId: KomgaSeriesId): MatchedSeries? {
         return dsl.selectFrom(MATCHED_SERIES)
             .where(MATCHED_SERIES.SERIES_ID.eq(seriesId.id))
             .fetchOne()
@@ -29,8 +29,8 @@ class JooqMatchedSeriesRepository(
     }
 
     private fun MatchedSeriesRecord.toModel(): MatchedSeries = MatchedSeries(
-        seriesId = SeriesId(seriesId),
-        thumbnailId = thumbnailId?.let { ThumbnailId(it) },
+        seriesId = KomgaSeriesId(seriesId),
+        thumbnailId = thumbnailId?.let { KomgaThumbnailId(it) },
         provider = Provider.valueOf(provider),
         providerSeriesId = ProviderSeriesId(providerSeriesId)
     )

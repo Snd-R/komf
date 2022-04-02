@@ -9,18 +9,18 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.snd.infra.HttpClient
 import org.snd.infra.MEDIA_TYPE_JSON
-import org.snd.komga.model.dto.Book
-import org.snd.komga.model.dto.BookId
-import org.snd.komga.model.dto.BookMetadataUpdate
-import org.snd.komga.model.dto.BookThumbnail
-import org.snd.komga.model.dto.Library
-import org.snd.komga.model.dto.LibraryId
+import org.snd.komga.model.dto.KomgaBook
+import org.snd.komga.model.dto.KomgaBookId
+import org.snd.komga.model.dto.KomgaBookMetadataUpdate
+import org.snd.komga.model.dto.KomgaBookThumbnail
+import org.snd.komga.model.dto.KomgaLibrary
+import org.snd.komga.model.dto.KomgaLibraryId
+import org.snd.komga.model.dto.KomgaSeries
+import org.snd.komga.model.dto.KomgaSeriesId
+import org.snd.komga.model.dto.KomgaSeriesMetadataUpdate
+import org.snd.komga.model.dto.KomgaSeriesThumbnail
+import org.snd.komga.model.dto.KomgaThumbnailId
 import org.snd.komga.model.dto.Page
-import org.snd.komga.model.dto.Series
-import org.snd.komga.model.dto.SeriesId
-import org.snd.komga.model.dto.SeriesMetadataUpdate
-import org.snd.komga.model.dto.SeriesThumbnail
-import org.snd.komga.model.dto.ThumbnailId
 import org.snd.metadata.model.Thumbnail
 
 class KomgaClient(
@@ -29,7 +29,7 @@ class KomgaClient(
     private val baseUrl: HttpUrl,
 ) {
 
-    fun getSeries(seriesId: SeriesId): Series {
+    fun getSeries(seriesId: KomgaSeriesId): KomgaSeries {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -41,7 +41,7 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun getSeries(libraryId: LibraryId, unpaged: Boolean, page: Int = 0): Page<Series> {
+    fun getSeries(libraryId: KomgaLibraryId, unpaged: Boolean, page: Int = 0): Page<KomgaSeries> {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -56,7 +56,7 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun updateSeriesMetadata(seriesId: SeriesId, metadata: SeriesMetadataUpdate) {
+    fun updateSeriesMetadata(seriesId: KomgaSeriesId, metadata: KomgaSeriesMetadataUpdate) {
         val postBody = toJson(metadata)
         val request = Request.Builder()
             .url(
@@ -70,7 +70,7 @@ class KomgaClient(
         client.execute(request)
     }
 
-    fun getSeriesThumbnails(seriesId: SeriesId): Collection<SeriesThumbnail> {
+    fun getSeriesThumbnails(seriesId: KomgaSeriesId): Collection<KomgaSeriesThumbnail> {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -82,7 +82,7 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun uploadSeriesThumbnail(seriesId: SeriesId, thumbnail: Thumbnail, selected: Boolean = false): SeriesThumbnail {
+    fun uploadSeriesThumbnail(seriesId: KomgaSeriesId, thumbnail: Thumbnail, selected: Boolean = false): KomgaSeriesThumbnail {
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart("file", "thumbnail", thumbnail.thumbnail.toRequestBody("image/jpeg".toMediaType()))
             .build()
@@ -99,7 +99,7 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun deleteSeriesThumbnail(seriesId: SeriesId, thumbnailId: ThumbnailId) {
+    fun deleteSeriesThumbnail(seriesId: KomgaSeriesId, thumbnailId: KomgaThumbnailId) {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -111,7 +111,7 @@ class KomgaClient(
         client.execute(request)
     }
 
-    fun getBook(bookId: BookId) {
+    fun getBook(bookId: KomgaBookId) {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -123,7 +123,7 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun getBooks(seriesId: SeriesId, unpaged: Boolean): Page<Book> {
+    fun getBooks(seriesId: KomgaSeriesId, unpaged: Boolean): Page<KomgaBook> {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -136,7 +136,7 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun updateBookMetadata(bookId: BookId, metadata: BookMetadataUpdate) {
+    fun updateBookMetadata(bookId: KomgaBookId, metadata: KomgaBookMetadataUpdate) {
         val postBody = toJson(metadata)
         val request = Request.Builder()
             .url(
@@ -150,7 +150,7 @@ class KomgaClient(
         client.execute(request)
     }
 
-    fun getBookThumbnails(bookId: BookId): Collection<BookThumbnail> {
+    fun getBookThumbnails(bookId: KomgaBookId): Collection<KomgaBookThumbnail> {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -162,7 +162,7 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun uploadBookThumbnail(bookId: BookId, thumbnail: Thumbnail, selected: Boolean = false): BookThumbnail {
+    fun uploadBookThumbnail(bookId: KomgaBookId, thumbnail: Thumbnail, selected: Boolean = false): KomgaBookThumbnail {
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart("file", "thumbnail", thumbnail.thumbnail.toRequestBody("image/jpeg".toMediaType()))
             .build()
@@ -179,7 +179,7 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun deleteBookThumbnail(bookId: BookId, thumbnailId: ThumbnailId) {
+    fun deleteBookThumbnail(bookId: KomgaBookId, thumbnailId: KomgaThumbnailId) {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -191,7 +191,7 @@ class KomgaClient(
         client.execute(request)
     }
 
-    fun getLibraries(): Collection<Library> {
+    fun getLibraries(): Collection<KomgaLibrary> {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -203,7 +203,7 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun getLibrary(libraryId: LibraryId): Library {
+    fun getLibrary(libraryId: KomgaLibraryId): KomgaLibrary {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
