@@ -20,6 +20,7 @@ data class Series(
     val authorsArt: Collection<String>,
     val originalPublisher: String?,
     val frenchPublisher: String?,
+    val recommendedAge: Int?,
     val score: Double?,
 
     val volumeIds: Collection<VolumeId>

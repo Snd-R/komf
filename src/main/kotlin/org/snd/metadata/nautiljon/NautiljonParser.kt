@@ -81,6 +81,7 @@ class NautiljonParser {
             authorsArt = authorsArt,
             originalPublisher = parseOriginalPublisher(dataEntries),
             frenchPublisher = parseFrenchPublisher(dataEntries),
+            recommendedAge = parseRecommendedAge(dataEntries),
             score = parseScore(document),
             volumeIds = parseVolumeIds(document)
         )
@@ -240,6 +241,14 @@ class NautiljonParser {
         return dataEntries
             .firstOrNull { it.child(0).text().equals("Nombre de pages :") }
             ?.getElementsByAttributeValue("itemprop", "numberOfPages")?.first()?.text()
+            ?.toIntOrNull()
+    }
+
+    private fun parseRecommendedAge(dataEntries: Elements): Int? {
+        return dataEntries
+            .firstOrNull { it.child(0).text().equals("Âge conseillé :") }
+            ?.textNodes()?.firstOrNull()?.text()
+            ?.removeSuffix(" ans et +")?.trim()
             ?.toIntOrNull()
     }
 

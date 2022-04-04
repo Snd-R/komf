@@ -53,6 +53,7 @@ class NautiljonSeriesMetadataMapper(
             authors = authors,
             thumbnail = thumbnail,
             totalBookCount = series.numberOfVolumes,
+            ageRating = series.recommendedAge,
 
             volumeMetadata = volumeMetadata
         )
