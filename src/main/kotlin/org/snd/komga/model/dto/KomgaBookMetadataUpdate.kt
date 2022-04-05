@@ -14,7 +14,7 @@ data class KomgaBookMetadataUpdate(
     val authors: List<KomgaAuthor>? = null,
     val tags: Set<String>? = null,
     val isbn: String? = null,
-    val links: List<WebLink>? = null,
+    val links: List<KomgaWebLink>? = null,
 
     val titleLock: Boolean? = null,
     val summaryLock: Boolean? = null,

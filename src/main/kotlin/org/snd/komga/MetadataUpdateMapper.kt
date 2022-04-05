@@ -5,7 +5,7 @@ import org.snd.komga.model.dto.KomgaBookMetadata
 import org.snd.komga.model.dto.KomgaBookMetadataUpdate
 import org.snd.komga.model.dto.KomgaSeriesMetadata
 import org.snd.komga.model.dto.KomgaSeriesMetadataUpdate
-import org.snd.komga.model.dto.WebLink
+import org.snd.komga.model.dto.KomgaWebLink
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.VolumeMetadata
 
@@ -21,15 +21,14 @@ class MetadataUpdateMapper {
 
     fun toBookMetadataUpdate(patch: VolumeMetadata, metadata: KomgaBookMetadata): KomgaBookMetadataUpdate =
         with(metadata) {
-            val authors = patch.authors?.map { author -> KomgaAuthor(author.name, author.role) }
             KomgaBookMetadataUpdate(
-                title = title,
-                summary = summary,
-                releaseDate = releaseDate,
-                authors = authors?.map { KomgaAuthor(it.name, it.role) },
-                tags = tags,
-                isbn = isbn,
-                links = links.map { WebLink(it.label, it.url) }
+                title = getIfNotLocked(patch.title, titleLock),
+                summary = getIfNotLocked(patch.summary, summaryLock),
+                releaseDate = getIfNotLocked(patch.releaseDate, releaseDateLock),
+                authors = getIfNotLocked(patch.authors?.map { author -> KomgaAuthor(author.name, author.role) }, authorsLock),
+                tags = getIfNotLocked(patch.tags, tagsLock),
+                isbn = getIfNotLocked(patch.isbn, isbnLock),
+                links = getIfNotLocked(patch.links?.map { KomgaWebLink(it.label, it.url) }, linksLock)
             )
         }
 

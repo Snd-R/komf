@@ -135,6 +135,7 @@ class NautiljonParser {
 
     private fun parseDescription(document: Document): String? {
         return document.getElementsByClass("description").firstOrNull()?.wholeText()
+            ?.let { if (it == "N/C") null else it }
     }
 
     private fun parseAlternativeTitles(dataEntries: Elements): Collection<String> {

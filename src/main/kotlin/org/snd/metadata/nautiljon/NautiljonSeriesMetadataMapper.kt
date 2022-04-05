@@ -35,8 +35,12 @@ class NautiljonSeriesMetadataMapper(
                 series.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role.name) } }
 
         val tags = series.themes + listOfNotNull(
-            originalPublisherTag?.let { "$it: ${series.originalPublisher}" },
-            frenchPublisherTag?.let { "$it: ${series.frenchPublisher}" }
+            originalPublisherTag?.let { tag ->
+                series.originalPublisher?.let { publisher -> "$tag: $publisher" }
+            },
+            frenchPublisherTag?.let { tag ->
+                series.frenchPublisher?.let { publisher -> "$tag: $publisher" }
+            }
         )
 
         return SeriesMetadata(

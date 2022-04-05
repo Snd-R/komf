@@ -37,7 +37,7 @@ data class KomgaBookMetadata(
     val authors: List<KomgaAuthor>,
     val tags: Set<String>,
     val isbn: String,
-    val links: List<WebLink>,
+    val links: List<KomgaWebLink>,
 
     val titleLock: Boolean,
     val summaryLock: Boolean,
