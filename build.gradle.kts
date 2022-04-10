@@ -18,8 +18,8 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("ch.qos.logback:logback-core:1.2.10")
-    implementation("ch.qos.logback:logback-classic:1.2.10")
+    implementation("ch.qos.logback:logback-core:1.2.11")
+    implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
 
@@ -30,16 +30,16 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.13.0")
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.13.0")
 
-    implementation("io.javalin:javalin:4.3.0")
+    implementation("io.javalin:javalin:4.4.0")
 
     implementation("org.apache.commons:commons-text:1.9")
-    implementation("com.charleskorn.kaml:kaml:0.40.0")
+    implementation("com.charleskorn.kaml:kaml:0.43.0")
     implementation("io.github.resilience4j:resilience4j-ratelimiter:1.7.1")
     implementation("io.github.resilience4j:resilience4j-retry:1.7.1")
     implementation("org.jsoup:jsoup:1.14.3")
 
-    implementation("org.flywaydb:flyway-core:8.5.1")
-    implementation("org.jooq:jooq:3.16.4")
+    implementation("org.flywaydb:flyway-core:8.5.4")
+    implementation("org.jooq:jooq:3.16.5")
     implementation("org.xerial:sqlite-jdbc:3.36.0.3")
     jooqGenerator("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
@@ -78,7 +78,6 @@ val dbSqlite = mapOf(
 )
 val migrationDirsSqlite = listOf(
     "$projectDir/src/flyway/resources/db/migration/sqlite",
-    "$projectDir/src/flyway/kotlin/db/migration/sqlite"
 )
 flyway {
     url = dbSqlite["url"]
@@ -97,7 +96,7 @@ tasks.flywayMigrate {
 }
 
 jooq {
-    version.set("3.16.4")
+    version.set("3.16.5")
     configurations {
         create("main") {
             jooqConfiguration.apply {
