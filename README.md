@@ -51,6 +51,7 @@ komga:
   metadataUpdate:
     bookThumbnails: false #update book thumbnails
     seriesThumbnails: true #update series thumbnails
+    seriesTitle: false #update series title
 database:
   file: ./database.sqlite #database file location.
 metadataProviders:
