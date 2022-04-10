@@ -57,7 +57,7 @@ class KomgaModule(
         matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
         matchedBookRepository = repositoryModule.matchedBookRepository,
         config.metadataUpdate,
-        MetadataUpdateMapper()
+        MetadataUpdateMapper(config.metadataUpdate)
     )
 
     private val komgaEventListener = KomgaEventListener(

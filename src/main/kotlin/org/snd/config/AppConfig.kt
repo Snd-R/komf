@@ -23,7 +23,8 @@ data class KomgaConfig(
 @Serializable
 data class MetadataUpdateConfig(
     val bookThumbnails: Boolean = false,
-    val seriesThumbnails: Boolean = true
+    val seriesThumbnails: Boolean = true,
+    val seriesTitle: Boolean = false
 )
 
 @Serializable

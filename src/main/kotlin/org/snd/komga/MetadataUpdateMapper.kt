@@ -1,5 +1,6 @@
 package org.snd.komga
 
+import org.snd.config.MetadataUpdateConfig
 import org.snd.komga.model.dto.KomgaAuthor
 import org.snd.komga.model.dto.KomgaBookMetadata
 import org.snd.komga.model.dto.KomgaBookMetadataUpdate
@@ -9,7 +10,9 @@ import org.snd.komga.model.dto.KomgaWebLink
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.VolumeMetadata
 
-class MetadataUpdateMapper {
+class MetadataUpdateMapper(
+    private val metadataUpdateConfig: MetadataUpdateConfig,
+) {
 
     fun toBookMetadataUpdate(patch: SeriesMetadata, metadata: KomgaBookMetadata): KomgaBookMetadataUpdate =
         with(metadata) {
@@ -36,7 +39,7 @@ class MetadataUpdateMapper {
         with(metadata) {
             KomgaSeriesMetadataUpdate(
                 status = getIfNotLocked(patch.status?.toString(), statusLock),
-                title = getIfNotLocked(patch.title, titleLock),
+                title = if (metadataUpdateConfig.seriesTitle) getIfNotLocked(patch.title, titleLock) else null,
                 titleSort = getIfNotLocked(patch.titleSort, titleSortLock),
                 summary = getIfNotLocked(patch.summary, summaryLock),
                 publisher = getIfNotLocked(patch.publisher, publisherLock),

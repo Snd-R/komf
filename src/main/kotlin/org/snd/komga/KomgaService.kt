@@ -75,7 +75,7 @@ class KomgaService(
         updateBookMetadata(series.seriesId(), metadata)
 
         val matchedSeries = matchedSeriesRepository.findFor(series.seriesId())
-        val newThumbnail = if (!metadataUpdateConfig.seriesThumbnails) null else metadata.thumbnail
+        val newThumbnail = if (metadataUpdateConfig.seriesThumbnails) metadata.thumbnail else null
         val thumbnailId = replaceSeriesThumbnail(series.seriesId(), newThumbnail, matchedSeries?.thumbnailId)
 
         val newMatch = MatchedSeries(
@@ -102,7 +102,7 @@ class KomgaService(
 
             val matchedBook = matchedBookRepository.findFor(book.bookId())
 
-            val newThumbnail = if (!metadataUpdateConfig.bookThumbnails) null else volumeMeta?.thumbnail
+            val newThumbnail = if (metadataUpdateConfig.bookThumbnails) volumeMeta?.thumbnail else null
             val thumbnailId = replaceBookThumbnail(book.bookId(), newThumbnail, matchedBook?.thumbnailId)
 
             val newMatch = MatchedBook(
