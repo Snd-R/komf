@@ -2,6 +2,7 @@ package org.snd.metadata.mangaupdates
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
+import org.jsoup.nodes.TextNode
 import org.snd.metadata.mangaupdates.model.Author
 import org.snd.metadata.mangaupdates.model.Category
 import org.snd.metadata.mangaupdates.model.Publisher
@@ -107,7 +108,20 @@ class MangaUpdatesParser {
         if (element.text() == "N/A") return null
 
         val fullDescription = element.getElementById("div_desc_more")
-        return fullDescription?.wholeText() ?: element.wholeText()
+        return (fullDescription ?: element).childNodes()
+            .joinToString("") {
+                when (it) {
+                    is Element -> parseDescriptionPart(it)
+                    is TextNode -> it.wholeText
+                    else -> ""
+                }
+            }
+    }
+
+    private fun parseDescriptionPart(element: Element): String {
+        return if (element.tag().name == "br") "\n"
+        else if (element.text() == "Less...") ""
+        else element.text()
     }
 
     private fun parseType(element: Element): Type? {
