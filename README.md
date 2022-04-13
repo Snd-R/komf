@@ -6,6 +6,8 @@
 - manually search and identify series (rest endpoints only)
 - match entire library or a series (rest endpoints only)
 
+In addition, you can also install [userscript](https://github.com/Snd-R/komf-userscript) that adds komf integration directly to komga ui allowing you to launch manual or automatic metadata identification
+
 ## Build
 
 1. `./gradlew clean shadowjar` (output is in /build/libs)
