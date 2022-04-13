@@ -126,6 +126,7 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         summary = synopsis ?: "",
         genres = genres,
         authors = authors,
+        publisher = "",
         thumbnail = thumbnail,
         tags = emptyList(),
 
