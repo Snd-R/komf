@@ -40,7 +40,7 @@ class MetadataUpdateMapper(
             KomgaSeriesMetadataUpdate(
                 status = getIfNotLocked(patch.status?.toString(), statusLock),
                 title = if (metadataUpdateConfig.seriesTitle) getIfNotLocked(patch.title, titleLock) else null,
-                titleSort = getIfNotLocked(patch.titleSort, titleSortLock),
+                titleSort = if (metadataUpdateConfig.seriesTitle) getIfNotLocked(patch.titleSort, titleSortLock) else null,
                 summary = getIfNotLocked(patch.summary, summaryLock),
                 publisher = getIfNotLocked(patch.publisher, publisherLock),
                 readingDirection = getIfNotLocked(patch.readingDirection?.toString(), readingDirectionLock),
