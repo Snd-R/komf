@@ -42,6 +42,7 @@ class KomgaEventListener(
 
     override fun onClosed(eventSource: EventSource) {
         logger.debug { "event source closed $eventSource" }
+        start()
     }
 
     @Synchronized
