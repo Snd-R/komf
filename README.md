@@ -6,7 +6,8 @@
 - manually search and identify series (rest endpoints only)
 - match entire library or a series (rest endpoints only)
 
-In addition, you can also install [userscript](https://github.com/Snd-R/komf-userscript) that adds komf integration directly to komga ui allowing you to launch manual or automatic metadata identification
+In addition, you can also install [userscript](https://github.com/Snd-R/komf-userscript) that adds komf integration
+directly to komga ui allowing you to launch manual or automatic metadata identification
 
 ## Build
 
@@ -54,6 +55,7 @@ komga:
     bookThumbnails: false #update book thumbnails
     seriesThumbnails: true #update series thumbnails
     seriesTitle: false #update series title
+  webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
 database:
   file: ./database.sqlite #database file location.
 metadataProviders:

@@ -17,7 +17,8 @@ data class KomgaConfig(
     val komgaUser: String = "admin@example.org",
     val komgaPassword: String = "admin",
     val eventListener: KomgaEventListenerConfig = KomgaEventListenerConfig(),
-    val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig()
+    val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
+    val webhooks: Collection<String>? = null,
 )
 
 @Serializable

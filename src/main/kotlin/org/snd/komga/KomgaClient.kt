@@ -111,7 +111,7 @@ class KomgaClient(
         client.execute(request)
     }
 
-    fun getBook(bookId: KomgaBookId) {
+    fun getBook(bookId: KomgaBookId) :KomgaBook {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()

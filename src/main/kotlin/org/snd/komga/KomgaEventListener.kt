@@ -10,10 +10,12 @@ import okhttp3.Response
 import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources
+import org.snd.komga.model.dto.KomgaBookId
 import org.snd.komga.model.dto.KomgaSeriesId
 import org.snd.komga.model.event.BookEvent
 import org.snd.komga.model.event.SeriesEvent
 import org.snd.komga.model.event.TaskQueueStatusEvent
+import org.snd.komga.webhook.DiscordWebhooks
 import java.util.function.Predicate
 
 private val logger = KotlinLogging.logger {}
@@ -23,7 +25,8 @@ class KomgaEventListener(
     private val moshi: Moshi,
     private val komgaUrl: HttpUrl,
     private val komgaService: KomgaService,
-    private val libraryFilter: Predicate<String>
+    private val libraryFilter: Predicate<String>,
+    private val discordWebhooks: DiscordWebhooks?,
 ) : EventSourceListener() {
     private var eventSource: EventSource? = null
     private val seriesEvents: MutableList<SeriesEvent> = ArrayList()
@@ -65,8 +68,10 @@ class KomgaEventListener(
                 if (seriesEvents.isNotEmpty()) {
                     val event = moshi.adapter<TaskQueueStatusEvent>().fromJson(data) ?: throw RuntimeException()
                     if (event.count == 0) {
-                        val events = bookEvents.groupBy({ it.seriesId }, { it.bookId })
-                        events.keys.forEach { komgaService.matchSeriesMetadata(KomgaSeriesId(it)) }
+                        val events = bookEvents.groupBy({ KomgaSeriesId(it.seriesId) }, { KomgaBookId(it.bookId) })
+                        events.keys.forEach { komgaService.matchSeriesMetadata(it) }
+                        discordWebhooks?.executeFor(events)
+
                         seriesEvents.clear()
                         bookEvents.clear()
                     }

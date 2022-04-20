@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class KomgaSeries(
     val id: String,
+    val libraryId: String,
     val name: String,
     val url: String,
     val booksCount: Int,
