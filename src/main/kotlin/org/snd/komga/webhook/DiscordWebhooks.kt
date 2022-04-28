@@ -31,13 +31,18 @@ class DiscordWebhooks(
     }
 
     private fun toRequest(library: KomgaLibrary, series: KomgaSeries, books: Collection<KomgaBook>): WebhookExecuteRequest {
+        val description = if (books.size == 1)
+            books.firstOrNull()?.metadata?.summary?.ifBlank { null } ?: series.metadata.summary
+        else series.metadata.summary
+
+        val bookVerb = if (books.size == 1) "book was" else "books were"
+        val bookTitles = books.sortedBy { it.name }.joinToString("\n") { "**${it.name}**" }
         val embed = Embed(
-            title = "${library.name} - ${series.name}",
-            description = books.sortedBy { it.name }.joinToString("\n\n") { it.name },
-            color = "1F8B4C".toInt(16)
+            title = series.name,
+            description = "$description \n\n ***New $bookVerb added to library*** **${library.name}**: \n $bookTitles",
+            color = "1F8B4C".toInt(16),
         )
 
         return WebhookExecuteRequest(embeds = listOf(embed))
     }
-
 }

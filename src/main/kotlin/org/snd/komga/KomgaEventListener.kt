@@ -70,7 +70,8 @@ class KomgaEventListener(
                     if (event.count == 0) {
                         val events = bookEvents.groupBy({ KomgaSeriesId(it.seriesId) }, { KomgaBookId(it.bookId) })
                         events.keys.forEach { komgaService.matchSeriesMetadata(it) }
-                        discordWebhooks?.executeFor(events)
+                        kotlin.runCatching { discordWebhooks?.executeFor(events) }
+                            .exceptionOrNull()?.let { logger.error(it) {} }
 
                         seriesEvents.clear()
                         bookEvents.clear()
