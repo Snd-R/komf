@@ -15,6 +15,8 @@ import org.snd.komga.model.dto.KomgaSeriesId
 import org.snd.komga.model.event.BookEvent
 import org.snd.komga.model.event.SeriesEvent
 import org.snd.komga.model.event.TaskQueueStatusEvent
+import org.snd.komga.repository.MatchedBookRepository
+import org.snd.komga.repository.MatchedSeriesRepository
 import org.snd.komga.webhook.DiscordWebhooks
 import java.util.function.Predicate
 
@@ -24,13 +26,18 @@ class KomgaEventListener(
     private val client: OkHttpClient,
     private val moshi: Moshi,
     private val komgaUrl: HttpUrl,
+
     private val komgaService: KomgaService,
+    private val matchedBookRepository: MatchedBookRepository,
+    private val matchedSeriesRepository: MatchedSeriesRepository,
     private val libraryFilter: Predicate<String>,
     private val discordWebhooks: DiscordWebhooks?,
 ) : EventSourceListener() {
     private var eventSource: EventSource? = null
-    private val seriesEvents: MutableList<SeriesEvent> = ArrayList()
-    private val bookEvents: MutableList<BookEvent> = ArrayList()
+    private val seriesAddedEvents: MutableList<SeriesEvent> = ArrayList()
+    private val bookAddedEvents: MutableList<BookEvent> = ArrayList()
+    private val seriesDeletedEvents: MutableList<SeriesEvent> = ArrayList()
+    private val bookDeletedEvents: MutableList<BookEvent> = ArrayList()
 
     fun start() {
         val request = Request.Builder()
@@ -55,27 +62,53 @@ class KomgaEventListener(
             "BookAdded" -> {
                 val event = moshi.adapter<BookEvent>().fromJson(data) ?: throw RuntimeException()
                 if (libraryFilter.test(event.libraryId)) {
-                    bookEvents.add(event)
+                    bookAddedEvents.add(event)
+                }
+            }
+            "BookDeleted" -> {
+                val event = moshi.adapter<BookEvent>().fromJson(data) ?: throw RuntimeException()
+                if (libraryFilter.test(event.libraryId)) {
+                    bookDeletedEvents.add(event)
                 }
             }
             "SeriesAdded" -> {
                 val event = moshi.adapter<SeriesEvent>().fromJson(data) ?: throw RuntimeException()
                 if (libraryFilter.test(event.libraryId)) {
-                    seriesEvents.add(event)
+                    seriesAddedEvents.add(event)
+                }
+            }
+            "SeriesDeleted" -> {
+                val event = moshi.adapter<SeriesEvent>().fromJson(data) ?: throw RuntimeException()
+                if (libraryFilter.test(event.libraryId)) {
+                    seriesDeletedEvents.add(event)
                 }
             }
             "TaskQueueStatus" -> {
-                if (seriesEvents.isNotEmpty()) {
-                    val event = moshi.adapter<TaskQueueStatusEvent>().fromJson(data) ?: throw RuntimeException()
-                    if (event.count == 0) {
-                        val events = bookEvents.groupBy({ KomgaSeriesId(it.seriesId) }, { KomgaBookId(it.bookId) })
-                        events.keys.forEach { komgaService.matchSeriesMetadata(it) }
+                val event = moshi.adapter<TaskQueueStatusEvent>().fromJson(data) ?: throw RuntimeException()
+                if (event.count == 0) {
+                    val events = bookAddedEvents.groupBy({ KomgaSeriesId(it.seriesId) }, { KomgaBookId(it.bookId) })
+                    events.keys.forEach { komgaService.matchSeriesMetadata(it) }
+
+                    bookDeletedEvents.forEach { book ->
+                        matchedBookRepository.findFor(KomgaBookId(book.bookId))?.let {
+                            matchedBookRepository.delete(it)
+                        }
+                    }
+                    seriesDeletedEvents.forEach { series ->
+                        matchedSeriesRepository.findFor(KomgaSeriesId(series.seriesId))?.let {
+                            matchedSeriesRepository.delete(it)
+                        }
+                    }
+
+                    if (events.isNotEmpty()) {
                         kotlin.runCatching { discordWebhooks?.executeFor(events) }
                             .exceptionOrNull()?.let { logger.error(it) {} }
-
-                        seriesEvents.clear()
-                        bookEvents.clear()
                     }
+
+                    bookAddedEvents.clear()
+                    seriesAddedEvents.clear()
+                    bookDeletedEvents.clear()
+                    seriesDeletedEvents.clear()
                 }
             }
         }

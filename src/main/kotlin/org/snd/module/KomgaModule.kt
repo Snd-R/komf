@@ -113,7 +113,9 @@ class KomgaModule(
             if (config.eventListener.libraries.isEmpty()) true
             else config.eventListener.libraries.contains(it)
         },
-        discordWebhooks = discordWebhooks
+        discordWebhooks = discordWebhooks,
+        matchedBookRepository = repositoryModule.matchedBookRepository,
+        matchedSeriesRepository = repositoryModule.matchedSeriesRepository
     )
 
     init {

@@ -1,4 +1,4 @@
-package org.snd.komga.repository
+package org.snd.db
 
 import org.jooq.DSLContext
 import org.snd.jooq.Tables.MATCHED_SERIES
@@ -6,6 +6,7 @@ import org.snd.jooq.tables.records.MatchedSeriesRecord
 import org.snd.komga.model.MatchedSeries
 import org.snd.komga.model.dto.KomgaSeriesId
 import org.snd.komga.model.dto.KomgaThumbnailId
+import org.snd.komga.repository.MatchedSeriesRepository
 import org.snd.metadata.Provider
 import org.snd.metadata.ProviderSeriesId
 
@@ -26,6 +27,10 @@ class JooqMatchedSeriesRepository(
 
     override fun update(matchedSeries: MatchedSeries) {
         dsl.executeUpdate(matchedSeries.toRecord())
+    }
+
+    override fun delete(matchedSeries: MatchedSeries) {
+        dsl.executeDelete(matchedSeries.toRecord())
     }
 
     private fun MatchedSeriesRecord.toModel(): MatchedSeries = MatchedSeries(

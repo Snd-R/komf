@@ -6,8 +6,8 @@ import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.snd.config.DatabaseConfig
-import org.snd.komga.repository.JooqMatchedBookRepository
-import org.snd.komga.repository.JooqMatchedSeriesRepository
+import org.snd.db.JooqMatchedBookRepository
+import org.snd.db.JooqMatchedSeriesRepository
 import org.snd.komga.repository.MatchedBookRepository
 import org.snd.komga.repository.MatchedSeriesRepository
 import javax.sql.DataSource

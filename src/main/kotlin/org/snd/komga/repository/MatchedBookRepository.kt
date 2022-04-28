@@ -10,4 +10,6 @@ interface MatchedBookRepository {
     fun insert(matchedBook: MatchedBook)
 
     fun update(matchedBook: MatchedBook)
+
+    fun delete(matchedBook: MatchedBook)
 }

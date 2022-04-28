@@ -10,4 +10,6 @@ interface MatchedSeriesRepository {
     fun insert(matchedSeries: MatchedSeries)
 
     fun update(matchedSeries: MatchedSeries)
+
+    fun delete(matchedSeries: MatchedSeries)
 }
