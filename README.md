@@ -55,6 +55,7 @@ komga:
     bookThumbnails: false #update book thumbnails
     seriesThumbnails: true #update series thumbnails
     seriesTitle: false #update series title
+    readingDirectionValue: #override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
 database:
   file: ./database.sqlite #database file location.

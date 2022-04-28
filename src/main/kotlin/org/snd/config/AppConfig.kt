@@ -1,6 +1,7 @@
 package org.snd.config
 
 import kotlinx.serialization.Serializable
+import org.snd.metadata.model.SeriesMetadata
 
 @Serializable
 data class AppConfig(
@@ -25,7 +26,8 @@ data class KomgaConfig(
 data class MetadataUpdateConfig(
     val bookThumbnails: Boolean = false,
     val seriesThumbnails: Boolean = true,
-    val seriesTitle: Boolean = false
+    val seriesTitle: Boolean = false,
+    val readingDirectionValue:SeriesMetadata.ReadingDirection? = null
 )
 
 @Serializable
