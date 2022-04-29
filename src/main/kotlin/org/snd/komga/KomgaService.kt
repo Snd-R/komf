@@ -9,6 +9,7 @@ import org.snd.komga.model.dto.KomgaBookId
 import org.snd.komga.model.dto.KomgaLibraryId
 import org.snd.komga.model.dto.KomgaSeries
 import org.snd.komga.model.dto.KomgaSeriesId
+import org.snd.komga.model.dto.KomgaSeriesMetadataUpdate
 import org.snd.komga.model.dto.KomgaThumbnailId
 import org.snd.komga.repository.MatchedBookRepository
 import org.snd.komga.repository.MatchedSeriesRepository
@@ -42,6 +43,7 @@ class KomgaService(
         val series = komgaClient.getSeries(seriesId)
 
         updateSeriesMetadata(series, seriesMetadata)
+        overrideReadingDirection(series.seriesId())
     }
 
     fun matchLibraryMetadata(libraryId: KomgaLibraryId, provider: Provider? = null) {
@@ -58,13 +60,13 @@ class KomgaService(
         if (provider != null) {
             val metadataProvider = metadataProviders[provider] ?: throw RuntimeException()
             metadataProvider.matchSeriesMetadata(series.name)?.let { meta -> updateSeriesMetadata(series, meta) }
-            return
+        } else {
+            metadataProviders.values
+                .firstNotNullOfOrNull { it.matchSeriesMetadata(series.name) }
+                ?.let { updateSeriesMetadata(series, it) }
+                ?: run { logger.info { "no match found for series ${series.name} ${series.id}" } }
         }
-
-        metadataProviders.values
-            .firstNotNullOfOrNull { it.matchSeriesMetadata(series.name) }
-            ?.let { updateSeriesMetadata(series, it) }
-            ?: logger.info { "no match found for series ${series.name} ${series.id}" }
+        overrideReadingDirection(series.seriesId())
     }
 
     private fun updateSeriesMetadata(series: KomgaSeries, metadata: SeriesMetadata) {
@@ -168,6 +170,13 @@ class KomgaService(
             val meta = metadata.firstOrNull { meta -> meta.number != null && volume != null && meta.number == volume }
 
             meta
+        }
+    }
+
+    private fun overrideReadingDirection(seriesId: KomgaSeriesId) {
+        metadataUpdateConfig.readingDirectionValue?.let { readingDirection ->
+            logger.info { "updating reading direction" }
+            komgaClient.updateSeriesMetadata(seriesId, KomgaSeriesMetadataUpdate(readingDirection = readingDirection.toString()))
         }
     }
 }
