@@ -20,7 +20,6 @@ data class Series(
     val image: URI?,
     val genres: Collection<String>,
     val categories: Collection<Category>,
-    val allCategories: Collection<Category>,
     val authors: Collection<Author>,
     val artists: Collection<Author>,
     val year: Year?,
@@ -85,7 +84,7 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
                 artistRoles.map { role -> org.snd.metadata.model.Author(artist.name, role.name) }
             }
 
-    val tags = allCategories.ifEmpty { categories }.map { it.name }
+    val tags = categories.map { it.name }
 
     return SeriesMetadata(
         status = status,

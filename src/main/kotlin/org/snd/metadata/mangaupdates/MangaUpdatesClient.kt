@@ -34,14 +34,7 @@ class MangaUpdatesClient(
 
         val seriesResponse = client.execute(seriesRequest)
 
-        val categoriesRequest = Request.Builder().url(
-            baseUrl.newBuilder().addPathSegments("ajax/show_categories.php")
-                .addQueryParameter("s", seriesId.toString())
-                .build()
-        ).build()
-        val categories = client.execute(categoriesRequest)
-
-        return parser.parseSeries(seriesId, seriesResponse, categories)
+        return parser.parseSeries(seriesId, seriesResponse)
     }
 
     fun getThumbnail(series: Series): Thumbnail? {

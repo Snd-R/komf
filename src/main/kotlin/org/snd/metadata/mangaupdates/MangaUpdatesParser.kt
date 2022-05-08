@@ -52,9 +52,8 @@ class MangaUpdatesParser {
             }
     }
 
-    fun parseSeries(seriesId: Int, series: String, allCategories: String?): Series {
+    fun parseSeries(seriesId: Int, series: String): Series {
         val document = Jsoup.parse(series)
-        val categoriesDoc = allCategories?.let { Jsoup.parse(it) }
 
         val mainContent = requireNotNull(document.getElementById("main_content"))
         require(mainContent.childrenSize() > 1)
@@ -73,7 +72,6 @@ class MangaUpdatesParser {
             image = parseImage(col2[0]),
             genres = parseGenres(col2[1]),
             categories = parseCategories(col2[2]),
-            allCategories = categoriesDoc?.let { parseCategories(it) } ?: emptyList(),
             authors = parseAuthors(col2[5]),
             artists = parseAuthors(col2[6]),
             year = parseYear(col2[7]),
