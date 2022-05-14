@@ -10,7 +10,7 @@ import java.net.URI
 import java.time.Year
 
 data class Series(
-    val id: Int,
+    val id: String,
     val title: String,
     val description: String?,
     val type: Type?,
@@ -28,7 +28,7 @@ data class Series(
 )
 
 data class RelatedSeries(
-    val id: Int,
+    val id: String,
     val name: String,
     val relation: String?,
 )
@@ -39,12 +39,12 @@ data class Category(
 )
 
 data class Author(
-    val id: Int?,
+    val id: String?,
     val name: String
 )
 
 data class Publisher(
-    val id: Int?,
+    val id: String?,
     val name: String
 )
 
@@ -97,7 +97,7 @@ fun Series.toSeriesMetadata(thumbnail: Thumbnail? = null): SeriesMetadata {
         authors = authors,
         thumbnail = thumbnail,
 
-        id = ProviderSeriesId(id.toString()),
+        id = ProviderSeriesId(id),
         provider = MANGA_UPDATES
     )
 }

@@ -5,7 +5,7 @@ import org.snd.metadata.model.SeriesSearchResult
 import java.time.Year
 
 data class SearchResult(
-    val id: Int,
+    val id: String,
     val title: String,
     val summary: String?,
     val thumbnail: String?,
@@ -20,6 +20,6 @@ fun SearchResult.toSeriesSearchResult(): SeriesSearchResult {
         imageUrl = thumbnail,
         title = title,
         provider = Provider.MANGA_UPDATES,
-        resultId = id.toString()
+        resultId = id
     )
 }

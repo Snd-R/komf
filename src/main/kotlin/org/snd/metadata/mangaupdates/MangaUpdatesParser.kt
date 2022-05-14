@@ -29,7 +29,7 @@ class MangaUpdatesParser {
                 val info = box.child(1).child(0)
                 val titleLink = info.child(0).getElementsByTag("a")
                 val id = titleLink.attr("href")
-                    .removePrefix("https://www.mangaupdates.com/series.html?id=").toInt()
+                    .removePrefix("https://www.mangaupdates.com/series/").split("/").first()
                 val title = titleLink.text()
                 val genres = info.child(1).getElementsByTag("a")
                     .firstOrNull()?.attr("title")?.split(",")
@@ -52,7 +52,7 @@ class MangaUpdatesParser {
             }
     }
 
-    fun parseSeries(seriesId: Int, series: String): Series {
+    fun parseSeries(seriesId: String, series: String): Series {
         val document = Jsoup.parse(series)
 
         val mainContent = requireNotNull(document.getElementById("main_content"))
@@ -89,7 +89,7 @@ class MangaUpdatesParser {
             .filter { it.tag().name == "a" && it.attr("title") == "Author Info" }
             .map {
                 Author(
-                    id = it.attr("href").removePrefix("https://www.mangaupdates.com/authors.html?id=").toInt(),
+                    id = it.attr("href").removePrefix("https://www.mangaupdates.com/author/").split("/").first(),
                     name = it.text()
                 )
             }
@@ -133,7 +133,7 @@ class MangaUpdatesParser {
 
         return element.children().filter { it.tag().name.equals("a") }.map {
             RelatedSeries(
-                id = it.attr("href").removePrefix("series.html?id=").toInt(),
+                id = it.attr("href").removePrefix("https://www.mangaupdates.com/series/").split("/").first(),
                 name = it.text(),
                 relation = it.nextElementSibling()?.text()?.trim()?.removeSurrounding("(", ")")
             )
@@ -197,7 +197,7 @@ class MangaUpdatesParser {
         val publisher = element.children()
             .firstOrNull { it.tag().name == "a" && it.attr("title") == "Publisher Info" }
             ?.let {
-                val id = it.attr("href").removePrefix("https://www.mangaupdates.com/publishers.html?id=").toInt()
+                val id = it.attr("href").removePrefix("https://www.mangaupdates.com/publisher/").split("/").first()
                 Publisher(id = id, name = it.text())
             }
 
@@ -217,7 +217,7 @@ class MangaUpdatesParser {
 
         return element.getElementsByTag("a").map {
             Publisher(
-                id = it.attr("href").removePrefix("https://www.mangaupdates.com/publishers.html?id=").toInt(),
+                id = it.attr("href").removePrefix("https://www.mangaupdates.com/publisher/").split("/").first(),
                 name = it.text()
             )
         }

@@ -25,10 +25,9 @@ class MangaUpdatesClient(
         return parser.parseSeriesSearch(client.execute(request))
     }
 
-    fun getSeries(seriesId: Int): Series {
+    fun getSeries(seriesId: String): Series {
         val seriesRequest = Request.Builder().url(
-            baseUrl.newBuilder().addPathSegments("series.html")
-                .addQueryParameter("id", seriesId.toString())
+            baseUrl.newBuilder().addPathSegments("series/$seriesId")
                 .build()
         ).build()
 

@@ -15,7 +15,7 @@ class MangaUpdatesMetadataProvider(
     private val similarity = JaroWinklerSimilarity()
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): SeriesMetadata {
-        val series = client.getSeries(seriesId.id.toInt())
+        val series = client.getSeries(seriesId.id)
         val thumbnail = client.getThumbnail(series)
         return series.toSeriesMetadata(thumbnail)
     }
