@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.serialization") version "1.6.10"
+    kotlin("jvm") version "1.6.21"
+    kotlin("plugin.serialization") version "1.6.21"
     id("com.github.johnrengelman.shadow").version("7.1.2")
-    id("com.google.devtools.ksp").version("1.6.10-1.0.3")
-    id("org.flywaydb.flyway") version "8.5.1"
+    id("com.google.devtools.ksp").version("1.6.21-1.0.5")
+    id("org.flywaydb.flyway") version "8.5.11"
     id("nu.studer.jooq") version "7.1.1"
     id("com.apollographql.apollo3").version("3.3.0")
 }
@@ -32,17 +32,17 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.13.0")
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.13.0")
 
-    implementation("io.javalin:javalin:4.4.0")
+    implementation("io.javalin:javalin:4.6.0")
 
     implementation("org.apache.commons:commons-text:1.9")
-    implementation("com.charleskorn.kaml:kaml:0.43.0")
+    implementation("com.charleskorn.kaml:kaml:0.44.0")
     implementation("io.github.resilience4j:resilience4j-ratelimiter:1.7.1")
     implementation("io.github.resilience4j:resilience4j-retry:1.7.1")
     implementation("io.github.resilience4j:resilience4j-kotlin:1.7.1")
     implementation("org.jsoup:jsoup:1.14.3")
 
-    implementation("org.flywaydb:flyway-core:8.5.4")
-    implementation("org.jooq:jooq:3.16.5")
+    implementation("org.flywaydb:flyway-core:8.5.10")
+    implementation("org.jooq:jooq:3.16.6")
     implementation("org.xerial:sqlite-jdbc:3.36.0.3")
     jooqGenerator("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
@@ -101,7 +101,7 @@ tasks.flywayMigrate {
 }
 
 jooq {
-    version.set("3.16.5")
+    version.set("3.16.6")
     configurations {
         create("main") {
             jooqConfiguration.apply {
