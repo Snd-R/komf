@@ -1,0 +1,49 @@
+fragment aniListManga on Media {
+            id
+            type
+            title {
+                romaji
+                english
+                native
+            },
+            status,
+            description(asHtml: false),
+            chapters,
+            volumes,
+            coverImage {
+                large
+            },
+            genres,
+            synonyms,
+            tags {
+                name,
+                description,
+                category,
+                rank
+            },
+            staff {
+                edges {
+                    node {
+                        name @nonnull {
+                            full
+                        },
+                        languageV2
+                    }
+                    role
+                }
+            }
+        }
+
+query Search($search: String!, $perPage: Int!) @nonnull {
+  mediaSearch: Page(page: 1, perPage: $perPage) @nonnull {
+        media(type: MANGA, search: $search) @nonnull{
+            ...aniListManga
+        }
+    }
+}
+
+query Media($id: Int!){
+    series: Media(id: $id) @nonnull {
+            ...aniListManga
+    }
+}

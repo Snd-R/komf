@@ -7,6 +7,7 @@ plugins {
     id("com.google.devtools.ksp").version("1.6.10-1.0.3")
     id("org.flywaydb.flyway") version "8.5.1"
     id("nu.studer.jooq") version "7.1.1"
+    id("com.apollographql.apollo3").version("3.3.0")
 }
 
 group = "org.snd"
@@ -26,6 +27,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("com.squareup.okhttp3:okhttp-sse:4.9.3")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation("com.apollographql.apollo3:apollo-runtime:3.3.0")
 
     implementation("com.squareup.moshi:moshi:1.13.0")
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.13.0")
@@ -36,6 +38,7 @@ dependencies {
     implementation("com.charleskorn.kaml:kaml:0.43.0")
     implementation("io.github.resilience4j:resilience4j-ratelimiter:1.7.1")
     implementation("io.github.resilience4j:resilience4j-retry:1.7.1")
+    implementation("io.github.resilience4j:resilience4j-kotlin:1.7.1")
     implementation("org.jsoup:jsoup:1.14.3")
 
     implementation("org.flywaydb:flyway-core:8.5.4")
@@ -43,6 +46,7 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.36.0.3")
     jooqGenerator("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
+
 }
 
 tasks.withType<KotlinCompile>().configureEach {
@@ -123,4 +127,8 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
     migrationDirsSqlite.forEach { inputs.dir(it) }
     allInputsDeclared.set(true)
     dependsOn("flywayMigrate")
+}
+
+apollo {
+    packageName.set("org.snd")
 }

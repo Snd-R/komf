@@ -7,6 +7,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.snd.config.MetadataProvidersConfig
 import org.snd.infra.HttpClient
 import org.snd.metadata.Provider
+import org.snd.metadata.anilist.AniListClient
+import org.snd.metadata.anilist.AniListMetadataProvider
 import org.snd.metadata.mal.MalClient
 import org.snd.metadata.mal.MalClientInterceptor
 import org.snd.metadata.mal.MalMetadataProvider
@@ -91,16 +93,34 @@ class MetadataModule(
         } else null
     }
 
+    private val aniListClient = AniListClient(
+        okHttpClient = okHttpClient.newBuilder().build(),
+        name = "AniList",
+        rateLimiterConfig = RateLimiterConfig.custom()
+            .limitRefreshPeriod(Duration.ofSeconds(5))
+            .limitForPeriod(5)
+            .timeoutDuration(Duration.ofSeconds(5))
+            .build()
+    )
+
+    private val aniListMetadataProvider = config.aniList.let {
+        if (it.enabled) {
+            AniListMetadataProvider(aniListClient)
+        } else null
+    }
+
     val metadataProviders = run {
         val malPriority = config.mal.priority
         val mangaUpdatesPriority = config.mangaUpdates.priority
         val nautiljonPriority = config.nautiljon.priority
+        val aniLisPriority = config.aniList.priority
 
         val malProvider = malMetadataProvider?.let { Provider.MAL to (it to malPriority) }
         val mangaUpdatesProvider = mangaUpdatesMetadataProvider?.let { Provider.MANGA_UPDATES to (it to mangaUpdatesPriority) }
         val nautiljonProvider = nautiljonMetadataProvider?.let { Provider.NAUTILJON to (it to nautiljonPriority) }
+        val aniListProvider = aniListMetadataProvider?.let { Provider.ANILIST to (it to aniLisPriority) }
 
-        sequenceOf(malProvider, mangaUpdatesProvider, nautiljonProvider).filterNotNull()
+        sequenceOf(malProvider, mangaUpdatesProvider, nautiljonProvider, aniListProvider).filterNotNull()
             .sortedBy { it.second.second }
             .map { it.first to it.second.first }
             .toMap()

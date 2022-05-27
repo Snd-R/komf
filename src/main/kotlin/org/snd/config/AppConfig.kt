@@ -27,7 +27,7 @@ data class MetadataUpdateConfig(
     val bookThumbnails: Boolean = false,
     val seriesThumbnails: Boolean = true,
     val seriesTitle: Boolean = false,
-    val readingDirectionValue:SeriesMetadata.ReadingDirection? = null
+    val readingDirectionValue: SeriesMetadata.ReadingDirection? = null
 )
 
 @Serializable
@@ -45,7 +45,8 @@ data class KomgaEventListenerConfig(
 data class MetadataProvidersConfig(
     val mal: MalConfig = MalConfig(),
     val mangaUpdates: MangaUpdatesConfig = MangaUpdatesConfig(),
-    val nautiljon: NautiljonConfig = NautiljonConfig()
+    val nautiljon: NautiljonConfig = NautiljonConfig(),
+    val aniList: AniListConfig = AniListConfig(),
 )
 
 @Serializable
@@ -69,6 +70,12 @@ data class NautiljonConfig(
     val useOriginalPublisher: Boolean = false,
     val originalPublisherTag: String? = null,
     val frenchPublisherTag: String? = null
+)
+
+@Serializable
+data class AniListConfig(
+    val priority: Int = 40,
+    val enabled: Boolean = false,
 )
 
 @Serializable
