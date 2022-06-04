@@ -58,17 +58,14 @@ class AniListMetadataMapper {
                     }
                 }
             }
-        val allTags = series.tags?.filterNotNull()
-            ?.mapNotNull { if (it.rank == null) null else it.name to it.rank } ?: emptyList()
-
-        val tags = if (allTags.size <= 15) {
-            allTags.sortedByDescending { it.second }.map { it.first }
-        } else if (allTags.count { it.second > 70 } <= 15) {
-            allTags.sortedByDescending { it.second }.take(15).map { it.first }
-        } else {
-            allTags.filter { it.second > 70 }.map { it.first }
-        }
-
+        val tags = series.tags?.asSequence()
+            ?.filterNotNull()
+            ?.mapNotNull { if (it.rank == null) null else it.name to it.rank }
+            ?.sortedByDescending { it.second }
+            ?.take(15)
+            ?.map { it.first }
+            ?.toList()
+            ?: emptyList()
 
         return SeriesMetadata(
             id = ProviderSeriesId(series.id.toString()),
