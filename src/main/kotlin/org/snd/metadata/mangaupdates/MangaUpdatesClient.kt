@@ -1,39 +1,53 @@
 package org.snd.metadata.mangaupdates
 
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.snd.infra.HttpClient
-import org.snd.metadata.mangaupdates.model.SearchResult
+import org.snd.infra.MEDIA_TYPE_JSON
+import org.snd.metadata.mangaupdates.model.SearchResultPage
 import org.snd.metadata.mangaupdates.model.Series
 import org.snd.metadata.model.Thumbnail
 
 class MangaUpdatesClient(
     private val client: HttpClient,
+    private val moshi: Moshi
 ) {
-    private val baseUrl: HttpUrl = "https://www.mangaupdates.com".toHttpUrl()
-    private val parser = MangaUpdatesParser()
+    private val baseUrl: HttpUrl = "https://api.mangaupdates.com/v1".toHttpUrl()
 
-    fun searchSeries(name: String): Collection<SearchResult> {
+    fun searchSeries(name: String, page: Int = 1, perPage: Int = 5): SearchResultPage {
+        val payload = moshi.adapter<Map<String, *>>().toJson(
+            mapOf(
+                "search" to name,
+                "page" to page,
+                "perpage" to perPage
+            )
+        )
         val request = Request.Builder().url(
-            baseUrl.newBuilder().addPathSegments("series.html")
-                .addQueryParameter("search", name)
+            baseUrl.newBuilder().addPathSegments("series/search")
                 .build()
-        ).build()
+        )
+            .post(payload.toRequestBody(MEDIA_TYPE_JSON))
+            .build()
 
-        return parser.parseSeriesSearch(client.execute(request))
+        val response = client.execute(request)
+
+        return moshi.adapter<SearchResultPage>().lenient().fromJson(response) ?: throw RuntimeException()
     }
 
-    fun getSeries(seriesId: String): Series {
+    fun getSeries(seriesId: Long): Series {
         val seriesRequest = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments("series/$seriesId")
                 .build()
         ).build()
 
-        val seriesResponse = client.execute(seriesRequest)
+        val response = client.execute(seriesRequest)
 
-        return parser.parseSeries(seriesId, seriesResponse)
+        return moshi.adapter<Series>().lenient().fromJson(response) ?: throw RuntimeException()
     }
 
     fun getThumbnail(series: Series): Thumbnail? {

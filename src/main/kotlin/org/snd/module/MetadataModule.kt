@@ -61,7 +61,8 @@ class MetadataModule(
                         .limitForPeriod(5)
                         .timeoutDuration(Duration.ofSeconds(5))
                         .build()
-                )
+                ),
+                jsonModule.moshi
             )
         else null
     }

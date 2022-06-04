@@ -15,18 +15,18 @@ class MangaUpdatesMetadataProvider(
     private val similarity = JaroWinklerSimilarity()
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): SeriesMetadata {
-        val series = client.getSeries(seriesId.id)
+        val series = client.getSeries(seriesId.id.toLong())
         val thumbnail = client.getThumbnail(series)
         return series.toSeriesMetadata(thumbnail)
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val searchResults = client.searchSeries(seriesName.take(400)).take(limit)
+        val searchResults = client.searchSeries(seriesName.take(400), 1, limit).results.take(limit)
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
     override fun matchSeriesMetadata(seriesName: String): SeriesMetadata? {
-        val searchResults = client.searchSeries(seriesName.take(400))
+        val searchResults = client.searchSeries(seriesName.take(400)).results
         val match = bestMatch(seriesName, searchResults)?.let { client.getSeries(it.id) }
 
         return match?.let {
