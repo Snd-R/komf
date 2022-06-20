@@ -158,14 +158,10 @@ class KomgaService(
     }
 
     private fun matchBooksToMedata(books: Collection<KomgaBook>, metadata: Collection<VolumeMetadata>): Map<KomgaBook, VolumeMetadata?> {
-//        val nameRegex = ("( - [c,d]?(?<startChapter>[0-9]*)-?[c,d]?(?<endChapter>[0-9]*)?)?" +
-//                "(\\s?\\(?v(?<volume>[0-9]*)\\)?)?").toRegex()
-        val nameRegex = ("(\\s\\(?[vtT](?<volume>[0-9]*)\\)?)").toRegex()
+        val nameRegex = ("(\\s\\(?[vtT](?<volume>[0-9]+)\\)?)").toRegex()
 
         return books.associateWith { book ->
             val matchedGroups = nameRegex.find(book.name)?.groups
-//            val startChapter = matchedGroups?.get("startChapter")?.value?.toIntOrNull()
-//            val endChapter = matchedGroups?.get("endChapter")?.value?.toIntOrNull()
             val volume = matchedGroups?.get("volume")?.value?.toIntOrNull()
             val meta = metadata.firstOrNull { meta -> meta.number != null && volume != null && meta.number == volume }
 
