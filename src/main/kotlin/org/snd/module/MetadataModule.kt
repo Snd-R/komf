@@ -1,11 +1,13 @@
 package org.snd.module
 
 import io.github.resilience4j.ratelimiter.RateLimiterConfig
+import io.github.resilience4j.retry.RetryConfig
 import mu.KotlinLogging
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.snd.config.MetadataProvidersConfig
 import org.snd.infra.HttpClient
+import org.snd.infra.HttpException
 import org.snd.metadata.Provider
 import org.snd.metadata.anilist.AniListClient
 import org.snd.metadata.anilist.AniListMetadataProvider
@@ -74,6 +76,17 @@ class MetadataModule(
         config.nautiljon.frenchPublisherTag,
     )
 
+    private val nautiljonRetryConfig = RetryConfig.custom<Any>()
+        .intervalBiFunction { _, result ->
+            if (result.isRight) {
+                return@intervalBiFunction 5000
+            }
+            val exception = result.swap().get()
+            return@intervalBiFunction if (exception is HttpException && exception.code == 429) {
+                exception.headers["retry-after"]?.toLong()?.times(1000) ?: 5000
+            } else 5000
+        }.build()
+
     private val nautiljonMetadataProvider = config.nautiljon.let {
         if (it.enabled) {
             NautiljonMetadataProvider(
@@ -82,10 +95,11 @@ class MetadataModule(
                         client = okHttpClient.newBuilder().build(),
                         name = "nautiljon",
                         rateLimiterConfig = RateLimiterConfig.custom()
-                            .limitRefreshPeriod(Duration.ofSeconds(5))
-                            .limitForPeriod(3)
-                            .timeoutDuration(Duration.ofSeconds(5))
-                            .build()
+                            .limitRefreshPeriod(Duration.ofSeconds(10))
+                            .limitForPeriod(5)
+                            .timeoutDuration(Duration.ofSeconds(10))
+                            .build(),
+                        nautiljonRetryConfig
                     )
                 ),
                 nautiljonSeriesMetadataMapper,
