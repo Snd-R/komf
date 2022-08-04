@@ -26,11 +26,11 @@ class MangaUpdatesSeriesJsonAdapter {
             associatedNames = json.associated.map { unescapeHtml4(it.title) },
             status = status(json.status),
             image = json.image?.url?.original?.let { URI.create(it) },
-            genres = json.genres?.map { it.genre } ?: emptyList(),
+            genres = json.genres?.map { unescapeHtml4(it.genre) } ?: emptyList(),
             categories = json.categories?.map {
                 Category(
                     id = it.series_id,
-                    name = it.category,
+                    name = unescapeHtml4(it.category),
                     votes = it.votes,
                     votesPlus = it.votes_plus,
                     votesMinus = it.votes_minus
@@ -41,7 +41,7 @@ class MangaUpdatesSeriesJsonAdapter {
             publishers = json.publishers?.map {
                 Publisher(
                     id = it.publisher_id,
-                    name = it.publisher_name,
+                    name = unescapeHtml4(it.publisher_name),
                     type = it.type,
                     notes = it.notes
                 )
