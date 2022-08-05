@@ -49,7 +49,7 @@ class KomgaService(
         updateSeriesMetadata(series, seriesMetadata)
         updateBookMetadata(bookMetadata, seriesMetadata)
         overrideReadingDirection(series.seriesId())
-        logger.info { "updated metadata for \"${series.metadata.title}\" ${series.seriesId()}" }
+        logger.info { "updated metadata for \"${series.name}\" ${series.seriesId()}" }
     }
 
     fun matchLibraryMetadata(libraryId: KomgaLibraryId, provider: Provider? = null) {
@@ -63,14 +63,14 @@ class KomgaService(
 
     fun matchSeriesMetadata(seriesId: KomgaSeriesId, provider: Provider? = null) {
         val series = komgaClient.getSeries(seriesId)
-        logger.info { "attempting to match series \"${series.metadata.title}\" ${series.seriesId()}" }
+        logger.info { "attempting to match series \"${series.name}\" ${series.seriesId()}" }
         val seriesMetadata = if (provider != null) {
-            metadataProviders[provider]!!.matchSeriesMetadata(series.metadata.title)
+            metadataProviders[provider]!!.matchSeriesMetadata(series.name)
         } else {
-            metadataProviders.values.firstNotNullOfOrNull { it.matchSeriesMetadata(series.metadata.title) }
+            metadataProviders.values.firstNotNullOfOrNull { it.matchSeriesMetadata(series.name) }
         }
         if (seriesMetadata == null) {
-            logger.info { "no match found for series ${series.metadata.title} ${series.id}" }
+            logger.info { "no match found for series ${series.name} ${series.id}" }
             return
         }
         logger.info { "found match: \"${seriesMetadata.title}\" from ${seriesMetadata.provider}  ${seriesMetadata.id}" }
@@ -79,7 +79,7 @@ class KomgaService(
         updateSeriesMetadata(series, seriesMetadata)
         updateBookMetadata(bookMetadata, seriesMetadata)
         overrideReadingDirection(series.seriesId())
-        logger.info { "updated metadata for \"${series.metadata.title}\" ${series.seriesId()}" }
+        logger.info { "updated metadata for \"${series.name}\" ${series.seriesId()}" }
     }
 
     private fun updateSeriesMetadata(series: KomgaSeries, metadata: SeriesMetadata) {
