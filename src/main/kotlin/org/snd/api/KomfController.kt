@@ -10,7 +10,7 @@ import org.snd.komga.KomgaService
 import org.snd.komga.model.dto.KomgaLibraryId
 import org.snd.komga.model.dto.KomgaSeriesId
 import org.snd.metadata.Provider
-import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.SeriesSearchResult
 import java.util.concurrent.ExecutorService
 

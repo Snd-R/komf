@@ -1,7 +1,7 @@
 package org.snd.metadata.mal.model
 
 import org.snd.metadata.Provider.MAL
-import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesMetadata.Status.*

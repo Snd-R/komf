@@ -20,12 +20,14 @@ class JooqMatchedBookRepository(
             ?.toModel()
     }
 
-    override fun insert(matchedBook: MatchedBook) {
-        dsl.executeInsert(matchedBook.toRecord())
-    }
-
-    override fun update(matchedBook: MatchedBook) {
-        dsl.executeUpdate(matchedBook.toRecord())
+    override fun save(matchedBook: MatchedBook) {
+        val record = matchedBook.toRecord()
+        dsl.insertInto(MATCHED_BOOKS, *MATCHED_BOOKS.fields())
+            .values(record)
+            .onConflict()
+            .doUpdate()
+            .set(record)
+            .execute()
     }
 
     override fun delete(matchedBook: MatchedBook) {

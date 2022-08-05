@@ -70,7 +70,6 @@ metadataProviders:
   nautiljon:
     priority: 30
     enabled: false
-    fetchBookMetadata: false #fetch volume information and thumbnails if available. Can take a while to load
     useOriginalPublisher: false # use original publisher and release dates for series and volumes. If false will use french publisher
     originalPublisherTag:  #if present will add additional tag with specified name ({tagname}: publisherName)
     frenchPublisherTag:  #if present will add additional tag with specified name ({tagname}: publisherName)

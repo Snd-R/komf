@@ -1,11 +1,13 @@
 package org.snd.metadata.nautiljon
 
 import org.snd.metadata.Provider
-import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.Thumbnail
-import org.snd.metadata.model.VolumeMetadata
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.nautiljon.model.Series
 import org.snd.metadata.nautiljon.model.Volume
 
@@ -22,7 +24,7 @@ class NautiljonSeriesMetadataMapper(
         AuthorRole.COVER
     )
 
-    fun toSeriesMetadata(series: Series, volumeMetadata: List<VolumeMetadata>, thumbnail: Thumbnail? = null): SeriesMetadata {
+    fun toSeriesMetadata(series: Series, thumbnail: Thumbnail? = null): SeriesMetadata {
         val status = when (series.status) {
             "En cours" -> SeriesMetadata.Status.ONGOING
             "En attente" -> SeriesMetadata.Status.ONGOING
@@ -59,15 +61,23 @@ class NautiljonSeriesMetadataMapper(
             totalBookCount = series.numberOfVolumes,
             ageRating = series.recommendedAge,
 
-            volumeMetadata = volumeMetadata
+            books = series.volumes.map {
+                SeriesBook(
+                    id = ProviderBookId(it.id.id),
+                    number = it.number,
+                    edition = it.edition,
+                    type = it.type,
+                    name = it.name
+                )
+            }
         )
     }
 
-    fun toBookMetadata(volume: Volume, thumbnail: Thumbnail? = null): VolumeMetadata {
+    fun toBookMetadata(volume: Volume, thumbnail: Thumbnail? = null): BookMetadata {
         val authors = volume.authorsStory.map { org.snd.metadata.model.Author(it, AuthorRole.WRITER.name) } +
                 volume.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role.name) } }
 
-        return VolumeMetadata(
+        return BookMetadata(
             summary = volume.description ?: "",
             number = volume.number,
             releaseDate = if (useOriginalPublisher) volume.originalReleaseDate else volume.frenchReleaseDate,

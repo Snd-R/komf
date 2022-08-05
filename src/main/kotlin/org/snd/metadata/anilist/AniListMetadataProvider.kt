@@ -5,7 +5,9 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import org.snd.SearchQuery
 import org.snd.fragment.AniListManga
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 
@@ -19,6 +21,10 @@ class AniListMetadataProvider(
         val series = client.getMedia(seriesId.id.toInt())
         val thumbnail = client.getThumbnail(series.aniListManga)
         return metadataMapper.toSeriesMetadata(series.aniListManga, thumbnail)
+    }
+
+    override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): BookMetadata? {
+        return null
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {

@@ -7,9 +7,7 @@ interface MatchedBookRepository {
 
     fun findFor(bookId: KomgaBookId): MatchedBook?
 
-    fun insert(matchedBook: MatchedBook)
-
-    fun update(matchedBook: MatchedBook)
+    fun save(matchedBook: MatchedBook)
 
     fun delete(matchedBook: MatchedBook)
 }

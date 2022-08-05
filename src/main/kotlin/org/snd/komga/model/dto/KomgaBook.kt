@@ -25,6 +25,7 @@ data class KomgaBook(
     val fileHash: String,
 ) {
     fun bookId(): KomgaBookId = KomgaBookId(id)
+    fun seriesId(): KomgaSeriesId = KomgaSeriesId(seriesId)
 }
 
 @JsonClass(generateAdapter = true)

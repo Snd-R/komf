@@ -23,5 +23,13 @@ data class Series(
     val recommendedAge: Int?,
     val score: Double?,
 
-    val volumeIds: Collection<VolumeId>
+    val volumes: Collection<SeriesVolume>
+)
+
+data class SeriesVolume(
+    val id: VolumeId,
+    val number: Int?,
+    val edition: String?,
+    val type: String?,
+    val name: String?
 )

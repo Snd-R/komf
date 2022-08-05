@@ -1,7 +1,6 @@
 package org.snd.metadata.model
 
 import org.snd.metadata.Provider
-import org.snd.metadata.ProviderSeriesId
 
 data class SeriesMetadata(
     val id: ProviderSeriesId,
@@ -22,7 +21,7 @@ data class SeriesMetadata(
 
     val thumbnail: Thumbnail? = null,
 
-    val volumeMetadata: List<VolumeMetadata> = emptyList()
+    val books: List<SeriesBook> = emptyList()
 
 ) {
 
@@ -34,3 +33,11 @@ data class SeriesMetadata(
         LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
     }
 }
+
+data class SeriesBook(
+    val id: ProviderBookId,
+    val number: Int?,
+    val name: String?,
+    val type: String?,
+    val edition: String?
+)

@@ -2,13 +2,16 @@ package org.snd.metadata.nautiljon
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.snd.metadata.nautiljon.model.Chapter
 import org.snd.metadata.nautiljon.model.SearchResult
 import org.snd.metadata.nautiljon.model.Series
 import org.snd.metadata.nautiljon.model.SeriesId
+import org.snd.metadata.nautiljon.model.SeriesVolume
 import org.snd.metadata.nautiljon.model.Volume
 import org.snd.metadata.nautiljon.model.VolumeId
+import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.Year
 import java.time.format.DateTimeFormatter
@@ -83,7 +86,7 @@ class NautiljonParser {
             frenchPublisher = parseFrenchPublisher(dataEntries),
             recommendedAge = parseRecommendedAge(dataEntries),
             score = parseScore(document),
-            volumeIds = parseVolumeIds(document)
+            volumes = parseVolumes(document)
         )
     }
 
@@ -253,13 +256,58 @@ class NautiljonParser {
             ?.toIntOrNull()
     }
 
-    private fun parseVolumeIds(document: Document): Collection<VolumeId> {
-        return document.getElementById("edition_0-1")
-            ?.getElementsByTag("a")
-            ?.map { it.attr("href") }
-            ?.mapNotNull { ".*/volume-(.*).html".toRegex().find(it)?.groupValues?.get(1) }
-            ?.map { VolumeId(it) }
+    private fun parseVolumes(document: Document): Collection<SeriesVolume> {
+        val volumesBlock = document.getElementsByClass("top_bloc")
+            .firstOrNull { it.child(0).text() == "Volumes" }
+            ?.child(1)?.children()
+            ?.filter { it.tag().name == "h2" || it.tag().name == "div" }
             ?: emptyList()
+
+        return if (volumesBlock.size == 1) {
+            parseEditionVolumes(null, volumesBlock.first())
+        } else {
+
+            volumesBlock
+                .chunked(2)
+                .flatMap { (edition, volumes) -> parseEditionVolumes(edition, volumes) }
+        }
+    }
+
+    private fun parseEditionVolumes(edition: Element?, volumes: Element): List<SeriesVolume> {
+        return volumes.children()
+            .asSequence()
+            .chunked(2)
+            .map { (type, volumeElements) ->
+                type.text() to volumeElements.getElementsByClass("unVol")
+            }.first()
+            .let { (type, volumeElements) ->
+                volumeElements.mapNotNull { volume ->
+                    val volumeName = volume.child(1).text()
+                    val volumeNumber = volumeName.removePrefix("Vol. ").toIntOrNull()
+                    if (volumeNumber == null) null
+                    else
+                        SeriesVolume(
+                            id = parseVolumeId(volume),
+                            number = volumeNumber,
+                            edition = edition?.let { parseEditionName(it) },
+                            type = type,
+                            name = volumeName
+                        )
+                }
+            }
+    }
+
+    private fun parseVolumeId(volume: Element): VolumeId {
+        val id = ".*/volume-(.*).html".toRegex().find(volume.child(0).attr("href"))?.groupValues!![1]
+        return VolumeId(id)
+    }
+
+    private fun parseEditionName(edition: Element): String? {
+        val editionFull = edition.child(0).textNodes().first().text().removePrefix("Édition").trim()
+        val editionName = "\\((.*?)\\)".toRegex().find(editionFull)?.groupValues?.get(1) ?: editionFull
+
+        return if (editionName == "par défaut") null
+        else editionName
     }
 
     private fun parseVolumeNumber(document: Document): Int {
@@ -281,7 +329,7 @@ class NautiljonParser {
             .attr("content")
             .removeSurrounding("$baseUrl/mangas/", ".html")
 
-        return SeriesId(id)
+        return SeriesId(URLDecoder.decode(id, "UTF-8"))
     }
 
     private fun parseChapters(document: Document): Collection<Chapter> {

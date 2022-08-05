@@ -95,15 +95,14 @@ class MetadataModule(
                         client = okHttpClient.newBuilder().build(),
                         name = "nautiljon",
                         rateLimiterConfig = RateLimiterConfig.custom()
-                            .limitRefreshPeriod(Duration.ofSeconds(10))
-                            .limitForPeriod(5)
-                            .timeoutDuration(Duration.ofSeconds(10))
+                            .limitRefreshPeriod(Duration.ofSeconds(5))
+                            .limitForPeriod(3)
+                            .timeoutDuration(Duration.ofSeconds(5))
                             .build(),
                         nautiljonRetryConfig
                     )
                 ),
                 nautiljonSeriesMetadataMapper,
-                it.fetchBookMetadata
             )
         } else null
     }

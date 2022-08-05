@@ -2,11 +2,13 @@ package org.snd.metadata.mal
 
 import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.ProviderSeriesId
 import org.snd.metadata.mal.model.SearchResult
 import org.snd.metadata.mal.model.SearchResults
 import org.snd.metadata.mal.model.toSeriesMetadata
 import org.snd.metadata.mal.model.toSeriesSearchResult
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 
@@ -21,6 +23,10 @@ class MalMetadataProvider(
         val thumbnail = malClient.getThumbnail(series)
 
         return series.toSeriesMetadata(thumbnail)
+    }
+
+    override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): BookMetadata? {
+        return null
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {

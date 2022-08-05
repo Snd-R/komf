@@ -66,7 +66,8 @@ data class MalConfig(
 data class NautiljonConfig(
     val priority: Int = 30,
     val enabled: Boolean = false,
-    val fetchBookMetadata: Boolean = false,
+    @Deprecated("no longer used")
+    val fetchBookMetadata: Boolean? = null,
     val useOriginalPublisher: Boolean = false,
     val originalPublisherTag: String? = null,
     val frenchPublisherTag: String? = null

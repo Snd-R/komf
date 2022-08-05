@@ -7,8 +7,8 @@ import org.snd.komga.model.dto.KomgaBookMetadataUpdate
 import org.snd.komga.model.dto.KomgaSeriesMetadata
 import org.snd.komga.model.dto.KomgaSeriesMetadataUpdate
 import org.snd.komga.model.dto.KomgaWebLink
+import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.VolumeMetadata
 
 class MetadataUpdateMapper(
     private val metadataUpdateConfig: MetadataUpdateConfig,
@@ -22,7 +22,7 @@ class MetadataUpdateMapper(
             )
         }
 
-    fun toBookMetadataUpdate(patch: VolumeMetadata, metadata: KomgaBookMetadata): KomgaBookMetadataUpdate =
+    fun toBookMetadataUpdate(patch: BookMetadata, metadata: KomgaBookMetadata): KomgaBookMetadataUpdate =
         with(metadata) {
             KomgaBookMetadataUpdate(
                 title = getIfNotLocked(patch.title, titleLock),

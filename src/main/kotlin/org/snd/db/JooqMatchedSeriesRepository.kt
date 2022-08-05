@@ -8,7 +8,7 @@ import org.snd.komga.model.dto.KomgaSeriesId
 import org.snd.komga.model.dto.KomgaThumbnailId
 import org.snd.komga.repository.MatchedSeriesRepository
 import org.snd.metadata.Provider
-import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesId
 
 class JooqMatchedSeriesRepository(
     private val dsl: DSLContext,
@@ -21,12 +21,12 @@ class JooqMatchedSeriesRepository(
             ?.toModel()
     }
 
-    override fun insert(matchedSeries: MatchedSeries) {
-        dsl.executeInsert(matchedSeries.toRecord())
-    }
-
-    override fun update(matchedSeries: MatchedSeries) {
-        dsl.executeUpdate(matchedSeries.toRecord())
+    override fun save(matchedSeries: MatchedSeries) {
+        val record = matchedSeries.toRecord()
+        dsl.insertInto(MATCHED_SERIES, *MATCHED_SERIES.fields())
+            .values(record)
+            .onConflict()
+            .doUpdate()
     }
 
     override fun delete(matchedSeries: MatchedSeries) {

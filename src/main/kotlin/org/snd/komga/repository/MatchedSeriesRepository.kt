@@ -7,9 +7,7 @@ interface MatchedSeriesRepository {
 
     fun findFor(seriesId: KomgaSeriesId): MatchedSeries?
 
-    fun insert(matchedSeries: MatchedSeries)
-
-    fun update(matchedSeries: MatchedSeries)
+    fun save(matchedSeries: MatchedSeries)
 
     fun delete(matchedSeries: MatchedSeries)
 }

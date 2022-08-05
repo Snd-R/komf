@@ -39,9 +39,9 @@ class NautiljonClient(
         return parser.parseSeries(seriesResponse)
     }
 
-    fun getVolume(seriesId: SeriesId, volumeId: VolumeId): Volume {
+    fun getBook(seriesId: SeriesId, bookId: VolumeId): Volume {
         val seriesRequest = Request.Builder().url(
-            baseUrl.newBuilder().addPathSegments("mangas/${seriesId.id}/volume-${volumeId.id}.html")
+            baseUrl.newBuilder().addPathSegments("mangas/${seriesId.id}/volume-${bookId.id}.html")
                 .build()
         ).build()
 

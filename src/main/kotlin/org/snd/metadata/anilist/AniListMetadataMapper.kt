@@ -3,7 +3,7 @@ package org.snd.metadata.anilist
 import org.jsoup.Jsoup
 import org.snd.fragment.AniListManga
 import org.snd.metadata.Provider
-import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.Author
 import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.SeriesMetadata

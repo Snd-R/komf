@@ -13,13 +13,15 @@ import org.snd.komga.model.dto.KomgaSeriesMetadataUpdate
 import org.snd.komga.model.dto.KomgaThumbnailId
 import org.snd.komga.repository.MatchedBookRepository
 import org.snd.komga.repository.MatchedSeriesRepository
+import org.snd.metadata.BookFilenameParser
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.Provider
-import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.Thumbnail
-import org.snd.metadata.model.VolumeMetadata
 
 private val logger = KotlinLogging.logger {}
 
@@ -39,11 +41,15 @@ class KomgaService(
 
     fun setSeriesMetadata(seriesId: KomgaSeriesId, providerName: Provider, providerSeriesId: ProviderSeriesId) {
         val provider = metadataProviders[providerName] ?: throw RuntimeException()
+
         val seriesMetadata = provider.getSeriesMetadata(providerSeriesId)
         val series = komgaClient.getSeries(seriesId)
+        val bookMetadata = getBookMetadata(seriesId, seriesMetadata, provider)
 
         updateSeriesMetadata(series, seriesMetadata)
+        updateBookMetadata(bookMetadata, seriesMetadata)
         overrideReadingDirection(series.seriesId())
+        logger.info { "updated metadata for \"${series.name}\" ${series.seriesId()}" }
     }
 
     fun matchLibraryMetadata(libraryId: KomgaLibraryId, provider: Provider? = null) {
@@ -57,67 +63,88 @@ class KomgaService(
 
     fun matchSeriesMetadata(seriesId: KomgaSeriesId, provider: Provider? = null) {
         val series = komgaClient.getSeries(seriesId)
-        if (provider != null) {
-            val metadataProvider = metadataProviders[provider] ?: throw RuntimeException()
-            metadataProvider.matchSeriesMetadata(series.name)?.let { meta -> updateSeriesMetadata(series, meta) }
+        logger.info { "attempting to match series \"${series.name}\" ${series.seriesId()}" }
+        val seriesMetadata = if (provider != null) {
+            metadataProviders[provider]!!.matchSeriesMetadata(series.name)
         } else {
-            metadataProviders.values
-                .firstNotNullOfOrNull { it.matchSeriesMetadata(series.name) }
-                ?.let { updateSeriesMetadata(series, it) }
-                ?: run { logger.info { "no match found for series ${series.name} ${series.id}" } }
+            metadataProviders.values.firstNotNullOfOrNull { it.matchSeriesMetadata(series.name) }
         }
+        if (seriesMetadata == null) {
+            logger.info { "no match found for series ${series.name} ${series.id}" }
+            return
+        }
+        logger.info { "found match: \"${seriesMetadata.title}\" from ${seriesMetadata.provider}  ${seriesMetadata.id}" }
+
+        val bookMetadata = getBookMetadata(series.seriesId(), seriesMetadata, metadataProviders[seriesMetadata.provider]!!)
+        updateSeriesMetadata(series, seriesMetadata)
+        updateBookMetadata(bookMetadata, seriesMetadata)
         overrideReadingDirection(series.seriesId())
+        logger.info { "updated metadata for \"${series.name}\" ${series.seriesId()}" }
     }
 
     private fun updateSeriesMetadata(series: KomgaSeries, metadata: SeriesMetadata) {
-        logger.info { "updating ${series.name} metadata to ${metadata.provider} ${metadata.id} ${metadata.title}" }
-
         val metadataUpdate = metadataUpdateMapper.toSeriesMetadataUpdate(metadata, series.metadata)
         komgaClient.updateSeriesMetadata(series.seriesId(), metadataUpdate)
-        updateBookMetadata(series.seriesId(), metadata)
 
-        val matchedSeries = matchedSeriesRepository.findFor(series.seriesId())
         val newThumbnail = if (metadataUpdateConfig.seriesThumbnails) metadata.thumbnail else null
-        val thumbnailId = replaceSeriesThumbnail(series.seriesId(), newThumbnail, matchedSeries?.thumbnailId)
+        val thumbnailId = replaceSeriesThumbnail(series.seriesId(), newThumbnail)
 
-        val newMatch = MatchedSeries(
-            seriesId = series.seriesId(),
-            thumbnailId = thumbnailId,
-            provider = metadata.provider,
-            providerSeriesId = metadata.id,
+        matchedSeriesRepository.save(
+            MatchedSeries(
+                seriesId = series.seriesId(),
+                thumbnailId = thumbnailId,
+                provider = metadata.provider,
+                providerSeriesId = metadata.id,
+            )
         )
-        if (matchedSeries == null) matchedSeriesRepository.insert(newMatch)
-        else matchedSeriesRepository.update(newMatch)
     }
 
-    private fun updateBookMetadata(seriesId: KomgaSeriesId, seriesMeta: SeriesMetadata) {
+    private fun getBookMetadata(
+        seriesId: KomgaSeriesId,
+        seriesMeta: SeriesMetadata,
+        provider: MetadataProvider,
+    ): Map<KomgaBook, BookMetadata?> {
+        if (seriesMeta.books.isEmpty()) {
+            return emptyMap()
+        }
+
+        logger.info { "fetching book data" }
         val books = komgaClient.getBooks(seriesId, true).content
+        val metadataMatch = associateBookMetadata(books, seriesMeta.books)
 
-        matchBooksToMedata(books, seriesMeta.volumeMetadata).forEach { (book, volumeMeta) ->
-            if (volumeMeta != null) {
-                val metadataUpdate = metadataUpdateMapper.toBookMetadataUpdate(volumeMeta, book.metadata)
-                komgaClient.updateBookMetadata(book.bookId(), metadataUpdate)
+        return metadataMatch.map { (book, seriesBookMeta) ->
+            if (seriesBookMeta != null) {
+                book to provider.getBookMetadata(seriesMeta.id, seriesBookMeta.id)
             } else {
-                val metadataUpdate = metadataUpdateMapper.toBookMetadataUpdate(seriesMeta, book.metadata)
-                komgaClient.updateBookMetadata(book.bookId(), metadataUpdate)
+                book to null
             }
+        }.toMap()
+    }
 
-            val matchedBook = matchedBookRepository.findFor(book.bookId())
+    private fun updateBookMetadata(bookMetadata: Map<KomgaBook, BookMetadata?>, seriesMetadata: SeriesMetadata) {
+        bookMetadata.forEach { (book, metadata) -> updateBookMetadata(book, metadata, seriesMetadata) }
+    }
 
-            val newThumbnail = if (metadataUpdateConfig.bookThumbnails) volumeMeta?.thumbnail else null
-            val thumbnailId = replaceBookThumbnail(book.bookId(), newThumbnail, matchedBook?.thumbnailId)
+    private fun updateBookMetadata(book: KomgaBook, metadata: BookMetadata?, seriesMeta: SeriesMetadata) {
+        val metadataUpdate = if (metadata == null) metadataUpdateMapper.toBookMetadataUpdate(seriesMeta, book.metadata)
+        else metadataUpdateMapper.toBookMetadataUpdate(metadata, book.metadata)
 
-            val newMatch = MatchedBook(
-                seriesId = seriesId,
+        komgaClient.updateBookMetadata(book.bookId(), metadataUpdate)
+
+        val newThumbnail = if (metadataUpdateConfig.bookThumbnails) metadata?.thumbnail else null
+        val thumbnailId = replaceBookThumbnail(book.bookId(), newThumbnail)
+
+        matchedBookRepository.save(
+            MatchedBook(
+                seriesId = book.seriesId(),
                 bookId = book.bookId(),
                 thumbnailId = thumbnailId,
             )
-            if (matchedBook == null) matchedBookRepository.insert(newMatch)
-            else matchedBookRepository.update(newMatch)
-        }
+        )
     }
 
-    private fun replaceSeriesThumbnail(seriesId: KomgaSeriesId, thumbnail: Thumbnail?, oldThumbnail: KomgaThumbnailId?): KomgaThumbnailId? {
+    private fun replaceSeriesThumbnail(seriesId: KomgaSeriesId, thumbnail: Thumbnail?): KomgaThumbnailId? {
+        val matchedSeries = matchedSeriesRepository.findFor(seriesId)
         val thumbnails = komgaClient.getSeriesThumbnails(seriesId)
 
         val thumbnailId = thumbnail?.let {
@@ -128,7 +155,7 @@ class KomgaService(
             )
         }
 
-        oldThumbnail?.let { thumb ->
+        matchedSeries?.thumbnailId?.let { thumb ->
             if (thumbnails.any { it.id == thumb.id }) {
                 komgaClient.deleteSeriesThumbnail(seriesId, thumb)
             }
@@ -137,18 +164,19 @@ class KomgaService(
         return thumbnailId?.let { KomgaThumbnailId(it.id) }
     }
 
-    private fun replaceBookThumbnail(bookId: KomgaBookId, thumbnail: Thumbnail?, oldThumbnail: KomgaThumbnailId?): KomgaThumbnailId? {
+    private fun replaceBookThumbnail(bookId: KomgaBookId, thumbnail: Thumbnail?): KomgaThumbnailId? {
+        val existingMatch = matchedBookRepository.findFor(bookId)
         val thumbnails = komgaClient.getBookThumbnails(bookId)
 
         val thumbnailId = thumbnail?.let {
             komgaClient.uploadBookThumbnail(
                 bookId = bookId,
                 thumbnail = thumbnail,
-                selected = thumbnails.all { it.type == "GENERATED" || it.id == oldThumbnail?.id }
+                selected = thumbnails.all { it.type == "GENERATED" || it.id == existingMatch?.thumbnailId?.id }
             )
         }
 
-        oldThumbnail?.let { thumb ->
+        existingMatch?.thumbnailId?.let { thumb ->
             if (thumbnails.any { it.id == thumb.id }) {
                 komgaClient.deleteBookThumbnail(bookId, thumb)
             }
@@ -157,22 +185,31 @@ class KomgaService(
         return thumbnailId?.let { KomgaThumbnailId(it.id) }
     }
 
-    private fun matchBooksToMedata(books: Collection<KomgaBook>, metadata: Collection<VolumeMetadata>): Map<KomgaBook, VolumeMetadata?> {
-        val nameRegex = ("(\\s\\(?[vtT](?<volume>[0-9]+)\\)?)").toRegex()
-
-        return books.associateWith { book ->
-            val matchedGroups = nameRegex.find(book.name)?.groups
-            val volume = matchedGroups?.get("volume")?.value?.toIntOrNull()
-            val meta = metadata.firstOrNull { meta -> meta.number != null && volume != null && meta.number == volume }
-
-            meta
-        }
-    }
-
     private fun overrideReadingDirection(seriesId: KomgaSeriesId) {
         metadataUpdateConfig.readingDirectionValue?.let { readingDirection ->
             logger.info { "updating reading direction" }
             komgaClient.updateSeriesMetadata(seriesId, KomgaSeriesMetadataUpdate(readingDirection = readingDirection.toString()))
         }
+    }
+
+    private fun associateBookMetadata(books: Collection<KomgaBook>, providerBooks: Collection<SeriesBook>): Map<KomgaBook, SeriesBook?> {
+        val editions = providerBooks.groupBy { it.edition }
+        val noEditionBooks = providerBooks.filter { it.edition == null }
+
+        val byEdition: Map<KomgaBook, String?> = books.associateWith { book ->
+            val bookExtraData = BookFilenameParser.getExtraData(book.name)
+            editions.keys.firstOrNull { bookExtraData.contains(it) }
+        }
+
+        return byEdition.map { (book, edition) ->
+            val volume = BookFilenameParser.getVolumes(book.name)
+            val matched = if (volume == null || volume.first != volume.last) {
+                null
+            } else if (edition == null) {
+                noEditionBooks.firstOrNull { it.number == volume.first }
+            } else
+                editions[edition]?.firstOrNull { it.number == volume.first }
+            book to matched
+        }.toMap()
     }
 }

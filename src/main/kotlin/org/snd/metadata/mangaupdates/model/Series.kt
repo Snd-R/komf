@@ -1,7 +1,7 @@
 package org.snd.metadata.mangaupdates.model
 
 import org.snd.metadata.Provider.MANGA_UPDATES
-import org.snd.metadata.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.mangaupdates.model.Status.*
 import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.SeriesMetadata
