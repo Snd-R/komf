@@ -114,7 +114,7 @@ class KomgaEventListener(
     }
 
     override fun onFailure(eventSource: EventSource, t: Throwable?, response: Response?) {
-        logger.error { "${t?.message} ${t?.cause} response code ${response?.code}" }
+        logger.error(t) { "${t?.message} ${t?.cause} response code ${response?.code}" }
         Thread.sleep(10000)
         start()
     }

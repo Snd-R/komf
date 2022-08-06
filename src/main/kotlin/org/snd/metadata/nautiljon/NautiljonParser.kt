@@ -274,10 +274,11 @@ class NautiljonParser {
     }
 
     private fun parseEditionVolumes(edition: Element?, volumes: Element): List<SeriesVolume> {
-        return volumes.children()
-            .asSequence()
+        val volumeElements = volumes.children()
             .filter { it.tag().name == "h3" || it.tag().name == "div" }
-            .chunked(2)
+        if (volumeElements.isEmpty()) return emptyList()
+
+        return volumeElements.asSequence().chunked(2)
             .map { (type, volumeElements) ->
                 type.text() to volumeElements.getElementsByClass("unVol")
             }.first()
