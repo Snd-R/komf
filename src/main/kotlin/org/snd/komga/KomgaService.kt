@@ -104,13 +104,9 @@ class KomgaService(
         seriesMeta: SeriesMetadata,
         provider: MetadataProvider,
     ): Map<KomgaBook, BookMetadata?> {
-        if (seriesMeta.books.isEmpty()) {
-            return emptyMap()
-        }
-
-        logger.info { "fetching book data" }
         val books = komgaClient.getBooks(seriesId, true).content
         val metadataMatch = associateBookMetadata(books, seriesMeta.books)
+        if (metadataMatch.values.any { it != null }) logger.info { "fetching book data" }
 
         return metadataMatch.map { (book, seriesBookMeta) ->
             if (seriesBookMeta != null) {
