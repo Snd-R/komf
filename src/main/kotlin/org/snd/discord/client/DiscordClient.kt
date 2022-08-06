@@ -1,10 +1,12 @@
-package org.snd.komga.webhook
+package org.snd.discord.client
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.snd.discord.model.Webhook
+import org.snd.discord.model.WebhookExecuteRequest
 import org.snd.infra.HttpClient
 import org.snd.infra.MEDIA_TYPE_JSON
 

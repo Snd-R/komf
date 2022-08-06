@@ -1,4 +1,4 @@
-package org.snd.komga.webhook
+package org.snd.discord.model
 
 import com.squareup.moshi.JsonClass
 

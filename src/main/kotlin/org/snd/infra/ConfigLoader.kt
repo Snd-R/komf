@@ -12,8 +12,8 @@ class ConfigLoader {
         val configRaw = loadFromEnv() ?: loadFromArgs(path) ?: loadDefault()
         return configRaw?.let {
             val config = Yaml.default.decodeFromString(AppConfig.serializer(), it)
-            overrideFromEnvVariables(config)
-        } ?: overrideFromEnvVariables(AppConfig())
+            checkDeprecatedOptions(overrideFromEnvVariables(config))
+        } ?: checkDeprecatedOptions(overrideFromEnvVariables(AppConfig()))
     }
 
     private fun loadFromEnv(): String? {
@@ -36,12 +36,14 @@ class ConfigLoader {
     }
 
     private fun overrideFromEnvVariables(config: AppConfig): AppConfig {
+        val configDirectory = System.getenv("KOMF_CONFIG_DIR")
         val databaseConfig = config.database
-        val databaseFile = System.getenv("KOMF_CONFIG_DIR")?.let { "$it/database.sqlite" } ?: databaseConfig.file
+        val databaseFile = configDirectory?.let { "$it/database.sqlite" } ?: databaseConfig.file
         val komgaConfig = config.komga
         val komgaBaseUri = System.getenv("KOMF_KOMGA_BASE_URI") ?: komgaConfig.baseUri
         val komgaUser = System.getenv("KOMF_KOMGA_USER") ?: komgaConfig.komgaUser
         val komgaPassword = System.getenv("KOMF_KOMGA_PASSWORD") ?: komgaConfig.komgaPassword
+        val discordTemplatesDirectory = configDirectory ?: config.discord.templatesDirectory
 
         val serverConfig = config.server
         val serverPort = System.getenv("KOMF_SERVER_PORT")?.toInt() ?: serverConfig.port
@@ -56,8 +58,21 @@ class ConfigLoader {
             database = databaseConfig.copy(
                 file = databaseFile
             ),
+            discord = config.discord.copy(
+                templatesDirectory = discordTemplatesDirectory
+            ),
             server = serverConfig.copy(port = serverPort),
             logLevel = logLevel
+        )
+    }
+
+    private fun checkDeprecatedOptions(config: AppConfig): AppConfig {
+        val discordConfig = config.discord
+        val discordWebhooks = discordConfig.webhooks ?: config.komga.webhooks
+        return config.copy(
+            discord = discordConfig.copy(
+                webhooks = discordWebhooks
+            )
         )
     }
 }

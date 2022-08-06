@@ -47,6 +47,7 @@ dependencies {
     jooqGenerator("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
+    implementation("org.apache.velocity:velocity-engine-core:2.3")
 }
 
 tasks.withType<KotlinCompile>().configureEach {

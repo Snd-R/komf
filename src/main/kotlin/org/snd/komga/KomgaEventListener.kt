@@ -17,7 +17,6 @@ import org.snd.komga.model.event.SeriesEvent
 import org.snd.komga.model.event.TaskQueueStatusEvent
 import org.snd.komga.repository.MatchedBookRepository
 import org.snd.komga.repository.MatchedSeriesRepository
-import org.snd.komga.webhook.DiscordWebhooks
 import java.util.function.Predicate
 
 private val logger = KotlinLogging.logger {}
@@ -31,7 +30,7 @@ class KomgaEventListener(
     private val matchedBookRepository: MatchedBookRepository,
     private val matchedSeriesRepository: MatchedSeriesRepository,
     private val libraryFilter: Predicate<String>,
-    private val discordWebhooks: DiscordWebhooks?,
+    private val notificationService: KomgaNotificationService,
 ) : EventSourceListener() {
     private var eventSource: EventSource? = null
     private val seriesAddedEvents: MutableList<SeriesEvent> = ArrayList()
@@ -101,7 +100,7 @@ class KomgaEventListener(
                     }
 
                     if (events.isNotEmpty()) {
-                        kotlin.runCatching { discordWebhooks?.executeFor(events) }
+                        kotlin.runCatching { notificationService.executeFor(events) }
                             .exceptionOrNull()?.let { logger.error(it) {} }
                     }
 

@@ -56,7 +56,9 @@ komga:
     seriesThumbnails: true #update series thumbnails
     seriesTitle: false #update series title
     readingDirectionValue: #override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
+discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
+  templatesDirectory: "./" #path to a directory with discordWebhook.vm template
 database:
   file: ./database.sqlite #database file location.
 metadataProviders:
@@ -80,6 +82,31 @@ server:
   port: 8085 #or env:KOMF_SERVER_PORT
 logLevel: INFO #or env:KOMF_LOG_LEVEL
 ```
+
+## Discord notifications
+
+if any webhook urls are specified then after new book is added a call to webhooks will be triggered. You can change
+message format by providing your own template file called `discordWebhook.vm` and specifying directory path to this
+template in `templatesDirectory` under discord configuration. For docker deployments `discordWebhook.vm` should be
+placed in mounted `/config` directory without specifying `templatesDirectory`
+
+Templates are written using Apache Velocity ([link to docs](https://velocity.apache.org/engine/2.3/user-guide.html))
+Example of a template:
+
+```velocity
+**$seriesName**
+
+#if ($seriesSummary != "")
+    $seriesSummary
+
+#end
+***new books were added to library $libraryName***:
+#foreach ($book in $books)
+**$book**
+#end
+```
+
+Variable available in template: `libraryName`, `seriesName`, `seriesSummary`, `books`(list of book names)
 
 ## Http endpoints
 

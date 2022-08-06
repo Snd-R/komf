@@ -7,6 +7,7 @@ import org.snd.metadata.model.SeriesMetadata
 data class AppConfig(
     val metadataProviders: MetadataProvidersConfig = MetadataProvidersConfig(),
     val komga: KomgaConfig = KomgaConfig(),
+    val discord: DiscordConfig = DiscordConfig(),
     val database: DatabaseConfig = DatabaseConfig(),
     val server: ServerConfig = ServerConfig(),
     val logLevel: String = "INFO"
@@ -19,6 +20,7 @@ data class KomgaConfig(
     val komgaPassword: String = "admin",
     val eventListener: KomgaEventListenerConfig = KomgaEventListenerConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
+    @Deprecated("moved to its own config")
     val webhooks: Collection<String>? = null,
 )
 
@@ -77,6 +79,12 @@ data class NautiljonConfig(
 data class AniListConfig(
     val priority: Int = 40,
     val enabled: Boolean = false,
+)
+
+@Serializable
+data class DiscordConfig(
+    val webhooks: Collection<String>? = null,
+    val templatesDirectory: String = "./",
 )
 
 @Serializable

@@ -1,0 +1,10 @@
+**$seriesName**
+
+#if ($seriesSummary != "")
+    $seriesSummary
+
+#end
+***new books were added to library $libraryName***:
+#foreach ($book in $books)
+**$book**
+#end

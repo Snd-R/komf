@@ -24,9 +24,10 @@ import java.time.Duration
 
 class MetadataModule(
     config: MetadataProvidersConfig,
+    okHttpClient: OkHttpClient,
     jsonModule: JsonModule
 ) {
-    private val okHttpClient = OkHttpClient.Builder()
+    private val httpClient = okHttpClient.newBuilder()
         .addInterceptor(HttpLoggingInterceptor { message ->
             KotlinLogging.logger {}.debug { message }
         }.setLevel(HttpLoggingInterceptor.Level.BASIC))
@@ -35,7 +36,7 @@ class MetadataModule(
     private val malHttpClient = config.mal.let {
         if (it.enabled)
             HttpClient(
-                client = okHttpClient.newBuilder()
+                client = httpClient.newBuilder()
                     .addInterceptor(MalClientInterceptor(it.clientId))
                     .build(),
                 name = "MAL",
@@ -56,7 +57,7 @@ class MetadataModule(
         if (it.enabled)
             MangaUpdatesClient(
                 HttpClient(
-                    client = okHttpClient.newBuilder().build(),
+                    client = httpClient.newBuilder().build(),
                     name = "MangaUpdates",
                     rateLimiterConfig = RateLimiterConfig.custom()
                         .limitRefreshPeriod(Duration.ofSeconds(5))
@@ -92,7 +93,7 @@ class MetadataModule(
             NautiljonMetadataProvider(
                 NautiljonClient(
                     HttpClient(
-                        client = okHttpClient.newBuilder().build(),
+                        client = httpClient.newBuilder().build(),
                         name = "nautiljon",
                         rateLimiterConfig = RateLimiterConfig.custom()
                             .limitRefreshPeriod(Duration.ofSeconds(5))
@@ -108,7 +109,7 @@ class MetadataModule(
     }
 
     private val aniListClient = AniListClient(
-        okHttpClient = okHttpClient.newBuilder().build(),
+        okHttpClient = httpClient.newBuilder().build(),
         name = "AniList",
         rateLimiterConfig = RateLimiterConfig.custom()
             .limitRefreshPeriod(Duration.ofSeconds(5))
