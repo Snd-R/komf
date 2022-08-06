@@ -193,7 +193,7 @@ class KomgaService(
         val noEditionBooks = providerBooks.filter { it.edition == null }
 
         val byEdition: Map<KomgaBook, String?> = books.associateWith { book ->
-            val bookExtraData = BookFilenameParser.getExtraData(book.name)
+            val bookExtraData = BookFilenameParser.getExtraData(book.name).map { it.lowercase() }
             editions.keys.firstOrNull { bookExtraData.contains(it) }
         }
 

@@ -276,6 +276,7 @@ class NautiljonParser {
     private fun parseEditionVolumes(edition: Element?, volumes: Element): List<SeriesVolume> {
         return volumes.children()
             .asSequence()
+            .filter { it.tag().name == "h3" || it.tag().name == "div" }
             .chunked(2)
             .map { (type, volumeElements) ->
                 type.text() to volumeElements.getElementsByClass("unVol")
@@ -303,11 +304,13 @@ class NautiljonParser {
     }
 
     private fun parseEditionName(edition: Element): String? {
-        val editionFull = edition.child(0).textNodes().first().text().removePrefix("Édition").trim()
+        val editionFull = edition.child(0).textNodes().first().text().trim()
+            .removePrefix("Édition ")
+            .removePrefix("Edition ")
         val editionName = "\\((.*?)\\)".toRegex().find(editionFull)?.groupValues?.get(1) ?: editionFull
 
         return if (editionName == "par défaut") null
-        else editionName
+        else editionName.lowercase()
     }
 
     private fun parseVolumeNumber(document: Document): Int {
