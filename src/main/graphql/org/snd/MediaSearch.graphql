@@ -36,7 +36,7 @@ fragment aniListManga on Media {
 
 query Search($search: String!, $perPage: Int!) @nonnull {
   mediaSearch: Page(page: 1, perPage: $perPage) @nonnull {
-        media(type: MANGA, search: $search) @nonnull{
+        media(type: MANGA, format_in: [MANGA,ONE_SHOT], search: $search) @nonnull{
             ...aniListManga
         }
     }
