@@ -36,13 +36,13 @@ class MangaUpdatesSeriesJsonAdapter {
                     votesMinus = it.votes_minus
                 )
             } ?: emptyList(),
-            authors = json.authors?.map { Author(id = it.author_id, name = it.name, type = it.type) } ?: emptyList(),
+            authors = json.authors?.map { Author(id = it.author_id, name = unescapeHtml4(it.name), type = unescapeHtml4(it.type)) } ?: emptyList(),
             year = json.year?.let { if (it.isNotBlank()) Year.of(it.toInt()) else null },
             publishers = json.publishers?.map {
                 Publisher(
                     id = it.publisher_id,
                     name = unescapeHtml4(it.publisher_name),
-                    type = it.type,
+                    type = unescapeHtml4( it.type),
                     notes = it.notes
                 )
             } ?: emptyList()
