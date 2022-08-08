@@ -49,7 +49,6 @@ class KomgaService(
         updateSeriesMetadata(series, seriesMetadata)
         updateBookMetadata(bookMetadata, seriesMetadata)
         overrideReadingDirection(series.seriesId())
-        logger.info { "updated metadata for \"${series.name}\" ${series.seriesId()}" }
     }
 
     fun matchLibraryMetadata(libraryId: KomgaLibraryId, provider: Provider? = null) {
@@ -79,7 +78,6 @@ class KomgaService(
         updateSeriesMetadata(series, seriesMetadata)
         updateBookMetadata(bookMetadata, seriesMetadata)
         overrideReadingDirection(series.seriesId())
-        logger.info { "updated metadata for \"${series.name}\" ${series.seriesId()}" }
     }
 
     private fun updateSeriesMetadata(series: KomgaSeries, metadata: SeriesMetadata) {

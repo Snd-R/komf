@@ -1,6 +1,9 @@
 package org.snd.komga
 
 import org.snd.discord.DiscordWebhookService
+import org.snd.discord.model.Book
+import org.snd.discord.model.Library
+import org.snd.discord.model.Series
 import org.snd.discord.model.WebhookMessage
 import org.snd.komga.model.dto.KomgaBookId
 import org.snd.komga.model.dto.KomgaLibraryId
@@ -18,10 +21,9 @@ class KomgaNotificationService(
                 val books = bookIds.map { komgaClient.getBook(it) }
                 val library = komgaClient.getLibrary(KomgaLibraryId(series.libraryId))
                 WebhookMessage(
-                    libraryName = library.name,
-                    seriesName = series.name,
-                    seriesSummary = series.metadata.summary,
-                    books = books.map { it.name }
+                    library = Library(name = library.name),
+                    series = Series(id = series.id, name = series.name, summary = series.metadata.summary),
+                    books = books.map { Book(id = it.id, name = it.name) }
                 )
             }.forEach { discordWebhookService.send(it) }
         }

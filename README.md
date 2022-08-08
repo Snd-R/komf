@@ -90,7 +90,7 @@ message format by providing your own template file called `discordWebhook.vm` an
 template in `templatesDirectory` under discord configuration. For docker deployments `discordWebhook.vm` should be
 placed in mounted `/config` directory without specifying `templatesDirectory`
 
-Templates are written using Apache Velocity ([link to docs](https://velocity.apache.org/engine/2.3/user-guide.html))
+Templates are written using Apache Velocity ([link to docs](https://velocity.apache.org/engine/2.3/user-guide.html)).
 Example of a template:
 
 ```velocity
@@ -106,7 +106,7 @@ Example of a template:
 #end
 ```
 
-Variable available in template: `libraryName`, `seriesName`, `seriesSummary`, `books`(list of book names)
+Variables available in template: `library.(name)`, `series.(id, name, summary)`, `books.(id, name)`(list of book objects)
 
 ## Http endpoints
 

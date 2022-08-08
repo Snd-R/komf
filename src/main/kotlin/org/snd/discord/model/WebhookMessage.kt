@@ -3,17 +3,28 @@ package org.snd.discord.model
 import org.apache.velocity.VelocityContext
 
 data class WebhookMessage(
-    val libraryName: String,
-    val seriesName: String,
-    val seriesSummary: String,
-    val books: Collection<String>
+    val library: Library,
+    val series: Series,
+    val books: Collection<Book>
+)
+
+data class Library(val name: String)
+
+data class Series(
+    val id: String,
+    val name: String,
+    val summary: String,
+)
+
+data class Book(
+    val id: String,
+    val name: String,
 )
 
 fun WebhookMessage.toVelocityContext(): VelocityContext {
     val context = VelocityContext()
-    context.put("libraryName", libraryName)
-    context.put("seriesName", seriesName)
-    context.put("seriesSummary", seriesSummary)
+    context.put("library", library)
+    context.put("series", series)
     context.put("books", books)
     return context
 }
