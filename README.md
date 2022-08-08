@@ -94,15 +94,15 @@ Templates are written using Apache Velocity ([link to docs](https://velocity.apa
 Example of a template:
 
 ```velocity
-**$seriesName**
+**$series.name**
 
-#if ($seriesSummary != "")
-    $seriesSummary
+#if ($series.summary != "")
+    $series.summary
 
 #end
-***new books were added to library $libraryName***:
+***new books were added to library $library.name***:
 #foreach ($book in $books)
-**$book**
+**$book.name**
 #end
 ```
 
