@@ -187,8 +187,8 @@ class NautiljonParser {
 
     private fun parseAuthorsStory(dataEntries: Elements): Collection<String> {
         return dataEntries
-            .filter {
-                val node = it.child(0).text()
+            .filter { entry ->
+                val node = entry.child(0).text()
                 node.equals("Auteur :") || node.equals("Auteur original :") || node.equals("Scénariste :")
             }
             .map { it.getElementsByTag("a").text() }
@@ -196,7 +196,7 @@ class NautiljonParser {
 
     private fun parseAuthorsArt(dataEntries: Elements): Collection<String> {
         return dataEntries
-            .filter { it.child(0).text().equals("Dessinateur :") }
+            .filter { entry -> entry.child(0).text().equals("Dessinateur :") }
             .map { it.getElementsByTag("a").text() }
     }
 
@@ -260,7 +260,7 @@ class NautiljonParser {
         val volumesBlock = document.getElementsByClass("top_bloc")
             .firstOrNull { it.child(0).text() == "Volumes" }
             ?.child(1)?.children()
-            ?.filter { it.tag().name == "h2" || it.tag().name == "div" }
+            ?.filter { element -> element.tag().name == "h2" || element.tag().name == "div" }
             ?: emptyList()
 
         return if (volumesBlock.size == 1) {
@@ -275,7 +275,7 @@ class NautiljonParser {
 
     private fun parseEditionVolumes(edition: Element?, volumes: Element): List<SeriesVolume> {
         val volumeElements = volumes.children()
-            .filter { it.tag().name == "h3" || it.tag().name == "div" }
+            .filter { element -> element.tag().name == "h3" || element.tag().name == "div" }
         if (volumeElements.isEmpty()) return emptyList()
 
         return volumeElements.asSequence().chunked(2)

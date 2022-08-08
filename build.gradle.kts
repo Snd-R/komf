@@ -7,7 +7,7 @@ plugins {
     id("com.google.devtools.ksp").version("1.6.21-1.0.5")
     id("org.flywaydb.flyway") version "8.5.11"
     id("nu.studer.jooq") version "7.1.1"
-    id("com.apollographql.apollo3").version("3.3.0")
+    id("com.apollographql.apollo3").version("3.5.0")
 }
 
 group = "org.snd"
@@ -22,27 +22,27 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.2.11")
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("org.slf4j:slf4j-api:1.7.36")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.1.23")
 
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.squareup.okhttp3:okhttp-sse:4.9.3")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
-    implementation("com.apollographql.apollo3:apollo-runtime:3.3.0")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:okhttp-sse:4.10.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    implementation("com.apollographql.apollo3:apollo-runtime")
 
     implementation("com.squareup.moshi:moshi:1.13.0")
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.13.0")
 
-    implementation("io.javalin:javalin:4.6.0")
+    implementation("io.javalin:javalin:4.6.4")
 
     implementation("org.apache.commons:commons-text:1.9")
-    implementation("com.charleskorn.kaml:kaml:0.44.0")
+    implementation("com.charleskorn.kaml:kaml:0.46.0")
     implementation("io.github.resilience4j:resilience4j-ratelimiter:1.7.1")
     implementation("io.github.resilience4j:resilience4j-retry:1.7.1")
     implementation("io.github.resilience4j:resilience4j-kotlin:1.7.1")
-    implementation("org.jsoup:jsoup:1.14.3")
+    implementation("org.jsoup:jsoup:1.15.2")
 
-    implementation("org.flywaydb:flyway-core:8.5.10")
-    implementation("org.jooq:jooq:3.16.6")
+    implementation("org.flywaydb:flyway-core:9.0.4")
+    implementation("org.jooq:jooq:3.16.8")
     implementation("org.xerial:sqlite-jdbc:3.36.0.3")
     jooqGenerator("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
@@ -102,7 +102,7 @@ tasks.flywayMigrate {
 }
 
 jooq {
-    version.set("3.16.6")
+    version.set("3.16.8")
     configurations {
         create("main") {
             jooqConfiguration.apply {
