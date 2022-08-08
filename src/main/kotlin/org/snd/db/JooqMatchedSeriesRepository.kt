@@ -27,6 +27,8 @@ class JooqMatchedSeriesRepository(
             .values(record)
             .onConflict()
             .doUpdate()
+            .set(record)
+            .execute()
     }
 
     override fun delete(matchedSeries: MatchedSeries) {
