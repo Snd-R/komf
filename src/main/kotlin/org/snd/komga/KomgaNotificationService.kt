@@ -21,7 +21,7 @@ class KomgaNotificationService(
                     libraryName = library.name,
                     seriesName = series.name,
                     seriesSummary = series.metadata.summary,
-                    books = books.map { it.metadata.title }
+                    books = books.map { it.name }
                 )
             }.forEach { discordWebhookService.send(it) }
         }
