@@ -3,16 +3,16 @@ package org.snd.metadata.anilist
 import org.jsoup.Jsoup
 import org.snd.fragment.AniListManga
 import org.snd.metadata.Provider
-import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.Author
 import org.snd.metadata.model.AuthorRole
+import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.Thumbnail
 import org.snd.type.MediaStatus
 
 class AniListMetadataMapper {
-    private val allowedRoles = listOf("Story & Art", "Story", "Art", "Illustration")
+    private val allowedRoles = listOf("Story & Art", "Story", "Original Story", "Art", "Illustration")
 
     private val artistRoles = listOf(
         AuthorRole.PENCILLER,
@@ -33,25 +33,18 @@ class AniListMetadataMapper {
         }
 
         val authors = series.staff?.edges
-            ?.filter { allowedRoles.contains(it?.role) }
-            ?.filter { it?.node?.languageV2 == "Japanese" }
-            ?.mapNotNull {
-                val name = it?.node?.name?.full
-                val role = it?.role
-
-                if (name == null || role == null) null
-                else role to name
-            }
-            ?.flatMap {
-                when (it.first) {
+            ?.mapNotNull { extractNameAndRole(it) }
+            ?.filter { (_, role) -> allowedRoles.contains(role) }
+            ?.flatMap { (authorName, aniListRole) ->
+                when (aniListRole) {
                     "Story & Art" -> {
-                        artistRoles.map { role -> Author(it.second, role.name) } + Author(it.second, AuthorRole.WRITER.name)
+                        artistRoles.map { role -> Author(authorName, role.name) } + Author(authorName, AuthorRole.WRITER.name)
                     }
                     "Story" -> {
-                        listOf(Author(it.second, AuthorRole.WRITER.name))
+                        listOf(Author(authorName, AuthorRole.WRITER.name))
                     }
                     "Art", "Illustration" -> {
-                        artistRoles.map { role -> Author(it.second, role.name) }
+                        artistRoles.map { role -> Author(authorName, role.name) }
                     }
                     else -> {
                         emptyList()
@@ -67,12 +60,14 @@ class AniListMetadataMapper {
             ?.toList()
             ?: emptyList()
 
+        val title = series.title?.english ?: series.title?.romaji ?: series.title?.native
+
         return SeriesMetadata(
             id = ProviderSeriesId(series.id.toString()),
             provider = Provider.ANILIST,
 
             status = status,
-            title = series.title?.english,
+            title = title,
             titleSort = series.title?.english,
             summary = series.description?.let { Jsoup.parse(it).wholeText() },
             genres = series.genres?.filterNotNull(),
@@ -91,5 +86,15 @@ class AniListMetadataMapper {
             provider = Provider.ANILIST,
             resultId = search.id.toString()
         )
+    }
+
+    private fun extractNameAndRole(edge: AniListManga.Edge?): Pair<String, String>? {
+        if (edge == null) return null
+
+        val role = edge.role?.replace("\\([^)]*\\)".toRegex(), "")?.trim()
+        val name = edge.node?.name?.full
+
+        return if (role == null || name == null) null
+        else name to role
     }
 }
