@@ -5,7 +5,7 @@ plugins {
     kotlin("plugin.serialization") version "1.6.21"
     id("com.github.johnrengelman.shadow").version("7.1.2")
     id("com.google.devtools.ksp").version("1.6.21-1.0.5")
-    id("org.flywaydb.flyway") version "8.5.11"
+    id("org.flywaydb.flyway") version "9.1.3"
     id("nu.studer.jooq") version "7.1.1"
     id("com.apollographql.apollo3").version("3.5.0")
 }
@@ -41,7 +41,7 @@ dependencies {
     implementation("io.github.resilience4j:resilience4j-kotlin:1.7.1")
     implementation("org.jsoup:jsoup:1.15.2")
 
-    implementation("org.flywaydb:flyway-core:9.0.4")
+    implementation("org.flywaydb:flyway-core:9.1.3")
     implementation("org.jooq:jooq:3.16.8")
     implementation("org.xerial:sqlite-jdbc:3.36.0.3")
     jooqGenerator("org.xerial:sqlite-jdbc:3.36.0.3")
