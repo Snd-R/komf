@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.21"
-    kotlin("plugin.serialization") version "1.6.21"
+    kotlin("jvm") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.10"
     id("com.github.johnrengelman.shadow").version("7.1.2")
-    id("com.google.devtools.ksp").version("1.6.21-1.0.5")
+    id("com.google.devtools.ksp").version("1.7.10-1.0.6")
     id("org.flywaydb.flyway") version "9.1.3"
     id("nu.studer.jooq") version "7.1.1"
     id("com.apollographql.apollo3").version("3.5.0")
