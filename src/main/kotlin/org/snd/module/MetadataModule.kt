@@ -10,11 +10,14 @@ import org.snd.infra.HttpClient
 import org.snd.infra.HttpException
 import org.snd.metadata.Provider
 import org.snd.metadata.anilist.AniListClient
+import org.snd.metadata.anilist.AniListMetadataMapper
 import org.snd.metadata.anilist.AniListMetadataProvider
 import org.snd.metadata.mal.MalClient
 import org.snd.metadata.mal.MalClientInterceptor
+import org.snd.metadata.mal.MalMetadataMapper
 import org.snd.metadata.mal.MalMetadataProvider
 import org.snd.metadata.mangaupdates.MangaUpdatesClient
+import org.snd.metadata.mangaupdates.MangaUpdatesMetadataMapper
 import org.snd.metadata.mangaupdates.MangaUpdatesMetadataProvider
 import org.snd.metadata.nautiljon.NautiljonClient
 import org.snd.metadata.nautiljon.NautiljonMetadataProvider
@@ -50,8 +53,8 @@ class MetadataModule(
     }
 
     private val malClient = malHttpClient?.let { MalClient(client = it, moshi = jsonModule.moshi) }
-
-    private val malMetadataProvider = malClient?.let { MalMetadataProvider(it) }
+    private val malMetadataMapper = MalMetadataMapper(config.mal.seriesMetadata)
+    private val malMetadataProvider = malClient?.let { MalMetadataProvider(it, malMetadataMapper) }
 
     private val mangaUpdatesClient = config.mangaUpdates.let {
         if (it.enabled)
@@ -69,12 +72,15 @@ class MetadataModule(
             )
         else null
     }
-    private val mangaUpdatesMetadataProvider = mangaUpdatesClient?.let { MangaUpdatesMetadataProvider(it) }
+    private val mangaUpdatesMetadataMapper = MangaUpdatesMetadataMapper(config.mangaUpdates.seriesMetadata)
+    private val mangaUpdatesMetadataProvider = mangaUpdatesClient?.let { MangaUpdatesMetadataProvider(it, mangaUpdatesMetadataMapper) }
 
     private val nautiljonSeriesMetadataMapper = NautiljonSeriesMetadataMapper(
         config.nautiljon.useOriginalPublisher,
         config.nautiljon.originalPublisherTag,
         config.nautiljon.frenchPublisherTag,
+        config.nautiljon.seriesMetadata,
+        config.nautiljon.bookMetadataConfig,
     )
 
     private val nautiljonRetryConfig = RetryConfig.custom<Any>()
@@ -117,10 +123,11 @@ class MetadataModule(
             .timeoutDuration(Duration.ofSeconds(5))
             .build()
     )
+    private val aniListMetadataMapper = AniListMetadataMapper(config.aniList.seriesMetadata)
 
     private val aniListMetadataProvider = config.aniList.let {
         if (it.enabled) {
-            AniListMetadataProvider(aniListClient)
+            AniListMetadataProvider(aniListClient, aniListMetadataMapper)
         } else null
     }
 

@@ -55,6 +55,8 @@ data class MetadataProvidersConfig(
 data class MangaUpdatesConfig(
     val priority: Int = 10,
     val enabled: Boolean = true,
+    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
+    val bookMetadataConfig: BookMetadataConfig = BookMetadataConfig(),
 )
 
 @Serializable
@@ -62,6 +64,8 @@ data class MalConfig(
     val clientId: String = "",
     val priority: Int = 20,
     val enabled: Boolean = false,
+    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
+    val bookMetadataConfig: BookMetadataConfig = BookMetadataConfig(),
 )
 
 @Serializable
@@ -72,13 +76,17 @@ data class NautiljonConfig(
     val fetchBookMetadata: Boolean? = null,
     val useOriginalPublisher: Boolean = false,
     val originalPublisherTag: String? = null,
-    val frenchPublisherTag: String? = null
+    val frenchPublisherTag: String? = null,
+    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
+    val bookMetadataConfig: BookMetadataConfig = BookMetadataConfig(),
 )
 
 @Serializable
 data class AniListConfig(
     val priority: Int = 40,
     val enabled: Boolean = false,
+    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
+    val bookMetadataConfig: BookMetadataConfig = BookMetadataConfig(),
 )
 
 @Serializable
@@ -90,4 +98,36 @@ data class DiscordConfig(
 @Serializable
 data class ServerConfig(
     val port: Int = 8085
+)
+
+@Serializable
+data class SeriesMetadataConfig(
+    val status: Boolean = true,
+    val title: Boolean = true,
+    val titleSort: Boolean = true,
+    val summary: Boolean = true,
+    val publisher: Boolean = true,
+    val readingDirection: Boolean = true,
+    val ageRating: Boolean = true,
+    val language: Boolean = true,
+    val genres: Boolean = true,
+    val tags: Boolean = true,
+    val totalBookCount: Boolean = true,
+    val authors: Boolean = true,
+    val thumbnail: Boolean = true,
+    val books: Boolean = true
+)
+
+@Serializable
+data class BookMetadataConfig(
+    val title: Boolean = true,
+    val summary: Boolean = true,
+    val number: Boolean = true,
+    val numberSort: Boolean = true,
+    val releaseDate: Boolean = true,
+    val authors: Boolean = true,
+    val tags: Boolean = true,
+    val isbn: Boolean = true,
+    val links: Boolean = true,
+    val thumbnail: Boolean = true,
 )

@@ -1,20 +1,25 @@
 package org.snd.metadata.nautiljon
 
+import org.snd.config.BookMetadataConfig
+import org.snd.config.SeriesMetadataConfig
+import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.Provider
-import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.AuthorRole
-import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.Thumbnail
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.SeriesBook
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.Thumbnail
 import org.snd.metadata.nautiljon.model.Series
 import org.snd.metadata.nautiljon.model.Volume
 
 class NautiljonSeriesMetadataMapper(
     private val useOriginalPublisher: Boolean,
     private val originalPublisherTag: String?,
-    private val frenchPublisherTag: String?
+    private val frenchPublisherTag: String?,
+    private val seriesMetadataConfig: SeriesMetadataConfig,
+    private val bookMetadataConfig: BookMetadataConfig,
 ) {
     private val artistRoles = listOf(
         AuthorRole.PENCILLER,
@@ -45,7 +50,7 @@ class NautiljonSeriesMetadataMapper(
             }
         )
 
-        return SeriesMetadata(
+        val metadata = SeriesMetadata(
             id = ProviderSeriesId(series.id.id),
             provider = Provider.NAUTILJON,
 
@@ -71,13 +76,14 @@ class NautiljonSeriesMetadataMapper(
                 )
             }
         )
+        return MetadataConfigApplier.apply(metadata, seriesMetadataConfig)
     }
 
     fun toBookMetadata(volume: Volume, thumbnail: Thumbnail? = null): BookMetadata {
         val authors = volume.authorsStory.map { org.snd.metadata.model.Author(it, AuthorRole.WRITER.name) } +
                 volume.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role.name) } }
 
-        return BookMetadata(
+        val metadata = BookMetadata(
             summary = volume.description ?: "",
             number = volume.number,
             releaseDate = if (useOriginalPublisher) volume.originalReleaseDate else volume.frenchReleaseDate,
@@ -87,5 +93,6 @@ class NautiljonSeriesMetadataMapper(
 
             thumbnail = thumbnail
         )
+        return MetadataConfigApplier.apply(metadata, bookMetadataConfig)
     }
 }

@@ -4,7 +4,6 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.mal.model.SearchResult
 import org.snd.metadata.mal.model.SearchResults
-import org.snd.metadata.mal.model.toSeriesMetadata
 import org.snd.metadata.mal.model.toSeriesSearchResult
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.ProviderBookId
@@ -15,6 +14,7 @@ import org.snd.metadata.model.SeriesSearchResult
 
 class MalMetadataProvider(
     private val malClient: MalClient,
+    private val metadataMapper: MalMetadataMapper,
 ) : MetadataProvider {
     private val similarity = JaroWinklerSimilarity()
 
@@ -22,7 +22,7 @@ class MalMetadataProvider(
         val series = malClient.getSeries(seriesId.id.toInt())
         val thumbnail = malClient.getThumbnail(series)
 
-        return series.toSeriesMetadata(thumbnail)
+        return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): BookMetadata? {
@@ -40,7 +40,7 @@ class MalMetadataProvider(
 
         return match?.let {
             val thumbnail = malClient.getThumbnail(it)
-            it.toSeriesMetadata(thumbnail)
+            metadataMapper.toSeriesMetadata(it, thumbnail)
         }
     }
 

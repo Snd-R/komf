@@ -1,7 +1,9 @@
 package org.snd.metadata.anilist
 
 import org.jsoup.Jsoup
+import org.snd.config.SeriesMetadataConfig
 import org.snd.fragment.AniListManga
+import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.Provider
 import org.snd.metadata.model.Author
 import org.snd.metadata.model.AuthorRole
@@ -11,7 +13,9 @@ import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.Thumbnail
 import org.snd.type.MediaStatus
 
-class AniListMetadataMapper {
+class AniListMetadataMapper(
+    private val metadataConfig: SeriesMetadataConfig,
+) {
     private val allowedRoles = listOf("Story & Art", "Story", "Original Story", "Art", "Illustration")
 
     private val artistRoles = listOf(
@@ -62,7 +66,7 @@ class AniListMetadataMapper {
 
         val title = series.title?.english ?: series.title?.romaji ?: series.title?.native
 
-        return SeriesMetadata(
+        val metadata = SeriesMetadata(
             id = ProviderSeriesId(series.id.toString()),
             provider = Provider.ANILIST,
 
@@ -76,6 +80,7 @@ class AniListMetadataMapper {
             thumbnail = thumbnail,
             totalBookCount = series.volumes,
         )
+        return MetadataConfigApplier.apply(metadata, metadataConfig)
     }
 
     fun toSearchResult(search: AniListManga): SeriesSearchResult {

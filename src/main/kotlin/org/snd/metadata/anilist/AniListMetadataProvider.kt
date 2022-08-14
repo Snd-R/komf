@@ -12,10 +12,10 @@ import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 
 class AniListMetadataProvider(
-    private val client: AniListClient
+    private val client: AniListClient,
+    private val metadataMapper: AniListMetadataMapper,
 ) : MetadataProvider {
     private val similarity = JaroWinklerSimilarity()
-    private val metadataMapper = AniListMetadataMapper()
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): SeriesMetadata {
         val series = client.getMedia(seriesId.id.toInt())
