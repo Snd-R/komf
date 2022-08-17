@@ -9,10 +9,10 @@ import org.snd.config.KomgaConfig
 import org.snd.infra.BasicAuthInterceptor
 import org.snd.infra.HttpClient
 import org.snd.infra.SimpleCookieJar
-import org.snd.komga.KomgaNotificationService
 import org.snd.komga.KomgaClient
 import org.snd.komga.KomgaEventListener
-import org.snd.komga.KomgaService
+import org.snd.komga.KomgaMetadataService
+import org.snd.komga.KomgaNotificationService
 import org.snd.komga.MetadataUpdateMapper
 import java.util.concurrent.TimeUnit.SECONDS
 
@@ -55,13 +55,14 @@ class KomgaModule(
         baseUrl = config.baseUri.toHttpUrl()
     )
 
-    val komgaService = KomgaService(
+    val komgaMetadataService = KomgaMetadataService(
         komgaClient = komgaClient,
         metadataProviders = metadataModule.metadataProviders,
         matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
         matchedBookRepository = repositoryModule.matchedBookRepository,
         config.metadataUpdate,
-        MetadataUpdateMapper(config.metadataUpdate)
+        MetadataUpdateMapper(config.metadataUpdate),
+        config.aggregateMetadata
     )
 
     private val notificationService = KomgaNotificationService(
@@ -73,7 +74,7 @@ class KomgaModule(
         client = komgaSseClient,
         moshi = jsonModule.moshi,
         komgaUrl = config.baseUri.toHttpUrl(),
-        komgaService = komgaService,
+        komgaMetadataService = komgaMetadataService,
         libraryFilter = {
             if (config.eventListener.libraries.isEmpty()) true
             else config.eventListener.libraries.contains(it)

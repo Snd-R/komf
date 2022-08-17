@@ -56,6 +56,7 @@ komga:
     seriesThumbnails: true #update series thumbnails
     seriesTitle: false #update series title
     readingDirectionValue: #override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
+  aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
 discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
   templatesDirectory: "./" #path to a directory with discordWebhook.vm template
@@ -83,6 +84,61 @@ server:
 logLevel: INFO #or env:KOMF_LOG_LEVEL
 ```
 
+## Metadata aggregation
+
+By default, all metadata will be fetched from the first positive match in configured providers by order of priority. If
+you want to enable metadata aggregation from multiple sources you need to set `aggregateMetadata` to true in the config.
+
+If enabled, initial metadata will be taken from the first positive match in configured providers. Additional search
+request will be made to all the other configured providers and metadata will be aggregated from the results. Metadata
+fields will only be set from another provider if previous provider did not have any data for that particular field. For
+example provider1 did not return thumbnail in that case thumbnail will be taken from provider2
+
+You can configure which fields each provider will have in the config both for series and books. By default, all
+available fields will be fetched. Example of default fields configuration
+
+```yml
+metadataProviders:
+  mangaUpdates:
+    priority: 10
+    enabled: true
+    seriesMetadata:
+      status: true,
+      title: true,
+      titleSort: true,
+      summary: true,
+      publisher: true,
+      readingDirection: true,
+      ageRating: true,
+      language: true,
+      genres: true,
+      tags: true,
+      totalBookCount: true,
+      authors: true,
+      thumbnail: true,
+      books: true
+    bookMetadata:
+      title: true,
+      summary: true,
+      number: true,
+      numberSort: true,
+      releaseDate: true,
+      authors: true,
+      tags: true,
+      isbn: true,
+      links: true,
+      thumbnail: true,
+```
+If you want to disable particular field you just need to set the field value to false
+```yml
+metadataProviders:
+  mangaUpdates:
+    priority: 10
+    enabled: true
+    seriesMetadata:
+      thumbnail: false,
+```
+
 ## Discord notifications
 
 if any webhook urls are specified then after new book is added a call to webhooks will be triggered. You can change
@@ -106,7 +162,8 @@ Example of a template:
 #end
 ```
 
-Variables available in template: `library.(name)`, `series.(id, name, summary)`, `books.(id, name)`(list of book objects)
+Variables available in template: `library.(name)`, `series.(id, name, summary)`, `books.(id, name)`(list of book
+objects)
 
 ## Http endpoints
 
@@ -124,7 +181,6 @@ Variables available in template: `library.(name)`, `series.(id, name, summary)`,
 }
 ```
 
-`POST /match/series/{seriesId}`try to match series. Optional `provider` param can be passed to use only specified
-provider
+`POST /match/series/{seriesId}`try to match series
 
-`POST /match/library/{libraryId}` try to match series of a library. Optional `provider` param can be passed
+`POST /match/library/{libraryId}` try to match series of a library

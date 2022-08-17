@@ -8,7 +8,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.snd.config.MetadataProvidersConfig
 import org.snd.infra.HttpClient
 import org.snd.infra.HttpException
-import org.snd.metadata.Provider
 import org.snd.metadata.anilist.AniListClient
 import org.snd.metadata.anilist.AniListMetadataMapper
 import org.snd.metadata.anilist.AniListMetadataProvider
@@ -19,6 +18,7 @@ import org.snd.metadata.mal.MalMetadataProvider
 import org.snd.metadata.mangaupdates.MangaUpdatesClient
 import org.snd.metadata.mangaupdates.MangaUpdatesMetadataMapper
 import org.snd.metadata.mangaupdates.MangaUpdatesMetadataProvider
+import org.snd.metadata.model.Provider
 import org.snd.metadata.nautiljon.NautiljonClient
 import org.snd.metadata.nautiljon.NautiljonMetadataProvider
 import org.snd.metadata.nautiljon.NautiljonSeriesMetadataMapper
@@ -80,7 +80,7 @@ class MetadataModule(
         config.nautiljon.originalPublisherTag,
         config.nautiljon.frenchPublisherTag,
         config.nautiljon.seriesMetadata,
-        config.nautiljon.bookMetadataConfig,
+        config.nautiljon.bookMetadata,
     )
 
     private val nautiljonRetryConfig = RetryConfig.custom<Any>()

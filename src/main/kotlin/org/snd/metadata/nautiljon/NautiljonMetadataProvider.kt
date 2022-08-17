@@ -2,10 +2,12 @@ package org.snd.metadata.nautiljon
 
 import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.Provider
+import org.snd.metadata.model.Provider.NAUTILJON
 import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.nautiljon.model.SearchResult
 import org.snd.metadata.nautiljon.model.SeriesId
@@ -18,14 +20,18 @@ class NautiljonMetadataProvider(
 ) : MetadataProvider {
     private val similarity = JaroWinklerSimilarity()
 
-    override fun getSeriesMetadata(seriesId: ProviderSeriesId): SeriesMetadata {
+    override fun providerName(): Provider {
+        return NAUTILJON
+    }
+
+    override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = client.getSeries(SeriesId(seriesId.id))
         val thumbnail = client.getSeriesThumbnail(series)
 
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
 
-    override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): BookMetadata? {
+    override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(SeriesId(seriesId.id), VolumeId(bookId.id))
         val thumbnail = client.getVolumeThumbnail(bookMetadata)
 
@@ -37,7 +43,7 @@ class NautiljonMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): SeriesMetadata? {
+    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = client.searchSeries(seriesName.take(400))
         val match = bestMatch(seriesName, searchResults)?.let { client.getSeries(it.id) }
 

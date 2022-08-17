@@ -1,4 +1,4 @@
-package org.snd.metadata
+package org.snd.metadata.model
 
 enum class Provider {
     MAL,

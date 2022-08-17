@@ -1,7 +1,7 @@
 package org.snd.module
 
 import io.javalin.Javalin
-import org.snd.api.KomfController
+import org.snd.api.KomgaMetadataController
 import org.snd.config.ServerConfig
 import java.util.concurrent.Executors
 
@@ -14,8 +14,8 @@ class ServerModule(
         config.enableCorsForAllOrigins()
         config.showJavalinBanner = false
     }.routes {
-        KomfController(
-            komgaService = komgaModule.komgaService,
+        KomgaMetadataController(
+            komgaMetadataService = komgaModule.komgaMetadataService,
             taskHandler = Executors.newSingleThreadExecutor(),
             moshi = jsonModule.moshi
         ).register()

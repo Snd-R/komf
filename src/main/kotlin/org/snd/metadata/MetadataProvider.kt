@@ -1,17 +1,20 @@
 package org.snd.metadata
 
-import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 
 interface MetadataProvider {
-    fun getSeriesMetadata(seriesId: ProviderSeriesId): SeriesMetadata
+    fun providerName(): Provider
 
-    fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): BookMetadata?
+    fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata
+
+    fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata
 
     fun searchSeries(seriesName: String, limit: Int = 5): Collection<SeriesSearchResult>
 
-    fun matchSeriesMetadata(seriesName: String): SeriesMetadata?
+    fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata?
 }

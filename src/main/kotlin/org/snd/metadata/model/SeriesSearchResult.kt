@@ -1,7 +1,6 @@
 package org.snd.metadata.model
 
 import com.squareup.moshi.JsonClass
-import org.snd.metadata.Provider
 
 @JsonClass(generateAdapter = true)
 data class SeriesSearchResult(

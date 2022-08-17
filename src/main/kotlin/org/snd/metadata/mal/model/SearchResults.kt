@@ -1,6 +1,6 @@
 package org.snd.metadata.mal.model
 
-import org.snd.metadata.Provider
+import org.snd.metadata.model.Provider
 import org.snd.metadata.model.SeriesSearchResult
 
 data class SearchResults(

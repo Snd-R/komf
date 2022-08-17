@@ -1,6 +1,6 @@
 package org.snd.metadata.nautiljon.model
 
-import org.snd.metadata.Provider
+import org.snd.metadata.model.Provider
 import org.snd.metadata.model.SeriesSearchResult
 import java.time.Year
 

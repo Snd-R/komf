@@ -26,7 +26,7 @@ class KomgaEventListener(
     private val moshi: Moshi,
     private val komgaUrl: HttpUrl,
 
-    private val komgaService: KomgaService,
+    private val komgaMetadataService: KomgaMetadataService,
     private val matchedBookRepository: MatchedBookRepository,
     private val matchedSeriesRepository: MatchedSeriesRepository,
     private val libraryFilter: Predicate<String>,
@@ -86,7 +86,7 @@ class KomgaEventListener(
                 val event = moshi.adapter<TaskQueueStatusEvent>().fromJson(data) ?: throw RuntimeException()
                 if (event.count == 0) {
                     val events = bookAddedEvents.groupBy({ KomgaSeriesId(it.seriesId) }, { KomgaBookId(it.bookId) })
-                    events.keys.forEach { komgaService.matchSeriesMetadata(it) }
+                    events.keys.forEach { komgaMetadataService.matchSeriesMetadata(it) }
 
                     bookDeletedEvents.forEach { book ->
                         matchedBookRepository.findFor(KomgaBookId(book.bookId))?.let {

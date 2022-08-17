@@ -2,17 +2,18 @@ package org.snd.metadata.mal
 
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.Provider
 import org.snd.metadata.mal.model.Series
 import org.snd.metadata.model.AuthorRole
+import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.Thumbnail
 
 class MalMetadataMapper(
     private val metadataConfig: SeriesMetadataConfig,
 ) {
-    fun toSeriesMetadata(series: Series, thumbnail: Thumbnail? = null): SeriesMetadata {
+    fun toSeriesMetadata(series: Series, thumbnail: Thumbnail? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
             Series.Status.FINISHED -> SeriesMetadata.Status.ENDED
             Series.Status.CURRENTLY_PUBLISHING -> SeriesMetadata.Status.ONGOING
@@ -58,10 +59,11 @@ class MalMetadataMapper(
             publisher = "",
             thumbnail = thumbnail,
             tags = emptyList(),
-
-            id = ProviderSeriesId(series.id.toString()),
-            provider = Provider.MAL
         )
-        return MetadataConfigApplier.apply(metadata, metadataConfig)
+
+        return MetadataConfigApplier.apply(
+            ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), provider = Provider.MAL, metadata = metadata),
+            metadataConfig
+        )
     }
 }

@@ -14,24 +14,17 @@ class MetadataUpdateMapper(
     private val metadataUpdateConfig: MetadataUpdateConfig,
 ) {
 
-    fun toBookMetadataUpdate(patch: SeriesMetadata, metadata: KomgaBookMetadata): KomgaBookMetadataUpdate =
-        with(metadata) {
-            val authors = patch.authors?.map { author -> KomgaAuthor(author.name, author.role) }
+    fun toBookMetadataUpdate(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata, komgaMetadata: KomgaBookMetadata): KomgaBookMetadataUpdate =
+        with(komgaMetadata) {
+            val authors = (bookMetadata?.authors ?: seriesMetadata.authors)?.map { author -> KomgaAuthor(author.name, author.role) }
             KomgaBookMetadataUpdate(
-                authors = getIfNotLocked(authors, authorsLock)
-            )
-        }
-
-    fun toBookMetadataUpdate(patch: BookMetadata, metadata: KomgaBookMetadata): KomgaBookMetadataUpdate =
-        with(metadata) {
-            KomgaBookMetadataUpdate(
-                title = getIfNotLocked(patch.title, titleLock),
-                summary = getIfNotLocked(patch.summary, summaryLock),
-                releaseDate = getIfNotLocked(patch.releaseDate, releaseDateLock),
-                authors = getIfNotLocked(patch.authors?.map { author -> KomgaAuthor(author.name, author.role) }, authorsLock),
-                tags = getIfNotLocked(patch.tags, tagsLock),
-                isbn = getIfNotLocked(patch.isbn, isbnLock),
-                links = getIfNotLocked(patch.links?.map { KomgaWebLink(it.label, it.url) }, linksLock)
+                title = getIfNotLocked(bookMetadata?.title, titleLock),
+                summary = getIfNotLocked(bookMetadata?.summary, summaryLock),
+                releaseDate = getIfNotLocked(bookMetadata?.releaseDate, releaseDateLock),
+                authors = getIfNotLocked(authors, authorsLock),
+                tags = getIfNotLocked(bookMetadata?.tags, tagsLock),
+                isbn = getIfNotLocked(bookMetadata?.isbn, isbnLock),
+                links = getIfNotLocked(bookMetadata?.links?.map { KomgaWebLink(it.label, it.url) }, linksLock)
             )
         }
 

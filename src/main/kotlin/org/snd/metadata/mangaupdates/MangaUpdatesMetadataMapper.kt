@@ -2,11 +2,12 @@ package org.snd.metadata.mangaupdates
 
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.Provider
 import org.snd.metadata.mangaupdates.model.Series
 import org.snd.metadata.mangaupdates.model.Status
 import org.snd.metadata.model.AuthorRole
+import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.Thumbnail
 
@@ -14,7 +15,7 @@ class MangaUpdatesMetadataMapper(
     private val metadataConfig: SeriesMetadataConfig
 ) {
 
-    fun toSeriesMetadata(series: Series, thumbnail: Thumbnail? = null): SeriesMetadata {
+    fun toSeriesMetadata(series: Series, thumbnail: Thumbnail? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
             Status.COMPLETE -> SeriesMetadata.Status.ENDED
             Status.ONGOING -> SeriesMetadata.Status.ONGOING
@@ -51,11 +52,11 @@ class MangaUpdatesMetadataMapper(
             tags = tags,
             authors = authors,
             thumbnail = thumbnail,
-
-            id = ProviderSeriesId(series.id.toString()),
-            provider = Provider.MANGA_UPDATES
         )
 
-        return MetadataConfigApplier.apply(metadata, metadataConfig)
+        return MetadataConfigApplier.apply(
+            ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), provider = Provider.MANGA_UPDATES, metadata = metadata),
+            metadataConfig
+        )
     }
 }

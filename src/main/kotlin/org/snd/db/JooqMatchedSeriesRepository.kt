@@ -7,8 +7,6 @@ import org.snd.komga.model.MatchedSeries
 import org.snd.komga.model.dto.KomgaSeriesId
 import org.snd.komga.model.dto.KomgaThumbnailId
 import org.snd.komga.repository.MatchedSeriesRepository
-import org.snd.metadata.Provider
-import org.snd.metadata.model.ProviderSeriesId
 
 class JooqMatchedSeriesRepository(
     private val dsl: DSLContext,
@@ -38,14 +36,10 @@ class JooqMatchedSeriesRepository(
     private fun MatchedSeriesRecord.toModel(): MatchedSeries = MatchedSeries(
         seriesId = KomgaSeriesId(seriesId),
         thumbnailId = thumbnailId?.let { KomgaThumbnailId(it) },
-        provider = Provider.valueOf(provider),
-        providerSeriesId = ProviderSeriesId(providerSeriesId)
     )
 
     private fun MatchedSeries.toRecord(): MatchedSeriesRecord = MatchedSeriesRecord(
         seriesId.id,
-        thumbnailId?.id,
-        provider.name,
-        providerSeriesId.id
+        thumbnailId?.id
     )
 }

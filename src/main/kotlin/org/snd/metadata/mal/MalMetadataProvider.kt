@@ -5,10 +5,12 @@ import org.snd.metadata.MetadataProvider
 import org.snd.metadata.mal.model.SearchResult
 import org.snd.metadata.mal.model.SearchResults
 import org.snd.metadata.mal.model.toSeriesSearchResult
-import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.Provider
+import org.snd.metadata.model.Provider.MAL
 import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 
 
@@ -18,15 +20,19 @@ class MalMetadataProvider(
 ) : MetadataProvider {
     private val similarity = JaroWinklerSimilarity()
 
-    override fun getSeriesMetadata(seriesId: ProviderSeriesId): SeriesMetadata {
+    override fun providerName(): Provider {
+        return MAL
+    }
+
+    override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = malClient.getSeries(seriesId.id.toInt())
         val thumbnail = malClient.getThumbnail(series)
 
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
 
-    override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): BookMetadata? {
-        return null
+    override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
+        throw UnsupportedOperationException()
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
@@ -34,7 +40,7 @@ class MalMetadataProvider(
             .map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): SeriesMetadata? {
+    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = malClient.searchSeries(seriesName.take(64))
         val match = bestMatch(seriesName, searchResults)?.let { malClient.getSeries(it.id) }
 

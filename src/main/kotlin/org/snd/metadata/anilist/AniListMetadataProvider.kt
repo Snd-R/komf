@@ -5,10 +5,12 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import org.snd.SearchQuery
 import org.snd.fragment.AniListManga
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.Provider
+import org.snd.metadata.model.Provider.ANILIST
 import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 
 class AniListMetadataProvider(
@@ -17,14 +19,18 @@ class AniListMetadataProvider(
 ) : MetadataProvider {
     private val similarity = JaroWinklerSimilarity()
 
-    override fun getSeriesMetadata(seriesId: ProviderSeriesId): SeriesMetadata {
+    override fun providerName(): Provider {
+        return ANILIST
+    }
+
+    override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = client.getMedia(seriesId.id.toInt())
         val thumbnail = client.getThumbnail(series.aniListManga)
         return metadataMapper.toSeriesMetadata(series.aniListManga, thumbnail)
     }
 
-    override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): BookMetadata? {
-        return null
+    override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
+        throw UnsupportedOperationException()
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
@@ -34,7 +40,7 @@ class AniListMetadataProvider(
         return searchResults.map { metadataMapper.toSearchResult(it.aniListManga) }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): SeriesMetadata? {
+    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = client.search(seriesName.take(400))
         val match = bestMatch(seriesName, searchResults)
 

@@ -22,6 +22,7 @@ data class KomgaConfig(
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
     @Deprecated("moved to its own config")
     val webhooks: Collection<String>? = null,
+    val aggregateMetadata: Boolean = false
 )
 
 @Serializable
@@ -56,7 +57,7 @@ data class MangaUpdatesConfig(
     val priority: Int = 10,
     val enabled: Boolean = true,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadataConfig: BookMetadataConfig = BookMetadataConfig(),
+    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
 )
 
 @Serializable
@@ -65,7 +66,7 @@ data class MalConfig(
     val priority: Int = 20,
     val enabled: Boolean = false,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadataConfig: BookMetadataConfig = BookMetadataConfig(),
+    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
 )
 
 @Serializable
@@ -78,7 +79,7 @@ data class NautiljonConfig(
     val originalPublisherTag: String? = null,
     val frenchPublisherTag: String? = null,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadataConfig: BookMetadataConfig = BookMetadataConfig(),
+    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
 )
 
 @Serializable
@@ -86,7 +87,7 @@ data class AniListConfig(
     val priority: Int = 40,
     val enabled: Boolean = false,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadataConfig: BookMetadataConfig = BookMetadataConfig(),
+    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
 )
 
 @Serializable

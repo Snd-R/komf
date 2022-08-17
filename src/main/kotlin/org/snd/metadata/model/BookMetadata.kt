@@ -4,8 +4,6 @@ import java.time.LocalDate
 
 
 data class BookMetadata(
-    val id: ProviderBookId? = null,
-
     val title: String? = null,
     val summary: String? = null,
     val number: Int? = null,

@@ -4,10 +4,11 @@ import org.jsoup.Jsoup
 import org.snd.config.SeriesMetadataConfig
 import org.snd.fragment.AniListManga
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.Provider
 import org.snd.metadata.model.Author
 import org.snd.metadata.model.AuthorRole
+import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.Thumbnail
@@ -26,7 +27,7 @@ class AniListMetadataMapper(
         AuthorRole.COVER
     )
 
-    fun toSeriesMetadata(series: AniListManga, thumbnail: Thumbnail? = null): SeriesMetadata {
+    fun toSeriesMetadata(series: AniListManga, thumbnail: Thumbnail? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
             MediaStatus.FINISHED -> SeriesMetadata.Status.ENDED
             MediaStatus.RELEASING -> SeriesMetadata.Status.ONGOING
@@ -66,10 +67,8 @@ class AniListMetadataMapper(
 
         val title = series.title?.english ?: series.title?.romaji ?: series.title?.native
 
-        val metadata = SeriesMetadata(
-            id = ProviderSeriesId(series.id.toString()),
-            provider = Provider.ANILIST,
 
+        val metadata = SeriesMetadata(
             status = status,
             title = title,
             titleSort = series.title?.english,
@@ -80,7 +79,10 @@ class AniListMetadataMapper(
             thumbnail = thumbnail,
             totalBookCount = series.volumes,
         )
-        return MetadataConfigApplier.apply(metadata, metadataConfig)
+        return MetadataConfigApplier.apply(
+            ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), provider = Provider.ANILIST, metadata = metadata),
+            metadataConfig
+        )
     }
 
     fun toSearchResult(search: AniListManga): SeriesSearchResult {
