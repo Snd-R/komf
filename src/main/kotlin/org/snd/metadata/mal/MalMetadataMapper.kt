@@ -59,6 +59,9 @@ class MalMetadataMapper(
             publisher = "",
             thumbnail = thumbnail,
             tags = emptyList(),
+            alternativeTitles = series.alternativeTitles?.let { it.synonyms + listOf(it.en, it.ja) }
+                ?.filter { it.isNotBlank() }
+                ?.filter { it != series.title }
         )
 
         return MetadataConfigApplier.apply(

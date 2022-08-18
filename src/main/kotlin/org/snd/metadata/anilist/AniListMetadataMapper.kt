@@ -71,13 +71,14 @@ class AniListMetadataMapper(
         val metadata = SeriesMetadata(
             status = status,
             title = title,
-            titleSort = series.title?.english,
+            titleSort = title,
             summary = series.description?.let { Jsoup.parse(it).wholeText() },
             genres = series.genres?.filterNotNull(),
             tags = tags,
             authors = authors,
             thumbnail = thumbnail,
             totalBookCount = series.volumes,
+            alternativeTitles = series.title?.let { listOfNotNull(it.english, it.romaji, it.native) }
         )
         return MetadataConfigApplier.apply(
             ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), provider = Provider.ANILIST, metadata = metadata),

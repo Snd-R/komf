@@ -79,6 +79,9 @@ metadataProviders:
   aniList:
     priority: 40
     enabled: false
+  yenPress:
+    priority: 50
+    enabled: false
 server:
   port: 8085 #or env:KOMF_SERVER_PORT
 logLevel: INFO #or env:KOMF_LOG_LEVEL

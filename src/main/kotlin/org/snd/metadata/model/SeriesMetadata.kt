@@ -13,9 +13,9 @@ data class SeriesMetadata(
     val tags: Collection<String>? = null,
     val totalBookCount: Int? = null,
     val authors: List<Author>? = null,
+    val alternativeTitles: Collection<String>? = null,
 
     val thumbnail: Thumbnail? = null,
-
 ) {
 
     enum class Status {

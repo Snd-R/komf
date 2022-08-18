@@ -22,6 +22,9 @@ import org.snd.metadata.model.Provider
 import org.snd.metadata.nautiljon.NautiljonClient
 import org.snd.metadata.nautiljon.NautiljonMetadataProvider
 import org.snd.metadata.nautiljon.NautiljonSeriesMetadataMapper
+import org.snd.metadata.yenpress.YenPressClient
+import org.snd.metadata.yenpress.YenPressMetadataMapper
+import org.snd.metadata.yenpress.YenPressMetadataProvider
 import java.time.Duration
 
 
@@ -131,18 +134,37 @@ class MetadataModule(
         } else null
     }
 
+    private val yenPressClient: YenPressClient = YenPressClient(
+        HttpClient(
+            client = httpClient.newBuilder().build(),
+            name = "MangaUpdates",
+            rateLimiterConfig = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(5))
+                .limitForPeriod(5)
+                .timeoutDuration(Duration.ofSeconds(5))
+                .build()
+        )
+    )
+    private val yenPressMetadataMapper = YenPressMetadataMapper(config.yenPress.seriesMetadata, config.yenPress.bookMetadata)
+    private val yenPressMetadataProvider = config.yenPress.let {
+        if (it.enabled) YenPressMetadataProvider(yenPressClient, yenPressMetadataMapper)
+        else null
+    }
+
     val metadataProviders = run {
         val malPriority = config.mal.priority
         val mangaUpdatesPriority = config.mangaUpdates.priority
         val nautiljonPriority = config.nautiljon.priority
         val aniLisPriority = config.aniList.priority
+        val yenPressPriority = config.yenPress.priority
 
         val malProvider = malMetadataProvider?.let { Provider.MAL to (it to malPriority) }
         val mangaUpdatesProvider = mangaUpdatesMetadataProvider?.let { Provider.MANGA_UPDATES to (it to mangaUpdatesPriority) }
         val nautiljonProvider = nautiljonMetadataProvider?.let { Provider.NAUTILJON to (it to nautiljonPriority) }
         val aniListProvider = aniListMetadataProvider?.let { Provider.ANILIST to (it to aniLisPriority) }
+        val yenPressProvider = yenPressMetadataProvider?.let { Provider.YEN_PRESS to (it to yenPressPriority) }
 
-        sequenceOf(malProvider, mangaUpdatesProvider, nautiljonProvider, aniListProvider).filterNotNull()
+        sequenceOf(malProvider, mangaUpdatesProvider, nautiljonProvider, aniListProvider, yenPressProvider).filterNotNull()
             .sortedBy { it.second.second }
             .map { it.first to it.second.first }
             .toMap()

@@ -50,6 +50,7 @@ data class MetadataProvidersConfig(
     val mangaUpdates: MangaUpdatesConfig = MangaUpdatesConfig(),
     val nautiljon: NautiljonConfig = NautiljonConfig(),
     val aniList: AniListConfig = AniListConfig(),
+    val yenPress: YenPressConfig = YenPressConfig()
 )
 
 @Serializable
@@ -85,6 +86,14 @@ data class NautiljonConfig(
 @Serializable
 data class AniListConfig(
     val priority: Int = 40,
+    val enabled: Boolean = false,
+    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
+    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+)
+
+@Serializable
+data class YenPressConfig(
+    val priority: Int = 50,
     val enabled: Boolean = false,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),

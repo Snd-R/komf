@@ -4,5 +4,6 @@ enum class Provider {
     MAL,
     MANGA_UPDATES,
     NAUTILJON,
-    ANILIST
+    ANILIST,
+    YEN_PRESS
 }

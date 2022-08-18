@@ -51,6 +51,7 @@ class MangaUpdatesMetadataMapper(
             genres = series.genres,
             tags = tags,
             authors = authors,
+            alternativeTitles = series.associatedNames,
             thumbnail = thumbnail,
         )
 

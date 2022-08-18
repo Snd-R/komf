@@ -28,6 +28,7 @@ object MetadataConfigApplier {
                     tags = getIfEnabled(metadata.tags, config.tags),
                     totalBookCount = getIfEnabled(metadata.totalBookCount, config.totalBookCount),
                     authors = getIfEnabled(metadata.authors, config.authors),
+                    alternativeTitles = metadata.alternativeTitles,
                     thumbnail = getIfEnabled(metadata.thumbnail, config.thumbnail),
                 )
             )

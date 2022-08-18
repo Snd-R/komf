@@ -1,6 +1,7 @@
 package org.snd.komga
 
 import mu.KotlinLogging
+import org.apache.commons.lang3.StringUtils
 import org.snd.config.MetadataUpdateConfig
 import org.snd.komga.model.MatchedBook
 import org.snd.komga.model.MatchedSeries
@@ -229,11 +230,20 @@ class KomgaMetadataService(
     ): Pair<SeriesMetadata, Map<KomgaBook, BookMetadata?>> {
         if (originalSeriesMetadata.title == null || providers.isEmpty()) return originalSeriesMetadata to originalBookMetadata
 
-        logger.info { "aggregating metadata using providers: ${providers.map { it.providerName() }}" }
         return providers.mapNotNull { provider ->
+            logger.info { "searching \"${originalSeriesMetadata.title}\" using ${provider.providerName()}" }
             val seriesMetadata = provider.matchSeriesMetadata(originalSeriesMetadata.title)
+                ?: originalSeriesMetadata.alternativeTitles?.firstNotNullOfOrNull {
+                    if (StringUtils.isAsciiPrintable(it)) {
+                        logger.info { "searching \"$it\" using ${provider.providerName()}" }
+                        provider.matchSeriesMetadata(it)
+                    } else null
+                }
             if (seriesMetadata == null) null
-            else seriesMetadata to getBookMetadata(series.seriesId(), seriesMetadata, provider)
+            else {
+                logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${seriesMetadata.provider}  ${seriesMetadata.id}" }
+                seriesMetadata to getBookMetadata(series.seriesId(), seriesMetadata, provider)
+            }
         }.fold(originalSeriesMetadata to originalBookMetadata)
         { (seriesMetadata, bookMetadata), (newSeriesMetadata, newBookMetadata) ->
             mergeMetadata(seriesMetadata, newSeriesMetadata.metadata, bookMetadata, newBookMetadata)
