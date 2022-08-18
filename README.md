@@ -106,31 +106,31 @@ metadataProviders:
     priority: 10
     enabled: true
     seriesMetadata:
-      status: true,
-      title: true,
-      titleSort: true,
-      summary: true,
-      publisher: true,
-      readingDirection: true,
-      ageRating: true,
-      language: true,
-      genres: true,
-      tags: true,
-      totalBookCount: true,
-      authors: true,
-      thumbnail: true,
+      status: true
+      title: true
+      titleSort: true
+      summary: true
+      publisher: true
+      readingDirection: true
+      ageRating: true
+      language: true
+      genres: true
+      tags: true
+      totalBookCount: true
+      authors: true
+      thumbnail: true
       books: true
     bookMetadata:
-      title: true,
-      summary: true,
-      number: true,
-      numberSort: true,
-      releaseDate: true,
-      authors: true,
-      tags: true,
-      isbn: true,
-      links: true,
-      thumbnail: true,
+      title: true
+      summary: true
+      number: true
+      numberSort: true
+      releaseDate: true
+      authors: true
+      tags: true
+      isbn: true
+      links: true
+      thumbnail: true
 ```
 If you want to disable particular field you just need to set the field value to false
 ```yml
@@ -139,7 +139,7 @@ metadataProviders:
     priority: 10
     enabled: true
     seriesMetadata:
-      thumbnail: false,
+      thumbnail: false
 ```
 
 ## Discord notifications
