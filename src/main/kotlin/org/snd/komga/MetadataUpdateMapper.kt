@@ -18,7 +18,6 @@ class MetadataUpdateMapper(
         with(komgaMetadata) {
             val authors = (bookMetadata?.authors ?: seriesMetadata.authors)?.map { author -> KomgaAuthor(author.name, author.role) }
             KomgaBookMetadataUpdate(
-                title = getIfNotLocked(bookMetadata?.title, titleLock),
                 summary = getIfNotLocked(bookMetadata?.summary, summaryLock),
                 releaseDate = getIfNotLocked(bookMetadata?.releaseDate, releaseDateLock),
                 authors = getIfNotLocked(authors, authorsLock),
