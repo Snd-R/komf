@@ -61,7 +61,7 @@ class AniListClient(
             series.coverImage?.large?.toHttpUrlOrNull()?.let {
                 val request = Request.Builder().url(it).build()
                 val bytes = okHttpClient.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) throw HttpException(response.code, response.headers.toMap(), response.toString())
+                    if (!response.isSuccessful) throw HttpException(response)
                     response.body?.bytes() ?: throw IOException("empty body")
                 }
 

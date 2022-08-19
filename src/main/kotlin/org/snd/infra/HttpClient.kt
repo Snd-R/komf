@@ -24,7 +24,7 @@ open class HttpClient(
     fun execute(request: Request): String {
         return rateLimited {
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw HttpException(response.code, response.headers.toMap(), response.toString())
+                if (!response.isSuccessful) throw HttpException(response)
                 response.body?.string() ?: ""
             }
         }
@@ -33,7 +33,7 @@ open class HttpClient(
     fun executeWithByteResponse(request: Request): ByteArray {
         return rateLimited {
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw HttpException(response.code, response.headers.toMap(), response.toString())
+                if (!response.isSuccessful) throw HttpException(response)
 
                 response.body?.bytes() ?: throw IOException("empty body")
             }

@@ -1,5 +1,6 @@
 package org.snd.discord
 
+import mu.KotlinLogging
 import org.apache.velocity.app.VelocityEngine
 import org.snd.discord.client.DiscordClient
 import org.snd.discord.model.Embed
@@ -8,6 +9,7 @@ import org.snd.discord.model.WebhookMessage
 import org.snd.discord.model.toVelocityContext
 import java.io.StringWriter
 
+private val logger = KotlinLogging.logger {}
 
 class DiscordWebhookService(
     private val webhooks: Collection<String>,
@@ -26,6 +28,9 @@ class DiscordWebhookService(
         val writer = StringWriter()
         template.merge(message.toVelocityContext(), writer)
         val description = writer.toString()
+        if (description.isBlank()) {
+            logger.warn { "empty discord message for series ${message.series.name}. Skipping notification" }
+        }
         val embed = Embed(
             description = description,
             color = "1F8B4C".toInt(16),
