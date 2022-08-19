@@ -19,17 +19,18 @@ class DiscordWebhookService(
 
     fun send(message: WebhookMessage) {
         webhooks.map { discordClient.getWebhook(it) }.forEach { webhook ->
-            discordClient.executeWebhook(webhook, toRequest(message))
+            toRequest(message)?.let { discordClient.executeWebhook(webhook, it) }
         }
     }
 
-    private fun toRequest(message: WebhookMessage): WebhookExecuteRequest {
+    private fun toRequest(message: WebhookMessage): WebhookExecuteRequest? {
         val template = velocityEngine.getTemplate("discordWebhook.vm")
         val writer = StringWriter()
         template.merge(message.toVelocityContext(), writer)
         val description = writer.toString()
         if (description.isBlank()) {
             logger.warn { "empty discord message for series ${message.series.name}. Skipping notification" }
+            return null
         }
         val embed = Embed(
             description = description,
