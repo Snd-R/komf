@@ -43,6 +43,7 @@ class YenPressParser {
         val coverImage = coverStrip.getElementsByClass("book-cover").first()!!
             .child(0).getElementsByTag("img")
             .attr("src").removeSuffix("?auto=format&w=298")
+            .plus("?w=1000")
 
         val (title, bookNumber) = getTitleAndBookNumber(document.getElementById("book-title")!!.text())
 
