@@ -49,9 +49,7 @@ class KomgaMetadataService(
         val seriesMetadata = provider.getSeriesMetadata(providerSeriesId)
         val series = komgaClient.getSeries(seriesId)
         val bookMetadata = getBookMetadata(seriesId, seriesMetadata, provider)
-
-        updateSeriesMetadata(series, seriesMetadata.metadata)
-        updateBookMetadata(bookMetadata, seriesMetadata.metadata)
+        updateMetadata(series, seriesMetadata, bookMetadata)
         overrideReadingDirection(series.seriesId())
     }
 
@@ -81,22 +79,7 @@ class KomgaMetadataService(
         logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${seriesMetadata.provider}  ${seriesMetadata.id}" }
         val bookMetadata = getBookMetadata(series.seriesId(), seriesMetadata, provider)
 
-
-        if (aggregateMetadata) {
-            val aggregateProviders = metadataProviders.filterKeys { it != seriesMetadata.provider }
-            val (mergedSeriesMetadata, mergedBookMetadata) = aggregateMetadataFromProviders(
-                series,
-                seriesMetadata.metadata,
-                bookMetadata,
-                aggregateProviders.values
-            )
-            updateSeriesMetadata(series, mergedSeriesMetadata)
-            updateBookMetadata(mergedBookMetadata, seriesMetadata.metadata)
-        } else {
-            updateSeriesMetadata(series, seriesMetadata.metadata)
-            updateBookMetadata(bookMetadata, seriesMetadata.metadata)
-        }
-
+        updateMetadata(series, seriesMetadata, bookMetadata)
         overrideReadingDirection(series.seriesId())
     }
 
@@ -267,5 +250,26 @@ class KomgaMetadataService(
         ).map { (bookId, metadata) -> books[bookId]!! to metadata }.toMap()
 
         return mergedSeries to mergedBookMetadata
+    }
+
+    private fun updateMetadata(
+        series: KomgaSeries,
+        seriesMetadata: ProviderSeriesMetadata,
+        bookMetadata: Map<KomgaBook, BookMetadata?>
+    ) {
+        if (aggregateMetadata) {
+            val aggregateProviders = metadataProviders.filterKeys { it != seriesMetadata.provider }
+            val (mergedSeriesMetadata, mergedBookMetadata) = aggregateMetadataFromProviders(
+                series,
+                seriesMetadata.metadata,
+                bookMetadata,
+                aggregateProviders.values
+            )
+            updateSeriesMetadata(series, mergedSeriesMetadata)
+            updateBookMetadata(mergedBookMetadata, seriesMetadata.metadata)
+        } else {
+            updateSeriesMetadata(series, seriesMetadata.metadata)
+            updateBookMetadata(bookMetadata, seriesMetadata.metadata)
+        }
     }
 }
