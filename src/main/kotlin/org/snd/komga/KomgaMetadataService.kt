@@ -228,17 +228,20 @@ class KomgaMetadataService(
         originalBookMetadata: Map<KomgaBook, BookMetadata?>,
         providers: Collection<MetadataProvider>
     ): Pair<SeriesMetadata, Map<KomgaBook, BookMetadata?>> {
-        if (originalSeriesMetadata.title == null || providers.isEmpty()) return originalSeriesMetadata to originalBookMetadata
+        if (providers.isEmpty()) return originalSeriesMetadata to originalBookMetadata
+
+        val searchTitles = setOfNotNull(series.name, originalSeriesMetadata.title).let { titles ->
+            originalSeriesMetadata.alternativeTitles
+                ?.let { altTitles -> titles + altTitles } ?: titles
+        }
 
         return providers.mapNotNull { provider ->
-            logger.info { "searching \"${originalSeriesMetadata.title}\" using ${provider.providerName()}" }
-            val seriesMetadata = provider.matchSeriesMetadata(originalSeriesMetadata.title)
-                ?: originalSeriesMetadata.alternativeTitles?.firstNotNullOfOrNull {
-                    if (StringUtils.isAsciiPrintable(it)) {
-                        logger.info { "searching \"$it\" using ${provider.providerName()}" }
-                        provider.matchSeriesMetadata(it)
-                    } else null
-                }
+            val seriesMetadata = searchTitles.firstNotNullOfOrNull {
+                if (StringUtils.isAsciiPrintable(it)) {
+                    logger.info { "searching \"$it\" using ${provider.providerName()}" }
+                    provider.matchSeriesMetadata(it)
+                } else null
+            }
             if (seriesMetadata == null) null
             else {
                 logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${seriesMetadata.provider}  ${seriesMetadata.id}" }
