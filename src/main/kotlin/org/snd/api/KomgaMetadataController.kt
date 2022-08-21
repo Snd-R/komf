@@ -27,6 +27,8 @@ class KomgaMetadataController(
             post("identify", this::identifySeries)
             post("match/series/{id}", this::matchSeries)
             post("match/library/{id}", this::matchLibrary)
+            post("reset/series/{id}", this::resetSeries)
+            post("reset/library/{id}", this::resetLibrary)
         }
     }
 
@@ -68,6 +70,18 @@ class KomgaMetadataController(
         }
 
         return ctx.status(ACCEPTED)
+    }
+
+    private fun resetSeries(ctx: Context): Context {
+        val seriesId = KomgaSeriesId(ctx.pathParam("id"))
+        komgaMetadataService.resetSeriesMetadata(seriesId)
+        return ctx.status(NO_CONTENT)
+    }
+
+    private fun resetLibrary(ctx: Context): Context {
+        val libraryId = KomgaLibraryId(ctx.pathParam("id"))
+        komgaMetadataService.resetLibraryMetadata(libraryId)
+        return ctx.status(NO_CONTENT)
     }
 
     private fun providers(ctx: Context): Context {

@@ -111,7 +111,7 @@ class KomgaClient(
         client.execute(request)
     }
 
-    fun getBook(bookId: KomgaBookId) :KomgaBook {
+    fun getBook(bookId: KomgaBookId): KomgaBook {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -220,6 +220,6 @@ class KomgaClient(
     }
 
     private inline fun <reified T : Any> toJson(value: T): String {
-        return moshi.adapter<T>().lenient().toJson(value)
+        return moshi.adapter<T>().lenient().serializeNulls().toJson(value)
     }
 }

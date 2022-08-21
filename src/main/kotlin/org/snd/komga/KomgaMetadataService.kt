@@ -7,6 +7,7 @@ import org.snd.komga.model.MatchedBook
 import org.snd.komga.model.MatchedSeries
 import org.snd.komga.model.dto.KomgaBook
 import org.snd.komga.model.dto.KomgaBookId
+import org.snd.komga.model.dto.KomgaBookMetadataUpdate
 import org.snd.komga.model.dto.KomgaLibraryId
 import org.snd.komga.model.dto.KomgaSeries
 import org.snd.komga.model.dto.KomgaSeriesId
@@ -23,6 +24,7 @@ import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesMetadata.Status.ONGOING
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.Thumbnail
 
@@ -81,6 +83,79 @@ class KomgaMetadataService(
 
         updateMetadata(series, seriesMetadata, bookMetadata)
         overrideReadingDirection(series.seriesId())
+    }
+
+    fun resetSeriesMetadata(seriesId: KomgaSeriesId) {
+        val series = komgaClient.getSeries(seriesId)
+        resetSeriesMetadata(series)
+    }
+
+    private fun resetSeriesMetadata(series: KomgaSeries) {
+        komgaClient.updateSeriesMetadata(
+            series.seriesId(),
+            KomgaSeriesMetadataUpdate(
+                status = ONGOING.name,
+                title = series.name,
+                titleSort = series.name,
+                summary = "",
+                publisher = "",
+                readingDirection = null,
+                ageRating = null,
+                language = "",
+                genres = emptyList(),
+                tags = emptyList(),
+                totalBookCount = null,
+                statusLock = false,
+                titleLock = false,
+                titleSortLock = false,
+                summaryLock = false,
+                publisherLock = false,
+                readingDirectionLock = false,
+                ageRatingLock = false,
+                languageLock = false,
+                genresLock = false,
+                tagsLock = false,
+                totalBookCountLock = false
+            )
+        )
+
+        komgaClient.getBooks(series.seriesId(), true)
+            .content.forEach { resetBookMetadata(it) }
+    }
+
+    private fun resetBookMetadata(book: KomgaBook) {
+        komgaClient.updateBookMetadata(
+            book.bookId(),
+            KomgaBookMetadataUpdate(
+                title = book.name,
+                summary = "",
+                releaseDate = null,
+                authors = emptyList(),
+                tags = emptySet(),
+                isbn = null,
+                links = emptyList(),
+
+                titleLock = false,
+                summaryLock = false,
+                numberLock = false,
+                numberSortLock = false,
+                releaseDateLock = false,
+                authorsLock = false,
+                tagsLock = false,
+                isbnLock = false,
+                linksLock = false
+
+            )
+        )
+    }
+
+    fun resetLibraryMetadata(libraryId: KomgaLibraryId) {
+        var page = 0
+        do {
+            val currentPage = komgaClient.getSeries(libraryId, false, page)
+            currentPage.content.forEach { resetSeriesMetadata(it) }
+            page++
+        } while (!currentPage.last)
     }
 
     private fun updateSeriesMetadata(series: KomgaSeries, metadata: SeriesMetadata) {
