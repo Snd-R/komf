@@ -22,6 +22,7 @@ class RepositoryModule(
     init {
         val hikariConfig = HikariConfig()
         hikariConfig.jdbcUrl = "jdbc:sqlite:${config.file}"
+        hikariConfig.maximumPoolSize = 1
         this.datasource = HikariDataSource(hikariConfig)
         this.dsl = DSL.using(datasource, SQLDialect.SQLITE)
         System.getProperties().setProperty("org.jooq.no-logo", "true")
