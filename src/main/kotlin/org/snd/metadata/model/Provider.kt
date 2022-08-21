@@ -5,5 +5,6 @@ enum class Provider {
     MANGA_UPDATES,
     NAUTILJON,
     ANILIST,
-    YEN_PRESS
+    YEN_PRESS,
+    KODANSHA
 }

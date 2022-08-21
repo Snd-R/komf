@@ -1,9 +1,7 @@
 package org.snd.metadata.mal
 
-import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.mal.model.SearchResult
-import org.snd.metadata.mal.model.SearchResults
+import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.mal.model.toSeriesSearchResult
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.MAL
@@ -18,7 +16,6 @@ class MalMetadataProvider(
     private val malClient: MalClient,
     private val metadataMapper: MalMetadataMapper,
 ) : MetadataProvider {
-    private val similarity = JaroWinklerSimilarity()
 
     override fun providerName(): Provider {
         return MAL
@@ -42,29 +39,15 @@ class MalMetadataProvider(
 
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = malClient.searchSeries(seriesName.take(64))
-        val match = bestMatch(seriesName, searchResults)?.let { malClient.getSeries(it.id) }
+        val match = searchResults.results.firstOrNull {
+            val titles = listOfNotNull(it.title, it.alternative_titles.ja, it.alternative_titles.ja) + it.alternative_titles.synonyms
+            NameSimilarityMatcher.matches(seriesName, titles)
+        }
 
         return match?.let {
-            val thumbnail = malClient.getThumbnail(it)
-            metadataMapper.toSeriesMetadata(it, thumbnail)
+            val series = malClient.getSeries(it.id)
+            val thumbnail = malClient.getThumbnail(series)
+            metadataMapper.toSeriesMetadata(series, thumbnail)
         }
-    }
-
-    private fun bestMatch(name: String, searchResults: SearchResults): SearchResult? {
-        return searchResults.results
-            .map { Pair(getSimilarity(name, it), it) }
-            .filter { (score, _) -> score > 0.9 }
-            .maxByOrNull { (score, _) -> score }
-            ?.second
-    }
-
-    private fun getSimilarity(name: String, searchResult: SearchResult): Double {
-        val titles = listOf(
-            searchResult.title.uppercase(),
-            searchResult.alternative_titles.en.uppercase(),
-            searchResult.alternative_titles.ja.uppercase(),
-        ) + searchResult.alternative_titles.synonyms.map { it.uppercase() }
-
-        return titles.maxOf { similarity.apply(name.uppercase(), it) }
     }
 }

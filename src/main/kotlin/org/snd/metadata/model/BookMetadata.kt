@@ -15,8 +15,8 @@ data class BookMetadata(
     val links: List<WebLink>? = null,
     val chapters: Collection<Chapter>? = null,
 
-    val startChapter: Int?,
-    val endChapter: Int?,
+    val startChapter: Int? = null,
+    val endChapter: Int? = null,
 
     val thumbnail: Thumbnail? = null,
 )

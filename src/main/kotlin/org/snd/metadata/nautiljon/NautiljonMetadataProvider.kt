@@ -1,7 +1,7 @@
 package org.snd.metadata.nautiljon
 
-import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import org.snd.metadata.MetadataProvider
+import org.snd.metadata.NameSimilarityMatcher.matches
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.NAUTILJON
 import org.snd.metadata.model.ProviderBookId
@@ -9,7 +9,6 @@ import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
-import org.snd.metadata.nautiljon.model.SearchResult
 import org.snd.metadata.nautiljon.model.SeriesId
 import org.snd.metadata.nautiljon.model.VolumeId
 import org.snd.metadata.nautiljon.model.toSeriesSearchResult
@@ -18,7 +17,6 @@ class NautiljonMetadataProvider(
     private val client: NautiljonClient,
     private val metadataMapper: NautiljonSeriesMetadataMapper,
 ) : MetadataProvider {
-    private val similarity = JaroWinklerSimilarity()
 
     override fun providerName(): Provider {
         return NAUTILJON
@@ -45,29 +43,13 @@ class NautiljonMetadataProvider(
 
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = client.searchSeries(seriesName.take(400))
-        val match = bestMatch(seriesName, searchResults)?.let { client.getSeries(it.id) }
+        val match = searchResults
+            .firstOrNull { matches(seriesName, listOfNotNull(it.title, it.alternativeTitle)) }
 
         return match?.let {
-            val thumbnail = client.getSeriesThumbnail(it)
-            metadataMapper.toSeriesMetadata(it, thumbnail)
+            val series = client.getSeries(it.id)
+            val thumbnail = client.getSeriesThumbnail(series)
+            metadataMapper.toSeriesMetadata(series, thumbnail)
         }
     }
-
-    private fun bestMatch(name: String, searchResults: Collection<SearchResult>): SearchResult? {
-        return searchResults
-            .map { Pair(getSimilarity(name, it), it) }
-            .filter { (score, _) -> score > 0.9 }
-            .maxByOrNull { (score, _) -> score }
-            ?.second
-    }
-
-    private fun getSimilarity(name: String, searchResult: SearchResult): Double {
-        val titles = listOfNotNull(
-            searchResult.title.uppercase(),
-            searchResult.alternativeTitle?.uppercase()
-        )
-
-        return titles.maxOf { similarity.apply(name.uppercase(), it) }
-    }
-
 }

@@ -1,36 +1,37 @@
-package org.snd.metadata.yenpress
+package org.snd.metadata.kodansha
 
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.NameSimilarityMatcher.matches
+import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.kodansha.model.KodanshaBookId
+import org.snd.metadata.kodansha.model.KodanshaSeriesId
+import org.snd.metadata.kodansha.model.toSeriesSearchResult
 import org.snd.metadata.model.Provider
-import org.snd.metadata.model.Provider.YEN_PRESS
 import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
-import org.snd.metadata.yenpress.model.YenPressBookId
-import org.snd.metadata.yenpress.model.toSeriesSearchResult
+import org.snd.metadata.model.Thumbnail
 
-class YenPressMetadataProvider(
-    private val client: YenPressClient,
-    private val metadataMapper: YenPressMetadataMapper,
+class KondanshaMetadataProvider(
+    private val client: KodanshaClient,
+    private val metadataMapper: KodanshaMetadataMapper,
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
-        return YEN_PRESS
+        return Provider.KODANSHA
     }
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val series = client.getBook(YenPressBookId(seriesId.id))
-        val thumbnail = client.getBookThumbnail(series)
-
+        val series = client.getSeries(KodanshaSeriesId(seriesId.id))
+        val thumbnail = getThumbnail(series.coverUrl)
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
-        val bookMetadata = client.getBook(YenPressBookId(bookId.id))
-        val thumbnail = client.getBookThumbnail(bookMetadata)
+        val bookMetadata = client.getBook(KodanshaBookId(bookId.id))
+        val thumbnail = getThumbnail(bookMetadata.coverUrl)
 
         return metadataMapper.toBookMetadata(bookMetadata, thumbnail)
     }
@@ -43,12 +44,13 @@ class YenPressMetadataProvider(
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = client.searchSeries(seriesName.take(400))
 
-        return searchResults
-            .firstOrNull { matches(seriesName, it.title) }
+        return searchResults.firstOrNull { NameSimilarityMatcher.matches(seriesName, it.title) }
             ?.let {
-                val book = client.getBook(it.id)
-                val thumbnail = client.getBookThumbnail(book)
-                return metadataMapper.toSeriesMetadata(book, thumbnail)
+                val series = client.getSeries(it.seriesId)
+                val thumbnail = getThumbnail(series.coverUrl)
+                metadataMapper.toSeriesMetadata(series, thumbnail)
             }
     }
+
+    private fun getThumbnail(url: String?): Thumbnail? = url?.toHttpUrl()?.let { client.getThumbnail(it) }
 }

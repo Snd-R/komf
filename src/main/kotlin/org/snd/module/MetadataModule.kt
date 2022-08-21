@@ -11,6 +11,9 @@ import org.snd.infra.HttpException
 import org.snd.metadata.anilist.AniListClient
 import org.snd.metadata.anilist.AniListMetadataMapper
 import org.snd.metadata.anilist.AniListMetadataProvider
+import org.snd.metadata.kodansha.KodanshaClient
+import org.snd.metadata.kodansha.KodanshaMetadataMapper
+import org.snd.metadata.kodansha.KondanshaMetadataProvider
 import org.snd.metadata.mal.MalClient
 import org.snd.metadata.mal.MalClientInterceptor
 import org.snd.metadata.mal.MalMetadataMapper
@@ -18,7 +21,6 @@ import org.snd.metadata.mal.MalMetadataProvider
 import org.snd.metadata.mangaupdates.MangaUpdatesClient
 import org.snd.metadata.mangaupdates.MangaUpdatesMetadataMapper
 import org.snd.metadata.mangaupdates.MangaUpdatesMetadataProvider
-import org.snd.metadata.model.Provider
 import org.snd.metadata.nautiljon.NautiljonClient
 import org.snd.metadata.nautiljon.NautiljonMetadataProvider
 import org.snd.metadata.nautiljon.NautiljonSeriesMetadataMapper
@@ -137,7 +139,7 @@ class MetadataModule(
     private val yenPressClient: YenPressClient = YenPressClient(
         HttpClient(
             client = httpClient.newBuilder().build(),
-            name = "MangaUpdates",
+            name = "YenPress",
             rateLimiterConfig = RateLimiterConfig.custom()
                 .limitRefreshPeriod(Duration.ofSeconds(5))
                 .limitForPeriod(5)
@@ -151,22 +153,35 @@ class MetadataModule(
         else null
     }
 
-    val metadataProviders = run {
-        val malPriority = config.mal.priority
-        val mangaUpdatesPriority = config.mangaUpdates.priority
-        val nautiljonPriority = config.nautiljon.priority
-        val aniLisPriority = config.aniList.priority
-        val yenPressPriority = config.yenPress.priority
+    private val kodanshaClient: KodanshaClient = KodanshaClient(
+        HttpClient(
+            client = httpClient.newBuilder().build(),
+            name = "Kodansha",
+            rateLimiterConfig = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(5))
+                .limitForPeriod(5)
+                .timeoutDuration(Duration.ofSeconds(5))
+                .build()
+        )
+    )
+    private val kodanshaMetadataMapper: KodanshaMetadataMapper = KodanshaMetadataMapper(
+        seriesMetadataConfig = config.kodansha.seriesMetadata,
+        bookMetadataConfig = config.kodansha.bookMetadata,
+    )
+    private val kodanshaMetadataProvider = config.kodansha.let {
+        if (it.enabled) KondanshaMetadataProvider(kodanshaClient, kodanshaMetadataMapper)
+        else null
 
-        val malProvider = malMetadataProvider?.let { Provider.MAL to (it to malPriority) }
-        val mangaUpdatesProvider = mangaUpdatesMetadataProvider?.let { Provider.MANGA_UPDATES to (it to mangaUpdatesPriority) }
-        val nautiljonProvider = nautiljonMetadataProvider?.let { Provider.NAUTILJON to (it to nautiljonPriority) }
-        val aniListProvider = aniListMetadataProvider?.let { Provider.ANILIST to (it to aniLisPriority) }
-        val yenPressProvider = yenPressMetadataProvider?.let { Provider.YEN_PRESS to (it to yenPressPriority) }
-
-        sequenceOf(malProvider, mangaUpdatesProvider, nautiljonProvider, aniListProvider, yenPressProvider).filterNotNull()
-            .sortedBy { it.second.second }
-            .map { it.first to it.second.first }
-            .toMap()
     }
+
+    val metadataProviders = listOfNotNull(
+        malMetadataProvider?.let { it to config.mal.priority },
+        mangaUpdatesMetadataProvider?.let { it to config.mangaUpdates.priority },
+        nautiljonMetadataProvider?.let { it to config.nautiljon.priority },
+        aniListMetadataProvider?.let { it to config.aniList.priority },
+        yenPressMetadataProvider?.let { it to config.yenPress.priority },
+        kodanshaMetadataProvider?.let { it to config.kodansha.priority }
+    )
+        .sortedBy { (_, priority) -> priority }
+        .associate { (provider, _) -> provider.providerName() to provider }
 }

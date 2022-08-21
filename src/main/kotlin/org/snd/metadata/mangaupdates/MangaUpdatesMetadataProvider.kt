@@ -1,8 +1,7 @@
 package org.snd.metadata.mangaupdates
 
-import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.mangaupdates.model.SearchResult
+import org.snd.metadata.NameSimilarityMatcher.matches
 import org.snd.metadata.mangaupdates.model.toSeriesSearchResult
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.MANGA_UPDATES
@@ -16,7 +15,6 @@ class MangaUpdatesMetadataProvider(
     private val client: MangaUpdatesClient,
     private val metadataMapper: MangaUpdatesMetadataMapper,
 ) : MetadataProvider {
-    private val similarity = JaroWinklerSimilarity()
 
     override fun providerName(): Provider {
         return MANGA_UPDATES
@@ -39,19 +37,13 @@ class MangaUpdatesMetadataProvider(
 
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = client.searchSeries(seriesName.take(400)).results
-        val match = bestMatch(seriesName, searchResults)?.let { client.getSeries(it.id) }
 
-        return match?.let {
-            val thumbnail = client.getThumbnail(it)
-            return metadataMapper.toSeriesMetadata(it, thumbnail)
-        }
-    }
-
-    private fun bestMatch(name: String, searchResults: Collection<SearchResult>): SearchResult? {
         return searchResults
-            .map { Pair(similarity.apply(name.uppercase(), it.title.uppercase()), it) }
-            .filter { (score, _) -> score > 0.9 }
-            .maxByOrNull { (score, _) -> score }
-            ?.second
+            .firstOrNull { matches(seriesName, it.title) }
+            ?.let {
+                val series = client.getSeries(it.id)
+                val thumbnail = client.getThumbnail(series)
+                return metadataMapper.toSeriesMetadata(series, thumbnail)
+            }
     }
 }
