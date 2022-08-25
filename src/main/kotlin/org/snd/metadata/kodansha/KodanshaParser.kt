@@ -30,7 +30,7 @@ class KodanshaParser {
         val type = titleBlock.child(0).text().trim()
         if (type != "Manga Series:") return null
 
-        val title = titleBlock.child(1).child(0).text()
+        val title = titleBlock.child(1).text().removeSuffix(" (manga)")
         val id = titleBlock.child(1).attr("href").removeSurrounding("$baseUrl/series/", "/")
 
         val imageUrl = resultCard.child(1).child(0).child(0).attr("src")

@@ -14,6 +14,7 @@ import org.snd.komga.KomgaEventListener
 import org.snd.komga.KomgaMetadataService
 import org.snd.komga.KomgaNotificationService
 import org.snd.komga.MetadataUpdateMapper
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit.SECONDS
 
 class KomgaModule(
@@ -60,9 +61,10 @@ class KomgaModule(
         metadataProviders = metadataModule.metadataProviders,
         matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
         matchedBookRepository = repositoryModule.matchedBookRepository,
-        config.metadataUpdate,
-        MetadataUpdateMapper(config.metadataUpdate),
-        config.aggregateMetadata
+        metadataUpdateConfig = config.metadataUpdate,
+        metadataUpdateMapper = MetadataUpdateMapper(config.metadataUpdate),
+        aggregateMetadata = config.aggregateMetadata,
+        executor = Executors.newFixedThreadPool(4)
     )
 
     private val notificationService = KomgaNotificationService(

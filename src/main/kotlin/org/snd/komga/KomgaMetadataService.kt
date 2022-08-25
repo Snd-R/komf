@@ -27,6 +27,8 @@ import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesMetadata.Status.ONGOING
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.Thumbnail
+import java.util.concurrent.CompletableFuture.supplyAsync
+import java.util.concurrent.ExecutorService
 
 private val logger = KotlinLogging.logger {}
 
@@ -38,6 +40,7 @@ class KomgaMetadataService(
     private val metadataUpdateConfig: MetadataUpdateConfig,
     private val metadataUpdateMapper: MetadataUpdateMapper,
     private val aggregateMetadata: Boolean,
+    private val executor: ExecutorService
 ) {
     fun availableProviders(): Set<Provider> = metadataProviders.keys
 
@@ -293,21 +296,29 @@ class KomgaMetadataService(
                 ?.let { altTitles -> titles + altTitles } ?: titles
         }
 
-        return providers.mapNotNull { provider ->
-            val seriesMetadata = searchTitles.firstNotNullOfOrNull {
-                if (StringUtils.isAsciiPrintable(it)) {
-                    logger.info { "searching \"$it\" using ${provider.providerName()}" }
-                    provider.matchSeriesMetadata(it)
-                } else null
+        return providers.map { provider -> supplyAsync({ getMetadata(series.seriesId(), searchTitles, provider) }, executor) }
+            .mapNotNull { it.join() }
+            .fold(originalSeriesMetadata to originalBookMetadata)
+            { (seriesMetadata, bookMetadata), (newSeriesMetadata, newBookMetadata) ->
+                mergeMetadata(seriesMetadata, newSeriesMetadata.metadata, bookMetadata, newBookMetadata)
             }
-            if (seriesMetadata == null) null
-            else {
-                logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${seriesMetadata.provider}  ${seriesMetadata.id}" }
-                seriesMetadata to getBookMetadata(series.seriesId(), seriesMetadata, provider)
-            }
-        }.fold(originalSeriesMetadata to originalBookMetadata)
-        { (seriesMetadata, bookMetadata), (newSeriesMetadata, newBookMetadata) ->
-            mergeMetadata(seriesMetadata, newSeriesMetadata.metadata, bookMetadata, newBookMetadata)
+    }
+
+    private fun getMetadata(
+        seriesId: KomgaSeriesId,
+        searchTitles: Collection<String>,
+        provider: MetadataProvider
+    ): Pair<ProviderSeriesMetadata, Map<KomgaBook, BookMetadata?>>? {
+        val seriesMetadata = searchTitles.firstNotNullOfOrNull {
+            if (StringUtils.isAsciiPrintable(it)) {
+                logger.info { "searching \"$it\" using ${provider.providerName()}" }
+                provider.matchSeriesMetadata(it)
+            } else null
+        }
+        return if (seriesMetadata == null) null
+        else {
+            logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${seriesMetadata.provider}  ${seriesMetadata.id}" }
+            seriesMetadata to getBookMetadata(seriesId, seriesMetadata, provider)
         }
     }
 
