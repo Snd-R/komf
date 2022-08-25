@@ -22,7 +22,7 @@ class KomgaModule(
     jsonModule: JsonModule,
     repositoryModule: RepositoryModule,
     metadataModule: MetadataModule,
-    discordModule: DiscordModule,
+    discordModule: DiscordModule?,
 ) : AutoCloseable {
     private val httpClient = okHttpClient.newBuilder()
         .cookieJar(SimpleCookieJar())
@@ -46,7 +46,7 @@ class KomgaModule(
         .build()
 
 
-    private val komgaClient = KomgaClient(
+    val komgaClient = KomgaClient(
         client = HttpClient(
             client = komgaHttpClient,
             name = "Komga"
@@ -67,7 +67,7 @@ class KomgaModule(
 
     private val notificationService = KomgaNotificationService(
         komgaClient,
-        discordModule.discordWebhookService
+        discordModule?.discordWebhookService
     )
 
     private val komgaEventListener = KomgaEventListener(

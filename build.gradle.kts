@@ -27,19 +27,15 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.squareup.okhttp3:okhttp-sse:4.10.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
-    implementation("com.apollographql.apollo3:apollo-runtime")
-
     implementation("com.squareup.moshi:moshi:1.13.0")
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.13.0")
+    implementation("com.apollographql.apollo3:apollo-runtime")
 
     implementation("io.javalin:javalin:4.6.4")
 
-    implementation("org.apache.commons:commons-text:1.9")
-    implementation("com.charleskorn.kaml:kaml:0.46.0")
     implementation("io.github.resilience4j:resilience4j-ratelimiter:1.7.1")
     implementation("io.github.resilience4j:resilience4j-retry:1.7.1")
     implementation("io.github.resilience4j:resilience4j-kotlin:1.7.1")
-    implementation("org.jsoup:jsoup:1.15.2")
 
     implementation("org.flywaydb:flyway-core:9.1.3")
     implementation("org.jooq:jooq:3.16.8")
@@ -47,7 +43,12 @@ dependencies {
     jooqGenerator("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
+    implementation("com.charleskorn.kaml:kaml:0.46.0")
+    implementation("com.github.ajalt.clikt:clikt:3.5.0")
+    implementation("org.apache.commons:commons-text:1.9")
     implementation("org.apache.velocity:velocity-engine-core:2.3")
+    implementation("org.jsoup:jsoup:1.15.2")
+
 }
 
 tasks.withType<KotlinCompile>().configureEach {

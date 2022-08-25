@@ -3,8 +3,8 @@
 ## Features
 
 - automatically pick up added series and update their metadata and thumbnail
-- manually search and identify series (rest endpoints only)
-- match entire library or a series (rest endpoints only)
+- manually search and identify series (http endpoints or cli commands)
+- match entire library or a series (http endpoints or cli commands)
 
 In addition, you can also install [userscript](https://github.com/Snd-R/komf-userscript) that adds komf integration
 directly to komga ui allowing you to launch manual or automatic metadata identification
@@ -132,7 +132,9 @@ metadataProviders:
       links: true
       thumbnail: true
 ```
+
 If you want to disable particular field you just need to set the field value to false
+
 ```yml
 metadataProviders:
   mangaUpdates:
@@ -167,6 +169,53 @@ Example of a template:
 
 Variables available in template: `library.(name)`, `series.(id, name, summary)`, `books.(id, name)`(list of book
 objects)
+
+## Command line options
+
+You can run komf as a daemon server or as a cli tool for one-off operation
+
+`java -jar komf.jar [OPTIONS]`
+
+### options:
+
+`--config-dir` - config directory that will be used for all external files including config file. Config file must be
+named `application.yml`. This option overrides all other config path options
+
+`--config-file` - path to config file
+
+`--verbose` - flag to enable debug messages
+
+### Commands
+
+subcommands will launch komf without starting server or event listener and will perform specified operation. Example of
+a command:
+
+`java -jar komf.jar --config-file=./application.yml series update 09PQAG2PDNW4V`
+
+### series search
+
+`komf series search NAME` - searches series in komga by specified name
+
+### series update
+
+`komf series update ID` - launches metadata auto identification for provided series id
+
+### series identify
+
+`komf series identify ID` - manual identification that allows you to choose from the list of metadata provider search
+results
+
+### series reset
+
+`komf series reset ID` - resets all metadata for provided series id
+
+### library update
+
+`komf library update ID` - launches metadata auto identification for provided library id
+
+### library reset
+
+`komf library reset ID` - resets all metadata for provided library id
 
 ## Http endpoints
 

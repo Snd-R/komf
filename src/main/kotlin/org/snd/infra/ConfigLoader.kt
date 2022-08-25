@@ -8,24 +8,24 @@ import kotlin.io.path.isReadable
 
 class ConfigLoader {
 
-    fun loadConfig(path: Path?): AppConfig {
-        val configRaw = loadFromEnv() ?: loadFromArgs(path) ?: loadDefault()
-        return configRaw?.let {
-            val config = Yaml.default.decodeFromString(AppConfig.serializer(), it)
-            checkDeprecatedOptions(overrideFromEnvVariables(config))
-        } ?: checkDeprecatedOptions(overrideFromEnvVariables(AppConfig()))
+    fun loadConfig(configPath: Path?, configDirectory: Path?): AppConfig {
+        val configRaw = loadFromDirectory(configDirectory) ?: loadFromFile(configPath) ?: loadDefault()
+
+        val config = configRaw?.let { Yaml.default.decodeFromString(AppConfig.serializer(), it) }
+            ?: AppConfig()
+
+        return checkDeprecatedOptions(overrideFromEnvVariables(config))
     }
 
-    private fun loadFromEnv(): String? {
-        val confEnv = System.getenv("KOMF_CONFIG_DIR")
-        return confEnv?.let {
-            val path = Path.of(it).resolve("application.yml")
+    private fun loadFromDirectory(configDirectory: Path?): String? {
+        return configDirectory?.let {
+            val path = configDirectory.resolve("application.yml")
             if (path.isReadable()) Files.readString(path)
             else null
         }
     }
 
-    private fun loadFromArgs(path: Path?): String? {
+    private fun loadFromFile(path: Path?): String? {
         return path?.let {
             Files.readString(it.toRealPath())
         }

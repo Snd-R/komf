@@ -2,6 +2,7 @@ package org.snd.module
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import org.flywaydb.core.Flyway
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
@@ -20,6 +21,12 @@ class RepositoryModule(
     private val dsl: DSLContext
 
     init {
+        Flyway(
+            Flyway.configure()
+                .dataSource("jdbc:sqlite:${config.file}", null, null)
+                .locations("classpath:db/migration/sqlite")
+        ).migrate()
+
         val hikariConfig = HikariConfig()
         hikariConfig.jdbcUrl = "jdbc:sqlite:${config.file}"
         hikariConfig.maximumPoolSize = 1

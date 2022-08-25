@@ -111,6 +111,20 @@ class KomgaClient(
         client.execute(request)
     }
 
+    fun searchSeries(name: String, page: Int, pageSize: Int): Page<KomgaSeries> {
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/v1/series")
+                    .addQueryParameter("search", name)
+                    .addQueryParameter("page", page.toString())
+                    .addQueryParameter("pageSize", pageSize.toString())
+                    .build()
+            ).build()
+
+        return parseJson(client.execute(request))
+    }
+
     fun getBook(bookId: KomgaBookId): KomgaBook {
         val request = Request.Builder()
             .url(
