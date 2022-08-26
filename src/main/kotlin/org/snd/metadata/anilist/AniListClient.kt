@@ -19,7 +19,6 @@ import org.snd.fragment.AniListManga
 import org.snd.infra.HttpException
 import org.snd.metadata.model.Thumbnail
 import java.io.IOException
-import java.util.function.Supplier
 
 class AniListClient(
     private val okHttpClient: OkHttpClient,
@@ -70,9 +69,9 @@ class AniListClient(
         }
     }
 
-    private fun <T> rateLimited(supplier: Supplier<T>): T {
-        val rateLimited = RateLimiter.decorateSupplier(rateLimit, supplier)
-        val retryable = Retry.decorateSupplier(retry, rateLimited)
-        return retryable.get()
+    private fun <T> rateLimited(supplier: () -> T): T {
+        return RateLimiter.decorateCheckedSupplier(rateLimit, supplier)
+            .let { Retry.decorateCheckedSupplier(retry, it) }
+            .apply()
     }
 }

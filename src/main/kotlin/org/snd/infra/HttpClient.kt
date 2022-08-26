@@ -8,7 +8,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.util.function.Supplier
 
 val MEDIA_TYPE_JSON = "application/json".toMediaType()
 
@@ -40,9 +39,9 @@ open class HttpClient(
         }
     }
 
-    private fun <T> rateLimited(supplier: Supplier<T>): T {
-        val rateLimited = RateLimiter.decorateSupplier(rateLimit, supplier)
-        val retryable = Retry.decorateSupplier(retry, rateLimited)
-        return retryable.get()
+    private fun <T> rateLimited(supplier: () -> T): T {
+        return RateLimiter.decorateCheckedSupplier(rateLimit, supplier)
+            .let { Retry.decorateCheckedSupplier(retry, it) }
+            .apply()
     }
 }
