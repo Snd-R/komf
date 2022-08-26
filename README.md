@@ -239,3 +239,7 @@ results
 `POST /match/series/{seriesId}`try to match series
 
 `POST /match/library/{libraryId}` try to match series of a library
+
+`POST /reset/series/{seriesId}` reset metadata all metadata of a series
+
+`POST /reset/library/{libraryId}` reset metadata of all series in a library
