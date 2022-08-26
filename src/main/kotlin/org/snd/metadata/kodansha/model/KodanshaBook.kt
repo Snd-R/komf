@@ -5,7 +5,7 @@ import java.time.LocalDate
 data class KodanshaBook(
     val id: KodanshaBookId,
     val name: String,
-    val number: Int,
+    val number: Int?,
     val summary: String?,
     val coverUrl: String?,
     val tags: Collection<String>,

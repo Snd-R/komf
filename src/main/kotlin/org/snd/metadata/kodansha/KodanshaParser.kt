@@ -189,9 +189,9 @@ class KodanshaParser {
             }
     }
 
-    private fun parseBookTitleAndNumber(name: String): Pair<String, Int> {
+    private fun parseBookTitleAndNumber(name: String): Pair<String, Int?> {
         val volumeNumber = "(, [Vv]olume (?<volumeNumber>[0-9]+))".toRegex().find(name)
-            ?.groups?.get("volumeNumber")!!.value.toInt()
+            ?.groups?.get("volumeNumber")?.value?.toInt()
         val title = name.replace(" (manga)", "")
 
         return title to volumeNumber

@@ -15,7 +15,7 @@ data class KodanshaSeries(
 
 data class KodanshaSeriesBook(
     val id: KodanshaBookId,
-    val number: Int,
+    val number: Int?,
 )
 
 enum class Status {
