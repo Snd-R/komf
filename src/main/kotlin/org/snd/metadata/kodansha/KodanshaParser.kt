@@ -190,10 +190,10 @@ class KodanshaParser {
     }
 
     private fun parseBookTitleAndNumber(name: String): Pair<String, Int> {
-        val volumeNumber = "(, Volume [0-9]+)".toRegex().find(name)?.groupValues!!.first()
-        val number = volumeNumber.removePrefix(", Volume ").toInt()
+        val volumeNumber = "(, [Vv]olume (?<volumeNumber>[0-9]+))".toRegex().find(name)
+            ?.groups?.get("volumeNumber")!!.value.toInt()
         val title = name.replace(" (manga)", "")
 
-        return title to number
+        return title to volumeNumber
     }
 }
