@@ -47,7 +47,7 @@ class KodanshaParser {
         val productDetail = document.getElementsByClass("product-detail-hero").first()!!.child(0)
         val title = productDetail.child(1).getElementsByClass("title title--product-page").first()!!
             .text().removeSuffix(" (manga)")
-        val summary = productDetail.child(1).getElementsByClass("product-detail-hero__synopsis").first()!!.text()
+        val summary = productDetail.child(1).getElementsByClass("product-detail-hero__synopsis").first()?.text()
         val authors = parseAuthors(productDetail)
         val coverUrl = productDetail.child(0).child(0).child(0).attr("srcset")
 
@@ -99,7 +99,7 @@ class KodanshaParser {
             .text().replace(" (manga)", "")
         val (title, number) = parseBookTitleAndNumber(fullTitle)
 
-        val summary = productDetail.getElementsByClass("product-detail-hero__synopsis").first()!!.text()
+        val summary = productDetail.getElementsByClass("product-detail-hero__synopsis").first()?.text()
         val authors = parseAuthors(productDetail)
         val coverUrl = productDetail.getElementsByClass("l-frame product-image ").first()!!.child(0).attr("src")
 
@@ -144,11 +144,11 @@ class KodanshaParser {
     }
 
     private fun parseAuthors(productDetail: Element): Collection<String> {
-        return productDetail.getElementsByClass("product-detail-hero__main-content").first()!!
-            .getElementsByClass("byline").first()!!.text()
-            .removePrefix("By ")
-            .split("and")
-            .map { it.trim() }
+        return productDetail.getElementsByClass("product-detail-hero__main-content").first()
+            ?.getElementsByClass("byline")?.first()?.text()
+            ?.removePrefix("By ")
+            ?.split("and")
+            ?.map { it.trim() } ?: emptyList()
     }
 
     private fun parseSeriesBooksFromShelf(document: Document): Collection<KodanshaSeriesBook>? {
