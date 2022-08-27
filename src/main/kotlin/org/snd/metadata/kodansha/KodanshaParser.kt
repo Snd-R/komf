@@ -156,7 +156,7 @@ class KodanshaParser {
             ?.map { book ->
                 KodanshaSeriesBook(
                     id = book.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/").let { KodanshaBookId(it) },
-                    number = book.child(0).child(0).child(1).text().removePrefix("Volume ").toInt(),
+                    number = book.child(0).child(0).child(1).text().removePrefix("Volume ").toIntOrNull(),
                 )
             }
     }
@@ -191,7 +191,7 @@ class KodanshaParser {
 
     private fun parseBookTitleAndNumber(name: String): Pair<String, Int?> {
         val volumeNumber = "(, [Vv]olume (?<volumeNumber>[0-9]+))".toRegex().find(name)
-            ?.groups?.get("volumeNumber")?.value?.toInt()
+            ?.groups?.get("volumeNumber")?.value?.toIntOrNull()
         val title = name.replace(" (manga)", "")
 
         return title to volumeNumber
