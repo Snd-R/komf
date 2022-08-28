@@ -11,7 +11,7 @@ data class YenPressBook(
     val description: String?,
     val imageUrl: String?,
     val genres: Collection<String>,
-    val isbn: String,
+    val isbn: String?,
     val seriesBooks: Collection<YenPressSeriesBook>
 )
 

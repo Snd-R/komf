@@ -29,7 +29,7 @@ class YenPressMetadataMapper(
             tags = null,
             authors = null,
             thumbnail = thumbnail,
-            totalBookCount = book.seriesBooks.size,
+            totalBookCount = book.seriesBooks.size.let { if (it < 1) null else it },
             ageRating = null
         )
 

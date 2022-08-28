@@ -40,33 +40,35 @@ class YenPressParser {
     fun parseBook(book: String): YenPressBook {
         val document = Jsoup.parse(book)
         val coverStrip = document.getElementById("book-cover-strip")!!
-        val coverImage = coverStrip.getElementsByClass("book-cover").first()!!
-            .child(0).getElementsByTag("img")
-            .attr("src").removeSuffix("?auto=format&w=298")
-            .plus("?w=1000")
+        val coverImage = coverStrip.getElementsByClass("book-cover").first()
+            ?.child(0)?.getElementsByTag("img")
+            ?.attr("src")
+            ?.let { if (it == "https://yenpress-us.imgix.net/missing-cover.jpg") null else it }
+            ?.removeSuffix("?auto=format&w=298")
+            ?.plus("?w=1000")
 
         val (title, bookNumber) = getTitleAndBookNumber(document.getElementById("book-title")!!.text())
 
-        val description = document.getElementById("book-description-full")!!.text()
-        val genres = document.getElementById("book-categories")!!.textNodes()[1].text()
-            .split("/").map { it.trim() }
-        val bookDetails = document.getElementById("book-details")!!
-        val isbn = bookDetails.child(1).getElementsByTag("li")
-            .first { element -> element.child(0).text() == "ISBN-13:" }
-            .child(1).text()
-        val releaseDate = bookDetails.child(1).getElementsByTag("li")
-            .first { element -> element.child(0).text() == "On Sale Date:" }
-            .child(1).text()
-            .let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MM/dd/yyyy")) }
+        val description = document.getElementById("book-description-full")?.text()
+        val genres = document.getElementById("book-categories")?.textNodes()?.get(3)?.text()
+            ?.split("/")?.map { it.trim() }
+        val bookDetails = document.getElementById("book-details")
+        val isbn = bookDetails?.child(1)?.getElementsByTag("li")
+            ?.firstOrNull { element -> element.child(0).text() == "ISBN-13:" }
+            ?.child(1)?.text()
+        val releaseDate = bookDetails?.child(1)?.getElementsByTag("li")
+            ?.firstOrNull { element -> element.child(0).text() == "On Sale Date:" }
+            ?.child(1)?.text()
+            ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MM/dd/yyyy")) }
 
-        val seriesBooks = document.getElementById("isbn-grid-0")!!
-            .getElementsByClass("book-wrapper")
-            .map { it.child(0).child(0) }
-            .map { it.attr("href") to it.attr("alt") }
-            .map { (id, name) ->
+        val seriesBooks = document.getElementById("isbn-grid-0")
+            ?.getElementsByClass("book-wrapper")
+            ?.map { it.child(0).child(0) }
+            ?.map { it.attr("href") to it.attr("alt") }
+            ?.map { (id, name) ->
                 val (seriesBookTitle, seriesBookNumber) = getTitleAndBookNumber(name)
                 YenPressSeriesBook(id = YenPressBookId(id), number = seriesBookNumber, name = seriesBookTitle)
-            }
+            } ?: emptyList()
 
         return YenPressBook(
             id = parseBookId(document),
@@ -75,7 +77,7 @@ class YenPressParser {
             releaseDate = releaseDate,
             description = description,
             imageUrl = coverImage,
-            genres = genres,
+            genres = genres ?: emptyList(),
             isbn = isbn,
             seriesBooks = seriesBooks
         )
