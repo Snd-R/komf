@@ -40,8 +40,8 @@ class NautiljonSeriesMetadataMapper(
         }
 
 
-        val authors = series.authorsStory.map { org.snd.metadata.model.Author(it, AuthorRole.WRITER.name) } +
-                series.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role.name) } }
+        val authors = series.authorsStory.map { org.snd.metadata.model.Author(it, AuthorRole.WRITER) } +
+                series.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role) } }
 
         val tags = series.themes + listOfNotNull(
             originalPublisherTag?.let { tag ->
@@ -84,8 +84,8 @@ class NautiljonSeriesMetadataMapper(
     }
 
     fun toBookMetadata(volume: Volume, thumbnail: Thumbnail? = null): ProviderBookMetadata {
-        val authors = volume.authorsStory.map { org.snd.metadata.model.Author(it, AuthorRole.WRITER.name) } +
-                volume.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role.name) } }
+        val authors = volume.authorsStory.map { org.snd.metadata.model.Author(it, AuthorRole.WRITER) } +
+                volume.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role) } }
 
         val metadata = BookMetadata(
             summary = volume.description ?: "",

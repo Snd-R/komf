@@ -7,6 +7,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.internal.EMPTY_REQUEST
 import org.snd.infra.HttpClient
 import org.snd.infra.MEDIA_TYPE_JSON
 import org.snd.komga.model.dto.KomgaBook
@@ -123,6 +124,18 @@ class KomgaClient(
             ).build()
 
         return parseJson(client.execute(request))
+    }
+
+    fun analyzeSeries(seriesId: KomgaSeriesId) {
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/v1/series/${seriesId.id}/analyze")
+                    .build()
+            ).post(EMPTY_REQUEST)
+            .build()
+
+        client.execute(request)
     }
 
     fun getBook(bookId: KomgaBookId): KomgaBook {

@@ -34,8 +34,8 @@ class MangaUpdatesMetadataMapper(
 
         val authors = series.authors.flatMap {
             when (it.type) {
-                "Author" -> listOf(org.snd.metadata.model.Author(it.name, AuthorRole.WRITER.name))
-                else -> artistRoles.map { role -> org.snd.metadata.model.Author(it.name, role.name) }
+                "Author" -> listOf(org.snd.metadata.model.Author(it.name, AuthorRole.WRITER))
+                else -> artistRoles.map { role -> org.snd.metadata.model.Author(it.name, role) }
             }
         }
 

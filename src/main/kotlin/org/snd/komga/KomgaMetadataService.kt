@@ -3,6 +3,8 @@ package org.snd.komga
 import mu.KotlinLogging
 import org.apache.commons.lang3.StringUtils
 import org.snd.config.MetadataUpdateConfig
+import org.snd.komga.UpdateMode.API
+import org.snd.komga.UpdateMode.FILE_EMBED
 import org.snd.komga.model.MatchedBook
 import org.snd.komga.model.MatchedSeries
 import org.snd.komga.model.dto.KomgaBook
@@ -18,6 +20,7 @@ import org.snd.komga.repository.MatchedSeriesRepository
 import org.snd.metadata.BookFilenameParser
 import org.snd.metadata.MetadataMerger
 import org.snd.metadata.MetadataProvider
+import org.snd.metadata.comicinfo.ComicInfoWriter
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
@@ -27,6 +30,7 @@ import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesMetadata.Status.ONGOING
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.Thumbnail
+import java.nio.file.Path
 import java.util.concurrent.CompletableFuture.supplyAsync
 import java.util.concurrent.ExecutorService
 
@@ -40,7 +44,8 @@ class KomgaMetadataService(
     private val metadataUpdateConfig: MetadataUpdateConfig,
     private val metadataUpdateMapper: MetadataUpdateMapper,
     private val aggregateMetadata: Boolean,
-    private val executor: ExecutorService
+    private val executor: ExecutorService,
+    private val comicInfoWriter: ComicInfoWriter,
 ) {
     fun availableProviders(): Set<Provider> = metadataProviders.keys
 
@@ -162,8 +167,10 @@ class KomgaMetadataService(
     }
 
     private fun updateSeriesMetadata(series: KomgaSeries, metadata: SeriesMetadata) {
-        val metadataUpdate = metadataUpdateMapper.toSeriesMetadataUpdate(metadata, series.metadata)
-        komgaClient.updateSeriesMetadata(series.seriesId(), metadataUpdate)
+        if (metadataUpdateConfig.mode == API) {
+            val metadataUpdate = metadataUpdateMapper.toSeriesMetadataUpdate(metadata, series.metadata)
+            komgaClient.updateSeriesMetadata(series.seriesId(), metadataUpdate)
+        }
 
         val newThumbnail = if (metadataUpdateConfig.seriesThumbnails) metadata.thumbnail else null
         val thumbnailId = replaceSeriesThumbnail(series.seriesId(), newThumbnail)
@@ -198,8 +205,13 @@ class KomgaMetadataService(
     }
 
     private fun updateBookMetadata(book: KomgaBook, metadata: BookMetadata?, seriesMeta: SeriesMetadata) {
-        val metadataUpdate = metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book.metadata)
-        komgaClient.updateBookMetadata(book.bookId(), metadataUpdate)
+        if (metadataUpdateConfig.mode == API) {
+            val metadataUpdate = metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book.metadata)
+            komgaClient.updateBookMetadata(book.bookId(), metadataUpdate)
+        } else {
+            val comicInfo = metadataUpdateMapper.toComicInfo(metadata, seriesMeta)
+            comicInfoWriter.writeMetadata(Path.of(book.url), comicInfo)
+        }
 
         val newThumbnail = if (metadataUpdateConfig.bookThumbnails) metadata?.thumbnail else null
         val thumbnailId = replaceBookThumbnail(book.bookId(), newThumbnail)
@@ -356,6 +368,10 @@ class KomgaMetadataService(
         } else {
             updateSeriesMetadata(series, seriesMetadata.metadata)
             updateBookMetadata(bookMetadata, seriesMetadata.metadata)
+        }
+
+        if (metadataUpdateConfig.mode == FILE_EMBED) {
+            komgaClient.analyzeSeries(series.seriesId())
         }
     }
 }

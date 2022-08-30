@@ -7,6 +7,9 @@ import org.snd.komga.model.dto.KomgaBookMetadataUpdate
 import org.snd.komga.model.dto.KomgaSeriesMetadata
 import org.snd.komga.model.dto.KomgaSeriesMetadataUpdate
 import org.snd.komga.model.dto.KomgaWebLink
+import org.snd.metadata.comicinfo.model.AgeRating
+import org.snd.metadata.comicinfo.model.ComicInfo
+import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
 
@@ -16,7 +19,7 @@ class MetadataUpdateMapper(
 
     fun toBookMetadataUpdate(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata, komgaMetadata: KomgaBookMetadata): KomgaBookMetadataUpdate =
         with(komgaMetadata) {
-            val authors = (bookMetadata?.authors ?: seriesMetadata.authors)?.map { author -> KomgaAuthor(author.name, author.role) }
+            val authors = (bookMetadata?.authors ?: seriesMetadata.authors)?.map { author -> KomgaAuthor(author.name, author.role.name) }
             KomgaBookMetadataUpdate(
                 summary = getIfNotLocked(bookMetadata?.summary, summaryLock),
                 releaseDate = getIfNotLocked(bookMetadata?.releaseDate, releaseDateLock),
@@ -43,6 +46,44 @@ class MetadataUpdateMapper(
                 totalBookCount = getIfNotLocked(patch.totalBookCount, totalBookCountLock),
             )
         }
+
+    fun toComicInfo(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata): ComicInfo {
+        return ComicInfo(
+            title = bookMetadata?.title,
+            series = seriesMetadata.title,
+            number = bookMetadata?.number?.toString(),
+            count = seriesMetadata.totalBookCount,
+            summary = bookMetadata?.summary,
+            year = bookMetadata?.releaseDate?.year,
+            month = bookMetadata?.releaseDate?.monthValue,
+            day = bookMetadata?.releaseDate?.dayOfMonth,
+            writer = (bookMetadata?.authors ?: seriesMetadata.authors)
+                ?.filter { it.role == WRITER }?.joinToString(",") { it.name },
+            penciller = (bookMetadata?.authors ?: seriesMetadata.authors)
+                ?.filter { it.role == PENCILLER }?.joinToString(",") { it.name },
+            inker = (bookMetadata?.authors ?: seriesMetadata.authors)
+                ?.filter { it.role == INKER }?.joinToString(",") { it.name },
+            colorist = (bookMetadata?.authors ?: seriesMetadata.authors)
+                ?.filter { it.role == COLORIST }?.joinToString(",") { it.name },
+            letterer = (bookMetadata?.authors ?: seriesMetadata.authors)
+                ?.filter { it.role == LETTERER }?.joinToString(",") { it.name },
+            coverArtist = (bookMetadata?.authors ?: seriesMetadata.authors)
+                ?.filter { it.role == COVER }?.joinToString(",") { it.name },
+            editor = (bookMetadata?.authors ?: seriesMetadata.authors)
+                ?.filter { it.role == EDITOR }?.joinToString(",") { it.name },
+            translator = (bookMetadata?.authors ?: seriesMetadata.authors)
+                ?.filter { it.role == TRANSLATOR }?.joinToString(",") { it.name },
+            publisher = seriesMetadata.publisher,
+            genre = seriesMetadata.genres?.joinToString(","),
+            tags = bookMetadata?.tags?.joinToString(","),
+            ageRating = seriesMetadata.ageRating
+                ?.let { metadataRating ->
+                    AgeRating.values().filter { it.ageRating != null }
+                        .maxByOrNull { it.ageRating!!.coerceAtLeast(metadataRating) }?.name
+                }
+        )
+
+    }
 
     private fun <T> getIfNotLocked(patched: T?, lock: Boolean): T? =
         if (patched != null && !lock) patched

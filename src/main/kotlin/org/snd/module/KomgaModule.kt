@@ -14,6 +14,7 @@ import org.snd.komga.KomgaEventListener
 import org.snd.komga.KomgaMetadataService
 import org.snd.komga.KomgaNotificationService
 import org.snd.komga.MetadataUpdateMapper
+import org.snd.metadata.comicinfo.ComicInfoWriter
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit.SECONDS
 
@@ -64,7 +65,8 @@ class KomgaModule(
         metadataUpdateConfig = config.metadataUpdate,
         metadataUpdateMapper = MetadataUpdateMapper(config.metadataUpdate),
         aggregateMetadata = config.aggregateMetadata,
-        executor = Executors.newFixedThreadPool(4)
+        executor = Executors.newFixedThreadPool(4),
+        comicInfoWriter = ComicInfoWriter()
     )
 
     private val notificationService = KomgaNotificationService(

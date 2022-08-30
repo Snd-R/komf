@@ -1,6 +1,8 @@
 package org.snd.config
 
 import kotlinx.serialization.Serializable
+import org.snd.komga.UpdateMode
+import org.snd.komga.UpdateMode.API
 import org.snd.metadata.model.SeriesMetadata
 
 @Serializable
@@ -27,6 +29,7 @@ data class KomgaConfig(
 
 @Serializable
 data class MetadataUpdateConfig(
+    val mode: UpdateMode = API,
     val bookThumbnails: Boolean = false,
     val seriesThumbnails: Boolean = true,
     val seriesTitle: Boolean = false,

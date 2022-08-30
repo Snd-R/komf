@@ -43,8 +43,12 @@ dependencies {
     jooqGenerator("org.xerial:sqlite-jdbc:3.36.0.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
+    implementation("io.github.pdvrieze.xmlutil:core-jvm:0.84.2")
+    implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.84.2")
     implementation("com.charleskorn.kaml:kaml:0.46.0")
     implementation("com.github.ajalt.clikt:clikt:3.5.0")
+    implementation("commons-io:commons-io:2.11.0")
+    implementation("org.apache.commons:commons-compress:1.21")
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.apache.velocity:velocity-engine-core:2.3")
     implementation("org.jsoup:jsoup:1.15.2")

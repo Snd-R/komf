@@ -43,13 +43,13 @@ class AniListMetadataMapper(
             ?.flatMap { (authorName, aniListRole) ->
                 when (aniListRole) {
                     "Story & Art" -> {
-                        artistRoles.map { role -> Author(authorName, role.name) } + Author(authorName, AuthorRole.WRITER.name)
+                        artistRoles.map { role -> Author(authorName, role) } + Author(authorName, AuthorRole.WRITER)
                     }
                     "Story" -> {
-                        listOf(Author(authorName, AuthorRole.WRITER.name))
+                        listOf(Author(authorName, AuthorRole.WRITER))
                     }
                     "Art", "Illustration" -> {
-                        artistRoles.map { role -> Author(authorName, role.name) }
+                        artistRoles.map { role -> Author(authorName, role) }
                     }
                     else -> {
                         emptyList()
