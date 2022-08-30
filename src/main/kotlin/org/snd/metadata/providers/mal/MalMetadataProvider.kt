@@ -15,6 +15,7 @@ import org.snd.metadata.providers.mal.model.toSeriesSearchResult
 class MalMetadataProvider(
     private val malClient: MalClient,
     private val metadataMapper: MalMetadataMapper,
+    private val nameMatcher: NameSimilarityMatcher,
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
@@ -41,7 +42,7 @@ class MalMetadataProvider(
         val searchResults = malClient.searchSeries(seriesName.take(64))
         val match = searchResults.results.firstOrNull {
             val titles = listOfNotNull(it.title, it.alternative_titles.ja, it.alternative_titles.ja) + it.alternative_titles.synonyms
-            NameSimilarityMatcher.matches(seriesName, titles)
+            nameMatcher.matches(seriesName, titles)
         }
 
         return match?.let {

@@ -8,6 +8,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.snd.config.MetadataProvidersConfig
 import org.snd.infra.HttpClient
 import org.snd.infra.HttpException
+import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.providers.anilist.AniListClient
 import org.snd.metadata.providers.anilist.AniListMetadataMapper
 import org.snd.metadata.providers.anilist.AniListMetadataProvider
@@ -35,6 +36,8 @@ class MetadataModule(
     okHttpClient: OkHttpClient,
     jsonModule: JsonModule
 ) {
+    private val nameSimilarityMatcher = NameSimilarityMatcher.getInstance(config.nameMatchingMode)
+
     private val httpClient = okHttpClient.newBuilder()
         .addInterceptor(HttpLoggingInterceptor { message ->
             KotlinLogging.logger {}.debug { message }
@@ -59,7 +62,9 @@ class MetadataModule(
 
     private val malClient = malHttpClient?.let { MalClient(client = it, moshi = jsonModule.moshi) }
     private val malMetadataMapper = MalMetadataMapper(config.mal.seriesMetadata)
-    private val malMetadataProvider = malClient?.let { MalMetadataProvider(it, malMetadataMapper) }
+    private val malSimilarityMatcher: NameSimilarityMatcher =
+        config.mal.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+    private val malMetadataProvider = malClient?.let { MalMetadataProvider(it, malMetadataMapper, malSimilarityMatcher) }
 
     private val mangaUpdatesClient = config.mangaUpdates.let {
         if (it.enabled)
@@ -78,7 +83,13 @@ class MetadataModule(
         else null
     }
     private val mangaUpdatesMetadataMapper = MangaUpdatesMetadataMapper(config.mangaUpdates.seriesMetadata)
-    private val mangaUpdatesMetadataProvider = mangaUpdatesClient?.let { MangaUpdatesMetadataProvider(it, mangaUpdatesMetadataMapper) }
+    private val mangaUpdatesSimilarityMatcher: NameSimilarityMatcher =
+        config.mangaUpdates.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+    private val mangaUpdatesMetadataProvider =
+        mangaUpdatesClient?.let {
+            println()
+            MangaUpdatesMetadataProvider(it, mangaUpdatesMetadataMapper, mangaUpdatesSimilarityMatcher)
+        }
 
     private val nautiljonSeriesMetadataMapper = NautiljonSeriesMetadataMapper(
         config.nautiljon.useOriginalPublisher,
@@ -99,6 +110,7 @@ class MetadataModule(
             } else 5000
         }.build()
 
+    private val nautiljonSimilarityMatcher = config.nautiljon.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
     private val nautiljonMetadataProvider = config.nautiljon.let {
         if (it.enabled) {
             NautiljonMetadataProvider(
@@ -115,6 +127,7 @@ class MetadataModule(
                     )
                 ),
                 nautiljonSeriesMetadataMapper,
+                nautiljonSimilarityMatcher
             )
         } else null
     }
@@ -129,10 +142,10 @@ class MetadataModule(
             .build()
     )
     private val aniListMetadataMapper = AniListMetadataMapper(config.aniList.seriesMetadata)
-
+    private val aniListSimilarityMatcher = config.aniList.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
     private val aniListMetadataProvider = config.aniList.let {
         if (it.enabled) {
-            AniListMetadataProvider(aniListClient, aniListMetadataMapper)
+            AniListMetadataProvider(aniListClient, aniListMetadataMapper, aniListSimilarityMatcher)
         } else null
     }
 
@@ -148,8 +161,9 @@ class MetadataModule(
         )
     )
     private val yenPressMetadataMapper = YenPressMetadataMapper(config.yenPress.seriesMetadata, config.yenPress.bookMetadata)
+    private val yenPressSimilarityMatcher = config.yenPress.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
     private val yenPressMetadataProvider = config.yenPress.let {
-        if (it.enabled) YenPressMetadataProvider(yenPressClient, yenPressMetadataMapper)
+        if (it.enabled) YenPressMetadataProvider(yenPressClient, yenPressMetadataMapper, yenPressSimilarityMatcher)
         else null
     }
 
@@ -168,10 +182,10 @@ class MetadataModule(
         seriesMetadataConfig = config.kodansha.seriesMetadata,
         bookMetadataConfig = config.kodansha.bookMetadata,
     )
+    private val kodanshaSimilarityMatcher = config.kodansha.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
     private val kodanshaMetadataProvider = config.kodansha.let {
-        if (it.enabled) KondanshaMetadataProvider(kodanshaClient, kodanshaMetadataMapper)
+        if (it.enabled) KondanshaMetadataProvider(kodanshaClient, kodanshaMetadataMapper, kodanshaSimilarityMatcher)
         else null
-
     }
 
     val metadataProviders = listOfNotNull(

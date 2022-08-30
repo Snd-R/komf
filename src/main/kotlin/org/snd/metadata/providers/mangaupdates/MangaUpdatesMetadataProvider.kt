@@ -1,7 +1,7 @@
 package org.snd.metadata.providers.mangaupdates
 
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.NameSimilarityMatcher.matches
+import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.MANGA_UPDATES
 import org.snd.metadata.model.ProviderBookId
@@ -14,6 +14,7 @@ import org.snd.metadata.providers.mangaupdates.model.toSeriesSearchResult
 class MangaUpdatesMetadataProvider(
     private val client: MangaUpdatesClient,
     private val metadataMapper: MangaUpdatesMetadataMapper,
+    private val nameMatcher: NameSimilarityMatcher,
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
@@ -39,7 +40,7 @@ class MangaUpdatesMetadataProvider(
         val searchResults = client.searchSeries(seriesName.take(400)).results
 
         return searchResults
-            .firstOrNull { matches(seriesName, it.title) }
+            .firstOrNull { nameMatcher.matches(seriesName, it.title) }
             ?.let {
                 val series = client.getSeries(it.id)
                 val thumbnail = client.getThumbnail(series)

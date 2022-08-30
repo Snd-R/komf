@@ -17,6 +17,7 @@ import org.snd.metadata.providers.kodansha.model.toSeriesSearchResult
 class KondanshaMetadataProvider(
     private val client: KodanshaClient,
     private val metadataMapper: KodanshaMetadataMapper,
+    private val nameMatcher: NameSimilarityMatcher,
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
@@ -44,7 +45,7 @@ class KondanshaMetadataProvider(
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = client.searchSeries(seriesName.take(400))
 
-        return searchResults.firstOrNull { NameSimilarityMatcher.matches(seriesName, it.title) }
+        return searchResults.firstOrNull { nameMatcher.matches(seriesName, it.title) }
             ?.let {
                 val series = client.getSeries(it.seriesId)
                 val thumbnail = getThumbnail(series.coverUrl)

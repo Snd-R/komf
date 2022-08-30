@@ -14,6 +14,7 @@ import org.snd.metadata.model.SeriesSearchResult
 class AniListMetadataProvider(
     private val client: AniListClient,
     private val metadataMapper: AniListMetadataMapper,
+    private val nameMatcher: NameSimilarityMatcher
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
@@ -47,7 +48,7 @@ class AniListMetadataProvider(
                 it.aniListManga.title?.native
             )
 
-            NameSimilarityMatcher.matches(seriesName, titles)
+            nameMatcher.matches(seriesName, titles)
         }
 
         return match?.let {

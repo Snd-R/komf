@@ -3,6 +3,8 @@ package org.snd.config
 import kotlinx.serialization.Serializable
 import org.snd.komga.UpdateMode
 import org.snd.komga.UpdateMode.API
+import org.snd.metadata.NameMatchingMode
+import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
 import org.snd.metadata.model.SeriesMetadata
 
 @Serializable
@@ -49,6 +51,7 @@ data class KomgaEventListenerConfig(
 
 @Serializable
 data class MetadataProvidersConfig(
+    val nameMatchingMode: NameMatchingMode = CLOSEST_MATCH,
     val mal: MalConfig = MalConfig(),
     val mangaUpdates: MangaUpdatesConfig = MangaUpdatesConfig(),
     val nautiljon: NautiljonConfig = NautiljonConfig(),
@@ -63,6 +66,7 @@ data class MangaUpdatesConfig(
     val enabled: Boolean = true,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    val nameMatchingMode: NameMatchingMode? = null,
 )
 
 @Serializable
@@ -72,6 +76,7 @@ data class MalConfig(
     val enabled: Boolean = false,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    val nameMatchingMode: NameMatchingMode? = null,
 )
 
 @Serializable
@@ -85,6 +90,7 @@ data class NautiljonConfig(
     val frenchPublisherTag: String? = null,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    val nameMatchingMode: NameMatchingMode? = null,
 )
 
 @Serializable
@@ -93,6 +99,7 @@ data class AniListConfig(
     val enabled: Boolean = false,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    val nameMatchingMode: NameMatchingMode? = null,
 )
 
 @Serializable
@@ -101,6 +108,7 @@ data class YenPressConfig(
     val enabled: Boolean = false,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    val nameMatchingMode: NameMatchingMode? = null,
 )
 
 @Serializable
@@ -109,6 +117,7 @@ data class KodanshaConfig(
     val enabled: Boolean = false,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    val nameMatchingMode: NameMatchingMode? = null,
 )
 
 @Serializable

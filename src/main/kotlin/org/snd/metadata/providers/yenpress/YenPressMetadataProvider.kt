@@ -1,7 +1,7 @@
 package org.snd.metadata.providers.yenpress
 
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.NameSimilarityMatcher.matches
+import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.YEN_PRESS
 import org.snd.metadata.model.ProviderBookId
@@ -15,6 +15,7 @@ import org.snd.metadata.providers.yenpress.model.toSeriesSearchResult
 class YenPressMetadataProvider(
     private val client: YenPressClient,
     private val metadataMapper: YenPressMetadataMapper,
+    private val nameMatcher: NameSimilarityMatcher,
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
@@ -44,7 +45,7 @@ class YenPressMetadataProvider(
         val searchResults = client.searchSeries(seriesName.take(400))
 
         return searchResults
-            .firstOrNull { matches(seriesName, it.title) }
+            .firstOrNull { nameMatcher.matches(seriesName, it.title) }
             ?.let {
                 val book = client.getBook(it.id)
                 val thumbnail = client.getBookThumbnail(book)
