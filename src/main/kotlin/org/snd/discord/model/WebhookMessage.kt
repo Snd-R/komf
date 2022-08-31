@@ -25,6 +25,6 @@ fun WebhookMessage.toVelocityContext(): VelocityContext {
     val context = VelocityContext()
     context.put("library", library)
     context.put("series", series)
-    context.put("books", books)
+    context.put("books", books.sortedBy { it.name })
     return context
 }
