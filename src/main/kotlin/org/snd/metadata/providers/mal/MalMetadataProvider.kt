@@ -41,7 +41,7 @@ class MalMetadataProvider(
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = malClient.searchSeries(seriesName.take(64))
         val match = searchResults.results.firstOrNull {
-            val titles = listOfNotNull(it.title, it.alternative_titles.ja, it.alternative_titles.ja) + it.alternative_titles.synonyms
+            val titles = listOfNotNull(it.title, it.alternative_titles.en, it.alternative_titles.ja) + it.alternative_titles.synonyms
             nameMatcher.matches(seriesName, titles)
         }
 
