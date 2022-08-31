@@ -303,10 +303,7 @@ class KomgaMetadataService(
     ): Pair<SeriesMetadata, Map<KomgaBook, BookMetadata?>> {
         if (providers.isEmpty()) return originalSeriesMetadata to originalBookMetadata
 
-        val searchTitles = setOfNotNull(series.name, originalSeriesMetadata.title).let { titles ->
-            originalSeriesMetadata.alternativeTitles
-                ?.let { altTitles -> titles + altTitles } ?: titles
-        }
+        val searchTitles = setOfNotNull(series.name, originalSeriesMetadata.title) + originalSeriesMetadata.alternativeTitles
 
         return providers.map { provider -> supplyAsync({ getMetadata(series.seriesId(), searchTitles, provider) }, executor) }
             .mapNotNull { it.join() }
