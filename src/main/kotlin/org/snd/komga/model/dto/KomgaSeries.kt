@@ -28,7 +28,8 @@ data class KomgaSeriesMetadata(
     val titleSortLock: Boolean,
     val summary: String,
     val summaryLock: Boolean,
-    val readingDirection: String,
+    @ReadingDirection
+    val readingDirection: String?,
     val readingDirectionLock: Boolean,
     val publisher: String,
     val publisherLock: Boolean,

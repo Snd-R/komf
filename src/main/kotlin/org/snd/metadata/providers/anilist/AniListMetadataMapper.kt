@@ -73,12 +73,12 @@ class AniListMetadataMapper(
             title = title,
             titleSort = title,
             summary = series.description?.let { Jsoup.parse(it).wholeText() },
-            genres = series.genres?.filterNotNull(),
+            genres = series.genres?.filterNotNull() ?: emptyList(),
             tags = tags,
-            authors = authors,
+            authors = authors ?: emptyList(),
             thumbnail = thumbnail,
             totalBookCount = series.volumes,
-            alternativeTitles = series.title?.let { listOfNotNull(it.english, it.romaji, it.native) }
+            alternativeTitles = series.title?.let { listOfNotNull(it.english, it.romaji, it.native) } ?: emptyList()
         )
         return MetadataConfigApplier.apply(
             ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), provider = Provider.ANILIST, metadata = metadata),

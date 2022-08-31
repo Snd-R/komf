@@ -26,8 +26,8 @@ class YenPressMetadataMapper(
             summary = book.description,
             publisher = book.publisher,
             genres = book.genres,
-            tags = null,
-            authors = null,
+            tags = emptyList(),
+            authors = emptyList(),
             thumbnail = thumbnail,
             totalBookCount = book.seriesBooks.size.let { if (it < 1) null else it },
             ageRating = null

@@ -9,11 +9,11 @@ data class SeriesMetadata(
     val readingDirection: ReadingDirection? = null,
     val ageRating: Int? = null,
     val language: String? = null,
-    val genres: Collection<String>? = null,
-    val tags: Collection<String>? = null,
+    val genres: Collection<String> = emptyList(),
+    val tags: Collection<String> = emptyList(),
     val totalBookCount: Int? = null,
-    val authors: List<Author>? = null,
-    val alternativeTitles: Collection<String>? = null,
+    val authors: List<Author> = emptyList(),
+    val alternativeTitles: Collection<String> = emptyList(),
 
     val thumbnail: Thumbnail? = null,
 ) {

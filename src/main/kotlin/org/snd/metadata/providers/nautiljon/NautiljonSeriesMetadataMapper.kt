@@ -56,8 +56,8 @@ class NautiljonSeriesMetadataMapper(
             status = status,
             title = series.title,
             titleSort = series.title,
-            summary = series.description ?: "",
-            publisher = (if (useOriginalPublisher) series.originalPublisher else series.frenchPublisher) ?: "",
+            summary = series.description,
+            publisher = (if (useOriginalPublisher) series.originalPublisher else series.frenchPublisher),
             genres = series.genres,
             tags = tags,
             authors = authors,
@@ -88,7 +88,7 @@ class NautiljonSeriesMetadataMapper(
                 volume.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role) } }
 
         val metadata = BookMetadata(
-            summary = volume.description ?: "",
+            summary = volume.description,
             number = volume.number,
             releaseDate = if (useOriginalPublisher) volume.originalReleaseDate else volume.frenchReleaseDate,
             authors = authors,

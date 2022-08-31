@@ -46,7 +46,7 @@ class MangaUpdatesMetadataMapper(
             status = status,
             title = series.title,
             titleSort = series.title,
-            summary = series.description ?: "",
+            summary = series.description,
             publisher = series.publishers.firstOrNull { it.type == "Original" }?.name,
             genres = series.genres,
             tags = tags,
