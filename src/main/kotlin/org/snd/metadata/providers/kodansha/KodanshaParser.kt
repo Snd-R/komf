@@ -66,7 +66,7 @@ class KodanshaParser {
 
         val seriesBooks = parseSeriesBooksFromShelf(document) ?: parseSeriesBooksFromDiscovery(document)
         return KodanshaSeries(
-            id = KodanshaSeriesId(id),
+            id = KodanshaSeriesId(URLDecoder.decode(id, "UTF-8")),
             title = title,
             coverUrl = coverUrl,
             summary = summary,
@@ -127,7 +127,7 @@ class KodanshaParser {
             .removeSurrounding("$baseUrl/volume/", "/")
 
         return KodanshaBook(
-            id = KodanshaBookId(id),
+            id = KodanshaBookId(URLDecoder.decode(id, "UTF-8")),
             name = title,
             number = number,
             summary = summary,
@@ -155,7 +155,8 @@ class KodanshaParser {
         return document.getElementsByClass("bookshelf").first()?.children()
             ?.map { book ->
                 KodanshaSeriesBook(
-                    id = book.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/").let { KodanshaBookId(it) },
+                    id = book.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/")
+                        .let { KodanshaBookId(URLDecoder.decode(it, "UTF-8")) },
                     number = book.child(0).child(0).child(1).text().removePrefix("Volume ").toIntOrNull(),
                 )
             }
@@ -167,9 +168,9 @@ class KodanshaParser {
             ?.map { it.child(0).child(1) }
             ?.map {
                 val (_, number) = parseBookTitleAndNumber(it.text())
-                val id = KodanshaBookId(it.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/"))
+                val id = it.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/")
                 KodanshaSeriesBook(
-                    id = id,
+                    id = KodanshaBookId(URLDecoder.decode(id, "UTF-8")),
                     number = number
                 )
             }
@@ -181,9 +182,9 @@ class KodanshaParser {
             .map { it.child(0).child(1) }
             .map {
                 val (_, number) = parseBookTitleAndNumber(it.text())
-                val id = KodanshaBookId(it.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/"))
+                val id = it.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/")
                 KodanshaSeriesBook(
-                    id = id,
+                    id = KodanshaBookId(URLDecoder.decode(id, "UTF-8")),
                     number = number
                 )
             }
