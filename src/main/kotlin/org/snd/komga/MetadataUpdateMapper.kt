@@ -32,13 +32,16 @@ class MetadataUpdateMapper(
 
     fun toSeriesMetadataUpdate(patch: SeriesMetadata, metadata: KomgaSeriesMetadata): KomgaSeriesMetadataUpdate =
         with(metadata) {
+            val newReadingDirection = metadataUpdateConfig.readingDirectionValue?.toString()
+                ?: getIfNotLockedOrEmpty(patch.readingDirection?.toString(), readingDirectionLock)
+
             KomgaSeriesMetadataUpdate(
                 status = getIfNotLockedOrEmpty(patch.status?.toString(), statusLock) ?: status,
                 title = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.title, titleLock) ?: title else title,
                 titleSort = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.titleSort, titleSortLock) ?: titleSort else titleSort,
                 summary = getIfNotLockedOrEmpty(patch.summary, summaryLock) ?: summary,
                 publisher = getIfNotLockedOrEmpty(patch.publisher, publisherLock) ?: publisher,
-                readingDirection = getIfNotLockedOrEmpty(patch.readingDirection?.toString(), readingDirectionLock) ?: readingDirection,
+                readingDirection = newReadingDirection ?: readingDirection,
                 ageRating = getIfNotLockedOrEmpty(patch.ageRating, ageRatingLock) ?: ageRating,
                 language = getIfNotLockedOrEmpty(patch.language, languageLock) ?: language,
                 genres = getIfNotLockedOrEmpty(patch.genres, genresLock) ?: genres,

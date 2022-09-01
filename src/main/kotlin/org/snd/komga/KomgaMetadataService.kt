@@ -60,7 +60,6 @@ class KomgaMetadataService(
         val series = komgaClient.getSeries(seriesId)
         val bookMetadata = getBookMetadata(seriesId, seriesMetadata, provider)
         updateMetadata(series, seriesMetadata, bookMetadata)
-        overrideReadingDirection(series.seriesId())
     }
 
     fun matchLibraryMetadata(libraryId: KomgaLibraryId) {
@@ -90,7 +89,6 @@ class KomgaMetadataService(
         val bookMetadata = getBookMetadata(series.seriesId(), seriesMetadata, provider)
 
         updateMetadata(series, seriesMetadata, bookMetadata)
-        overrideReadingDirection(series.seriesId())
     }
 
     fun resetSeriesMetadata(seriesId: KomgaSeriesId) {
@@ -265,13 +263,6 @@ class KomgaMetadataService(
         }
 
         return thumbnailId?.let { KomgaThumbnailId(it.id) }
-    }
-
-    private fun overrideReadingDirection(seriesId: KomgaSeriesId) {
-        metadataUpdateConfig.readingDirectionValue?.let { readingDirection ->
-            logger.info { "updating reading direction" }
-            komgaClient.updateSeriesMetadata(seriesId, KomgaSeriesMetadataUpdate(readingDirection = readingDirection.toString()))
-        }
     }
 
     private fun associateBookMetadata(books: Collection<KomgaBook>, providerBooks: Collection<SeriesBook>): Map<KomgaBook, SeriesBook?> {
