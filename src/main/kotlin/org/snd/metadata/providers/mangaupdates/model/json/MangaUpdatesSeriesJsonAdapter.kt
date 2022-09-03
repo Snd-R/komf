@@ -37,12 +37,12 @@ class MangaUpdatesSeriesJsonAdapter {
                 )
             } ?: emptyList(),
             authors = json.authors?.map { Author(id = it.author_id, name = unescapeHtml4(it.name), type = unescapeHtml4(it.type)) } ?: emptyList(),
-            year = json.year?.let { if (it.isNotBlank()) Year.of(it.toInt()) else null },
+            year = json.year?.let { year -> year.toIntOrNull()?.let { Year.of(it) } },
             publishers = json.publishers?.map {
                 Publisher(
                     id = it.publisher_id,
                     name = unescapeHtml4(it.publisher_name),
-                    type = unescapeHtml4( it.type),
+                    type = unescapeHtml4(it.type),
                     notes = it.notes
                 )
             } ?: emptyList()
