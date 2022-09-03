@@ -311,7 +311,7 @@ class KomgaMetadataService(
         val noEditionBooks = providerBooks.filter { it.edition == null }
 
         if (edition != null) {
-            val editionName = edition.replace("\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
+            val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
             return books.associateWith { komgaBook ->
                 editions[editionName]?.firstOrNull { komgaBook.number == it.number }
             }
