@@ -46,7 +46,8 @@ class KomgaMetadataController(
         komgaMetadataService.setSeriesMetadata(
             KomgaSeriesId(request.seriesId),
             Provider.valueOf(request.provider.uppercase()),
-            ProviderSeriesId(request.providerSeriesId)
+            ProviderSeriesId(request.providerSeriesId),
+            request.edition
         )
 
         return ctx.status(NO_CONTENT)

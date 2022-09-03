@@ -53,13 +53,34 @@ class KomgaMetadataService(
         return metadataProviders.values.flatMap { it.searchSeries(seriesName) }
     }
 
-    fun setSeriesMetadata(seriesId: KomgaSeriesId, providerName: Provider, providerSeriesId: ProviderSeriesId) {
+    fun setSeriesMetadata(
+        seriesId: KomgaSeriesId,
+        providerName: Provider,
+        providerSeriesId: ProviderSeriesId,
+        edition: String?
+    ) {
         val provider = metadataProviders[providerName] ?: throw RuntimeException()
-
-        val seriesMetadata = provider.getSeriesMetadata(providerSeriesId)
         val series = komgaClient.getSeries(seriesId)
-        val bookMetadata = getBookMetadata(seriesId, seriesMetadata, provider)
-        updateMetadata(series, seriesMetadata, bookMetadata)
+
+        val nonAggregatedSeriesMetadata = provider.getSeriesMetadata(providerSeriesId)
+        val nonAggregatedBookMetadata = getBookMetadata(seriesId, nonAggregatedSeriesMetadata, provider, edition)
+
+        val (seriesMetadata, bookMetadata) = if (aggregateMetadata) {
+            aggregateMetadataFromProviders(
+                series,
+                nonAggregatedSeriesMetadata.metadata,
+                nonAggregatedBookMetadata,
+                metadataProviders.values.filter { it != provider },
+                edition
+            )
+        } else nonAggregatedSeriesMetadata.metadata to nonAggregatedBookMetadata
+
+        updateSeriesMetadata(series, seriesMetadata)
+        updateBookMetadata(bookMetadata, seriesMetadata)
+
+        if (metadataUpdateConfig.mode == FILE_EMBED) {
+            komgaClient.analyzeSeries(series.seriesId())
+        }
     }
 
     fun matchLibraryMetadata(libraryId: KomgaLibraryId) {
@@ -84,11 +105,26 @@ class KomgaMetadataService(
             logger.info { "no match found for series ${series.name} ${series.id}" }
             return
         }
-        val (provider, seriesMetadata) = matchResult
-        logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${seriesMetadata.provider}  ${seriesMetadata.id}" }
-        val bookMetadata = getBookMetadata(series.seriesId(), seriesMetadata, provider)
+        val (provider, providerSeriesMetadata) = matchResult
+        logger.info { "found match: \"${providerSeriesMetadata.metadata.title}\" from ${providerSeriesMetadata.provider}  ${providerSeriesMetadata.id}" }
 
-        updateMetadata(series, seriesMetadata, bookMetadata)
+        val nonAggregatedBookMetadata = getBookMetadata(seriesId, providerSeriesMetadata, provider, null)
+        val (seriesMetadata, bookMetadata) = if (aggregateMetadata) {
+            aggregateMetadataFromProviders(
+                series,
+                providerSeriesMetadata.metadata,
+                nonAggregatedBookMetadata,
+                metadataProviders.values.filter { it != provider },
+                null
+            )
+        } else providerSeriesMetadata.metadata to nonAggregatedBookMetadata
+
+        updateSeriesMetadata(series, seriesMetadata)
+        updateBookMetadata(bookMetadata, seriesMetadata)
+
+        if (metadataUpdateConfig.mode == FILE_EMBED) {
+            komgaClient.analyzeSeries(series.seriesId())
+        }
     }
 
     fun resetSeriesMetadata(seriesId: KomgaSeriesId) {
@@ -185,9 +221,10 @@ class KomgaMetadataService(
         seriesId: KomgaSeriesId,
         seriesMeta: ProviderSeriesMetadata,
         provider: MetadataProvider,
+        edition: String?
     ): Map<KomgaBook, BookMetadata?> {
         val books = komgaClient.getBooks(seriesId, true).content
-        val metadataMatch = associateBookMetadata(books, seriesMeta.books)
+        val metadataMatch = associateBookMetadata(books, seriesMeta.books, edition)
 
         return metadataMatch.map { (book, seriesBookMeta) ->
             if (seriesBookMeta != null) {
@@ -265,9 +302,20 @@ class KomgaMetadataService(
         return thumbnailId?.let { KomgaThumbnailId(it.id) }
     }
 
-    private fun associateBookMetadata(books: Collection<KomgaBook>, providerBooks: Collection<SeriesBook>): Map<KomgaBook, SeriesBook?> {
+    private fun associateBookMetadata(
+        books: Collection<KomgaBook>,
+        providerBooks: Collection<SeriesBook>,
+        edition: String? = null
+    ): Map<KomgaBook, SeriesBook?> {
         val editions = providerBooks.groupBy { it.edition }
         val noEditionBooks = providerBooks.filter { it.edition == null }
+
+        if (edition != null) {
+            val editionName = edition.replace("\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
+            return books.associateWith { komgaBook ->
+                editions[editionName]?.firstOrNull { komgaBook.number == it.number }
+            }
+        }
 
         val byEdition: Map<KomgaBook, String?> = books.associateWith { book ->
             val bookExtraData = BookFilenameParser.getExtraData(book.name).map { it.lowercase() }
@@ -290,13 +338,14 @@ class KomgaMetadataService(
         series: KomgaSeries,
         originalSeriesMetadata: SeriesMetadata,
         originalBookMetadata: Map<KomgaBook, BookMetadata?>,
-        providers: Collection<MetadataProvider>
+        providers: Collection<MetadataProvider>,
+        edition: String?
     ): Pair<SeriesMetadata, Map<KomgaBook, BookMetadata?>> {
         if (providers.isEmpty()) return originalSeriesMetadata to originalBookMetadata
 
         val searchTitles = setOfNotNull(series.name, originalSeriesMetadata.title) + originalSeriesMetadata.alternativeTitles
 
-        return providers.map { provider -> supplyAsync({ getMetadata(series.seriesId(), searchTitles, provider) }, executor) }
+        return providers.map { provider -> supplyAsync({ getAggregationMetadata(series.seriesId(), searchTitles, provider, edition) }, executor) }
             .mapNotNull { it.join() }
             .fold(originalSeriesMetadata to originalBookMetadata)
             { (seriesMetadata, bookMetadata), (newSeriesMetadata, newBookMetadata) ->
@@ -304,10 +353,11 @@ class KomgaMetadataService(
             }
     }
 
-    private fun getMetadata(
+    private fun getAggregationMetadata(
         seriesId: KomgaSeriesId,
         searchTitles: Collection<String>,
-        provider: MetadataProvider
+        provider: MetadataProvider,
+        edition: String?
     ): Pair<ProviderSeriesMetadata, Map<KomgaBook, BookMetadata?>>? {
         val seriesMetadata = searchTitles.firstNotNullOfOrNull {
             if (StringUtils.isAsciiPrintable(it)) {
@@ -318,7 +368,7 @@ class KomgaMetadataService(
         return if (seriesMetadata == null) null
         else {
             logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${seriesMetadata.provider}  ${seriesMetadata.id}" }
-            seriesMetadata to getBookMetadata(seriesId, seriesMetadata, provider)
+            seriesMetadata to getBookMetadata(seriesId, seriesMetadata, provider, edition)
         }
     }
 
@@ -338,28 +388,4 @@ class KomgaMetadataService(
         return mergedSeries to mergedBookMetadata
     }
 
-    private fun updateMetadata(
-        series: KomgaSeries,
-        seriesMetadata: ProviderSeriesMetadata,
-        bookMetadata: Map<KomgaBook, BookMetadata?>
-    ) {
-        if (aggregateMetadata) {
-            val aggregateProviders = metadataProviders.filterKeys { it != seriesMetadata.provider }
-            val (mergedSeriesMetadata, mergedBookMetadata) = aggregateMetadataFromProviders(
-                series,
-                seriesMetadata.metadata,
-                bookMetadata,
-                aggregateProviders.values
-            )
-            updateSeriesMetadata(series, mergedSeriesMetadata)
-            updateBookMetadata(mergedBookMetadata, seriesMetadata.metadata)
-        } else {
-            updateSeriesMetadata(series, seriesMetadata.metadata)
-            updateBookMetadata(bookMetadata, seriesMetadata.metadata)
-        }
-
-        if (metadataUpdateConfig.mode == FILE_EMBED) {
-            komgaClient.analyzeSeries(series.seriesId())
-        }
-    }
 }

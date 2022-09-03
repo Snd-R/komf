@@ -38,6 +38,7 @@ class Series : CliktCommand() {
     class Identify : CliktCommand() {
         private val module by requireObject<CliModule>()
         private val name by option().prompt()
+        private val edition by option()
         private val id by argument()
 
         override fun run() {
@@ -57,7 +58,8 @@ class Series : CliktCommand() {
             module.komgaModule.komgaMetadataService.setSeriesMetadata(
                 series.seriesId(),
                 selectedResult.provider,
-                ProviderSeriesId(selectedResult.resultId)
+                ProviderSeriesId(selectedResult.resultId),
+                edition
             )
 
             exitProcess(0)

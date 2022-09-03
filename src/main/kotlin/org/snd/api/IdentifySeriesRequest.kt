@@ -6,5 +6,6 @@ import com.squareup.moshi.JsonClass
 data class IdentifySeriesRequest(
     val seriesId: String,
     val provider: String,
-    val providerSeriesId: String
+    val providerSeriesId: String,
+    val edition: String?
 )

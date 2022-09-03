@@ -305,10 +305,10 @@ class NautiljonParser {
     }
 
     private fun parseEditionName(edition: Element): String? {
-        val editionFull = edition.child(0).textNodes().first().text().trim()
-            .removePrefix("Édition ")
-            .removePrefix("Edition ")
-        val editionName = "\\((.*?)\\)".toRegex().find(editionFull)?.groupValues?.get(1) ?: editionFull
+        val editionName = edition.child(0).textNodes().first().text().trim()
+            .replace("^[EÉ]dition ".toRegex(), "")
+            .let { ("\\((.*?)\\)".toRegex().find(it)?.groupValues?.get(1) ?: it) }
+            .replace(" [EÉ]dition$".toRegex(), "")
 
         return if (editionName == "par défaut") null
         else editionName.lowercase()
