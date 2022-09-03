@@ -11,6 +11,8 @@ import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.Thumbnail
 import org.snd.metadata.providers.kodansha.model.KodanshaBookId
+import org.snd.metadata.providers.kodansha.model.KodanshaSeries
+import org.snd.metadata.providers.kodansha.model.KodanshaSeriesBook
 import org.snd.metadata.providers.kodansha.model.KodanshaSeriesId
 import org.snd.metadata.providers.kodansha.model.toSeriesSearchResult
 
@@ -25,7 +27,7 @@ class KondanshaMetadataProvider(
     }
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val series = client.getSeries(KodanshaSeriesId(seriesId.id))
+        val series = getSeries(KodanshaSeriesId(seriesId.id))
         val thumbnail = getThumbnail(series.coverUrl)
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
@@ -47,11 +49,26 @@ class KondanshaMetadataProvider(
 
         return searchResults.firstOrNull { nameMatcher.matches(seriesName, it.title) }
             ?.let {
-                val series = client.getSeries(it.seriesId)
+                val series = getSeries(it.seriesId)
                 val thumbnail = getThumbnail(series.coverUrl)
                 metadataMapper.toSeriesMetadata(series, thumbnail)
             }
     }
 
     private fun getThumbnail(url: String?): Thumbnail? = url?.toHttpUrl()?.let { client.getThumbnail(it) }
+
+    private fun getSeries(seriesId: KodanshaSeriesId): KodanshaSeries {
+        val series = client.getSeries(seriesId)
+        return if (series.books.size == 30) {
+            val allBooks = getAllBooks(series)
+            series.copy(books = allBooks)
+        } else series
+    }
+
+    private fun getAllBooks(series: KodanshaSeries): Collection<KodanshaSeriesBook> {
+        return generateSequence(client.getAllSeriesBooks(series.id, 1)) {
+            if (it.page == it.totalPages) null
+            else client.getAllSeriesBooks(series.id, it.page + 1)
+        }.flatMap { it.books }.toList()
+    }
 }
