@@ -25,6 +25,9 @@ import org.snd.metadata.providers.mangaupdates.MangaUpdatesMetadataProvider
 import org.snd.metadata.providers.nautiljon.NautiljonClient
 import org.snd.metadata.providers.nautiljon.NautiljonMetadataProvider
 import org.snd.metadata.providers.nautiljon.NautiljonSeriesMetadataMapper
+import org.snd.metadata.providers.viz.VizClient
+import org.snd.metadata.providers.viz.VizMetadataMapper
+import org.snd.metadata.providers.viz.VizMetadataProvider
 import org.snd.metadata.providers.yenpress.YenPressClient
 import org.snd.metadata.providers.yenpress.YenPressMetadataMapper
 import org.snd.metadata.providers.yenpress.YenPressMetadataProvider
@@ -188,13 +191,36 @@ class MetadataModule(
         else null
     }
 
+    private val vizClient = VizClient(
+        HttpClient(
+            client = httpClient.newBuilder().build(),
+            name = "Viz",
+            rateLimiterConfig = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(5))
+                .limitForPeriod(5)
+                .timeoutDuration(Duration.ofSeconds(5))
+                .build()
+        )
+    )
+
+    private val vizMetadataMapper = VizMetadataMapper(
+        seriesMetadataConfig = config.viz.seriesMetadata,
+        bookMetadataConfig = config.viz.bookMetadata
+    )
+    private val vizSimilarityMatcher = config.viz.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+    private val vizMetadataProvider = config.viz.let {
+        if (it.enabled) VizMetadataProvider(vizClient, vizMetadataMapper, vizSimilarityMatcher)
+        else null
+    }
+
     val metadataProviders = listOfNotNull(
         malMetadataProvider?.let { it to config.mal.priority },
         mangaUpdatesMetadataProvider?.let { it to config.mangaUpdates.priority },
         nautiljonMetadataProvider?.let { it to config.nautiljon.priority },
         aniListMetadataProvider?.let { it to config.aniList.priority },
         yenPressMetadataProvider?.let { it to config.yenPress.priority },
-        kodanshaMetadataProvider?.let { it to config.kodansha.priority }
+        kodanshaMetadataProvider?.let { it to config.kodansha.priority },
+        vizMetadataProvider?.let { it to config.viz.priority }
     )
         .sortedBy { (_, priority) -> priority }
         .associate { (provider, _) -> provider.providerName() to provider }

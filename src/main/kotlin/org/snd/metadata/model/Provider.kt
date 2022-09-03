@@ -6,5 +6,6 @@ enum class Provider {
     NAUTILJON,
     ANILIST,
     YEN_PRESS,
-    KODANSHA
+    KODANSHA,
+    VIZ,
 }
