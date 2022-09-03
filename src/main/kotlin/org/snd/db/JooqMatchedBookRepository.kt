@@ -30,8 +30,10 @@ class JooqMatchedBookRepository(
             .execute()
     }
 
-    override fun delete(matchedBook: MatchedBook) {
-        dsl.executeDelete(matchedBook.toRecord())
+    override fun delete(bookId: KomgaBookId) {
+        dsl.delete(MATCHED_BOOKS)
+            .where(MATCHED_BOOKS.BOOK_ID.eq(bookId.id))
+            .execute()
     }
 
     private fun MatchedBooksRecord.toModel(): MatchedBook = MatchedBook(

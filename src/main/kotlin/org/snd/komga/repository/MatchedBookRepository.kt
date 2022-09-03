@@ -9,5 +9,5 @@ interface MatchedBookRepository {
 
     fun save(matchedBook: MatchedBook)
 
-    fun delete(matchedBook: MatchedBook)
+    fun delete(bookId: KomgaBookId)
 }

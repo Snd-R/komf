@@ -29,8 +29,10 @@ class JooqMatchedSeriesRepository(
             .execute()
     }
 
-    override fun delete(matchedSeries: MatchedSeries) {
-        dsl.executeDelete(matchedSeries.toRecord())
+    override fun delete(seriesId: KomgaSeriesId) {
+        dsl.delete(MATCHED_SERIES)
+            .where(MATCHED_SERIES.SERIES_ID.eq(seriesId.id))
+            .execute()
     }
 
     private fun MatchedSeriesRecord.toModel(): MatchedSeries = MatchedSeries(

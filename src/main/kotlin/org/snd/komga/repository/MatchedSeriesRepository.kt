@@ -9,5 +9,5 @@ interface MatchedSeriesRepository {
 
     fun save(matchedSeries: MatchedSeries)
 
-    fun delete(matchedSeries: MatchedSeries)
+    fun delete(seriesId: KomgaSeriesId)
 }

@@ -163,6 +163,9 @@ class KomgaMetadataService(
 
         komgaClient.getBooks(series.seriesId(), true)
             .content.forEach { resetBookMetadata(it) }
+
+        replaceSeriesThumbnail(series.seriesId(), null)
+        matchedSeriesRepository.delete(series.seriesId())
     }
 
     private fun resetBookMetadata(book: KomgaBook) {
@@ -189,6 +192,9 @@ class KomgaMetadataService(
 
             )
         )
+
+        replaceBookThumbnail(book.bookId(), null)
+        matchedBookRepository.delete(book.bookId())
     }
 
     fun resetLibraryMetadata(libraryId: KomgaLibraryId) {
@@ -209,12 +215,16 @@ class KomgaMetadataService(
         val newThumbnail = if (metadataUpdateConfig.seriesThumbnails) metadata.thumbnail else null
         val thumbnailId = replaceSeriesThumbnail(series.seriesId(), newThumbnail)
 
-        matchedSeriesRepository.save(
-            MatchedSeries(
-                seriesId = series.seriesId(),
-                thumbnailId = thumbnailId,
+        if (thumbnailId == null) {
+            matchedSeriesRepository.delete(series.seriesId())
+        } else {
+            matchedSeriesRepository.save(
+                MatchedSeries(
+                    seriesId = series.seriesId(),
+                    thumbnailId = thumbnailId,
+                )
             )
-        )
+        }
     }
 
     private fun getBookMetadata(
@@ -251,13 +261,17 @@ class KomgaMetadataService(
         val newThumbnail = if (metadataUpdateConfig.bookThumbnails) metadata?.thumbnail else null
         val thumbnailId = replaceBookThumbnail(book.bookId(), newThumbnail)
 
-        matchedBookRepository.save(
-            MatchedBook(
-                seriesId = book.seriesId(),
-                bookId = book.bookId(),
-                thumbnailId = thumbnailId,
+        if (thumbnailId == null) {
+            matchedBookRepository.delete(book.bookId())
+        } else {
+            matchedBookRepository.save(
+                MatchedBook(
+                    seriesId = book.seriesId(),
+                    bookId = book.bookId(),
+                    thumbnailId = thumbnailId,
+                )
             )
-        )
+        }
     }
 
     private fun replaceSeriesThumbnail(seriesId: KomgaSeriesId, thumbnail: Thumbnail?): KomgaThumbnailId? {

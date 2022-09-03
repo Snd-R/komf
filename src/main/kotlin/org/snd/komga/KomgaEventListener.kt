@@ -90,12 +90,12 @@ class KomgaEventListener(
 
                     bookDeletedEvents.forEach { book ->
                         matchedBookRepository.findFor(KomgaBookId(book.bookId))?.let {
-                            matchedBookRepository.delete(it)
+                            matchedBookRepository.delete(it.bookId)
                         }
                     }
                     seriesDeletedEvents.forEach { series ->
                         matchedSeriesRepository.findFor(KomgaSeriesId(series.seriesId))?.let {
-                            matchedSeriesRepository.delete(it)
+                            matchedSeriesRepository.delete(it.seriesId)
                         }
                     }
 
