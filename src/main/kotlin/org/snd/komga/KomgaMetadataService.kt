@@ -63,12 +63,12 @@ class KomgaMetadataService(
     }
 
     fun matchLibraryMetadata(libraryId: KomgaLibraryId) {
-        var page = 0
-        do {
-            val currentPage = komgaClient.getSeries(libraryId, false, page)
-            currentPage.content.forEach { matchSeriesMetadata(it.seriesId()) }
-            page++
-        } while (!currentPage.last)
+        generateSequence(komgaClient.getSeries(libraryId, false, 0)) {
+            if (it.last) null
+            else komgaClient.getSeries(libraryId, false, it.number + 1)
+        }
+            .flatMap { it.content }
+            .forEach { matchSeriesMetadata(it.seriesId()) }
     }
 
     fun matchSeriesMetadata(seriesId: KomgaSeriesId) {
@@ -156,12 +156,12 @@ class KomgaMetadataService(
     }
 
     fun resetLibraryMetadata(libraryId: KomgaLibraryId) {
-        var page = 0
-        do {
-            val currentPage = komgaClient.getSeries(libraryId, false, page)
-            currentPage.content.forEach { resetSeriesMetadata(it) }
-            page++
-        } while (!currentPage.last)
+        generateSequence(komgaClient.getSeries(libraryId, false, 0)) {
+            if (it.last) null
+            else komgaClient.getSeries(libraryId, false, it.number + 1)
+        }
+            .flatMap { it.content }
+            .forEach { resetSeriesMetadata(it) }
     }
 
     private fun updateSeriesMetadata(series: KomgaSeries, metadata: SeriesMetadata) {
