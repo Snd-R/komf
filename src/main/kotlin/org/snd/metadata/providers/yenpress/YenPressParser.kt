@@ -29,9 +29,10 @@ class YenPressParser {
 
         val cover = result.getElementsByClass("search-cover").first()!!.child(0)
         val coverImage = cover.child(0).attr("src").removeSuffix("?auto=format&w=298")
+        val id = cover.attr("href")
 
         return YenPressSearchResult(
-            id = YenPressBookId(cover.attr("href")),
+            id = YenPressBookId(URLDecoder.decode(id, "UTF-8")),
             imageUrl = coverImage,
             title = title
         )
