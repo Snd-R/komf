@@ -30,7 +30,10 @@ class MangaUpdatesSearchResultsJsonAdapter {
             summary = json.record.description,
             thumbnail = json.record.image?.url?.original,
             genres = json.record.genres?.map { it.genre } ?: emptyList(),
-            year = json.record.year?.let { year -> year.toIntOrNull()?.let { Year.of(it) } }
+            year = json.record.year?.let { year ->
+                year.replace("-[0-9]+$".toRegex(), "")
+                    .toIntOrNull()?.let { Year.of(it) }
+            },
         )
     }
 }
