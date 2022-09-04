@@ -11,6 +11,7 @@ import org.snd.metadata.providers.viz.model.VizSeriesBook
 import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale.ENGLISH
 
 class VizParser {
     private val baseUrl = "https://www.viz.com"
@@ -57,7 +58,7 @@ class VizParser {
         val authors = details.child(0).child(0).text()
         val releaseDate = details.getElementsByClass("o_release-date").firstOrNull()?.text()
             ?.removePrefix("Release ")
-            ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MMMM d, yyyy")) }
+            ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MMMM d, yyyy", ENGLISH)) }
         val isbn = details.getElementsByClass("o_isbn13").firstOrNull()?.text()?.removePrefix("ISBN-13 ")
         val ageRating = details.child(1).child(3).text().removePrefix("Age Rating ").let {
             when (it) {
