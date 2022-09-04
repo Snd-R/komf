@@ -84,12 +84,22 @@ class KomgaMetadataService(
     }
 
     fun matchLibraryMetadata(libraryId: KomgaLibraryId) {
+        var errorCount = 0
         generateSequence(komgaClient.getSeries(libraryId, false, 0)) {
             if (it.last) null
             else komgaClient.getSeries(libraryId, false, it.number + 1)
         }
             .flatMap { it.content }
-            .forEach { matchSeriesMetadata(it.seriesId()) }
+            .forEach {
+                runCatching {
+                    matchSeriesMetadata(it.seriesId())
+                }.onFailure {
+                    logger.error(it) { }
+                    errorCount += 1
+                }
+            }
+
+        logger.info { "Finished library scan. Encountered $errorCount errors" }
     }
 
     fun matchSeriesMetadata(seriesId: KomgaSeriesId) {
