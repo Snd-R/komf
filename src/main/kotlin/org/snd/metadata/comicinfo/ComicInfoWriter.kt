@@ -3,6 +3,7 @@ package org.snd.metadata.comicinfo
 import mu.KotlinLogging
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlDeclMode.Charset
+import nl.adaptivity.xmlutil.core.XmlVersion.XML10
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
@@ -30,6 +31,7 @@ class ComicInfoWriter {
     private val xml = XML {
         indent = 2
         xmlDeclMode = Charset
+        xmlVersion = XML10
         unknownChildHandler = UnknownChildHandler { _, inputKind, descriptor, name, _ ->
             logger.warn { "Unknown Field: ${descriptor.tagName}/${name ?: "<CDATA>"} ($inputKind)" }
             emptyList()
