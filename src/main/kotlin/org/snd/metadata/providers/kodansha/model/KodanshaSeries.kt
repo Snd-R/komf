@@ -20,5 +20,6 @@ data class KodanshaSeriesBook(
 
 enum class Status {
     ONGOING,
-    COMPLETED
+    COMPLETED,
+    COMPLETE
 }

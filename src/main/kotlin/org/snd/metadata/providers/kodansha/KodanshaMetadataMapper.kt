@@ -13,8 +13,7 @@ import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.providers.kodansha.model.KodanshaBook
 import org.snd.metadata.providers.kodansha.model.KodanshaSeries
-import org.snd.metadata.providers.kodansha.model.Status.COMPLETED
-import org.snd.metadata.providers.kodansha.model.Status.ONGOING
+import org.snd.metadata.providers.kodansha.model.Status.*
 
 class KodanshaMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
@@ -25,6 +24,7 @@ class KodanshaMetadataMapper(
         val status = when (series.status) {
             ONGOING -> SeriesMetadata.Status.ONGOING
             COMPLETED -> SeriesMetadata.Status.ENDED
+            COMPLETE -> SeriesMetadata.Status.ENDED
             else -> SeriesMetadata.Status.ONGOING
         }
         val metadata = SeriesMetadata(
