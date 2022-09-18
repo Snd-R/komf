@@ -5,7 +5,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Request
 import org.snd.infra.HttpClient
-import org.snd.metadata.model.Thumbnail
+import org.snd.metadata.model.Image
 import org.snd.metadata.providers.yenpress.model.YenPressBook
 import org.snd.metadata.providers.yenpress.model.YenPressBookId
 import org.snd.metadata.providers.yenpress.model.YenPressSearchResult
@@ -37,11 +37,11 @@ class YenPressClient(
         return parser.parseBook(response)
     }
 
-    fun getBookThumbnail(book: YenPressBook): Thumbnail? {
+    fun getBookThumbnail(book: YenPressBook): Image? {
         return book.imageUrl?.toHttpUrlOrNull()?.let {
             val request = Request.Builder().url(it).build()
             val bytes = client.executeWithByteResponse(request)
-            Thumbnail(bytes)
+            Image(bytes)
         }
     }
 }

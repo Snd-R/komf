@@ -18,7 +18,7 @@ data class BookMetadata(
     val startChapter: Int? = null,
     val endChapter: Int? = null,
 
-    val thumbnail: Thumbnail? = null,
+    val thumbnail: Image? = null,
 )
 
 data class Chapter(

@@ -5,14 +5,13 @@ import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.Provider.NAUTILJON
+import org.snd.metadata.model.Image
 import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.Thumbnail
 import org.snd.metadata.providers.nautiljon.model.Series
 import org.snd.metadata.providers.nautiljon.model.Volume
 
@@ -31,7 +30,7 @@ class NautiljonSeriesMetadataMapper(
         AuthorRole.COVER
     )
 
-    fun toSeriesMetadata(series: Series, thumbnail: Thumbnail? = null): ProviderSeriesMetadata {
+    fun toSeriesMetadata(series: Series, thumbnail: Image? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
             "En cours" -> SeriesMetadata.Status.ONGOING
             "En attente" -> SeriesMetadata.Status.ONGOING
@@ -68,7 +67,6 @@ class NautiljonSeriesMetadataMapper(
         )
         val providerMetadata = ProviderSeriesMetadata(
             id = ProviderSeriesId(series.id.id),
-            provider = NAUTILJON,
             metadata = metadata,
             books = series.volumes.map {
                 SeriesBook(
@@ -83,7 +81,7 @@ class NautiljonSeriesMetadataMapper(
         return MetadataConfigApplier.apply(providerMetadata, seriesMetadataConfig)
     }
 
-    fun toBookMetadata(volume: Volume, thumbnail: Thumbnail? = null): ProviderBookMetadata {
+    fun toBookMetadata(volume: Volume, thumbnail: Image? = null): ProviderBookMetadata {
         val authors = volume.authorsStory.map { org.snd.metadata.model.Author(it, AuthorRole.WRITER) } +
                 volume.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role) } }
 
@@ -99,7 +97,6 @@ class NautiljonSeriesMetadataMapper(
         )
         val providerMetadata = ProviderBookMetadata(
             id = ProviderBookId(volume.id.id),
-            provider = NAUTILJON,
             metadata = metadata
         )
         return MetadataConfigApplier.apply(providerMetadata, bookMetadataConfig)

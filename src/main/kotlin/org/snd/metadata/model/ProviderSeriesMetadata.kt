@@ -2,7 +2,6 @@ package org.snd.metadata.model
 
 data class ProviderSeriesMetadata(
     val id: ProviderSeriesId,
-    val provider: Provider,
     val metadata: SeriesMetadata,
     val books: List<SeriesBook> = emptyList(),
 )

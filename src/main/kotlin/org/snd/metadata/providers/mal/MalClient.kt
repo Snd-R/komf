@@ -5,7 +5,7 @@ import com.squareup.moshi.adapter
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import org.snd.infra.HttpClient
-import org.snd.metadata.model.Thumbnail
+import org.snd.metadata.model.Image
 import org.snd.metadata.providers.mal.model.SearchResults
 import org.snd.metadata.providers.mal.model.Series
 
@@ -65,11 +65,11 @@ class MalClient(
         return parseJson(client.execute(request))
     }
 
-    fun getThumbnail(series: Series): Thumbnail? {
+    fun getThumbnail(series: Series): Image? {
         return series.mainPicture?.medium?.let {
             val request = Request.Builder().url(it.toHttpUrl()).build()
             val bytes = client.executeWithByteResponse(request)
-            Thumbnail(bytes)
+            Image(bytes)
         }
     }
 

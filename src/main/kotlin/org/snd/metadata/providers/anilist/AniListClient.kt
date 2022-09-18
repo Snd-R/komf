@@ -17,7 +17,7 @@ import org.snd.MediaQuery
 import org.snd.SearchQuery
 import org.snd.fragment.AniListManga
 import org.snd.infra.HttpException
-import org.snd.metadata.model.Thumbnail
+import org.snd.metadata.model.Image
 import java.io.IOException
 
 class AniListClient(
@@ -55,7 +55,7 @@ class AniListClient(
         }
     }
 
-    fun getThumbnail(series: AniListManga): Thumbnail? {
+    fun getThumbnail(series: AniListManga): Image? {
         return rateLimited {
             series.coverImage?.large?.toHttpUrlOrNull()?.let {
                 val request = Request.Builder().url(it).build()
@@ -64,7 +64,7 @@ class AniListClient(
                     response.body?.bytes() ?: throw IOException("empty body")
                 }
 
-                Thumbnail(bytes)
+                Image(bytes)
             }
         }
     }

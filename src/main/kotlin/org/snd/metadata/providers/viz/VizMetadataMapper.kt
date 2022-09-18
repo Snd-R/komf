@@ -6,7 +6,7 @@ import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
 import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.Provider.VIZ
+import org.snd.metadata.model.Image
 import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
@@ -14,7 +14,6 @@ import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesMetadata.Status.ENDED
-import org.snd.metadata.model.Thumbnail
 import org.snd.metadata.providers.viz.model.VizBook
 import org.snd.metadata.providers.viz.model.VizSeriesBook
 
@@ -30,7 +29,7 @@ class VizMetadataMapper(
         COVER
     )
 
-    fun toSeriesMetadata(book: VizBook, allBooks: Collection<VizSeriesBook>, thumbnail: Thumbnail? = null): ProviderSeriesMetadata {
+    fun toSeriesMetadata(book: VizBook, allBooks: Collection<VizSeriesBook>, thumbnail: Image? = null): ProviderSeriesMetadata {
         val metadata = SeriesMetadata(
             status = if (allBooks.any { it.final }) ENDED else null,
             title = book.seriesName,
@@ -47,7 +46,6 @@ class VizMetadataMapper(
 
         val providerMetadata = ProviderSeriesMetadata(
             id = ProviderSeriesId(book.id.id),
-            provider = VIZ,
             metadata = metadata,
             books = allBooks.map {
                 SeriesBook(
@@ -63,7 +61,7 @@ class VizMetadataMapper(
         return MetadataConfigApplier.apply(providerMetadata, seriesMetadataConfig)
     }
 
-    fun toBookMetadata(book: VizBook, thumbnail: Thumbnail? = null): ProviderBookMetadata {
+    fun toBookMetadata(book: VizBook, thumbnail: Image? = null): ProviderBookMetadata {
         val metadata = BookMetadata(
             title = book.name,
             summary = book.description,
@@ -78,7 +76,6 @@ class VizMetadataMapper(
 
         val providerMetadata = ProviderBookMetadata(
             id = ProviderBookId(book.id.id),
-            provider = VIZ,
             metadata = metadata
         )
         return MetadataConfigApplier.apply(providerMetadata, bookMetadataConfig)

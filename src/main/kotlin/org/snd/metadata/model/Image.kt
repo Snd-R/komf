@@ -1,19 +1,19 @@
 package org.snd.metadata.model
 
-data class Thumbnail(val thumbnail: ByteArray) {
+data class Image(val image: ByteArray) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Thumbnail
+        other as Image
 
-        if (!thumbnail.contentEquals(other.thumbnail)) return false
+        if (!image.contentEquals(other.image)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return thumbnail.contentHashCode()
+        return image.contentHashCode()
     }
 }

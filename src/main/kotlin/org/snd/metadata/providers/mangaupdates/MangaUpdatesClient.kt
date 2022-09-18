@@ -9,7 +9,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.snd.infra.HttpClient
 import org.snd.infra.MEDIA_TYPE_JSON
-import org.snd.metadata.model.Thumbnail
+import org.snd.metadata.model.Image
 import org.snd.metadata.providers.mangaupdates.model.SearchResultPage
 import org.snd.metadata.providers.mangaupdates.model.Series
 
@@ -50,11 +50,11 @@ class MangaUpdatesClient(
         return moshi.adapter<Series>().lenient().fromJson(response) ?: throw RuntimeException()
     }
 
-    fun getThumbnail(series: Series): Thumbnail? {
+    fun getThumbnail(series: Series): Image? {
         return series.image?.toHttpUrlOrNull()?.let {
             val request = Request.Builder().url(it).build()
             val bytes = client.executeWithByteResponse(request)
-            Thumbnail(bytes)
+            Image(bytes)
         }
     }
 }

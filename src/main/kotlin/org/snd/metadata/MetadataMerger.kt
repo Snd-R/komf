@@ -27,14 +27,14 @@ object MetadataMerger {
     }
 
     fun mergeBookMetadata(
-        originalBookMetadata: Map<String, BookMetadata?>,
-        newBookMetadata: Map<String, BookMetadata?>,
-    ): Map<String, BookMetadata?> = (originalBookMetadata.asSequence() + newBookMetadata.asSequence()).distinct()
+        originalBookMetadata: Map<String, BookMetadata>,
+        newBookMetadata: Map<String, BookMetadata>,
+    ): Map<String, BookMetadata> = (originalBookMetadata.asSequence() + newBookMetadata.asSequence()).distinct()
         .groupBy({ it.key }, { it.value })
         .mapValues { (_, values) -> mergeBookMetadata(values) }
 
-    private fun mergeBookMetadata(metadata: Collection<BookMetadata?>): BookMetadata? {
-        return metadata.filterNotNull().reduceOrNull { a, b ->
+    private fun mergeBookMetadata(metadata: Collection<BookMetadata>): BookMetadata {
+        return metadata.reduce { a, b ->
             BookMetadata(
                 title = a.title ?: b.title,
                 summary = a.summary ?: b.summary,

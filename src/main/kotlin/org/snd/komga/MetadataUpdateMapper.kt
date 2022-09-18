@@ -17,9 +17,11 @@ class MetadataUpdateMapper(
     private val metadataUpdateConfig: MetadataUpdateConfig,
 ) {
 
-    fun toBookMetadataUpdate(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata, komgaMetadata: KomgaBookMetadata): KomgaBookMetadataUpdate =
-        with(komgaMetadata) {
-            val authors = (bookMetadata?.authors ?: seriesMetadata.authors).map { author -> KomgaAuthor(author.name, author.role.name) }
+    fun toBookMetadataUpdate(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata?, komgaMetadata: KomgaBookMetadata): KomgaBookMetadataUpdate? {
+        if (bookMetadata == null && seriesMetadata == null) return null
+
+        return with(komgaMetadata) {
+            val authors = (bookMetadata?.authors ?: seriesMetadata?.authors)?.map { author -> KomgaAuthor(author.name, author.role.name) } ?: emptyList()
             KomgaBookMetadataUpdate(
                 summary = getIfNotLockedOrEmpty(bookMetadata?.summary, summaryLock) ?: summary,
                 releaseDate = getIfNotLockedOrEmpty(bookMetadata?.releaseDate, releaseDateLock) ?: releaseDate,
@@ -29,6 +31,7 @@ class MetadataUpdateMapper(
                 links = getIfNotLockedOrEmpty(bookMetadata?.links?.map { KomgaWebLink(it.label, it.url) }, linksLock) ?: links
             )
         }
+    }
 
     fun toSeriesMetadataUpdate(patch: SeriesMetadata, metadata: KomgaSeriesMetadata): KomgaSeriesMetadataUpdate =
         with(metadata) {
@@ -50,36 +53,38 @@ class MetadataUpdateMapper(
             )
         }
 
-    fun toComicInfo(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata): ComicInfo {
+    fun toComicInfo(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata?): ComicInfo? {
+        if (bookMetadata == null && seriesMetadata == null) return null
+
         return ComicInfo(
             title = bookMetadata?.title,
-            series = seriesMetadata.title,
+            series = seriesMetadata?.title,
             number = bookMetadata?.number?.toString(),
-            count = seriesMetadata.totalBookCount,
+            count = seriesMetadata?.totalBookCount,
             summary = bookMetadata?.summary,
             year = bookMetadata?.releaseDate?.year,
             month = bookMetadata?.releaseDate?.monthValue,
             day = bookMetadata?.releaseDate?.dayOfMonth,
-            writer = (bookMetadata?.authors ?: seriesMetadata.authors)
-                .filter { it.role == WRITER }.joinToString(",") { it.name },
-            penciller = (bookMetadata?.authors ?: seriesMetadata.authors)
-                .filter { it.role == PENCILLER }.joinToString(",") { it.name },
-            inker = (bookMetadata?.authors ?: seriesMetadata.authors)
-                .filter { it.role == INKER }.joinToString(",") { it.name },
-            colorist = (bookMetadata?.authors ?: seriesMetadata.authors)
-                .filter { it.role == COLORIST }.joinToString(",") { it.name },
-            letterer = (bookMetadata?.authors ?: seriesMetadata.authors)
-                .filter { it.role == LETTERER }.joinToString(",") { it.name },
-            coverArtist = (bookMetadata?.authors ?: seriesMetadata.authors)
-                .filter { it.role == COVER }.joinToString(",") { it.name },
-            editor = (bookMetadata?.authors ?: seriesMetadata.authors)
-                .filter { it.role == EDITOR }.joinToString(",") { it.name },
-            translator = (bookMetadata?.authors ?: seriesMetadata.authors)
-                .filter { it.role == TRANSLATOR }.joinToString(",") { it.name },
-            publisher = seriesMetadata.publisher,
-            genre = seriesMetadata.genres.joinToString(","),
+            writer = (bookMetadata?.authors ?: seriesMetadata?.authors)
+                ?.filter { it.role == WRITER }?.joinToString(",") { it.name },
+            penciller = (bookMetadata?.authors ?: seriesMetadata?.authors)
+                ?.filter { it.role == PENCILLER }?.joinToString(",") { it.name },
+            inker = (bookMetadata?.authors ?: seriesMetadata?.authors)
+                ?.filter { it.role == INKER }?.joinToString(",") { it.name },
+            colorist = (bookMetadata?.authors ?: seriesMetadata?.authors)
+                ?.filter { it.role == COLORIST }?.joinToString(",") { it.name },
+            letterer = (bookMetadata?.authors ?: seriesMetadata?.authors)
+                ?.filter { it.role == LETTERER }?.joinToString(",") { it.name },
+            coverArtist = (bookMetadata?.authors ?: seriesMetadata?.authors)
+                ?.filter { it.role == COVER }?.joinToString(",") { it.name },
+            editor = (bookMetadata?.authors ?: seriesMetadata?.authors)
+                ?.filter { it.role == EDITOR }?.joinToString(",") { it.name },
+            translator = (bookMetadata?.authors ?: seriesMetadata?.authors)
+                ?.filter { it.role == TRANSLATOR }?.joinToString(",") { it.name },
+            publisher = seriesMetadata?.publisher,
+            genre = seriesMetadata?.genres?.joinToString(","),
             tags = bookMetadata?.tags?.joinToString(","),
-            ageRating = seriesMetadata.ageRating
+            ageRating = seriesMetadata?.ageRating
                 ?.let { metadataRating ->
                     AgeRating.values().filter { it.ageRating != null }
                         .maxByOrNull { it.ageRating!!.coerceAtLeast(metadataRating) }?.name

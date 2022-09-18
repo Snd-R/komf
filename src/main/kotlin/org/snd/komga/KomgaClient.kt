@@ -22,7 +22,7 @@ import org.snd.komga.model.dto.KomgaSeriesMetadataUpdate
 import org.snd.komga.model.dto.KomgaSeriesThumbnail
 import org.snd.komga.model.dto.KomgaThumbnailId
 import org.snd.komga.model.dto.Page
-import org.snd.metadata.model.Thumbnail
+import org.snd.metadata.model.Image
 
 class KomgaClient(
     private val client: HttpClient,
@@ -83,9 +83,9 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun uploadSeriesThumbnail(seriesId: KomgaSeriesId, thumbnail: Thumbnail, selected: Boolean = false): KomgaSeriesThumbnail {
+    fun uploadSeriesThumbnail(seriesId: KomgaSeriesId, thumbnail: Image, selected: Boolean = false): KomgaSeriesThumbnail {
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
-            .addFormDataPart("file", "thumbnail", thumbnail.thumbnail.toRequestBody("image/jpeg".toMediaType()))
+            .addFormDataPart("file", "thumbnail", thumbnail.image.toRequestBody("image/jpeg".toMediaType()))
             .build()
         val request = Request.Builder()
             .url(
@@ -189,9 +189,9 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun uploadBookThumbnail(bookId: KomgaBookId, thumbnail: Thumbnail, selected: Boolean = false): KomgaBookThumbnail {
+    fun uploadBookThumbnail(bookId: KomgaBookId, thumbnail: Image, selected: Boolean = false): KomgaBookThumbnail {
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
-            .addFormDataPart("file", "thumbnail", thumbnail.thumbnail.toRequestBody("image/jpeg".toMediaType()))
+            .addFormDataPart("file", "thumbnail", thumbnail.image.toRequestBody("image/jpeg".toMediaType()))
             .build()
         val request = Request.Builder()
             .url(

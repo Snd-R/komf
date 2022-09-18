@@ -4,7 +4,7 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import org.snd.infra.HttpClient
-import org.snd.metadata.model.Thumbnail
+import org.snd.metadata.model.Image
 import org.snd.metadata.providers.kodansha.model.KodanshaBook
 import org.snd.metadata.providers.kodansha.model.KodanshaBookId
 import org.snd.metadata.providers.kodansha.model.KodanshaBookListPage
@@ -57,10 +57,10 @@ class KodanshaClient(
         return parser.parseBook(client.execute(request))
     }
 
-    fun getThumbnail(url: HttpUrl): Thumbnail {
+    fun getThumbnail(url: HttpUrl): Image {
         val request = Request.Builder().url(url).build()
         val bytes = client.executeWithByteResponse(request)
 
-        return Thumbnail(bytes)
+        return Image(bytes)
     }
 }

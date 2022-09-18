@@ -5,7 +5,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import org.snd.infra.HttpClient
 import org.snd.infra.HttpException
-import org.snd.metadata.model.Thumbnail
+import org.snd.metadata.model.Image
 import org.snd.metadata.providers.viz.model.VizAllBooksId
 import org.snd.metadata.providers.viz.model.VizBook
 import org.snd.metadata.providers.viz.model.VizBookId
@@ -52,11 +52,11 @@ class VizClient(
         return parser.parseBook(response)
     }
 
-    fun getThumbnail(url: HttpUrl): Thumbnail? {
+    fun getThumbnail(url: HttpUrl): Image? {
         val request = Request.Builder().url(url).build()
         return try {
             val bytes = client.executeWithByteResponse(request)
-            Thumbnail(bytes)
+            Image(bytes)
         } catch (e: HttpException) {
             if (e.code == 403) null
             else throw e

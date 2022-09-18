@@ -5,6 +5,7 @@ import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.SeriesMatchResult
 import org.snd.metadata.model.SeriesSearchResult
 
 interface MetadataProvider {
@@ -16,5 +17,5 @@ interface MetadataProvider {
 
     fun searchSeries(seriesName: String, limit: Int = 5): Collection<SeriesSearchResult>
 
-    fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata?
+    fun matchSeriesMetadata(seriesName: String): SeriesMatchResult
 }

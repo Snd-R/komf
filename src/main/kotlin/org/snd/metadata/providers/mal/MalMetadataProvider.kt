@@ -9,6 +9,9 @@ import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.SeriesMatchResult
+import org.snd.metadata.model.SeriesMatchStatus.MATCHED
+import org.snd.metadata.model.SeriesMatchStatus.NO_MATCH
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.providers.mal.model.toSeriesSearchResult
 
@@ -45,10 +48,10 @@ class MalMetadataProvider(
             .map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(seriesName: String): SeriesMatchResult {
         if (seriesName.length < 3) {
             logger.warn { "$seriesName is less than 3 characters. Can't perform a search" }
-            return null
+            return SeriesMatchResult(NO_MATCH, null)
         }
 
         val searchResults = malClient.searchSeries(seriesName.take(64))
@@ -57,10 +60,14 @@ class MalMetadataProvider(
             nameMatcher.matches(seriesName, titles)
         }
 
-        return match?.let {
+        val metadata = match?.let {
             val series = malClient.getSeries(it.id)
             val thumbnail = malClient.getThumbnail(series)
             metadataMapper.toSeriesMetadata(series, thumbnail)
         }
+        return SeriesMatchResult(
+            status = if (metadata == null) NO_MATCH else MATCHED,
+            result = metadata
+        )
     }
 }

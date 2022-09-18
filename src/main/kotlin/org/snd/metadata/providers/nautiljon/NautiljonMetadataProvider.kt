@@ -8,6 +8,9 @@ import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.SeriesMatchResult
+import org.snd.metadata.model.SeriesMatchStatus.MATCHED
+import org.snd.metadata.model.SeriesMatchStatus.NO_MATCH
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.providers.nautiljon.model.SeriesId
 import org.snd.metadata.providers.nautiljon.model.VolumeId
@@ -42,15 +45,20 @@ class NautiljonMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(seriesName: String): SeriesMatchResult {
         val searchResults = client.searchSeries(seriesName.take(400))
         val match = searchResults
             .firstOrNull { nameMatcher.matches(seriesName, listOfNotNull(it.title, it.alternativeTitle)) }
 
-        return match?.let {
+        val metadata = match?.let {
             val series = client.getSeries(it.id)
             val thumbnail = client.getSeriesThumbnail(series)
             metadataMapper.toSeriesMetadata(series, thumbnail)
         }
+
+        return SeriesMatchResult(
+            status = if (metadata == null) NO_MATCH else MATCHED,
+            result = metadata
+        )
     }
 }

@@ -5,7 +5,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Request
 import org.snd.infra.HttpClient
-import org.snd.metadata.model.Thumbnail
+import org.snd.metadata.model.Image
 import org.snd.metadata.providers.nautiljon.model.SearchResult
 import org.snd.metadata.providers.nautiljon.model.Series
 import org.snd.metadata.providers.nautiljon.model.SeriesId
@@ -50,19 +50,19 @@ class NautiljonClient(
         return parser.parseVolume(response)
     }
 
-    fun getSeriesThumbnail(series: Series): Thumbnail? {
+    fun getSeriesThumbnail(series: Series): Image? {
         return series.imageUrl?.toHttpUrlOrNull()?.let {
             val request = Request.Builder().url(it).build()
             val bytes = client.executeWithByteResponse(request)
-            Thumbnail(bytes)
+            Image(bytes)
         }
     }
 
-    fun getVolumeThumbnail(volume: Volume): Thumbnail? {
+    fun getVolumeThumbnail(volume: Volume): Image? {
         return volume.imageUrl?.toHttpUrlOrNull()?.let {
             val request = Request.Builder().url(it).build()
             val bytes = client.executeWithByteResponse(request)
-            Thumbnail(bytes)
+            Image(bytes)
         }
     }
 }

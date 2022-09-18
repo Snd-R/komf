@@ -4,21 +4,20 @@ import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.Provider.YEN_PRESS
+import org.snd.metadata.model.Image
 import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.Thumbnail
 import org.snd.metadata.providers.yenpress.model.YenPressBook
 
 class YenPressMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
     private val bookMetadataConfig: BookMetadataConfig,
 ) {
-    fun toSeriesMetadata(book: YenPressBook, thumbnail: Thumbnail? = null): ProviderSeriesMetadata {
+    fun toSeriesMetadata(book: YenPressBook, thumbnail: Image? = null): ProviderSeriesMetadata {
         val metadata = SeriesMetadata(
             status = null,
             title = book.name,
@@ -35,7 +34,6 @@ class YenPressMetadataMapper(
 
         val providerMetadata = ProviderSeriesMetadata(
             id = ProviderSeriesId(book.id.id),
-            provider = YEN_PRESS,
             metadata = metadata,
             books = book.seriesBooks.map {
                 SeriesBook(
@@ -51,7 +49,7 @@ class YenPressMetadataMapper(
         return MetadataConfigApplier.apply(providerMetadata, seriesMetadataConfig)
     }
 
-    fun toBookMetadata(book: YenPressBook, thumbnail: Thumbnail? = null): ProviderBookMetadata {
+    fun toBookMetadata(book: YenPressBook, thumbnail: Image? = null): ProviderBookMetadata {
         val metadata = BookMetadata(
             title = book.name,
             summary = book.description,
@@ -65,7 +63,6 @@ class YenPressMetadataMapper(
 
         val providerMetadata = ProviderBookMetadata(
             id = ProviderBookId(book.id.id),
-            provider = YEN_PRESS,
             metadata = metadata
         )
         return MetadataConfigApplier.apply(providerMetadata, bookMetadataConfig)

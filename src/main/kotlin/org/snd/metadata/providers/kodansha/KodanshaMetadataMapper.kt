@@ -4,14 +4,13 @@ import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.Provider.KODANSHA
+import org.snd.metadata.model.Image
 import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.Thumbnail
 import org.snd.metadata.providers.kodansha.model.KodanshaBook
 import org.snd.metadata.providers.kodansha.model.KodanshaSeries
 import org.snd.metadata.providers.kodansha.model.Status.COMPLETED
@@ -22,7 +21,7 @@ class KodanshaMetadataMapper(
     private val bookMetadataConfig: BookMetadataConfig,
 ) {
 
-    fun toSeriesMetadata(series: KodanshaSeries, thumbnail: Thumbnail? = null): ProviderSeriesMetadata {
+    fun toSeriesMetadata(series: KodanshaSeries, thumbnail: Image? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
             ONGOING -> SeriesMetadata.Status.ONGOING
             COMPLETED -> SeriesMetadata.Status.ENDED
@@ -42,7 +41,6 @@ class KodanshaMetadataMapper(
 
         val providerMetadata = ProviderSeriesMetadata(
             id = ProviderSeriesId(series.id.id),
-            provider = KODANSHA,
             metadata = metadata,
             books = series.books.map {
                 SeriesBook(
@@ -57,7 +55,7 @@ class KodanshaMetadataMapper(
         return MetadataConfigApplier.apply(providerMetadata, seriesMetadataConfig)
     }
 
-    fun toBookMetadata(book: KodanshaBook, thumbnail: Thumbnail? = null): ProviderBookMetadata {
+    fun toBookMetadata(book: KodanshaBook, thumbnail: Image? = null): ProviderBookMetadata {
         val metadata = BookMetadata(
             title = book.name,
             summary = book.summary,
@@ -70,7 +68,6 @@ class KodanshaMetadataMapper(
 
         val providerMetadata = ProviderBookMetadata(
             id = ProviderBookId(book.id.id),
-            provider = KODANSHA,
             metadata = metadata
         )
 

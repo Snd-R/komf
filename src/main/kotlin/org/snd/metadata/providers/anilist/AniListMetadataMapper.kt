@@ -6,12 +6,12 @@ import org.snd.fragment.AniListManga
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
 import org.snd.metadata.model.AuthorRole
+import org.snd.metadata.model.Image
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
-import org.snd.metadata.model.Thumbnail
 import org.snd.type.MediaStatus
 
 class AniListMetadataMapper(
@@ -27,7 +27,7 @@ class AniListMetadataMapper(
         AuthorRole.COVER
     )
 
-    fun toSeriesMetadata(series: AniListManga, thumbnail: Thumbnail? = null): ProviderSeriesMetadata {
+    fun toSeriesMetadata(series: AniListManga, thumbnail: Image? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
             MediaStatus.FINISHED -> SeriesMetadata.Status.ENDED
             MediaStatus.RELEASING -> SeriesMetadata.Status.ONGOING
@@ -81,7 +81,7 @@ class AniListMetadataMapper(
             alternativeTitles = series.title?.let { listOfNotNull(it.english, it.romaji, it.native) } ?: emptyList()
         )
         return MetadataConfigApplier.apply(
-            ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), provider = Provider.ANILIST, metadata = metadata),
+            ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), metadata = metadata),
             metadataConfig
         )
     }

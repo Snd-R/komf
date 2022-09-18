@@ -3,13 +3,16 @@ package org.snd.metadata.providers.kodansha
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.model.Image
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.SeriesMatchResult
+import org.snd.metadata.model.SeriesMatchStatus.MATCHED
+import org.snd.metadata.model.SeriesMatchStatus.NO_MATCH
 import org.snd.metadata.model.SeriesSearchResult
-import org.snd.metadata.model.Thumbnail
 import org.snd.metadata.providers.kodansha.model.KodanshaBookId
 import org.snd.metadata.providers.kodansha.model.KodanshaSeries
 import org.snd.metadata.providers.kodansha.model.KodanshaSeriesBook
@@ -44,18 +47,23 @@ class KondanshaMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(seriesName: String): SeriesMatchResult {
         val searchResults = client.searchSeries(seriesName.take(400))
 
-        return searchResults.firstOrNull { nameMatcher.matches(seriesName, it.title) }
+        val metadata = searchResults.firstOrNull { nameMatcher.matches(seriesName, it.title) }
             ?.let {
                 val series = getSeries(it.seriesId)
                 val thumbnail = getThumbnail(series.coverUrl)
                 metadataMapper.toSeriesMetadata(series, thumbnail)
             }
+
+        return SeriesMatchResult(
+            status = if (metadata == null) NO_MATCH else MATCHED,
+            result = metadata
+        )
     }
 
-    private fun getThumbnail(url: String?): Thumbnail? = url?.toHttpUrl()?.let { client.getThumbnail(it) }
+    private fun getThumbnail(url: String?): Image? = url?.toHttpUrl()?.let { client.getThumbnail(it) }
 
     private fun getSeries(seriesId: KodanshaSeriesId): KodanshaSeries {
         val series = client.getSeries(seriesId)

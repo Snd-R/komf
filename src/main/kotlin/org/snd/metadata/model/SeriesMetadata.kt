@@ -15,7 +15,7 @@ data class SeriesMetadata(
     val authors: List<Author> = emptyList(),
     val alternativeTitles: Collection<String> = emptyList(),
 
-    val thumbnail: Thumbnail? = null,
+    val thumbnail: Image? = null,
 ) {
 
     enum class Status {
