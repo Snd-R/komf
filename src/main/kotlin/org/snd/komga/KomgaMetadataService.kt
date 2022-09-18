@@ -342,7 +342,8 @@ class KomgaMetadataService(
         if (edition != null) {
             val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
             return books.mapNotNull { komgaBook ->
-                val meta = editions[editionName]?.firstOrNull { komgaBook.number == it.number }
+                val volume = BookFilenameParser.getVolumes(komgaBook.name)?.first ?: komgaBook.number
+                val meta = editions[editionName]?.firstOrNull { volume == it.number }
                 if (meta == null) null
                 else komgaBook to meta
             }.toMap()
