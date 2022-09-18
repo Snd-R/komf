@@ -391,6 +391,7 @@ class KomgaMetadataService(
     ): SeriesAndBookMetadata? {
         return searchTitles.asSequence()
             .filter { StringUtils.isAsciiPrintable(it) }
+            .onEach { logger.info { "searching \"$it\" using ${provider.providerName()}" } }
             .map { provider.matchSeriesMetadata(it) }
             .mapNotNull {
                 when (it.status) {
@@ -425,6 +426,8 @@ class KomgaMetadataService(
     private fun handleSingleMatch(series: KomgaSeries, provider: MetadataProvider, match: SeriesMatchResult, bookEdition: String?): SeriesAndBookMetadata {
         if (match.status != MATCHED) throw ValidationException("incorrect match type")
         val seriesMetadata = match.result!!.metadata
+        logger.info { "found match: \"${seriesMetadata.title}\" from ${provider.providerName()}  ${match.result.id}" }
+
         val bookMetadata = getBookMetadata(series.seriesId(), match.result, provider, bookEdition)
         return SeriesAndBookMetadata(seriesMetadata, bookMetadata)
     }
