@@ -79,7 +79,7 @@ class KomgaMetadataService(
         } else SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
 
         if (metadata.seriesMetadata != null) updateSeriesMetadata(series, metadata.seriesMetadata)
-        if (metadata.bookMetadata != null) updateBookMetadata(metadata.bookMetadata, metadata.seriesMetadata)
+        updateBookMetadata(metadata.bookMetadata, metadata.seriesMetadata)
 
         if (metadataUpdateConfig.mode == FILE_EMBED) {
             komgaClient.analyzeSeries(series.seriesId())
@@ -138,7 +138,7 @@ class KomgaMetadataService(
         }
 
         if (metadata.seriesMetadata != null) updateSeriesMetadata(series, metadata.seriesMetadata)
-        if (metadata.bookMetadata != null) updateBookMetadata(metadata.bookMetadata, metadata.seriesMetadata)
+        updateBookMetadata(metadata.bookMetadata, metadata.seriesMetadata)
 
         if (metadataUpdateConfig.mode == FILE_EMBED) {
             komgaClient.analyzeSeries(series.seriesId())
@@ -250,12 +250,16 @@ class KomgaMetadataService(
         seriesMeta: ProviderSeriesMetadata,
         provider: MetadataProvider,
         bookEdition: String?
-    ): Map<KomgaBook, BookMetadata> {
+    ): Map<KomgaBook, BookMetadata?> {
         val books = komgaClient.getBooks(seriesId, true).content
         val metadataMatch = associateBookMetadata(books, seriesMeta.books, bookEdition)
 
         return metadataMatch.map { (book, seriesBookMeta) ->
-            book to provider.getBookMetadata(seriesMeta.id, seriesBookMeta.id).metadata
+            if (seriesBookMeta != null) {
+                book to provider.getBookMetadata(seriesMeta.id, seriesBookMeta.id).metadata
+            } else {
+                book to null
+            }
         }.toMap()
     }
 
@@ -335,18 +339,16 @@ class KomgaMetadataService(
         books: Collection<KomgaBook>,
         providerBooks: Collection<SeriesBook>,
         edition: String? = null
-    ): Map<KomgaBook, SeriesBook> {
+    ): Map<KomgaBook, SeriesBook?> {
         val editions = providerBooks.groupBy { it.edition }
         val noEditionBooks = providerBooks.filter { it.edition == null }
 
         if (edition != null) {
             val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
-            return books.mapNotNull { komgaBook ->
+            return books.associateWith { komgaBook ->
                 val volume = BookFilenameParser.getVolumes(komgaBook.name)?.first ?: komgaBook.number
-                val meta = editions[editionName]?.firstOrNull { volume == it.number }
-                if (meta == null) null
-                else komgaBook to meta
-            }.toMap()
+                editions[editionName]?.firstOrNull { volume == it.number }
+            }
         }
 
         val byEdition: Map<KomgaBook, String?> = books.associateWith { book ->
@@ -354,7 +356,7 @@ class KomgaMetadataService(
             editions.keys.firstOrNull { bookExtraData.contains(it) }
         }
 
-        return byEdition.mapNotNull { (book, edition) ->
+        return byEdition.map { (book, edition) ->
             val volume = BookFilenameParser.getVolumes(book.name)
             val matched = if (volume == null || volume.first != volume.last) {
                 null
@@ -363,9 +365,7 @@ class KomgaMetadataService(
             } else {
                 editions[edition]?.firstOrNull { it.number == volume.first }
             }
-
-            if (matched == null) null
-            else book to matched
+            book to matched
         }.toMap()
     }
 
@@ -409,19 +409,17 @@ class KomgaMetadataService(
             MetadataMerger.mergeSeriesMetadata(originalMetadata.seriesMetadata, newMetadata.seriesMetadata)
         } else originalMetadata.seriesMetadata ?: newMetadata.seriesMetadata
 
-        val mergedBooks = if (originalMetadata.bookMetadata != null && newMetadata.bookMetadata != null) {
-            val books = (originalMetadata.bookMetadata.keys + newMetadata.bookMetadata.keys).associateBy { it.id }
-            MetadataMerger.mergeBookMetadata(
-                originalMetadata.bookMetadata.map { it.key.id to it.value }.toMap(),
-                newMetadata.bookMetadata.map { it.key.id to it.value }.toMap()
-            ).map { (bookId, metadata) -> books[bookId]!! to metadata }.toMap()
-        } else originalMetadata.bookMetadata ?: newMetadata.bookMetadata
+        val books = originalMetadata.bookMetadata.keys.associateBy { it.id }
+        val mergedBooks = MetadataMerger.mergeBookMetadata(
+            originalMetadata.bookMetadata.map { it.key.id to it.value }.toMap(),
+            newMetadata.bookMetadata.map { it.key.id to it.value }.toMap()
+        ).map { (bookId, metadata) -> books[bookId]!! to metadata }.toMap()
 
         return SeriesAndBookMetadata(mergedSeries, mergedBooks)
     }
 
     private fun handleMultipleMatches(series: KomgaSeries, provider: MetadataProvider, match: SeriesMatchResult, bookEdition: String?): SeriesAndBookMetadata {
-        return SeriesAndBookMetadata(null, null)
+        return SeriesAndBookMetadata(null, emptyMap())
     }
 
     private fun handleSingleMatch(series: KomgaSeries, provider: MetadataProvider, match: SeriesMatchResult, bookEdition: String?): SeriesAndBookMetadata {
