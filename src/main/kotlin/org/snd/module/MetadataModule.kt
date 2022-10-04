@@ -197,9 +197,10 @@ class MetadataModule(
             name = "Viz",
             rateLimiterConfig = RateLimiterConfig.custom()
                 .limitRefreshPeriod(Duration.ofSeconds(5))
-                .limitForPeriod(5)
+                .limitForPeriod(3)
                 .timeoutDuration(Duration.ofSeconds(5))
-                .build()
+                .build(),
+            retryConfig = RetryConfig.custom<Any>().intervalFunction { 5000 }.build()
         )
     )
 
