@@ -46,9 +46,13 @@ class ComicInfoWriter {
         val tempFile = createTempFile(archivePath.parent)
         runCatching {
             ZipFile(archivePath.toFile()).use { zip ->
-                val comicInfoToWrite = getComicInfo(zip)
-                    ?.let { old -> mergeComicInfoMetadata(old, comicInfo) }
+                val oldComicInfo = getComicInfo(zip)
+                val comicInfoToWrite = oldComicInfo?.let { old -> mergeComicInfoMetadata(old, comicInfo) }
                     ?: comicInfo
+                if (oldComicInfo == comicInfoToWrite) {
+                    tempFile.deleteIfExists()
+                    return
+                }
 
                 ZipArchiveOutputStream(tempFile).use { output ->
                     copyEntries(zip, output)
