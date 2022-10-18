@@ -271,7 +271,7 @@ class KomgaMetadataService(
         if (metadataUpdateConfig.mode == API) {
             metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book.metadata)
                 ?.let { komgaClient.updateBookMetadata(book.bookId(), it) }
-        } else {
+        } else if (book.deleted.not()) {
             metadataUpdateMapper.toComicInfo(metadata, seriesMeta)?.let {
                 comicInfoWriter.writeMetadata(Path.of(book.url), it)
             }
