@@ -59,6 +59,7 @@ data class MetadataProvidersConfig(
     val yenPress: YenPressConfig = YenPressConfig(),
     val kodansha: KodanshaConfig = KodanshaConfig(),
     val viz: VizConfig = VizConfig(),
+    val bookWalker: BookWalkerConfig = BookWalkerConfig(),
 )
 
 @Serializable
@@ -124,6 +125,15 @@ data class KodanshaConfig(
 @Serializable
 data class VizConfig(
     val priority: Int = 70,
+    val enabled: Boolean = false,
+    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
+    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    val nameMatchingMode: NameMatchingMode? = null,
+)
+
+@Serializable
+data class BookWalkerConfig(
+    val priority: Int = 80,
     val enabled: Boolean = false,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),

@@ -12,6 +12,9 @@ import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.providers.anilist.AniListClient
 import org.snd.metadata.providers.anilist.AniListMetadataMapper
 import org.snd.metadata.providers.anilist.AniListMetadataProvider
+import org.snd.metadata.providers.bookwalker.BookWalkerClient
+import org.snd.metadata.providers.bookwalker.BookWalkerMapper
+import org.snd.metadata.providers.bookwalker.BookWalkerMetadataProvider
 import org.snd.metadata.providers.kodansha.KodanshaClient
 import org.snd.metadata.providers.kodansha.KodanshaMetadataMapper
 import org.snd.metadata.providers.kodansha.KondanshaMetadataProvider
@@ -214,6 +217,29 @@ class MetadataModule(
         else null
     }
 
+    private val bookWalkerClient = BookWalkerClient(
+        HttpClient(
+            client = httpClient.newBuilder().build(),
+            name = "BookWalker",
+            rateLimiterConfig = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(5))
+                .limitForPeriod(5)
+                .timeoutDuration(Duration.ofSeconds(5))
+                .build(),
+            retryConfig = RetryConfig.custom<Any>().intervalFunction { 5000 }.build()
+        )
+    )
+    private val bookWalkerMapper = BookWalkerMapper(
+        seriesMetadataConfig = config.bookWalker.seriesMetadata,
+        bookMetadataConfig = config.bookWalker.bookMetadata
+    )
+
+    private val bookWalkerSimilarityMatcher = config.bookWalker.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+    private val bookWalkerMetadataProvider = config.bookWalker.let {
+        if (it.enabled) BookWalkerMetadataProvider(bookWalkerClient, bookWalkerMapper, bookWalkerSimilarityMatcher)
+        else null
+    }
+
     val metadataProviders = listOfNotNull(
         malMetadataProvider?.let { it to config.mal.priority },
         mangaUpdatesMetadataProvider?.let { it to config.mangaUpdates.priority },
@@ -221,7 +247,8 @@ class MetadataModule(
         aniListMetadataProvider?.let { it to config.aniList.priority },
         yenPressMetadataProvider?.let { it to config.yenPress.priority },
         kodanshaMetadataProvider?.let { it to config.kodansha.priority },
-        vizMetadataProvider?.let { it to config.viz.priority }
+        vizMetadataProvider?.let { it to config.viz.priority },
+        bookWalkerMetadataProvider?.let { it to config.bookWalker.priority }
     )
         .sortedBy { (_, priority) -> priority }
         .associate { (provider, _) -> provider.providerName() to provider }

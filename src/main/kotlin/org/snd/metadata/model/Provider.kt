@@ -8,4 +8,5 @@ enum class Provider {
     YEN_PRESS,
     KODANSHA,
     VIZ,
+    BOOK_WALKER
 }
