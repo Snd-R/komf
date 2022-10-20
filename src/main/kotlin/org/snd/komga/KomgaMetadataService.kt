@@ -10,12 +10,11 @@ import org.snd.komga.model.MatchedSeries
 import org.snd.komga.model.SeriesAndBookMetadata
 import org.snd.komga.model.dto.KomgaBook
 import org.snd.komga.model.dto.KomgaBookId
-import org.snd.komga.model.dto.KomgaBookMetadataUpdate
 import org.snd.komga.model.dto.KomgaLibraryId
 import org.snd.komga.model.dto.KomgaSeries
 import org.snd.komga.model.dto.KomgaSeriesId
-import org.snd.komga.model.dto.KomgaSeriesMetadataUpdate
 import org.snd.komga.model.dto.KomgaThumbnailId
+import org.snd.komga.model.dto.toMetadataResetRequest
 import org.snd.komga.repository.MatchedBookRepository
 import org.snd.komga.repository.MatchedSeriesRepository
 import org.snd.metadata.BookFilenameParser
@@ -29,7 +28,6 @@ import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.SeriesMetadata.Status.ONGOING
 import org.snd.metadata.model.SeriesSearchResult
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture.supplyAsync
@@ -145,33 +143,7 @@ class KomgaMetadataService(
     }
 
     private fun resetSeriesMetadata(series: KomgaSeries) {
-        komgaClient.updateSeriesMetadata(
-            series.seriesId(),
-            KomgaSeriesMetadataUpdate(
-                status = ONGOING.name,
-                title = series.name,
-                titleSort = series.name,
-                summary = "",
-                publisher = "",
-                readingDirection = null,
-                ageRating = null,
-                language = "",
-                genres = emptyList(),
-                tags = emptyList(),
-                totalBookCount = null,
-                statusLock = false,
-                titleLock = false,
-                titleSortLock = false,
-                summaryLock = false,
-                publisherLock = false,
-                readingDirectionLock = false,
-                ageRatingLock = false,
-                languageLock = false,
-                genresLock = false,
-                tagsLock = false,
-                totalBookCountLock = false
-            )
-        )
+        komgaClient.updateSeriesMetadata(series.seriesId(), series.toMetadataResetRequest())
 
         komgaClient.getBooks(series.seriesId(), true)
             .content.forEach { resetBookMetadata(it) }
@@ -181,29 +153,7 @@ class KomgaMetadataService(
     }
 
     private fun resetBookMetadata(book: KomgaBook) {
-        komgaClient.updateBookMetadata(
-            book.bookId(),
-            KomgaBookMetadataUpdate(
-                title = book.name,
-                summary = "",
-                releaseDate = null,
-                authors = emptyList(),
-                tags = emptySet(),
-                isbn = null,
-                links = emptyList(),
-
-                titleLock = false,
-                summaryLock = false,
-                numberLock = false,
-                numberSortLock = false,
-                releaseDateLock = false,
-                authorsLock = false,
-                tagsLock = false,
-                isbnLock = false,
-                linksLock = false
-
-            )
-        )
+        komgaClient.updateBookMetadata(book.bookId(), book.toMetadataResetRequest())
 
         replaceBookThumbnail(book.bookId(), null)
         matchedBookRepository.delete(book.bookId())

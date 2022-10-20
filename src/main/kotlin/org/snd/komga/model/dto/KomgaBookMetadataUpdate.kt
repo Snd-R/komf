@@ -26,3 +26,23 @@ data class KomgaBookMetadataUpdate(
     val isbnLock: Boolean? = null,
     val linksLock: Boolean? = null,
 )
+
+fun KomgaBook.toMetadataResetRequest() = KomgaBookMetadataUpdate(
+    title = name,
+    summary = "",
+    releaseDate = null,
+    authors = emptyList(),
+    tags = emptySet(),
+    isbn = null,
+    links = emptyList(),
+
+    titleLock = false,
+    summaryLock = false,
+    numberLock = false,
+    numberSortLock = false,
+    releaseDateLock = false,
+    authorsLock = false,
+    tagsLock = false,
+    isbnLock = false,
+    linksLock = false
+)

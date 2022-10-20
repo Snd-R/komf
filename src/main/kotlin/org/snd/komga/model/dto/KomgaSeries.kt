@@ -44,5 +44,3 @@ data class KomgaSeriesMetadata(
     val totalBookCount: Int?,
     val totalBookCountLock: Boolean,
 )
-
-

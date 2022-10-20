@@ -1,6 +1,7 @@
 package org.snd.komga.model.dto
 
 import com.squareup.moshi.JsonClass
+import org.snd.metadata.model.SeriesMetadata
 
 @JsonClass(generateAdapter = true)
 data class KomgaSeriesMetadataUpdate(
@@ -27,4 +28,29 @@ data class KomgaSeriesMetadataUpdate(
     val genresLock: Boolean? = null,
     val tagsLock: Boolean? = null,
     val totalBookCountLock: Boolean? = null,
+)
+
+fun KomgaSeries.toMetadataResetRequest() = KomgaSeriesMetadataUpdate(
+    status = SeriesMetadata.Status.ONGOING.name,
+    title = name,
+    titleSort = name,
+    summary = "",
+    publisher = "",
+    readingDirection = null,
+    ageRating = null,
+    language = "",
+    genres = emptyList(),
+    tags = emptyList(),
+    totalBookCount = null,
+    statusLock = false,
+    titleLock = false,
+    titleSortLock = false,
+    summaryLock = false,
+    publisherLock = false,
+    readingDirectionLock = false,
+    ageRatingLock = false,
+    languageLock = false,
+    genresLock = false,
+    tagsLock = false,
+    totalBookCountLock = false
 )
