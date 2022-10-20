@@ -371,6 +371,7 @@ class KomgaMetadataService(
         edition: String?
     ): SeriesAndBookMetadata {
         if (providers.isEmpty()) return metadata
+        logger.info { "launching metadata aggregation using ${providers.map { it.providerName() }}" }
 
         val searchTitles = setOfNotNull(series.name, metadata.seriesMetadata?.title) + (metadata.seriesMetadata?.alternativeTitles ?: emptySet())
 
