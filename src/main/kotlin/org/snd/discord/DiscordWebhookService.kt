@@ -20,25 +20,22 @@ class DiscordWebhookService(
 
     fun send(message: WebhookMessage) {
         webhooks.map { discordClient.getWebhook(it) }
-            .forEach { webhook ->
-                toRequest(message)
-                    .forEach { discordClient.executeWebhook(webhook, it) }
-            }
+            .forEach { webhook -> toRequest(message)?.let { discordClient.executeWebhook(webhook, it) } }
     }
 
-    private fun toRequest(message: WebhookMessage): Collection<WebhookExecuteRequest> {
+    private fun toRequest(message: WebhookMessage): WebhookExecuteRequest? {
         val description = renderTemplate(message).take(4095)
 
         if (description.isBlank()) {
             logger.warn { "empty discord message for series ${message.series.name}. Skipping notification" }
-            return emptyList()
+            return null
         }
 
         val embed = Embed(
             description = description,
             color = "1F8B4C".toInt(16),
         )
-        return listOf(WebhookExecuteRequest(embeds = listOf(embed)))
+        return WebhookExecuteRequest(embeds = listOf(embed))
     }
 
     private fun renderTemplate(message: WebhookMessage): String {
