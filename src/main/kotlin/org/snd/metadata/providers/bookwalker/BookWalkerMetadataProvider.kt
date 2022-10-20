@@ -10,8 +10,6 @@ import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesMatchResult
-import org.snd.metadata.model.SeriesMatchStatus
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
@@ -45,10 +43,10 @@ class BookWalkerMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): SeriesMatchResult {
+    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = client.searchSeries(seriesName.take(100))
 
-        val metadata = searchResults
+        return searchResults
             .firstOrNull { nameMatcher.matches(seriesName, it.seriesName) }
             ?.let {
                 val books = client.getSeriesBooks(it.id)
@@ -56,11 +54,6 @@ class BookWalkerMetadataProvider(
                 val thumbnail = getThumbnail(firstBook.imageUrl)
                 metadataMapper.toSeriesMetadata(it.id, firstBook, books, thumbnail)
             }
-
-        return SeriesMatchResult(
-            status = if (metadata == null) SeriesMatchStatus.NO_MATCH else SeriesMatchStatus.MATCHED,
-            result = metadata
-        )
     }
 
     private fun getThumbnail(url: String?): Image? = url?.toHttpUrl()?.let { client.getThumbnail(it) }

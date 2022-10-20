@@ -1,6 +1,5 @@
 package org.snd.komga
 
-import jakarta.xml.bind.ValidationException
 import mu.KotlinLogging
 import org.apache.commons.lang3.StringUtils
 import org.snd.config.MetadataUpdateConfig
@@ -29,8 +28,6 @@ import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesBook
-import org.snd.metadata.model.SeriesMatchResult
-import org.snd.metadata.model.SeriesMatchStatus.*
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesMetadata.Status.ONGOING
 import org.snd.metadata.model.SeriesSearchResult
@@ -109,15 +106,11 @@ class KomgaMetadataService(
         val series = komgaClient.getSeries(seriesId)
         logger.info { "attempting to match series \"${series.name}\" ${series.seriesId()}" }
         val matchResult = metadataProviders.values.asSequence()
-            .map { it to it.matchSeriesMetadata(series.name) }
-            .mapNotNull { (provider, match) ->
-                val metadata = when (match.status) {
-                    MATCHED -> handleSingleMatch(series, provider, match, null)
-                    MULTIPLE_MATCHES -> handleMultipleMatches(series, provider, match, null)
-                    NO_MATCH -> null
-                }
-                if (metadata == null) null
-                else provider to metadata
+            .mapNotNull { provider -> provider.matchSeriesMetadata(series.name)?.let { provider to it } }
+            .map { (provider, seriesMetadata) ->
+                logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
+                val bookMetadata = getBookMetadata(series.seriesId(), seriesMetadata, provider, null)
+                provider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
             }
             .firstOrNull()
 
@@ -393,13 +386,11 @@ class KomgaMetadataService(
         return searchTitles.asSequence()
             .filter { StringUtils.isAsciiPrintable(it) }
             .onEach { logger.info { "searching \"$it\" using ${provider.providerName()}" } }
-            .map { provider.matchSeriesMetadata(it) }
-            .mapNotNull {
-                when (it.status) {
-                    MATCHED -> handleSingleMatch(series, provider, it, bookEdition)
-                    MULTIPLE_MATCHES -> handleMultipleMatches(series, provider, it, bookEdition)
-                    NO_MATCH -> null
-                }
+            .mapNotNull { provider.matchSeriesMetadata(it) }
+            .map { seriesMetadata ->
+                logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
+                val bookMetadata = getBookMetadata(series.seriesId(), seriesMetadata, provider, bookEdition)
+                SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
             }
             .firstOrNull()
     }
@@ -416,18 +407,5 @@ class KomgaMetadataService(
         ).map { (bookId, metadata) -> books[bookId]!! to metadata }.toMap()
 
         return SeriesAndBookMetadata(mergedSeries, mergedBooks)
-    }
-
-    private fun handleMultipleMatches(series: KomgaSeries, provider: MetadataProvider, match: SeriesMatchResult, bookEdition: String?): SeriesAndBookMetadata {
-        return SeriesAndBookMetadata(null, emptyMap())
-    }
-
-    private fun handleSingleMatch(series: KomgaSeries, provider: MetadataProvider, match: SeriesMatchResult, bookEdition: String?): SeriesAndBookMetadata {
-        if (match.status != MATCHED) throw ValidationException("incorrect match type")
-        val seriesMetadata = match.result!!.metadata
-        logger.info { "found match: \"${seriesMetadata.title}\" from ${provider.providerName()}  ${match.result.id}" }
-
-        val bookMetadata = getBookMetadata(series.seriesId(), match.result, provider, bookEdition)
-        return SeriesAndBookMetadata(seriesMetadata, bookMetadata)
     }
 }

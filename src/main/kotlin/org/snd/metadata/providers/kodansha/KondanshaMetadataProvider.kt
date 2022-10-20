@@ -9,9 +9,6 @@ import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesMatchResult
-import org.snd.metadata.model.SeriesMatchStatus.MATCHED
-import org.snd.metadata.model.SeriesMatchStatus.NO_MATCH
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.providers.kodansha.model.KodanshaBookId
 import org.snd.metadata.providers.kodansha.model.KodanshaSeries
@@ -47,20 +44,15 @@ class KondanshaMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): SeriesMatchResult {
+    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = client.searchSeries(seriesName.take(400))
 
-        val metadata = searchResults.firstOrNull { nameMatcher.matches(seriesName, it.title) }
+        return searchResults.firstOrNull { nameMatcher.matches(seriesName, it.title) }
             ?.let {
                 val series = getSeries(it.seriesId)
                 val thumbnail = getThumbnail(series.coverUrl)
                 metadataMapper.toSeriesMetadata(series, thumbnail)
             }
-
-        return SeriesMatchResult(
-            status = if (metadata == null) NO_MATCH else MATCHED,
-            result = metadata
-        )
     }
 
     private fun getThumbnail(url: String?): Image? = url?.toHttpUrl()?.let { client.getThumbnail(it) }

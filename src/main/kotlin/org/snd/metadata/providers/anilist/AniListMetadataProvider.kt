@@ -9,9 +9,6 @@ import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesMatchResult
-import org.snd.metadata.model.SeriesMatchStatus
-import org.snd.metadata.model.SeriesMatchStatus.MATCHED
 import org.snd.metadata.model.SeriesSearchResult
 
 class AniListMetadataProvider(
@@ -41,7 +38,7 @@ class AniListMetadataProvider(
         return searchResults.map { metadataMapper.toSearchResult(it.aniListManga) }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): SeriesMatchResult {
+    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         val searchResults = client.search(seriesName.take(400))
 
         val match = searchResults.firstOrNull {
@@ -54,14 +51,9 @@ class AniListMetadataProvider(
             nameMatcher.matches(seriesName, titles)
         }
 
-        val metadata = match?.let {
+        return match?.let {
             val thumbnail = client.getThumbnail(it.aniListManga)
             metadataMapper.toSeriesMetadata(it.aniListManga, thumbnail)
         }
-
-        return SeriesMatchResult(
-            status = if (metadata == null) SeriesMatchStatus.NO_MATCH else MATCHED,
-            result = metadata
-        )
     }
 }

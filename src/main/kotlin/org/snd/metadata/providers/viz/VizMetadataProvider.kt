@@ -10,9 +10,6 @@ import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesMatchResult
-import org.snd.metadata.model.SeriesMatchStatus.MATCHED
-import org.snd.metadata.model.SeriesMatchStatus.NO_MATCH
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.providers.viz.model.VizBookId
 import org.snd.metadata.providers.viz.model.toSeriesSearchResult
@@ -48,11 +45,11 @@ class VizMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): SeriesMatchResult {
-        if (isInvalidName(seriesName)) return SeriesMatchResult(NO_MATCH, null)
+    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+        if (isInvalidName(seriesName)) return null
         val searchResults = client.searchSeries(seriesName.take(100))
 
-        val metadata = searchResults
+        return searchResults
             .firstOrNull { nameMatcher.matches(seriesName, it.seriesName) }
             ?.let {
                 val firstBook = client.getBook(it.id)
@@ -60,11 +57,6 @@ class VizMetadataProvider(
                 val thumbnail = getThumbnail(firstBook.coverUrl)
                 metadataMapper.toSeriesMetadata(firstBook, books, thumbnail)
             }
-
-        return SeriesMatchResult(
-            status = if (metadata == null) NO_MATCH else MATCHED,
-            result = metadata
-        )
     }
 
     private fun getThumbnail(url: String?): Image? = url?.toHttpUrl()?.let { client.getThumbnail(it) }
