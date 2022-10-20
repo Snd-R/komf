@@ -136,6 +136,7 @@ class KomgaMetadataService(
         if (metadataUpdateConfig.mode == FILE_EMBED) {
             komgaClient.analyzeSeries(series.seriesId())
         }
+        logger.info { "finished metadata update of series \"${series.name}\" ${series.seriesId()}" }
     }
 
     fun resetSeriesMetadata(seriesId: KomgaSeriesId) {
@@ -249,6 +250,7 @@ class KomgaMetadataService(
 
         return metadataMatch.map { (book, seriesBookMeta) ->
             if (seriesBookMeta != null) {
+                logger.info { "(${provider.providerName()}) fetching metadata for book ${seriesBookMeta.name}" }
                 book to provider.getBookMetadata(seriesMeta.id, seriesBookMeta.id).metadata
             } else {
                 book to null
