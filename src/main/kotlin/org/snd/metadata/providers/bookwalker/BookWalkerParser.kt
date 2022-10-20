@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
+import org.snd.metadata.providers.bookwalker.model.BookWalkerBookListPage
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSearchResult
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
@@ -23,10 +24,16 @@ class BookWalkerParser {
             ?: emptyList()
     }
 
-    fun parseSeriesBooks(seriesBooks: String): Collection<BookWalkerSeriesBook> {
+    fun parseSeriesBooks(seriesBooks: String): BookWalkerBookListPage {
         val document = Jsoup.parse(seriesBooks)
-        val books = document.getElementsByClass("o-tile-list").first()?.children() ?: return emptyList()
-        return books.map { parseSeriesBook(it) }
+        val books = document.getElementsByClass("o-tile-list").first()?.children()
+            ?.map { parseSeriesBook(it) }
+            ?: emptyList()
+        val pageElement = document.getElementsByClass("pager-area").firstOrNull()?.child(0)
+        val currentPage = pageElement?.children()?.first { it.className() == "on" }
+            ?.text()?.toInt() ?: 1
+        val totalPages = pageElement?.children()?.mapNotNull { it.text().toIntOrNull() }?.max() ?: 1
+        return BookWalkerBookListPage(page = currentPage, totalPages = totalPages, books = books)
     }
 
     fun parseBook(book: String): BookWalkerBook {

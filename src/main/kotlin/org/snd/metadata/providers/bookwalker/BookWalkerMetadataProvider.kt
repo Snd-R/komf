@@ -25,7 +25,7 @@ class BookWalkerMetadataProvider(
     override fun providerName(): Provider = BOOK_WALKER
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val books = client.getSeriesBooks(BookWalkerSeriesId(seriesId.id))
+        val books = getAllBooks(BookWalkerSeriesId(seriesId.id))
         val firstBook = getFirstBook(books)
         val thumbnail = getThumbnail(firstBook.imageUrl)
         return metadataMapper.toSeriesMetadata(BookWalkerSeriesId(seriesId.id), firstBook, books, thumbnail)
@@ -49,7 +49,7 @@ class BookWalkerMetadataProvider(
         return searchResults
             .firstOrNull { nameMatcher.matches(seriesName, it.seriesName) }
             ?.let {
-                val books = client.getSeriesBooks(it.id)
+                val books = getAllBooks(it.id)
                 val firstBook = getFirstBook(books)
                 val thumbnail = getThumbnail(firstBook.imageUrl)
                 metadataMapper.toSeriesMetadata(it.id, firstBook, books, thumbnail)
@@ -61,5 +61,12 @@ class BookWalkerMetadataProvider(
     private fun getFirstBook(books: Collection<BookWalkerSeriesBook>): BookWalkerBook {
         val firstBook = books.sortedWith(compareBy(nullsLast()) { it.number }).first()
         return client.getBook(firstBook.id)
+    }
+
+    private fun getAllBooks(series: BookWalkerSeriesId): Collection<BookWalkerSeriesBook> {
+        return generateSequence(client.getSeriesBooks(series, 1)) {
+            if (it.page == it.totalPages) null
+            else client.getSeriesBooks(series, it.page + 1)
+        }.flatMap { it.books }.toList()
     }
 }

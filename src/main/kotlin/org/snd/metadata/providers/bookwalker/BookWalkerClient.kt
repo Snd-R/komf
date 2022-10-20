@@ -8,8 +8,8 @@ import org.snd.infra.HttpException
 import org.snd.metadata.model.Image
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
+import org.snd.metadata.providers.bookwalker.model.BookWalkerBookListPage
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSearchResult
-import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
 
 class BookWalkerClient(
@@ -35,9 +35,10 @@ class BookWalkerClient(
         }
     }
 
-    fun getSeriesBooks(id: BookWalkerSeriesId): Collection<BookWalkerSeriesBook> {
+    fun getSeriesBooks(id: BookWalkerSeriesId, page: Int): BookWalkerBookListPage {
         val request = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments("series/${id.id}")
+                .addQueryParameter("page", page.toString())
                 .build()
         ).build()
 
