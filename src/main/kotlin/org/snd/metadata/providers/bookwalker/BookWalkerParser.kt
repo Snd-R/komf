@@ -38,7 +38,7 @@ class BookWalkerParser {
 
     fun parseBook(book: String): BookWalkerBook {
         val document = Jsoup.parse(book)
-        val synopsis = document.getElementsByClass("synopsis-text").first()?.text()
+        val synopsis = document.getElementsByClass("synopsis-text").first()?.wholeText()?.trim()?.replace("\n\n", "\n")
         val image = document.getElementsByClass("book-img").first()?.child(0)?.child(0)?.attr("src")
         val name = document.getElementsByClass("detail-book-title").first()!!.child(0).textNodes().first().text()
         val productDetail = document.getElementsByClass("product-detail").first()!!.child(0)
