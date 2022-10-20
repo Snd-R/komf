@@ -138,3 +138,8 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
 apollo {
     packageName.set("org.snd")
 }
+
+tasks.wrapper {
+    gradleVersion = "7.5.1"
+    distributionType = Wrapper.DistributionType.ALL
+}
