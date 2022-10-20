@@ -31,7 +31,7 @@ dependencies {
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.14.0")
     implementation("com.apollographql.apollo3:apollo-runtime")
 
-    implementation("io.javalin:javalin:4.6.4")
+    implementation("io.javalin:javalin:5.1.1")
 
     implementation("io.github.resilience4j:resilience4j-ratelimiter:1.7.1")
     implementation("io.github.resilience4j:resilience4j-retry:1.7.1")

@@ -11,7 +11,7 @@ class ServerModule(
     jsonModule: JsonModule
 ) : AutoCloseable {
     private val server = Javalin.create { config ->
-        config.enableCorsForAllOrigins()
+        config.plugins.enableCors { cors -> cors.add { it.anyHost() } }
         config.showJavalinBanner = false
     }.routes {
         KomgaMetadataController(

@@ -5,7 +5,7 @@ import com.squareup.moshi.adapter
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.ContentType.APPLICATION_JSON
 import io.javalin.http.Context
-import io.javalin.http.HttpCode.*
+import io.javalin.http.HttpStatus.*
 import org.snd.komga.KomgaMetadataService
 import org.snd.komga.model.dto.KomgaLibraryId
 import org.snd.komga.model.dto.KomgaSeriesId
