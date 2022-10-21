@@ -66,9 +66,6 @@ data class MetadataProvidersConfig(
 data class MangaUpdatesConfig(
     val priority: Int = 10,
     val enabled: Boolean = true,
-    val useOriginalPublisher: Boolean = true,
-    val originalPublisherTag: String? = null,
-    val englishPublisherTag: String? = null,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
     val nameMatchingMode: NameMatchingMode? = null,

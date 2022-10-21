@@ -53,7 +53,7 @@ class MangaUpdatesMetadataMapper(
             title = series.title,
             titleSort = series.title,
             summary = series.description,
-            publisher = if (metadataConfig.useOriginalPublisher) originalPublisher else englishPublisher,
+            publisher = if (metadataConfig.useOriginalPublisher) originalPublisher else englishPublisher ?: originalPublisher,
             genres = series.genres,
             tags = tags,
             authors = authors,
