@@ -11,7 +11,7 @@ import org.snd.metadata.providers.mal.model.Series.NSFW
 
 class SeriesJsonAdapter {
     @FromJson
-    fun mangaFromJson(json: SeriesJson): Series {
+    fun fromJson(json: SeriesJson): Series {
         return Series(
             id = json.id,
             title = json.title,
@@ -41,7 +41,7 @@ class SeriesJsonAdapter {
     }
 
     @ToJson
-    fun mangaToJson(series: Series): SeriesJson {
+    fun toJson(@Suppress("UNUSED_PARAMETER") series: Series): SeriesJson {
         throw UnsupportedOperationException()
     }
 

@@ -34,7 +34,7 @@ class SearchResultsJsonAdapter {
     }
 
     @ToJson
-    fun toJson(searchResults: SearchResults): SearchResultsJson {
+    fun toJson(@Suppress("UNUSED_PARAMETER") searchResults: SearchResults): SearchResultsJson {
         throw UnsupportedOperationException()
     }
 

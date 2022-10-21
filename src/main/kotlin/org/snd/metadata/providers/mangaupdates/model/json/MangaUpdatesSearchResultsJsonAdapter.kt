@@ -19,7 +19,7 @@ class MangaUpdatesSearchResultsJsonAdapter {
     }
 
     @ToJson
-    fun toJson(searchResult: SearchResultPage): SearchResultPageJson {
+    fun toJson(@Suppress("UNUSED_PARAMETER") searchResult: SearchResultPage): SearchResultPageJson {
         throw UnsupportedOperationException()
     }
 

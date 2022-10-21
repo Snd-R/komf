@@ -53,7 +53,7 @@ class MangaUpdatesSeriesJsonAdapter {
     }
 
     @ToJson
-    fun toJson(searchResult: Series): SeriesJson {
+    fun toJson(@Suppress("UNUSED_PARAMETER") searchResult: Series): SeriesJson {
         throw UnsupportedOperationException()
     }
 

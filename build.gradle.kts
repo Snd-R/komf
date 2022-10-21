@@ -58,8 +58,8 @@ dependencies {
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         jvmTarget = "11"
-        freeCompilerArgs += listOf(
-            "-Xopt-in=kotlin.ExperimentalStdlibApi"
+        freeCompilerArgs = freeCompilerArgs + listOf(
+            "-opt-in=kotlin.ExperimentalStdlibApi"
         )
     }
 }
