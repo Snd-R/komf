@@ -16,9 +16,6 @@ import org.snd.metadata.providers.nautiljon.model.Series
 import org.snd.metadata.providers.nautiljon.model.Volume
 
 class NautiljonSeriesMetadataMapper(
-    private val useOriginalPublisher: Boolean,
-    private val originalPublisherTag: String?,
-    private val frenchPublisherTag: String?,
     private val seriesMetadataConfig: SeriesMetadataConfig,
     private val bookMetadataConfig: BookMetadataConfig,
 ) {
@@ -43,12 +40,10 @@ class NautiljonSeriesMetadataMapper(
                 series.authorsArt.flatMap { artist -> artistRoles.map { role -> org.snd.metadata.model.Author(artist, role) } }
 
         val tags = series.themes + listOfNotNull(
-            originalPublisherTag?.let { tag ->
-                series.originalPublisher?.let { publisher -> "$tag: $publisher" }
-            },
-            frenchPublisherTag?.let { tag ->
-                series.frenchPublisher?.let { publisher -> "$tag: $publisher" }
-            }
+            seriesMetadataConfig.originalPublisherTagName
+                ?.let { tag -> series.originalPublisher?.let { publisher -> "$tag: $publisher" } },
+            seriesMetadataConfig.frenchPublisherTagName
+                ?.let { tag -> series.frenchPublisher?.let { publisher -> "$tag: $publisher" } }
         )
 
         val metadata = SeriesMetadata(
@@ -56,7 +51,7 @@ class NautiljonSeriesMetadataMapper(
             title = series.title,
             titleSort = series.title,
             summary = series.description,
-            publisher = (if (useOriginalPublisher) series.originalPublisher else series.frenchPublisher),
+            publisher = (if (seriesMetadataConfig.useOriginalPublisher) series.originalPublisher else series.frenchPublisher),
             genres = series.genres,
             tags = tags,
             authors = authors,
@@ -88,7 +83,7 @@ class NautiljonSeriesMetadataMapper(
         val metadata = BookMetadata(
             summary = volume.description,
             number = volume.number,
-            releaseDate = if (useOriginalPublisher) volume.originalReleaseDate else volume.frenchReleaseDate,
+            releaseDate = if (seriesMetadataConfig.useOriginalPublisher) volume.originalReleaseDate else volume.frenchReleaseDate,
             authors = authors,
             startChapter = null,
             endChapter = null,

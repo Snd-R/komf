@@ -38,15 +38,22 @@ class MangaUpdatesMetadataMapper(
             }
         }
 
+        val originalPublisher = series.publishers.firstOrNull { it.type == "Original" }?.name
+        val englishPublisher = series.publishers.firstOrNull { it.type == "English" }?.name
 
-        val tags = series.categories.sortedByDescending { it.votes }.take(15).map { it.name }
+        val originalPublisherTag = metadataConfig.originalPublisherTagName
+            ?.let { tag -> originalPublisher?.let { "$tag: $originalPublisher" } }
+        val englishPublisherTag = metadataConfig.englishPublisherTagName
+            ?.let { tag -> englishPublisher?.let { "$tag: $englishPublisher" } }
+        val tags = series.categories.sortedByDescending { it.votes }.take(15)
+            .map { it.name } + listOfNotNull(originalPublisherTag, englishPublisherTag)
 
         val metadata = SeriesMetadata(
             status = status,
             title = series.title,
             titleSort = series.title,
             summary = series.description,
-            publisher = series.publishers.firstOrNull { it.type == "Original" }?.name,
+            publisher = if (metadataConfig.useOriginalPublisher) originalPublisher else englishPublisher,
             genres = series.genres,
             tags = tags,
             authors = authors,

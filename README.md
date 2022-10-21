@@ -73,9 +73,6 @@ metadataProviders:
   nautiljon:
     priority: 30
     enabled: false
-    useOriginalPublisher: false # use original publisher and release dates for series and volumes. If false will use french publisher
-    originalPublisherTag:  #if present will add additional tag with specified name ({tagname}: publisherName)
-    frenchPublisherTag:  #if present will add additional tag with specified name ({tagname}: publisherName)
   aniList:
     priority: 40
     enabled: false
@@ -129,6 +126,12 @@ metadataProviders:
       authors: true
       thumbnail: true
       books: true
+      useOriginalPublisher: true # prefer original publisher and volume information if source has data about multiple providers. If false will use english or other available publisher
+      #TagName: if specified and if provider has data about publisher in that language then additional tag will be added using format ({TagName}: publisherName)
+      #e.g. originalPublisherTagName: "Original Publisher" will add tag "Original Publisher: Shueisha"
+      originalPublisherTagName:
+      englishPublisherTagName:
+      frenchPublisherTagName:
     bookMetadata:
       title: true
       summary: true

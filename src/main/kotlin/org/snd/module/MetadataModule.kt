@@ -98,9 +98,6 @@ class MetadataModule(
         }
 
     private val nautiljonSeriesMetadataMapper = NautiljonSeriesMetadataMapper(
-        config.nautiljon.useOriginalPublisher,
-        config.nautiljon.originalPublisherTag,
-        config.nautiljon.frenchPublisherTag,
         config.nautiljon.seriesMetadata,
         config.nautiljon.bookMetadata,
     )

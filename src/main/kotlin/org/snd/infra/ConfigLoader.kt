@@ -1,10 +1,13 @@
 package org.snd.infra
 
 import com.charleskorn.kaml.Yaml
+import mu.KotlinLogging
 import org.snd.config.AppConfig
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isReadable
+
+private val logger = KotlinLogging.logger {}
 
 class ConfigLoader {
 
@@ -66,13 +69,47 @@ class ConfigLoader {
         )
     }
 
+    @Suppress("DEPRECATION")
     private fun checkDeprecatedOptions(config: AppConfig): AppConfig {
         val discordConfig = config.discord
         val discordWebhooks = discordConfig.webhooks ?: config.komga.webhooks
+
+        val nautiljon = config.metadataProviders.nautiljon
+        val nautiljonSeriesMetadataConfig = with(nautiljon.seriesMetadata) {
+            this.copy(
+                useOriginalPublisher = nautiljon.useOriginalPublisher ?: useOriginalPublisher,
+                originalPublisherTagName = nautiljon.originalPublisherTag ?: originalPublisherTagName,
+                frenchPublisherTagName = nautiljon.frenchPublisherTag ?: frenchPublisherTagName
+            )
+        }
+        warnAboutDeprecatedOptions(config)
+
         return config.copy(
             discord = discordConfig.copy(
                 webhooks = discordWebhooks
+            ),
+            metadataProviders = config.metadataProviders.copy(
+                nautiljon = nautiljon.copy(
+                    seriesMetadata = nautiljonSeriesMetadataConfig
+                )
             )
         )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun warnAboutDeprecatedOptions(config: AppConfig) {
+        val deprecatedOptions = listOfNotNull(
+            config.komga.webhooks?.let { "komga.webhooks" },
+            config.metadataProviders.nautiljon.fetchBookMetadata?.let { "metadataProviders.nautiljon.fetchBookMetadata" },
+            config.metadataProviders.nautiljon.useOriginalPublisher?.let { "metadataProviders.nautiljon.useOriginalPublisher" },
+            config.metadataProviders.nautiljon.originalPublisherTag?.let { "metadataProviders.nautiljon.originalPublisherTag" },
+            config.metadataProviders.nautiljon.frenchPublisherTag?.let { "metadataProviders.nautiljon.frenchPublisherTag" },
+        )
+        if (deprecatedOptions.isNotEmpty()) {
+            logger.warn {
+                "DETECTED DEPRECATED CONFIG OPTIONS $deprecatedOptions\n" +
+                        "These config options will eventually be deleted in future releases"
+            }
+        }
     }
 }

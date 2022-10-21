@@ -66,6 +66,9 @@ data class MetadataProvidersConfig(
 data class MangaUpdatesConfig(
     val priority: Int = 10,
     val enabled: Boolean = true,
+    val useOriginalPublisher: Boolean = true,
+    val originalPublisherTag: String? = null,
+    val englishPublisherTag: String? = null,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
     val nameMatchingMode: NameMatchingMode? = null,
@@ -85,14 +88,18 @@ data class MalConfig(
 data class NautiljonConfig(
     val priority: Int = 30,
     val enabled: Boolean = false,
-    @Deprecated("no longer used")
-    val fetchBookMetadata: Boolean? = null,
-    val useOriginalPublisher: Boolean = false,
-    val originalPublisherTag: String? = null,
-    val frenchPublisherTag: String? = null,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
     val nameMatchingMode: NameMatchingMode? = null,
+
+    @Deprecated("no longer used")
+    val fetchBookMetadata: Boolean? = null,
+    @Deprecated("moved to seriesMetadata config")
+    val useOriginalPublisher: Boolean? = null,
+    @Deprecated("moved to seriesMetadata config")
+    val originalPublisherTag: String? = null,
+    @Deprecated("moved to seriesMetadata config")
+    val frenchPublisherTag: String? = null,
 )
 
 @Serializable
@@ -166,7 +173,12 @@ data class SeriesMetadataConfig(
     val totalBookCount: Boolean = true,
     val authors: Boolean = true,
     val thumbnail: Boolean = true,
-    val books: Boolean = true
+    val books: Boolean = true,
+
+    val useOriginalPublisher: Boolean = true,
+    val originalPublisherTagName: String? = null,
+    val englishPublisherTagName: String? = null,
+    val frenchPublisherTagName: String? = null,
 )
 
 @Serializable
