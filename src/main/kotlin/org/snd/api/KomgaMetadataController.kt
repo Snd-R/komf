@@ -6,16 +6,16 @@ import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.ContentType.APPLICATION_JSON
 import io.javalin.http.Context
 import io.javalin.http.HttpStatus.*
-import org.snd.komga.KomgaMetadataService
-import org.snd.komga.model.dto.KomgaLibraryId
-import org.snd.komga.model.dto.KomgaSeriesId
+import org.snd.mediaserver.MetadataService
+import org.snd.mediaserver.model.MediaServerLibraryId
+import org.snd.mediaserver.model.MediaServerSeriesId
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.SeriesSearchResult
 import java.util.concurrent.ExecutorService
 
 class KomgaMetadataController(
-    private val komgaMetadataService: KomgaMetadataService,
+    private val komgaMetadataService: MetadataService,
     private val taskHandler: ExecutorService,
     private val moshi: Moshi,
 ) {
@@ -44,7 +44,7 @@ class KomgaMetadataController(
     private fun identifySeries(ctx: Context): Context {
         val request = moshi.adapter<IdentifySeriesRequest>().fromJson(ctx.body()) ?: return ctx.status(BAD_REQUEST)
         komgaMetadataService.setSeriesMetadata(
-            KomgaSeriesId(request.seriesId),
+            MediaServerSeriesId(request.seriesId),
             Provider.valueOf(request.provider.uppercase()),
             ProviderSeriesId(request.providerSeriesId),
             request.edition
@@ -54,13 +54,13 @@ class KomgaMetadataController(
     }
 
     private fun matchSeries(ctx: Context): Context {
-        val seriesId = KomgaSeriesId(ctx.pathParam("id"))
+        val seriesId = MediaServerSeriesId(ctx.pathParam("id"))
         komgaMetadataService.matchSeriesMetadata(seriesId)
         return ctx.status(NO_CONTENT)
     }
 
     private fun matchLibrary(ctx: Context): Context {
-        val libraryId = KomgaLibraryId(ctx.pathParam("id"))
+        val libraryId = MediaServerLibraryId(ctx.pathParam("id"))
 
         taskHandler.submit {
             try {
@@ -74,13 +74,13 @@ class KomgaMetadataController(
     }
 
     private fun resetSeries(ctx: Context): Context {
-        val seriesId = KomgaSeriesId(ctx.pathParam("id"))
+        val seriesId = MediaServerSeriesId(ctx.pathParam("id"))
         komgaMetadataService.resetSeriesMetadata(seriesId)
         return ctx.status(NO_CONTENT)
     }
 
     private fun resetLibrary(ctx: Context): Context {
-        val libraryId = KomgaLibraryId(ctx.pathParam("id"))
+        val libraryId = MediaServerLibraryId(ctx.pathParam("id"))
         komgaMetadataService.resetLibraryMetadata(libraryId)
         return ctx.status(NO_CONTENT)
     }

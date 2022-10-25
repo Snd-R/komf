@@ -5,7 +5,7 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
-import org.snd.komga.model.dto.KomgaSeriesId
+import org.snd.mediaserver.model.MediaServerSeriesId
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.module.CliModule
 import kotlin.system.exitProcess
@@ -18,8 +18,8 @@ class Series : CliktCommand() {
         private val name by argument()
 
         override fun run() {
-            val client = module.komgaModule.komgaClient
-            val series = client.searchSeries(name = name, page = 0, pageSize = 10).content
+            val client = module.mediaServerModule.komgaMediaServerClient ?: exitProcess(0)
+            val series = client.searchSeries(name = name)
                 .joinToString("\n") { "${it.name} - ${it.id}" }
             echo(series)
             exitProcess(0)
@@ -30,7 +30,7 @@ class Series : CliktCommand() {
         private val module by requireObject<CliModule>()
         private val id by argument()
         override fun run() {
-            module.komgaModule.komgaMetadataService.matchSeriesMetadata(KomgaSeriesId(id))
+            module.mediaServerModule.komgaMetadataService?.matchSeriesMetadata(MediaServerSeriesId(id))
             exitProcess(0)
         }
     }
@@ -42,9 +42,11 @@ class Series : CliktCommand() {
         private val id by argument()
 
         override fun run() {
-            val series = module.komgaModule.komgaClient.getSeries(KomgaSeriesId(id))
+            val client = module.mediaServerModule.komgaMediaServerClient ?: exitProcess(0)
+            val komgaMetadataService = module.mediaServerModule.komgaMetadataService!!
+            val series = client.getSeries(MediaServerSeriesId(id))
             echo("searching...")
-            val results = module.komgaModule.komgaMetadataService.searchSeriesMetadata(name)
+            val results = komgaMetadataService.searchSeriesMetadata(name)
             val output = results.mapIndexed { index, result -> "${index + 1}. ${result.title} - ${result.provider} id=${result.resultId}" }
                 .joinToString("\n")
             echo(output)
@@ -55,8 +57,8 @@ class Series : CliktCommand() {
                 exitProcess(1)
             }
             val selectedResult = results.elementAt(resultIndex)
-            module.komgaModule.komgaMetadataService.setSeriesMetadata(
-                series.seriesId(),
+            komgaMetadataService.setSeriesMetadata(
+                series.id,
                 selectedResult.provider,
                 ProviderSeriesId(selectedResult.resultId),
                 edition
@@ -71,7 +73,7 @@ class Series : CliktCommand() {
         private val id by argument()
 
         override fun run() {
-            module.komgaModule.komgaMetadataService.resetSeriesMetadata(KomgaSeriesId(id))
+            module.mediaServerModule.komgaMetadataService?.resetSeriesMetadata(MediaServerSeriesId(id))
             exitProcess(0)
         }
     }

@@ -7,18 +7,20 @@ import java.util.concurrent.Executors
 
 class ServerModule(
     config: ServerConfig,
-    komgaModule: KomgaModule,
+    mediaServerModule: MediaServerModule,
     jsonModule: JsonModule
 ) : AutoCloseable {
     private val server = Javalin.create { config ->
         config.plugins.enableCors { cors -> cors.add { it.anyHost() } }
         config.showJavalinBanner = false
     }.routes {
-        KomgaMetadataController(
-            komgaMetadataService = komgaModule.komgaMetadataService,
-            taskHandler = Executors.newSingleThreadExecutor(),
-            moshi = jsonModule.moshi
-        ).register()
+        mediaServerModule.komgaMetadataService?.let {
+            KomgaMetadataController(
+                komgaMetadataService = mediaServerModule.komgaMetadataService,
+                taskHandler = Executors.newSingleThreadExecutor(),
+                moshi = jsonModule.moshi
+            ).register()
+        }
     }
 
     init {

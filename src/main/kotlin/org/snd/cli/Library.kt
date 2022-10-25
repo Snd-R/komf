@@ -3,7 +3,7 @@ package org.snd.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
-import org.snd.komga.model.dto.KomgaLibraryId
+import org.snd.mediaserver.model.MediaServerLibraryId
 import org.snd.module.CliModule
 import kotlin.system.exitProcess
 
@@ -14,7 +14,7 @@ class Library : CliktCommand() {
         private val module by requireObject<CliModule>()
         private val id by argument()
         override fun run() {
-            module.komgaModule.komgaMetadataService.matchLibraryMetadata(KomgaLibraryId(id))
+            module.mediaServerModule.komgaMetadataService?.matchLibraryMetadata(MediaServerLibraryId(id))
             exitProcess(0)
         }
     }
@@ -23,7 +23,7 @@ class Library : CliktCommand() {
         private val module by requireObject<CliModule>()
         private val id by argument()
         override fun run() {
-            module.komgaModule.komgaMetadataService.resetLibraryMetadata(KomgaLibraryId(id))
+            module.mediaServerModule.komgaMetadataService?.resetLibraryMetadata(MediaServerLibraryId(id))
             exitProcess(0)
         }
     }

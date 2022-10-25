@@ -1,8 +1,8 @@
 package org.snd.config
 
 import kotlinx.serialization.Serializable
-import org.snd.komga.UpdateMode
-import org.snd.komga.UpdateMode.API
+import org.snd.mediaserver.UpdateMode
+import org.snd.mediaserver.UpdateMode.API
 import org.snd.metadata.NameMatchingMode
 import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
 import org.snd.metadata.model.SeriesMetadata
@@ -26,7 +26,8 @@ data class KomgaConfig(
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
     @Deprecated("moved to its own config")
     val webhooks: Collection<String>? = null,
-    val aggregateMetadata: Boolean = false
+    val aggregateMetadata: Boolean = false,
+    val enabled: Boolean = true,
 )
 
 @Serializable

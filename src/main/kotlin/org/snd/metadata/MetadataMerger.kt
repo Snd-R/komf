@@ -1,5 +1,6 @@
 package org.snd.metadata
 
+import org.snd.mediaserver.model.MediaServerBookId
 import org.snd.metadata.comicinfo.model.ComicInfo
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
@@ -27,9 +28,9 @@ object MetadataMerger {
     }
 
     fun mergeBookMetadata(
-        originalBookMetadata: Map<String, BookMetadata?>,
-        newBookMetadata: Map<String, BookMetadata?>,
-    ): Map<String, BookMetadata?> = (originalBookMetadata.asSequence() + newBookMetadata.asSequence()).distinct()
+        originalBookMetadata: Map<MediaServerBookId, BookMetadata?>,
+        newBookMetadata: Map<MediaServerBookId, BookMetadata?>,
+    ): Map<MediaServerBookId, BookMetadata?> = (originalBookMetadata.asSequence() + newBookMetadata.asSequence()).distinct()
         .groupBy({ it.key }, { it.value })
         .mapValues { (_, values) -> mergeBookMetadata(values) }
 

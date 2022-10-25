@@ -5,7 +5,7 @@ import org.snd.infra.LocalDateAdapter
 import org.snd.infra.LocalDateTimeAdapter
 import org.snd.infra.UriAdapter
 import org.snd.infra.ZonedDateTimeAdapter
-import org.snd.komga.model.dto.KomgaReadingDirectionAdapter
+import org.snd.mediaserver.komga.model.dto.KomgaReadingDirectionAdapter
 import org.snd.metadata.providers.mal.model.json.SearchResultsJsonAdapter
 import org.snd.metadata.providers.mal.model.json.SeriesJsonAdapter
 import org.snd.metadata.providers.mangaupdates.model.json.MangaUpdatesSearchResultsJsonAdapter

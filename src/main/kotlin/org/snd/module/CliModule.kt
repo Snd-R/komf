@@ -17,7 +17,7 @@ class CliModule(
         jsonModule = jsonModule
     )
 
-    val komgaModule = KomgaModule(
+    val mediaServerModule = MediaServerModule(
         config = appConfig.komga.copy(eventListener = appConfig.komga.eventListener.copy(enabled = false)),
         okHttpClient = okHttpClient,
         jsonModule = jsonModule,

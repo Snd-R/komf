@@ -23,7 +23,7 @@ class AppModule(
         jsonModule = jsonModule
     )
 
-    private val komgaModule = KomgaModule(
+    private val mediaServerModule = MediaServerModule(
         config = appConfig.komga,
         okHttpClient = okHttpClient,
         jsonModule = jsonModule,
@@ -34,12 +34,12 @@ class AppModule(
 
     private val serverModule = ServerModule(
         config = appConfig.server,
-        komgaModule = komgaModule,
+        mediaServerModule = mediaServerModule,
         jsonModule = jsonModule
     )
 
     override fun close() {
         serverModule.close()
-        komgaModule.close()
+        mediaServerModule.close()
     }
 }
