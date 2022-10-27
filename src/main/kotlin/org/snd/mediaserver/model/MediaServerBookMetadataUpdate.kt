@@ -10,7 +10,7 @@ data class MediaServerBookMetadataUpdate(
     val numberSort: Float? = null,
     val releaseDate: LocalDate? = null,
     val authors: List<MediaServerAuthor>? = null,
-    val tags: Set<String>? = null,
+    val tags: Collection<String>? = null,
     val isbn: String? = null,
 
     val titleLock: Boolean? = null,

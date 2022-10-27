@@ -1,3 +1,4 @@
 package org.snd.mediaserver.model
 
-data class MediaServerLibraryId(val id: String)
+@JvmInline
+value class MediaServerLibraryId(val id: String)

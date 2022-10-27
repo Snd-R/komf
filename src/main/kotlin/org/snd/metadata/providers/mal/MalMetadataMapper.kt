@@ -2,11 +2,7 @@ package org.snd.metadata.providers.mal
 
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.AuthorRole
-import org.snd.metadata.model.Image
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.*
 import org.snd.metadata.providers.mal.model.Series
 
 class MalMetadataMapper(
@@ -14,11 +10,11 @@ class MalMetadataMapper(
 ) {
     fun toSeriesMetadata(series: Series, thumbnail: Image? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
-            Series.Status.FINISHED -> SeriesMetadata.Status.ENDED
-            Series.Status.CURRENTLY_PUBLISHING -> SeriesMetadata.Status.ONGOING
-            Series.Status.NOT_YET_PUBLISHED -> SeriesMetadata.Status.ONGOING
-            Series.Status.ON_HIATUS -> SeriesMetadata.Status.HIATUS
-            Series.Status.DISCONTINUED -> SeriesMetadata.Status.ABANDONED
+            Series.Status.FINISHED -> SeriesStatus.ENDED
+            Series.Status.CURRENTLY_PUBLISHING -> SeriesStatus.ONGOING
+            Series.Status.NOT_YET_PUBLISHED -> SeriesStatus.ONGOING
+            Series.Status.ON_HIATUS -> SeriesStatus.HIATUS
+            Series.Status.DISCONTINUED -> SeriesStatus.ABANDONED
         }
         val artistRoles = listOf(
             AuthorRole.PENCILLER,
@@ -31,19 +27,22 @@ class MalMetadataMapper(
         val authors = series.authors.flatMap { author ->
             when (author.role) {
                 "Art" -> {
-                    artistRoles.map { role -> org.snd.metadata.model.Author("${author.firstName} ${author.lastName}", role) }
+                    artistRoles.map { role -> Author("${author.firstName} ${author.lastName}", role) }
                 }
+
                 "Story" -> {
-                    listOf(org.snd.metadata.model.Author("${author.firstName} ${author.lastName}", AuthorRole.WRITER))
+                    listOf(Author("${author.firstName} ${author.lastName}", AuthorRole.WRITER))
                 }
+
                 "Story & Art" -> {
                     artistRoles.map { role ->
-                        org.snd.metadata.model.Author(
+                        Author(
                             "${author.firstName} ${author.lastName}",
                             role
                         )
-                    } + org.snd.metadata.model.Author("${author.firstName} ${author.lastName}", AuthorRole.WRITER)
+                    } + Author("${author.firstName} ${author.lastName}", AuthorRole.WRITER)
                 }
+
                 else -> emptyList()
             }
         }

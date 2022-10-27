@@ -1,10 +1,9 @@
 package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerLibraryId
-import org.snd.mediaserver.model.MediaServerSeries
-import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.mediaserver.model.MediaServerSeriesMetadata
+import org.snd.mediaserver.model.*
+import org.snd.metadata.model.ReadingDirection.valueOf
+import org.snd.metadata.model.SeriesStatus
 
 @JsonClass(generateAdapter = true)
 data class KomgaSeries(
@@ -59,18 +58,28 @@ fun KomgaSeries.mediaServerSeries(): MediaServerSeries {
     )
 }
 
+fun KomgaSeries.mediaServerSeriesSearch(): MediaServerSeriesSearch {
+    return MediaServerSeriesSearch(
+        id = MediaServerSeriesId(id),
+        libraryId = MediaServerLibraryId(libraryId),
+        name = name,
+    )
+}
+
 fun KomgaSeriesMetadata.mediaServerSeriesMetadata() = MediaServerSeriesMetadata(
-    status = status,
+    status = SeriesStatus.valueOf(status),
     title = title,
     titleSort = titleSort,
     summary = summary,
-    readingDirection = readingDirection,
+    readingDirection = readingDirection?.let { valueOf(it) },
     publisher = publisher,
+    alternativePublishers = emptyList(),
     ageRating = ageRating,
     language = language,
     genres = genres,
     tags = tags,
     totalBookCount = totalBookCount,
+    authors = emptyList(), //TODO take authors from book metadata?
 
     statusLock = statusLock,
     titleLock = titleLock,
@@ -83,4 +92,5 @@ fun KomgaSeriesMetadata.mediaServerSeriesMetadata() = MediaServerSeriesMetadata(
     genresLock = genresLock,
     tagsLock = tagsLock,
     totalBookCountLock = totalBookCountLock,
+    authorsLock = false,
 )

@@ -1,3 +1,4 @@
 package org.snd.mediaserver.model
 
-data class MediaServerSeriesId(val id: String)
+@JvmInline
+value class MediaServerSeriesId(val id: String)

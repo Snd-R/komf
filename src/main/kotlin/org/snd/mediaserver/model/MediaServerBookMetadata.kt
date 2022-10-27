@@ -4,13 +4,13 @@ import java.time.LocalDate
 
 data class MediaServerBookMetadata(
     val title: String,
-    val summary: String,
+    val summary: String?,
     val number: String,
-    val numberSort: Float,
+    val numberSort: String?,
     val releaseDate: LocalDate?,
     val authors: List<MediaServerAuthor>,
-    val tags: Set<String>,
-    val isbn: String,
+    val tags: Collection<String>,
+    val isbn: String?,
 
     val titleLock: Boolean,
     val summaryLock: Boolean,

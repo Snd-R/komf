@@ -41,6 +41,7 @@ class Komf : CliktCommand(invokeWithoutSubcommand = true) {
         val rootLogger = getLogger(ROOT_LOGGER_NAME) as Logger
         if (verbose) rootLogger.level = DEBUG
         else rootLogger.level = valueOf(config.logLevel.uppercase())
+        (getLogger("org.eclipse.jetty") as Logger).level = ERROR
     }
 
     private fun setCliLogLevel(verbose: Boolean) {

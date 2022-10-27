@@ -1,3 +1,4 @@
 package org.snd.mediaserver.model
 
-data class MediaServerThumbnailId(val id: String)
+@JvmInline
+value class MediaServerThumbnailId(val id: String)

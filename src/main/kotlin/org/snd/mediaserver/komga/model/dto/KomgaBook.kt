@@ -74,8 +74,8 @@ data class ReadProgress(
 
 fun KomgaBook.mediaServerBook() = MediaServerBook(
     id = MediaServerBookId(id),
-    seriesId = MediaServerSeriesId(id),
-    libraryId = MediaServerLibraryId(id),
+    seriesId = MediaServerSeriesId(seriesId),
+    libraryId = MediaServerLibraryId(libraryId),
     seriesTitle = seriesTitle,
     name = name,
     url = url,
@@ -88,7 +88,7 @@ fun KomgaBookMetadata.mediaServerBookMetadata() = MediaServerBookMetadata(
     title = title,
     summary = summary,
     number = number,
-    numberSort = numberSort,
+    numberSort = numberSort.toString(),
     releaseDate = releaseDate,
     authors = authors.map { MediaServerAuthor(it.name, it.role) },
     tags = tags,

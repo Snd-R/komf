@@ -42,8 +42,8 @@ class KomgaMediaServerClientAdapter(private val komgaClient: KomgaClient) : Medi
         return komgaClient.getLibrary(libraryId.komgaLibraryId()).mediaServerLibrary()
     }
 
-    override fun searchSeries(name: String): Collection<MediaServerSeries> {
-        return komgaClient.searchSeries(name, 0, 10).content.map { it.mediaServerSeries() }
+    override fun searchSeries(name: String): Collection<MediaServerSeriesSearch> {
+        return komgaClient.searchSeries(name, 0, 500).content.map { it.mediaServerSeriesSearch() }
     }
 
     override fun updateSeriesMetadata(seriesId: MediaServerSeriesId, metadata: MediaServerSeriesMetadataUpdate) {

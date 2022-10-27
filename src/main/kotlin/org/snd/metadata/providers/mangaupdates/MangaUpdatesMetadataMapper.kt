@@ -2,11 +2,7 @@ package org.snd.metadata.providers.mangaupdates
 
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.AuthorRole
-import org.snd.metadata.model.Image
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.*
 import org.snd.metadata.providers.mangaupdates.model.Series
 import org.snd.metadata.providers.mangaupdates.model.Status
 
@@ -16,11 +12,11 @@ class MangaUpdatesMetadataMapper(
 
     fun toSeriesMetadata(series: Series, thumbnail: Image? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
-            Status.COMPLETE -> SeriesMetadata.Status.ENDED
-            Status.ONGOING -> SeriesMetadata.Status.ONGOING
-            Status.CANCELLED -> SeriesMetadata.Status.ABANDONED
-            Status.HIATUS -> SeriesMetadata.Status.HIATUS
-            else -> SeriesMetadata.Status.ONGOING
+            Status.COMPLETE -> SeriesStatus.ENDED
+            Status.ONGOING -> SeriesStatus.ONGOING
+            Status.CANCELLED -> SeriesStatus.ABANDONED
+            Status.HIATUS -> SeriesStatus.HIATUS
+            else -> SeriesStatus.ONGOING
         }
 
         val artistRoles = listOf(
@@ -33,8 +29,8 @@ class MangaUpdatesMetadataMapper(
 
         val authors = series.authors.flatMap {
             when (it.type) {
-                "Author" -> listOf(org.snd.metadata.model.Author(it.name, AuthorRole.WRITER))
-                else -> artistRoles.map { role -> org.snd.metadata.model.Author(it.name, role) }
+                "Author" -> listOf(Author(it.name, AuthorRole.WRITER))
+                else -> artistRoles.map { role -> Author(it.name, role) }
             }
         }
 

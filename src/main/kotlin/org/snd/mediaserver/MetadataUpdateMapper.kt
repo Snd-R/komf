@@ -35,11 +35,13 @@ class MetadataUpdateMapper(
 
     fun toSeriesMetadataUpdate(patch: SeriesMetadata, metadata: MediaServerSeriesMetadata): MediaServerSeriesMetadataUpdate =
         with(metadata) {
-            val newReadingDirection = metadataUpdateConfig.readingDirectionValue?.toString()
-                ?: getIfNotLockedOrEmpty(patch.readingDirection?.toString(), readingDirectionLock)
+            val newReadingDirection = metadataUpdateConfig.readingDirectionValue
+                ?: getIfNotLockedOrEmpty(patch.readingDirection, readingDirectionLock)
+
+            val authors = (patch.authors.map { MediaServerAuthor(it.name, it.role.name) }.ifEmpty { metadata.authors })
 
             MediaServerSeriesMetadataUpdate(
-                status = getIfNotLockedOrEmpty(patch.status?.toString(), statusLock) ?: status,
+                status = getIfNotLockedOrEmpty(patch.status, statusLock) ?: status,
                 title = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.title, titleLock) ?: title else title,
                 titleSort = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.titleSort, titleSortLock)
                     ?: titleSort else titleSort,
@@ -51,6 +53,7 @@ class MetadataUpdateMapper(
                 genres = getIfNotLockedOrEmpty(patch.genres, genresLock) ?: genres,
                 tags = getIfNotLockedOrEmpty(patch.tags, tagsLock) ?: tags,
                 totalBookCount = getIfNotLockedOrEmpty(patch.totalBookCount, totalBookCountLock) ?: totalBookCount,
+                authors = getIfNotLockedOrEmpty(authors, authorsLock) ?: metadata.authors
             )
         }
 

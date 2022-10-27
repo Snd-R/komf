@@ -2,6 +2,7 @@ package org.snd.module
 
 import okhttp3.OkHttpClient
 import org.snd.config.AppConfig
+import java.time.Clock
 
 class CliModule(
     appConfig: AppConfig
@@ -18,11 +19,13 @@ class CliModule(
     )
 
     val mediaServerModule = MediaServerModule(
-        config = appConfig.komga.copy(eventListener = appConfig.komga.eventListener.copy(enabled = false)),
+        komgaConfig = appConfig.komga.copy(eventListener = appConfig.komga.eventListener.copy(enabled = false)),
+        kavitaConfig = appConfig.kavita.copy(eventListener = appConfig.kavita.eventListener.copy(enabled = false)),
         okHttpClient = okHttpClient,
         jsonModule = jsonModule,
         repositoryModule = repositoryModule,
         metadataModule = metadataModule,
         discordModule = null,
+        clock = Clock.systemUTC()
     )
 }

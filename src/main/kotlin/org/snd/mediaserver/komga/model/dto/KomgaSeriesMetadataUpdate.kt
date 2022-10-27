@@ -2,7 +2,7 @@ package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
 import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
-import org.snd.metadata.model.SeriesMetadata.Status.ONGOING
+import org.snd.metadata.model.SeriesStatus.ONGOING
 
 @JsonClass(generateAdapter = true)
 data class KomgaSeriesMetadataUpdate(
@@ -57,12 +57,12 @@ fun metadataResetRequest(name: String) = KomgaSeriesMetadataUpdate(
 )
 
 fun MediaServerSeriesMetadataUpdate.metadataUpdateRequest() = KomgaSeriesMetadataUpdate(
-    status = status,
+    status = status?.name,
     title = title,
     titleSort = titleSort,
     summary = summary,
     publisher = publisher,
-    readingDirection = readingDirection,
+    readingDirection = readingDirection?.name,
     ageRating = ageRating,
     language = language,
     genres = genres,

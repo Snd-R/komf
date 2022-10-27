@@ -7,6 +7,7 @@ import io.github.resilience4j.retry.RetryConfig
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import java.io.IOException
 
 val MEDIA_TYPE_JSON = "application/json".toMediaType()
@@ -29,6 +30,15 @@ open class HttpClient(
         }
     }
 
+    fun executeWithResponse(request: Request): HttpResponse {
+        return rateLimited {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) throw HttpException(response)
+                httpResponse(response)
+            }
+        }
+    }
+
     fun executeWithByteResponse(request: Request): ByteArray {
         return rateLimited {
             client.newCall(request).execute().use { response ->
@@ -44,4 +54,10 @@ open class HttpClient(
             .let { Retry.decorateCheckedSupplier(retry, it) }
             .apply()
     }
+
+    private fun httpResponse(response: Response) = HttpResponse(
+        body = response.body?.bytes(),
+        code = response.code,
+        headers = response.headers.toMap()
+    )
 }

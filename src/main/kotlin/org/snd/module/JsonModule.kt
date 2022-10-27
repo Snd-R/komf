@@ -5,6 +5,9 @@ import org.snd.infra.LocalDateAdapter
 import org.snd.infra.LocalDateTimeAdapter
 import org.snd.infra.UriAdapter
 import org.snd.infra.ZonedDateTimeAdapter
+import org.snd.mediaserver.kavita.model.KavitaAgeRatingAdapter
+import org.snd.mediaserver.kavita.model.KavitaPersonRoleAdapter
+import org.snd.mediaserver.kavita.model.KavitaPublicationStatusAdapter
 import org.snd.mediaserver.komga.model.dto.KomgaReadingDirectionAdapter
 import org.snd.metadata.providers.mal.model.json.SearchResultsJsonAdapter
 import org.snd.metadata.providers.mal.model.json.SeriesJsonAdapter
@@ -22,5 +25,8 @@ class JsonModule {
         .add(MangaUpdatesSearchResultsJsonAdapter())
         .add(MangaUpdatesSeriesJsonAdapter())
         .add(KomgaReadingDirectionAdapter())
+        .add(KavitaPublicationStatusAdapter())
+        .add(KavitaAgeRatingAdapter())
+        .add(KavitaPersonRoleAdapter())
         .build()
 }

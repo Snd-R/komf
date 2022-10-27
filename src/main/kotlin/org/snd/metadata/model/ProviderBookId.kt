@@ -1,3 +1,4 @@
 package org.snd.metadata.model
 
-data class ProviderBookId(val id: String)
+@JvmInline
+value class ProviderBookId(val id: String)

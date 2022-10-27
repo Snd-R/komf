@@ -11,7 +11,7 @@ interface MediaServerClient {
     fun getBooks(seriesId: MediaServerSeriesId): Collection<MediaServerBook>
     fun getBookThumbnails(bookId: MediaServerBookId): Collection<MediaServerBookThumbnail>
     fun getLibrary(libraryId: MediaServerLibraryId): MediaServerLibrary
-    fun searchSeries(name: String): Collection<MediaServerSeries>
+    fun searchSeries(name: String): Collection<MediaServerSeriesSearch>
 
     fun updateSeriesMetadata(seriesId: MediaServerSeriesId, metadata: MediaServerSeriesMetadataUpdate)
     fun deleteSeriesThumbnail(seriesId: MediaServerSeriesId, thumbnailId: MediaServerThumbnailId)

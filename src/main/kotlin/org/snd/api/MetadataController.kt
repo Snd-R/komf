@@ -7,6 +7,8 @@ import io.javalin.http.ContentType.APPLICATION_JSON
 import io.javalin.http.Context
 import io.javalin.http.HttpStatus.*
 import org.snd.mediaserver.MetadataService
+import org.snd.mediaserver.model.MediaServer
+import org.snd.mediaserver.model.MediaServer.KOMGA
 import org.snd.mediaserver.model.MediaServerLibraryId
 import org.snd.mediaserver.model.MediaServerSeriesId
 import org.snd.metadata.model.Provider
@@ -14,27 +16,41 @@ import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.SeriesSearchResult
 import java.util.concurrent.ExecutorService
 
-class KomgaMetadataController(
-    private val komgaMetadataService: MetadataService,
+class MetadataController(
+    private val metadataService: MetadataService,
     private val taskHandler: ExecutorService,
     private val moshi: Moshi,
+    private val serverType: MediaServer,
 ) {
 
     fun register() {
         path("/") {
-            get("providers", this::providers)
-            get("search", this::searchSeries)
-            post("identify", this::identifySeries)
-            post("match/series/{id}", this::matchSeries)
-            post("match/library/{id}", this::matchLibrary)
-            post("reset/series/{id}", this::resetSeries)
-            post("reset/library/{id}", this::resetLibrary)
+            //deprecated endpoints
+            if (serverType == KOMGA) {
+                get("providers", this::providers)
+                get("search", this::searchSeries)
+                post("identify", this::identifySeries)
+                post("match/series/{id}", this::matchSeries)
+                post("match/library/{id}", this::matchLibrary)
+                post("reset/series/{id}", this::resetSeries)
+                post("reset/library/{id}", this::resetLibrary)
+            }
+
+            path(serverType.name.lowercase()) {
+                get("providers", this::providers)
+                get("search", this::searchSeries)
+                post("identify", this::identifySeries)
+                post("match/series/{id}", this::matchSeries)
+                post("match/library/{id}", this::matchLibrary)
+                post("reset/series/{id}", this::resetSeries)
+                post("reset/library/{id}", this::resetLibrary)
+            }
         }
     }
 
     private fun searchSeries(ctx: Context): Context {
         val seriesName = ctx.queryParam("name") ?: return ctx.status(BAD_REQUEST)
-        val searchResults = komgaMetadataService.searchSeriesMetadata(seriesName)
+        val searchResults = metadataService.searchSeriesMetadata(seriesName)
 
         return ctx.result(moshi.adapter<Collection<SeriesSearchResult>>().toJson(searchResults))
             .contentType(APPLICATION_JSON)
@@ -43,7 +59,7 @@ class KomgaMetadataController(
 
     private fun identifySeries(ctx: Context): Context {
         val request = moshi.adapter<IdentifySeriesRequest>().fromJson(ctx.body()) ?: return ctx.status(BAD_REQUEST)
-        komgaMetadataService.setSeriesMetadata(
+        metadataService.setSeriesMetadata(
             MediaServerSeriesId(request.seriesId),
             Provider.valueOf(request.provider.uppercase()),
             ProviderSeriesId(request.providerSeriesId),
@@ -55,7 +71,7 @@ class KomgaMetadataController(
 
     private fun matchSeries(ctx: Context): Context {
         val seriesId = MediaServerSeriesId(ctx.pathParam("id"))
-        komgaMetadataService.matchSeriesMetadata(seriesId)
+        metadataService.matchSeriesMetadata(seriesId)
         return ctx.status(NO_CONTENT)
     }
 
@@ -64,7 +80,7 @@ class KomgaMetadataController(
 
         taskHandler.submit {
             try {
-                komgaMetadataService.matchLibraryMetadata(libraryId)
+                metadataService.matchLibraryMetadata(libraryId)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -75,18 +91,18 @@ class KomgaMetadataController(
 
     private fun resetSeries(ctx: Context): Context {
         val seriesId = MediaServerSeriesId(ctx.pathParam("id"))
-        komgaMetadataService.resetSeriesMetadata(seriesId)
+        metadataService.resetSeriesMetadata(seriesId)
         return ctx.status(NO_CONTENT)
     }
 
     private fun resetLibrary(ctx: Context): Context {
         val libraryId = MediaServerLibraryId(ctx.pathParam("id"))
-        komgaMetadataService.resetLibraryMetadata(libraryId)
+        metadataService.resetLibraryMetadata(libraryId)
         return ctx.status(NO_CONTENT)
     }
 
     private fun providers(ctx: Context): Context {
-        val providers = komgaMetadataService.availableProviders().map { it.name }
+        val providers = metadataService.availableProviders().map { it.name }
         return ctx.result(moshi.adapter<Collection<String>>().toJson(providers))
             .contentType(APPLICATION_JSON)
             .status(OK)

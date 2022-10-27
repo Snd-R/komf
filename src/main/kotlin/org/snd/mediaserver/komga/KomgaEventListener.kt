@@ -20,6 +20,7 @@ import org.snd.mediaserver.model.MediaServerBookId
 import org.snd.mediaserver.model.MediaServerSeriesId
 import org.snd.mediaserver.repository.MatchedBookRepository
 import org.snd.mediaserver.repository.MatchedSeriesRepository
+import java.util.concurrent.ExecutorService
 import java.util.function.Predicate
 
 private val logger = KotlinLogging.logger {}
@@ -34,6 +35,7 @@ class KomgaEventListener(
     private val matchedSeriesRepository: MatchedSeriesRepository,
     private val libraryFilter: Predicate<String>,
     private val notificationService: NotificationService,
+    private val executor: ExecutorService,
 ) : EventSourceListener() {
     private var eventSource: EventSource? = null
     private val seriesAddedEvents: MutableList<SeriesEvent> = ArrayList()
@@ -93,7 +95,6 @@ class KomgaEventListener(
                 val event = moshi.adapter<TaskQueueStatusEvent>().fromJson(data) ?: throw RuntimeException()
                 if (event.count == 0) {
                     val events = bookAddedEvents.groupBy({ MediaServerSeriesId(it.seriesId) }, { MediaServerBookId(it.bookId) })
-                    events.keys.forEach { metadataService.matchSeriesMetadata(it) }
 
                     bookDeletedEvents.forEach { book ->
                         matchedBookRepository.findFor(MediaServerBookId(book.bookId), KOMGA)?.let {
@@ -106,10 +107,7 @@ class KomgaEventListener(
                         }
                     }
 
-                    if (events.isNotEmpty()) {
-                        kotlin.runCatching { notificationService.executeFor(events) }
-                            .exceptionOrNull()?.let { logger.error(it) {} }
-                    }
+                    executor.run { processEvents(events.toMap()) }
 
                     bookAddedEvents.clear()
                     seriesAddedEvents.clear()
@@ -118,6 +116,13 @@ class KomgaEventListener(
                 }
             }
         }
+    }
+
+    private fun processEvents(events: Map<MediaServerSeriesId, Collection<MediaServerBookId>>) {
+        events.keys.forEach { metadataService.matchSeriesMetadata(it) }
+        runCatching { notificationService.executeFor(events) }
+            .exceptionOrNull()?.let { logger.error(it) {} }
+
     }
 
     override fun onFailure(eventSource: EventSource, t: Throwable?, response: Response?) {

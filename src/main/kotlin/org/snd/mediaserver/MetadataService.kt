@@ -3,7 +3,9 @@ package org.snd.mediaserver
 import mu.KotlinLogging
 import org.apache.commons.lang3.StringUtils
 import org.snd.config.MetadataUpdateConfig
+import org.snd.mediaserver.UpdateMode.API
 import org.snd.mediaserver.model.*
+import org.snd.mediaserver.model.MediaServer.KAVITA
 import org.snd.mediaserver.repository.MatchedBook
 import org.snd.mediaserver.repository.MatchedBookRepository
 import org.snd.mediaserver.repository.MatchedSeries
@@ -144,7 +146,7 @@ class MetadataService(
     }
 
     private fun updateSeriesMetadata(series: MediaServerSeries, metadata: SeriesMetadata) {
-        if (metadataUpdateConfig.mode == UpdateMode.API) {
+        if (metadataUpdateConfig.mode == API) {
             val metadataUpdate = metadataUpdateMapper.toSeriesMetadataUpdate(metadata, series.metadata)
             mediaServerClient.updateSeriesMetadata(series.id, metadataUpdate)
         }
@@ -171,6 +173,8 @@ class MetadataService(
         provider: MetadataProvider,
         bookEdition: String?
     ): Map<MediaServerBook, BookMetadata?> {
+        if (serverType == KAVITA && metadataUpdateConfig.mode == API) return emptyMap()
+
         val books = mediaServerClient.getBooks(seriesId)
         val metadataMatch = associateBookMetadata(books, seriesMeta.books, bookEdition)
 
@@ -189,7 +193,7 @@ class MetadataService(
     }
 
     private fun updateBookMetadata(book: MediaServerBook, metadata: BookMetadata?, seriesMeta: SeriesMetadata?) {
-        if (metadataUpdateConfig.mode == UpdateMode.API) {
+        if (metadataUpdateConfig.mode == API) {
             metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book.metadata)
                 ?.let { mediaServerClient.updateBookMetadata(book.id, it) }
         } else if (book.deleted.not()) {

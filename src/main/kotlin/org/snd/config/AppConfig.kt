@@ -5,12 +5,13 @@ import org.snd.mediaserver.UpdateMode
 import org.snd.mediaserver.UpdateMode.API
 import org.snd.metadata.NameMatchingMode
 import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.ReadingDirection
 
 @Serializable
 data class AppConfig(
     val metadataProviders: MetadataProvidersConfig = MetadataProvidersConfig(),
     val komga: KomgaConfig = KomgaConfig(),
+    val kavita: KavitaConfig = KavitaConfig(),
     val discord: DiscordConfig = DiscordConfig(),
     val database: DatabaseConfig = DatabaseConfig(),
     val server: ServerConfig = ServerConfig(),
@@ -22,12 +23,20 @@ data class KomgaConfig(
     val baseUri: String = "http://localhost:8080",
     val komgaUser: String = "admin@example.org",
     val komgaPassword: String = "admin",
-    val eventListener: KomgaEventListenerConfig = KomgaEventListenerConfig(),
+    val eventListener: EventListenerConfig = EventListenerConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
     @Deprecated("moved to its own config")
     val webhooks: Collection<String>? = null,
     val aggregateMetadata: Boolean = false,
-    val enabled: Boolean = true,
+)
+
+@Serializable
+data class KavitaConfig(
+    val baseUri: String = "http://localhost:5000",
+    val apiKey: String = "",
+    val eventListener: EventListenerConfig = EventListenerConfig(),
+    val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
+    val aggregateMetadata: Boolean = false,
 )
 
 @Serializable
@@ -36,7 +45,7 @@ data class MetadataUpdateConfig(
     val bookThumbnails: Boolean = false,
     val seriesThumbnails: Boolean = true,
     val seriesTitle: Boolean = false,
-    val readingDirectionValue: SeriesMetadata.ReadingDirection? = null
+    val readingDirectionValue: ReadingDirection? = null
 )
 
 @Serializable
@@ -45,7 +54,7 @@ data class DatabaseConfig(
 )
 
 @Serializable
-data class KomgaEventListenerConfig(
+data class EventListenerConfig(
     val enabled: Boolean = true,
     val libraries: Collection<String> = emptyList()
 )

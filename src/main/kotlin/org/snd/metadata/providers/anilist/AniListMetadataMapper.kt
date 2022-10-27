@@ -4,14 +4,7 @@ import org.jsoup.Jsoup
 import org.snd.config.SeriesMetadataConfig
 import org.snd.fragment.AniListManga
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.Author
-import org.snd.metadata.model.AuthorRole
-import org.snd.metadata.model.Image
-import org.snd.metadata.model.Provider
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.model.*
 import org.snd.type.MediaStatus
 
 class AniListMetadataMapper(
@@ -29,11 +22,11 @@ class AniListMetadataMapper(
 
     fun toSeriesMetadata(series: AniListManga, thumbnail: Image? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
-            MediaStatus.FINISHED -> SeriesMetadata.Status.ENDED
-            MediaStatus.RELEASING -> SeriesMetadata.Status.ONGOING
-            MediaStatus.NOT_YET_RELEASED -> SeriesMetadata.Status.ONGOING
-            MediaStatus.CANCELLED -> SeriesMetadata.Status.ABANDONED
-            MediaStatus.HIATUS -> SeriesMetadata.Status.HIATUS
+            MediaStatus.FINISHED -> SeriesStatus.ENDED
+            MediaStatus.RELEASING -> SeriesStatus.ONGOING
+            MediaStatus.NOT_YET_RELEASED -> SeriesStatus.ONGOING
+            MediaStatus.CANCELLED -> SeriesStatus.ABANDONED
+            MediaStatus.HIATUS -> SeriesStatus.HIATUS
             else -> null
         }
 
@@ -45,12 +38,15 @@ class AniListMetadataMapper(
                     "Story & Art" -> {
                         artistRoles.map { role -> Author(authorName, role) } + Author(authorName, AuthorRole.WRITER)
                     }
+
                     "Story" -> {
                         listOf(Author(authorName, AuthorRole.WRITER))
                     }
+
                     "Art", "Illustration" -> {
                         artistRoles.map { role -> Author(authorName, role) }
                     }
+
                     else -> {
                         emptyList()
                     }

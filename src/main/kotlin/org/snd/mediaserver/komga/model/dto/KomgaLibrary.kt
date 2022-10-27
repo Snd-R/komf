@@ -40,5 +40,5 @@ enum class SeriesCover {
 fun KomgaLibrary.mediaServerLibrary() = MediaServerLibrary(
     id = MediaServerLibraryId(id),
     name = name,
-    root = root,
+    roots = listOf(root),
 )

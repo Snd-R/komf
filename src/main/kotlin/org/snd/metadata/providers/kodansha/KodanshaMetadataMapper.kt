@@ -3,14 +3,7 @@ package org.snd.metadata.providers.kodansha
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.Image
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesBook
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.*
 import org.snd.metadata.providers.kodansha.model.KodanshaBook
 import org.snd.metadata.providers.kodansha.model.KodanshaSeries
 import org.snd.metadata.providers.kodansha.model.Status.*
@@ -22,10 +15,10 @@ class KodanshaMetadataMapper(
 
     fun toSeriesMetadata(series: KodanshaSeries, thumbnail: Image? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
-            ONGOING -> SeriesMetadata.Status.ONGOING
-            COMPLETED -> SeriesMetadata.Status.ENDED
-            COMPLETE -> SeriesMetadata.Status.ENDED
-            else -> SeriesMetadata.Status.ONGOING
+            ONGOING -> SeriesStatus.ONGOING
+            COMPLETED -> SeriesStatus.ENDED
+            COMPLETE -> SeriesStatus.ENDED
+            else -> SeriesStatus.ONGOING
         }
         val metadata = SeriesMetadata(
             status = status,

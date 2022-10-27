@@ -52,6 +52,8 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.velocity:velocity-engine-core:2.3")
     implementation("org.jsoup:jsoup:1.15.3")
+    implementation("com.microsoft.signalr:signalr:6.0.10")
+    implementation("org.bitbucket.b_c:jose4j:0.9.1")
 
 }
 
