@@ -95,8 +95,12 @@ class MediaServerModule(
     )
 
     private val komgaNotificationService = NotificationService(
-        komgaMediaServerClient,
-        discordModule?.discordWebhookService
+        mediaServerClient = komgaMediaServerClient,
+        discordWebhookService = discordModule?.discordWebhookService,
+        libraryFilter = {
+            if (komgaConfig.notifications.libraries.isEmpty()) true
+            else komgaConfig.notifications.libraries.contains(it)
+        },
     )
 
     private val komgaEventListener = KomgaEventListener(
@@ -171,8 +175,12 @@ class MediaServerModule(
     )
 
     private val kavitaNotificationService = NotificationService(
-        kavitaMediaServerClient,
-        discordModule?.discordWebhookService
+        mediaServerClient = kavitaMediaServerClient,
+        discordWebhookService = discordModule?.discordWebhookService,
+        libraryFilter = {
+            if (kavitaConfig.notifications.libraries.isEmpty()) true
+            else kavitaConfig.notifications.libraries.contains(it)
+        },
     )
 
     private val kavitaEventListener = KavitaEventListener(

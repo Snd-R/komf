@@ -24,6 +24,7 @@ data class KomgaConfig(
     val komgaUser: String = "admin@example.org",
     val komgaPassword: String = "admin",
     val eventListener: EventListenerConfig = EventListenerConfig(),
+    val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
     @Deprecated("moved to its own config")
     val webhooks: Collection<String>? = null,
@@ -35,8 +36,14 @@ data class KavitaConfig(
     val baseUri: String = "http://localhost:5000",
     val apiKey: String = "",
     val eventListener: EventListenerConfig = EventListenerConfig(),
+    val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
     val aggregateMetadata: Boolean = false,
+)
+
+@Serializable
+data class NotificationConfig(
+    val libraries: Collection<String> = emptyList()
 )
 
 @Serializable
