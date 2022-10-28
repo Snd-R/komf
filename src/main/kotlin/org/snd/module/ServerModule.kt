@@ -18,15 +18,17 @@ class ServerModule(
     }.routes {
         MetadataController(
             metadataService = mediaServerModule.komgaMetadataService,
+            metadataUpdateService = mediaServerModule.komgaMetadataUpdateService,
             taskHandler = Executors.newSingleThreadExecutor(),
             moshi = jsonModule.moshi,
-            KOMGA
+            serverType = KOMGA
         ).register()
         MetadataController(
             metadataService = mediaServerModule.kavitaMetadataService,
+            metadataUpdateService = mediaServerModule.kavitaMetadataUpdateService,
             taskHandler = Executors.newSingleThreadExecutor(),
             moshi = jsonModule.moshi,
-            KAVITA
+            serverType = KAVITA
         ).register()
     }
 

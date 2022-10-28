@@ -54,6 +54,7 @@ fun KomgaSeries.mediaServerSeries(): MediaServerSeries {
         libraryId = MediaServerLibraryId(libraryId),
         name = name,
         metadata = metadata.mediaServerSeriesMetadata(),
+        url = url,
         deleted = deleted,
     )
 }

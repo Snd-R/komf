@@ -45,6 +45,7 @@ fun KavitaSeries.mediaServerSeries(metadata: KavitaSeriesMetadata): MediaServerS
         libraryId = MediaServerLibraryId(libraryId.toString()),
         name = originalName,
         metadata = metadata.mediaServerSeriesMetadata(this),
+        url = folderPath,
         deleted = false,
     )
 }

@@ -15,11 +15,7 @@ import org.snd.metadata.MetadataMerger.mergeComicInfoMetadata
 import org.snd.metadata.comicinfo.model.ComicInfo
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
-import kotlin.io.path.createTempFile
-import kotlin.io.path.deleteIfExists
-import kotlin.io.path.extension
-import kotlin.io.path.isWritable
-import kotlin.io.path.moveTo
+import kotlin.io.path.*
 
 
 private const val COMIC_INFO = "ComicInfo.xml"
@@ -102,4 +98,3 @@ class ComicInfoWriter {
         }
     }
 }
-

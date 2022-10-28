@@ -41,7 +41,9 @@ data class KavitaConfig(
 
 @Serializable
 data class MetadataUpdateConfig(
-    val mode: UpdateMode = API,
+    @Deprecated("use modes instead")
+    val mode: UpdateMode? = null,
+    val modes: Set<UpdateMode> = setOf(API),
     val bookThumbnails: Boolean = false,
     val seriesThumbnails: Boolean = true,
     val seriesTitle: Boolean = false,

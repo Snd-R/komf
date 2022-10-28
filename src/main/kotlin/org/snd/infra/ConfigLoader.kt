@@ -82,6 +82,7 @@ class ConfigLoader {
                 frenchPublisherTagName = nautiljon.frenchPublisherTag ?: frenchPublisherTagName
             )
         }
+        val komgaUpdateModes = config.komga.metadataUpdate.mode?.let { setOf(it) } ?: config.komga.metadataUpdate.modes
         warnAboutDeprecatedOptions(config)
 
         return config.copy(
@@ -91,6 +92,11 @@ class ConfigLoader {
             metadataProviders = config.metadataProviders.copy(
                 nautiljon = nautiljon.copy(
                     seriesMetadata = nautiljonSeriesMetadataConfig
+                )
+            ),
+            komga = config.komga.copy(
+                metadataUpdate = config.komga.metadataUpdate.copy(
+                    modes = komgaUpdateModes
                 )
             )
         )
@@ -104,6 +110,8 @@ class ConfigLoader {
             config.metadataProviders.nautiljon.useOriginalPublisher?.let { "metadataProviders.nautiljon.useOriginalPublisher" },
             config.metadataProviders.nautiljon.originalPublisherTag?.let { "metadataProviders.nautiljon.originalPublisherTag" },
             config.metadataProviders.nautiljon.frenchPublisherTag?.let { "metadataProviders.nautiljon.frenchPublisherTag" },
+            config.komga.metadataUpdate.mode?.let { "komga.metadataUpdate.mode" },
+            config.kavita.metadataUpdate.mode?.let { "kavita.metadataUpdate.mode" },
         )
         if (deprecatedOptions.isNotEmpty()) {
             logger.warn {

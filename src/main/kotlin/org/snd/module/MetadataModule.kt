@@ -9,6 +9,8 @@ import org.snd.config.MetadataProvidersConfig
 import org.snd.infra.HttpClient
 import org.snd.infra.HttpException
 import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.comicinfo.ComicInfoWriter
+import org.snd.metadata.mylar.SeriesJsonWriter
 import org.snd.metadata.providers.anilist.AniListClient
 import org.snd.metadata.providers.anilist.AniListMetadataMapper
 import org.snd.metadata.providers.anilist.AniListMetadataProvider
@@ -42,6 +44,10 @@ class MetadataModule(
     okHttpClient: OkHttpClient,
     jsonModule: JsonModule
 ) {
+
+    val comicInfoWriter = ComicInfoWriter()
+    val seriesJsonWriter = SeriesJsonWriter(jsonModule.moshi)
+
     private val nameSimilarityMatcher = NameSimilarityMatcher.getInstance(config.nameMatchingMode)
 
     private val httpClient = okHttpClient.newBuilder()
@@ -113,7 +119,8 @@ class MetadataModule(
             } else 5000
         }.build()
 
-    private val nautiljonSimilarityMatcher = config.nautiljon.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+    private val nautiljonSimilarityMatcher =
+        config.nautiljon.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
     private val nautiljonMetadataProvider = config.nautiljon.let {
         if (it.enabled) {
             NautiljonMetadataProvider(
@@ -145,7 +152,8 @@ class MetadataModule(
             .build()
     )
     private val aniListMetadataMapper = AniListMetadataMapper(config.aniList.seriesMetadata)
-    private val aniListSimilarityMatcher = config.aniList.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+    private val aniListSimilarityMatcher =
+        config.aniList.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
     private val aniListMetadataProvider = config.aniList.let {
         if (it.enabled) {
             AniListMetadataProvider(aniListClient, aniListMetadataMapper, aniListSimilarityMatcher)
@@ -164,7 +172,8 @@ class MetadataModule(
         )
     )
     private val yenPressMetadataMapper = YenPressMetadataMapper(config.yenPress.seriesMetadata, config.yenPress.bookMetadata)
-    private val yenPressSimilarityMatcher = config.yenPress.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+    private val yenPressSimilarityMatcher =
+        config.yenPress.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
     private val yenPressMetadataProvider = config.yenPress.let {
         if (it.enabled) YenPressMetadataProvider(yenPressClient, yenPressMetadataMapper, yenPressSimilarityMatcher)
         else null
@@ -185,7 +194,8 @@ class MetadataModule(
         seriesMetadataConfig = config.kodansha.seriesMetadata,
         bookMetadataConfig = config.kodansha.bookMetadata,
     )
-    private val kodanshaSimilarityMatcher = config.kodansha.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+    private val kodanshaSimilarityMatcher =
+        config.kodansha.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
     private val kodanshaMetadataProvider = config.kodansha.let {
         if (it.enabled) KondanshaMetadataProvider(kodanshaClient, kodanshaMetadataMapper, kodanshaSimilarityMatcher)
         else null
@@ -231,7 +241,8 @@ class MetadataModule(
         bookMetadataConfig = config.bookWalker.bookMetadata
     )
 
-    private val bookWalkerSimilarityMatcher = config.bookWalker.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+    private val bookWalkerSimilarityMatcher =
+        config.bookWalker.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
     private val bookWalkerMetadataProvider = config.bookWalker.let {
         if (it.enabled) BookWalkerMetadataProvider(bookWalkerClient, bookWalkerMapper, bookWalkerSimilarityMatcher)
         else null

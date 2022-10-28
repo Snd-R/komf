@@ -5,5 +5,6 @@ data class MediaServerSeries(
     val libraryId: MediaServerLibraryId,
     val name: String,
     val metadata: MediaServerSeriesMetadata,
+    val url: String,
     val deleted: Boolean,
 )

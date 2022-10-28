@@ -2,5 +2,9 @@ package org.snd.mediaserver
 
 enum class UpdateMode {
     API,
-    FILE_EMBED
+
+    @Deprecated("use COMIC_INFO instead")
+    FILE_EMBED,
+    COMIC_INFO,
+    SERIES_JSON
 }

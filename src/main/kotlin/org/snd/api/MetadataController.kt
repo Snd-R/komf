@@ -7,6 +7,7 @@ import io.javalin.http.ContentType.APPLICATION_JSON
 import io.javalin.http.Context
 import io.javalin.http.HttpStatus.*
 import org.snd.mediaserver.MetadataService
+import org.snd.mediaserver.MetadataUpdateService
 import org.snd.mediaserver.model.MediaServer
 import org.snd.mediaserver.model.MediaServer.KOMGA
 import org.snd.mediaserver.model.MediaServerLibraryId
@@ -18,6 +19,7 @@ import java.util.concurrent.ExecutorService
 
 class MetadataController(
     private val metadataService: MetadataService,
+    private val metadataUpdateService: MetadataUpdateService,
     private val taskHandler: ExecutorService,
     private val moshi: Moshi,
     private val serverType: MediaServer,
@@ -91,13 +93,13 @@ class MetadataController(
 
     private fun resetSeries(ctx: Context): Context {
         val seriesId = MediaServerSeriesId(ctx.pathParam("id"))
-        metadataService.resetSeriesMetadata(seriesId)
+        metadataUpdateService.resetSeriesMetadata(seriesId)
         return ctx.status(NO_CONTENT)
     }
 
     private fun resetLibrary(ctx: Context): Context {
         val libraryId = MediaServerLibraryId(ctx.pathParam("id"))
-        metadataService.resetLibraryMetadata(libraryId)
+        metadataUpdateService.resetLibraryMetadata(libraryId)
         return ctx.status(NO_CONTENT)
     }
 

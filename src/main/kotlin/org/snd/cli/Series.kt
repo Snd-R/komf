@@ -73,7 +73,7 @@ class Series : CliktCommand() {
         private val id by argument()
 
         override fun run() {
-            module.mediaServerModule.komgaMetadataService.resetSeriesMetadata(MediaServerSeriesId(id))
+            module.mediaServerModule.komgaMetadataUpdateService.resetSeriesMetadata(MediaServerSeriesId(id))
             exitProcess(0)
         }
     }

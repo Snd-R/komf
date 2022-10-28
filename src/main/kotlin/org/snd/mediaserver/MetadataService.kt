@@ -2,20 +2,11 @@ package org.snd.mediaserver
 
 import mu.KotlinLogging
 import org.apache.commons.lang3.StringUtils
-import org.snd.config.MetadataUpdateConfig
-import org.snd.mediaserver.UpdateMode.API
 import org.snd.mediaserver.model.*
-import org.snd.mediaserver.model.MediaServer.KAVITA
-import org.snd.mediaserver.repository.MatchedBook
-import org.snd.mediaserver.repository.MatchedBookRepository
-import org.snd.mediaserver.repository.MatchedSeries
-import org.snd.mediaserver.repository.MatchedSeriesRepository
 import org.snd.metadata.BookFilenameParser
 import org.snd.metadata.MetadataMerger
 import org.snd.metadata.MetadataProvider
-import org.snd.metadata.comicinfo.ComicInfoWriter
 import org.snd.metadata.model.*
-import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 
@@ -24,14 +15,9 @@ private val logger = KotlinLogging.logger {}
 class MetadataService(
     private val mediaServerClient: MediaServerClient,
     private val metadataProviders: Map<Provider, MetadataProvider>,
-    private val matchedSeriesRepository: MatchedSeriesRepository,
-    private val matchedBookRepository: MatchedBookRepository,
-    private val metadataUpdateConfig: MetadataUpdateConfig,
-    private val metadataUpdateMapper: MetadataUpdateMapper,
     private val aggregateMetadata: Boolean,
     private val executor: ExecutorService,
-    private val comicInfoWriter: ComicInfoWriter,
-    private val serverType: MediaServer,
+    private val metadataUpdateService: MetadataUpdateService
 ) {
     fun availableProviders(): Set<Provider> = metadataProviders.keys
 
@@ -60,12 +46,7 @@ class MetadataService(
             )
         } else SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
 
-        if (metadata.seriesMetadata != null) updateSeriesMetadata(series, metadata.seriesMetadata)
-        updateBookMetadata(metadata.bookMetadata, metadata.seriesMetadata)
-
-        if (metadataUpdateConfig.mode == UpdateMode.FILE_EMBED) {
-            mediaServerClient.refreshMetadata(series.id)
-        }
+        metadataUpdateService.updateMetadata(series, metadata)
     }
 
     fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
@@ -110,61 +91,8 @@ class MetadataService(
             } else metadata
         }
 
-        if (metadata.seriesMetadata != null) updateSeriesMetadata(series, metadata.seriesMetadata)
-        updateBookMetadata(metadata.bookMetadata, metadata.seriesMetadata)
-
-        if (metadataUpdateConfig.mode == UpdateMode.FILE_EMBED) {
-            mediaServerClient.refreshMetadata(series.id)
-        }
+        metadataUpdateService.updateMetadata(series, metadata)
         logger.info { "finished metadata update of series \"${series.name}\" ${series.id}" }
-    }
-
-    fun resetSeriesMetadata(seriesId: MediaServerSeriesId) {
-        val series = mediaServerClient.getSeries(seriesId)
-        resetSeriesMetadata(series)
-    }
-
-    private fun resetSeriesMetadata(series: MediaServerSeries) {
-        mediaServerClient.resetSeriesMetadata(series.id, series.name)
-
-        mediaServerClient.getBooks(series.id)
-            .forEach { resetBookMetadata(it) }
-
-        replaceSeriesThumbnail(series.id, null)
-        matchedSeriesRepository.delete(series.id, serverType)
-    }
-
-    private fun resetBookMetadata(book: MediaServerBook) {
-        mediaServerClient.resetBookMetadata(book.id, book.name)
-
-        replaceBookThumbnail(book.id, null)
-        matchedBookRepository.delete(book.id, serverType)
-    }
-
-    fun resetLibraryMetadata(libraryId: MediaServerLibraryId) {
-        mediaServerClient.getSeries(libraryId).forEach { resetSeriesMetadata(it) }
-    }
-
-    private fun updateSeriesMetadata(series: MediaServerSeries, metadata: SeriesMetadata) {
-        if (metadataUpdateConfig.mode == API) {
-            val metadataUpdate = metadataUpdateMapper.toSeriesMetadataUpdate(metadata, series.metadata)
-            mediaServerClient.updateSeriesMetadata(series.id, metadataUpdate)
-        }
-
-        val newThumbnail = if (metadataUpdateConfig.seriesThumbnails) metadata.thumbnail else null
-        val thumbnailId = replaceSeriesThumbnail(series.id, newThumbnail)
-
-        if (thumbnailId == null) {
-            matchedSeriesRepository.delete(series.id, serverType)
-        } else {
-            matchedSeriesRepository.save(
-                MatchedSeries(
-                    seriesId = series.id,
-                    type = serverType,
-                    thumbnailId = thumbnailId,
-                )
-            )
-        }
     }
 
     private fun getBookMetadata(
@@ -173,7 +101,7 @@ class MetadataService(
         provider: MetadataProvider,
         bookEdition: String?
     ): Map<MediaServerBook, BookMetadata?> {
-        if (serverType == KAVITA && metadataUpdateConfig.mode == API) return emptyMap()
+//        if (serverType == KAVITA && metadataUpdateConfig.mode == API) return emptyMap()
 
         val books = mediaServerClient.getBooks(seriesId)
         val metadataMatch = associateBookMetadata(books, seriesMeta.books, bookEdition)
@@ -186,79 +114,6 @@ class MetadataService(
                 book to null
             }
         }.toMap()
-    }
-
-    private fun updateBookMetadata(bookMetadata: Map<MediaServerBook, BookMetadata?>, seriesMetadata: SeriesMetadata?) {
-        bookMetadata.forEach { (book, metadata) -> updateBookMetadata(book, metadata, seriesMetadata) }
-    }
-
-    private fun updateBookMetadata(book: MediaServerBook, metadata: BookMetadata?, seriesMeta: SeriesMetadata?) {
-        if (metadataUpdateConfig.mode == API) {
-            metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book.metadata)
-                ?.let { mediaServerClient.updateBookMetadata(book.id, it) }
-        } else if (book.deleted.not()) {
-            metadataUpdateMapper.toComicInfo(metadata, seriesMeta)?.let {
-                comicInfoWriter.writeMetadata(Path.of(book.url), it)
-            }
-        }
-
-        val newThumbnail = if (metadataUpdateConfig.bookThumbnails) metadata?.thumbnail else null
-        val thumbnailId = replaceBookThumbnail(book.id, newThumbnail)
-
-        if (thumbnailId == null) {
-            matchedBookRepository.delete(book.id, serverType)
-        } else {
-            matchedBookRepository.save(
-                MatchedBook(
-                    seriesId = book.seriesId,
-                    bookId = book.id,
-                    type = serverType,
-                    thumbnailId = thumbnailId,
-                )
-            )
-        }
-    }
-
-    private fun replaceSeriesThumbnail(seriesId: MediaServerSeriesId, thumbnail: Image?): MediaServerThumbnailId? {
-        val matchedSeries = matchedSeriesRepository.findFor(seriesId, serverType)
-        val thumbnails = mediaServerClient.getSeriesThumbnails(seriesId)
-
-        val uploadedThumbnail = thumbnail?.let {
-            mediaServerClient.uploadSeriesThumbnail(
-                seriesId = seriesId,
-                thumbnail = thumbnail,
-                selected = thumbnails.isEmpty()
-            )
-        }
-
-        matchedSeries?.thumbnailId?.let { thumb ->
-            if (thumbnails.any { it.id == thumb }) {
-                mediaServerClient.deleteSeriesThumbnail(seriesId, thumb)
-            }
-        }
-
-        return uploadedThumbnail?.id
-    }
-
-    private fun replaceBookThumbnail(bookId: MediaServerBookId, thumbnail: Image?): MediaServerThumbnailId? {
-        val existingMatch = matchedBookRepository.findFor(bookId, serverType)
-        val thumbnails = mediaServerClient.getBookThumbnails(bookId)
-
-        val uploadedThumbnail = thumbnail?.let {
-            mediaServerClient.uploadBookThumbnail(
-                bookId = bookId,
-                thumbnail = thumbnail,
-                selected = thumbnails.all { it.type == "GENERATED" || it.id == existingMatch?.thumbnailId }
-            )
-        }
-
-        existingMatch?.thumbnailId?.let { thumb ->
-            if (thumbnails.any { it.id == thumb }) {
-                mediaServerClient.deleteBookThumbnail(bookId, thumb)
-            }
-        }
-
-        return uploadedThumbnail?.id
     }
 
     private fun associateBookMetadata(

@@ -14,6 +14,7 @@ import org.snd.infra.KavitaBearerAuthInterceptor
 import org.snd.infra.SimpleCookieJar
 import org.snd.mediaserver.MetadataService
 import org.snd.mediaserver.MetadataUpdateMapper
+import org.snd.mediaserver.MetadataUpdateService
 import org.snd.mediaserver.NotificationService
 import org.snd.mediaserver.kavita.*
 import org.snd.mediaserver.komga.KomgaClient
@@ -21,7 +22,6 @@ import org.snd.mediaserver.komga.KomgaEventListener
 import org.snd.mediaserver.komga.KomgaMediaServerClientAdapter
 import org.snd.mediaserver.model.MediaServer.KAVITA
 import org.snd.mediaserver.model.MediaServer.KOMGA
-import org.snd.metadata.comicinfo.ComicInfoWriter
 import java.time.Clock
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit.SECONDS
@@ -49,7 +49,7 @@ class MediaServerModule(
         .addInterceptor(BasicAuthInterceptor(komgaConfig.komgaUser, komgaConfig.komgaPassword))
         .addInterceptor(HttpLoggingInterceptor { message ->
             KotlinLogging.logger {}.debug { message }
-        }.setLevel(BASIC))
+        }.setLevel(BODY))
         .build()
 
     private val komgaSseClient = httpClient.newBuilder()
@@ -70,17 +70,22 @@ class MediaServerModule(
     )
 
     val komgaMediaServerClient = KomgaMediaServerClientAdapter(komgaClient)
-    val komgaMetadataService = MetadataService(
+    val komgaMetadataUpdateService = MetadataUpdateService(
         mediaServerClient = komgaMediaServerClient,
-        metadataProviders = metadataModule.metadataProviders,
         matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
         matchedBookRepository = repositoryModule.matchedBookRepository,
         metadataUpdateConfig = komgaConfig.metadataUpdate,
         metadataUpdateMapper = MetadataUpdateMapper(komgaConfig.metadataUpdate),
+        comicInfoWriter = metadataModule.comicInfoWriter,
+        seriesJsonWriter = metadataModule.seriesJsonWriter,
+        serverType = KOMGA,
+    )
+    val komgaMetadataService = MetadataService(
+        mediaServerClient = komgaMediaServerClient,
+        metadataProviders = metadataModule.metadataProviders,
         aggregateMetadata = komgaConfig.aggregateMetadata,
         executor = metadataAggregationExecutor,
-        comicInfoWriter = ComicInfoWriter(),
-        serverType = KOMGA
+        metadataUpdateService = komgaMetadataUpdateService
     )
 
     private val komgaNotificationService = NotificationService(
@@ -141,17 +146,22 @@ class MediaServerModule(
         baseUrl = kavitaConfig.baseUri.toHttpUrl()
     )
     private val kavitaMediaServerClient = KavitaMediaServerClientAdapter(kavitaClient)
-    val kavitaMetadataService = MetadataService(
+    val kavitaMetadataUpdateService = MetadataUpdateService(
         mediaServerClient = kavitaMediaServerClient,
-        metadataProviders = metadataModule.metadataProviders,
         matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
         matchedBookRepository = repositoryModule.matchedBookRepository,
         metadataUpdateConfig = kavitaConfig.metadataUpdate,
         metadataUpdateMapper = MetadataUpdateMapper(kavitaConfig.metadataUpdate),
+        comicInfoWriter = metadataModule.comicInfoWriter,
+        seriesJsonWriter = metadataModule.seriesJsonWriter,
+        serverType = KAVITA,
+    )
+    val kavitaMetadataService = MetadataService(
+        mediaServerClient = kavitaMediaServerClient,
+        metadataProviders = metadataModule.metadataProviders,
         aggregateMetadata = kavitaConfig.aggregateMetadata,
         executor = metadataAggregationExecutor,
-        comicInfoWriter = ComicInfoWriter(),
-        serverType = KAVITA
+        metadataUpdateService = kavitaMetadataUpdateService
     )
 
     private val kavitaNotificationService = NotificationService(
