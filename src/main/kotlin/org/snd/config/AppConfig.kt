@@ -184,7 +184,7 @@ data class SeriesMetadataConfig(
     val thumbnail: Boolean = true,
     val books: Boolean = true,
 
-    val useOriginalPublisher: Boolean = true,
+    val useOriginalPublisher: Boolean = false,
     val originalPublisherTagName: String? = null,
     val englishPublisherTagName: String? = null,
     val frenchPublisherTagName: String? = null,
