@@ -24,13 +24,14 @@ Requires Java 11 or higher
 ### Docker compose
 
 ```yml
-version: "2.1"
+version: "3.7"
 services:
   komf:
     image: sndxr/komf:latest
     container_name: komf
     ports:
-      - 8085:8085
+      - "8085:8085"
+    user: "1000:1000"
     environment: # optional env config
       - KOMF_KOMGA_BASE_URI=http://komga:8080
       - KOMF_KOMGA_USER=admin@example.org
@@ -50,7 +51,9 @@ komga:
   komgaPassword: admin #or env:KOMF_KOMGA_PASSWORD
   eventListener:
     enabled: true
-    libraries: [ ]  #listen to all events if empty
+    libraries: [ ]  # listen to all events if empty
+  notifications:
+    libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
   metadataUpdate:
     # Update modes is the way komf will update metadata.
     # If you're using anything other than API then your existing files might be modified with embedded metadata
