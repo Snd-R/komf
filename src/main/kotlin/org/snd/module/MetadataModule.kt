@@ -44,7 +44,6 @@ class MetadataModule(
     okHttpClient: OkHttpClient,
     jsonModule: JsonModule
 ) {
-
     val comicInfoWriter = ComicInfoWriter()
     val seriesJsonWriter = SeriesJsonWriter(jsonModule.moshi)
 
@@ -233,7 +232,10 @@ class MetadataModule(
                 .limitForPeriod(5)
                 .timeoutDuration(Duration.ofSeconds(5))
                 .build(),
-            retryConfig = RetryConfig.custom<Any>().intervalFunction { 5000 }.build()
+            retryConfig = RetryConfig.custom<Any>()
+                .ignoreExceptions(HttpException.NotFound::class.java)
+                .intervalFunction { 5000 }
+                .build()
         )
     )
     private val bookWalkerMapper = BookWalkerMapper(
