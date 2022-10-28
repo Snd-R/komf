@@ -50,6 +50,8 @@ class MangaUpdatesMetadataMapper(
             titleSort = series.title,
             summary = series.description,
             publisher = if (metadataConfig.useOriginalPublisher) originalPublisher else englishPublisher ?: originalPublisher,
+            alternativePublishers = if (metadataConfig.useOriginalPublisher) listOfNotNull(englishPublisher)
+            else englishPublisher?.let { listOfNotNull(originalPublisher) } ?: emptyList(),
             genres = series.genres,
             tags = tags,
             authors = authors,

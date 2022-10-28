@@ -51,6 +51,7 @@ class MetadataUpdateMapper(
                     ?: titleSort else titleSort,
                 summary = getIfNotLockedOrEmpty(patch.summary, summaryLock) ?: summary,
                 publisher = getIfNotLockedOrEmpty(patch.publisher, publisherLock) ?: publisher,
+                alternativePublishers = getIfNotLockedOrEmpty(patch.alternativePublishers, publisherLock) ?: alternativePublishers,
                 readingDirection = newReadingDirection ?: readingDirection,
                 ageRating = getIfNotLockedOrEmpty(patch.ageRating, ageRatingLock) ?: ageRating,
                 language = getIfNotLockedOrEmpty(patch.language, languageLock) ?: language,
