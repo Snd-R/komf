@@ -21,8 +21,8 @@ class SeriesJsonWriter(
 ) {
 
     fun write(path: Path, metadata: MylarMetadata) {
-        validate(path)
         val seriesJsonPath = path.resolve(SERIES_JSON)
+        validate(seriesJsonPath)
 
         val oldMetadata = if (seriesJsonPath.exists()) moshi.adapter<MylarSeries>().fromJson(seriesJsonPath.readText())
         else null
@@ -37,8 +37,8 @@ class SeriesJsonWriter(
     }
 
     private fun validate(path: Path) {
-        if (!path.isWritable() || !path.isDirectory()) {
-            throw ValidationException("No write permission for directory $path")
+        if (path.isDirectory() || (path.exists() && !path.isWritable())) {
+            throw ValidationException("No write permission for file $path")
         }
     }
 }
