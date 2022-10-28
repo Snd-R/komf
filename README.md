@@ -52,6 +52,9 @@ komga:
     enabled: true
     libraries: [ ]  #listen to all events if empty
   metadataUpdate:
+    # Update modes is the way komf will update metadata.
+    # If you're using anything other than API then your existing files might be modified with embedded metadata
+    modes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO, SERIES_JSON
     bookThumbnails: false #update book thumbnails
     seriesThumbnails: true #update series thumbnails
     seriesTitle: false #update series title
