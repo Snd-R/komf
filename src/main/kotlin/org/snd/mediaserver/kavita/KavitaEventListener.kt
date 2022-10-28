@@ -58,7 +58,7 @@ class KavitaEventListener(
     @Synchronized
     private fun processNotification(notification: NotificationProgressEvent) {
         if (notification.name == "ScanProgress" && notification.eventType == "ended") {
-            executor.run { processEvents(volumesChanged.toList()) }
+            executor.execute { processEvents(volumesChanged.toList()) }
             volumesChanged.clear()
         }
     }

@@ -6,6 +6,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
+import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.snd.config.KavitaConfig
 import org.snd.config.KomgaConfig
 import org.snd.infra.BasicAuthInterceptor
@@ -36,8 +37,14 @@ class MediaServerModule(
     discordModule: DiscordModule?,
     clock: Clock
 ) : AutoCloseable {
-    private val metadataAggregationExecutor = Executors.newFixedThreadPool(4)
-    private val eventListenerExecutor = Executors.newSingleThreadExecutor()
+    private val metadataAggregationExecutor = Executors.newFixedThreadPool(
+        4,
+        BasicThreadFactory.Builder().namingPattern("komf-meta-aggregator-%d").build()
+    )
+    private val eventListenerExecutor = Executors.newSingleThreadExecutor(
+        BasicThreadFactory.Builder().namingPattern("komf-event-listener-%d")
+            .build()
+    )
 
     private val httpClient = okHttpClient.newBuilder()
         .cookieJar(SimpleCookieJar())
@@ -49,7 +56,7 @@ class MediaServerModule(
         .addInterceptor(BasicAuthInterceptor(komgaConfig.komgaUser, komgaConfig.komgaPassword))
         .addInterceptor(HttpLoggingInterceptor { message ->
             KotlinLogging.logger {}.debug { message }
-        }.setLevel(BODY))
+        }.setLevel(BASIC))
         .build()
 
     private val komgaSseClient = httpClient.newBuilder()

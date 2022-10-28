@@ -1,6 +1,7 @@
 package org.snd.module
 
 import io.javalin.Javalin
+import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.snd.api.MetadataController
 import org.snd.config.ServerConfig
 import org.snd.mediaserver.model.MediaServer.KAVITA
@@ -12,6 +13,11 @@ class ServerModule(
     mediaServerModule: MediaServerModule,
     jsonModule: JsonModule
 ) : AutoCloseable {
+    private val executor = Executors.newSingleThreadExecutor(
+        BasicThreadFactory.Builder()
+            .namingPattern("komf-api-task-handler-%d").build()
+    )
+
     private val server = Javalin.create { config ->
         config.plugins.enableCors { cors -> cors.add { it.anyHost() } }
         config.showJavalinBanner = false
@@ -19,14 +25,14 @@ class ServerModule(
         MetadataController(
             metadataService = mediaServerModule.komgaMetadataService,
             metadataUpdateService = mediaServerModule.komgaMetadataUpdateService,
-            taskHandler = Executors.newSingleThreadExecutor(),
+            taskHandler = executor,
             moshi = jsonModule.moshi,
             serverType = KOMGA
         ).register()
         MetadataController(
             metadataService = mediaServerModule.kavitaMetadataService,
             metadataUpdateService = mediaServerModule.kavitaMetadataUpdateService,
-            taskHandler = Executors.newSingleThreadExecutor(),
+            taskHandler = executor,
             moshi = jsonModule.moshi,
             serverType = KAVITA
         ).register()

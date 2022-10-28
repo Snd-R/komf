@@ -107,7 +107,7 @@ class KomgaEventListener(
                         }
                     }
 
-                    executor.run { processEvents(events.toMap()) }
+                    executor.execute { processEvents(events.toMap()) }
 
                     bookAddedEvents.clear()
                     seriesAddedEvents.clear()
