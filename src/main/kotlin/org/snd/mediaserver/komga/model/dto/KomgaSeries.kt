@@ -53,6 +53,7 @@ fun KomgaSeries.mediaServerSeries(): MediaServerSeries {
         id = MediaServerSeriesId(id),
         libraryId = MediaServerLibraryId(libraryId),
         name = name,
+        booksCount = booksCount,
         metadata = metadata.mediaServerSeriesMetadata(),
         url = url,
         deleted = deleted,

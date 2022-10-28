@@ -24,15 +24,16 @@ class MetadataUpdateMapper(
         if (bookMetadata == null && seriesMetadata == null) return null
 
         return with(metadata) {
-            val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors } ?: seriesMetadata?.authors)
-                ?.map { author -> MediaServerAuthor(author.name, author.role.name) } ?: emptyList()
+            val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }
+                ?: seriesMetadata?.authors?.ifEmpty { null })?.map { author -> MediaServerAuthor(author.name, author.role.name) }
+                ?: emptyList()
 
             MediaServerBookMetadataUpdate(
-                summary = getIfNotLockedOrEmpty(bookMetadata?.summary, summaryLock) ?: summary,
-                releaseDate = getIfNotLockedOrEmpty(bookMetadata?.releaseDate, releaseDateLock) ?: releaseDate,
-                authors = getIfNotLockedOrEmpty(authors, authorsLock) ?: metadata.authors,
-                tags = getIfNotLockedOrEmpty(bookMetadata?.tags, tagsLock) ?: tags,
-                isbn = getIfNotLockedOrEmpty(bookMetadata?.isbn, isbnLock) ?: isbn,
+                summary = getIfNotLockedOrEmpty(bookMetadata?.summary, summaryLock),
+                releaseDate = getIfNotLockedOrEmpty(bookMetadata?.releaseDate, releaseDateLock),
+                authors = getIfNotLockedOrEmpty(authors, authorsLock),
+                tags = getIfNotLockedOrEmpty(bookMetadata?.tags, tagsLock),
+                isbn = getIfNotLockedOrEmpty(bookMetadata?.isbn, isbnLock),
             )
         }
     }
@@ -42,23 +43,22 @@ class MetadataUpdateMapper(
             val newReadingDirection = metadataUpdateConfig.readingDirectionValue
                 ?: getIfNotLockedOrEmpty(patch.readingDirection, readingDirectionLock)
 
-            val authors = (patch.authors.map { MediaServerAuthor(it.name, it.role.name) }.ifEmpty { metadata.authors })
+            val authors = (patch.authors.map { MediaServerAuthor(it.name, it.role.name) }.ifEmpty { null })
 
             MediaServerSeriesMetadataUpdate(
-                status = getIfNotLockedOrEmpty(patch.status, statusLock) ?: status,
-                title = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.title, titleLock) ?: title else title,
-                titleSort = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.titleSort, titleSortLock)
-                    ?: titleSort else titleSort,
-                summary = getIfNotLockedOrEmpty(patch.summary, summaryLock) ?: summary,
-                publisher = getIfNotLockedOrEmpty(patch.publisher, publisherLock) ?: publisher,
-                alternativePublishers = getIfNotLockedOrEmpty(patch.alternativePublishers, publisherLock) ?: alternativePublishers,
-                readingDirection = newReadingDirection ?: readingDirection,
-                ageRating = getIfNotLockedOrEmpty(patch.ageRating, ageRatingLock) ?: ageRating,
-                language = getIfNotLockedOrEmpty(patch.language, languageLock) ?: language,
-                genres = getIfNotLockedOrEmpty(patch.genres, genresLock) ?: genres,
-                tags = getIfNotLockedOrEmpty(patch.tags, tagsLock) ?: tags,
-                totalBookCount = getIfNotLockedOrEmpty(patch.totalBookCount, totalBookCountLock) ?: totalBookCount,
-                authors = getIfNotLockedOrEmpty(authors, authorsLock) ?: metadata.authors
+                status = getIfNotLockedOrEmpty(patch.status, statusLock),
+                title = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.title, titleLock) else null,
+                titleSort = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.titleSort, titleSortLock) else null,
+                summary = getIfNotLockedOrEmpty(patch.summary, summaryLock),
+                publisher = getIfNotLockedOrEmpty(patch.publisher, publisherLock),
+                alternativePublishers = getIfNotLockedOrEmpty(patch.alternativePublishers, publisherLock),
+                readingDirection = newReadingDirection,
+                ageRating = getIfNotLockedOrEmpty(patch.ageRating, ageRatingLock),
+                language = getIfNotLockedOrEmpty(patch.language, languageLock),
+                genres = getIfNotLockedOrEmpty(patch.genres, genresLock),
+                tags = getIfNotLockedOrEmpty(patch.tags, tagsLock),
+                totalBookCount = getIfNotLockedOrEmpty(patch.totalBookCount, totalBookCountLock),
+                authors = getIfNotLockedOrEmpty(authors, authorsLock)
             )
         }
 
@@ -98,7 +98,7 @@ class MetadataUpdateMapper(
         val status = when (seriesMetadata.status) {
             SeriesStatus.ENDED -> MylarStatus.Ended
             SeriesStatus.ONGOING -> MylarStatus.Continuing
-            else -> MylarStatus.Ended
+            else -> MylarStatus.Continuing
         }
 
         return MylarMetadata(
@@ -113,13 +113,12 @@ class MetadataUpdateMapper(
             descriptionFormatted = seriesMetadata.summary,
             volume = null,
             bookType = "",
-            ageRating = seriesMetadata.ageRating
-                ?.let { metadataRating ->
-                    MylarAgeRating.values().filter { it.ageRating != null }
-                        .maxByOrNull { it.ageRating!!.coerceAtLeast(metadataRating) }?.value
-                },
+            ageRating = seriesMetadata.ageRating?.let { metadataRating ->
+                MylarAgeRating.values().filter { it.ageRating != null }
+                    .maxByOrNull { it.ageRating!!.coerceAtLeast(metadataRating) }?.value
+            },
             comicImage = "",
-            totalIssues = seriesMetadata.totalBookCount ?: 0,
+            totalIssues = seriesMetadata.totalBookCount ?: series.booksCount ?: 1,
             publicationRun = "",
             status = status,
             collects = emptyList(),
