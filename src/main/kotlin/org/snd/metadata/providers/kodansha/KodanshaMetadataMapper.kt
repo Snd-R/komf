@@ -39,7 +39,7 @@ class KodanshaMetadataMapper(
                 SeriesBook(
                     id = ProviderBookId(it.id.id),
                     number = it.number,
-                    name = null,
+                    name = "${metadata.title} $it.number",
                     type = null,
                     edition = null
                 )
