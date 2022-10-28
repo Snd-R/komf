@@ -5,7 +5,6 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
-import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.snd.config.KavitaConfig
 import org.snd.config.KomgaConfig
@@ -140,7 +139,7 @@ class MediaServerModule(
         .newBuilder()
         .addInterceptor(HttpLoggingInterceptor { message ->
             KotlinLogging.logger {}.debug { message }
-        }.setLevel(BODY))
+        }.setLevel(BASIC))
         .addInterceptor(KavitaBearerAuthInterceptor(kavitaTokenProvider))
         .build()
 
