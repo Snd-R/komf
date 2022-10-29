@@ -69,9 +69,6 @@ class VizParser {
                 else -> null
             }
         }
-        val linkToAllBooks = titleElement.getElementsByTag("a").first()!!.attr("href")
-            .let { URLDecoder.decode(it, "UTF-8") }
-            .removeSurrounding("/read/manga/", "/all")
 
         return VizBook(
             id = parseBookId(document),
@@ -86,7 +83,7 @@ class VizParser {
             ageRating = ageRating,
             authorStory = parseAuthor(authors, writerRoles),
             authorArt = parseAuthor(authors, artistRoles),
-            allBooksId = VizAllBooksId(linkToAllBooks)
+            allBooksId = VizAllBooksId(parseLinkToAllBooks(titleElement))
         )
     }
 
@@ -123,6 +120,18 @@ class VizParser {
                 roles.firstOrNull { roleAndAuthor.startsWith(it) }
                     ?.let { roleAndAuthor.removePrefix("$it ") }
             }
+    }
+
+    private fun parseLinkToAllBooks(titleElement: Element): String {
+        val titleLink = titleElement.getElementsByTag("a").first()
+        val prefixLink = titleElement.previousElementSibling()?.let { if (it.tagName() != "a") null else it }
+        val link = (titleLink ?: prefixLink) ?: throw IllegalStateException("can't find link to all books")
+
+        return link
+            .attr("href")
+            .let { URLDecoder.decode(it, "UTF-8") }
+            .removeSurrounding("/read/manga/", "/all")
+
     }
 
 }
