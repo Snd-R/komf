@@ -68,7 +68,7 @@ class MetadataUpdateMapper(
 
         return ComicInfo(
             title = bookMetadata?.title,
-            series = seriesMetadata?.title,
+            series = if (metadataUpdateConfig.seriesTitle) seriesMetadata?.title else null,
             number = bookMetadata?.number?.toString(),
             count = seriesMetadata?.totalBookCount,
             summary = bookMetadata?.summary,
@@ -87,6 +87,33 @@ class MetadataUpdateMapper(
             genre = seriesMetadata?.genres?.joinToString(","),
             tags = bookMetadata?.tags?.joinToString(","),
             ageRating = seriesMetadata?.ageRating
+                ?.let { metadataRating ->
+                    AgeRating.values().filter { it.ageRating != null }
+                        .maxByOrNull { it.ageRating!!.coerceAtLeast(metadataRating) }?.value
+                }
+        )
+    }
+
+    fun toSeriesComicInfo(seriesMetadata: SeriesMetadata): ComicInfo {
+        val authors = seriesMetadata.authors
+        return ComicInfo(
+            series = if (metadataUpdateConfig.seriesTitle) seriesMetadata.title else null,
+            number = "1",
+            count = seriesMetadata.totalBookCount,
+            summary = seriesMetadata.summary,
+            year = seriesMetadata.releaseYear,
+            writer = authors.filter { it.role == WRITER }.joinToString(",") { it.name },
+            penciller = authors.filter { it.role == PENCILLER }.joinToString(",") { it.name },
+            inker = authors.filter { it.role == INKER }.joinToString(",") { it.name },
+            colorist = authors.filter { it.role == COLORIST }.joinToString(",") { it.name },
+            letterer = authors.filter { it.role == LETTERER }.joinToString(",") { it.name },
+            coverArtist = authors.filter { it.role == COVER }.joinToString(",") { it.name },
+            editor = authors.filter { it.role == EDITOR }.joinToString(",") { it.name },
+            translator = authors.filter { it.role == TRANSLATOR }.joinToString(",") { it.name },
+            publisher = seriesMetadata.publisher,
+            genre = seriesMetadata.genres.joinToString(","),
+            tags = seriesMetadata.tags.joinToString(","),
+            ageRating = seriesMetadata.ageRating
                 ?.let { metadataRating ->
                     AgeRating.values().filter { it.ageRating != null }
                         .maxByOrNull { it.ageRating!!.coerceAtLeast(metadataRating) }?.value

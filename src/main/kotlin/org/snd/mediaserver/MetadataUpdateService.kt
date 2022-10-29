@@ -7,6 +7,7 @@ import org.snd.mediaserver.repository.MatchedBook
 import org.snd.mediaserver.repository.MatchedBookRepository
 import org.snd.mediaserver.repository.MatchedSeries
 import org.snd.mediaserver.repository.MatchedSeriesRepository
+import org.snd.metadata.BookFilenameParser
 import org.snd.metadata.comicinfo.ComicInfoWriter
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Image
@@ -67,7 +68,8 @@ class MetadataUpdateService(
     }
 
     private fun updateBookMetadata(bookMetadata: Map<MediaServerBook, BookMetadata?>, seriesMetadata: SeriesMetadata?) {
-        bookMetadata.forEach { (book, metadata) -> updateBookMetadata(book, metadata, seriesMetadata) }
+        val filteredBooks = writeComicInfoToFirstVolume(bookMetadata, seriesMetadata)
+        filteredBooks.forEach { (book, metadata) -> updateBookMetadata(book, metadata, seriesMetadata) }
     }
 
     private fun updateBookMetadata(book: MediaServerBook, metadata: BookMetadata?, seriesMeta: SeriesMetadata?) {
@@ -172,5 +174,30 @@ class MetadataUpdateService(
 
         replaceBookThumbnail(book.id, null)
         matchedBookRepository.delete(book.id, serverType)
+    }
+
+    private fun writeComicInfoToFirstVolume(
+        bookMetadata: Map<MediaServerBook, BookMetadata?>,
+        seriesMetadata: SeriesMetadata?
+    ): Map<MediaServerBook, BookMetadata?> {
+        return if (metadataUpdateConfig.modes.any { it == COMIC_INFO || it == FILE_EMBED }
+            && bookMetadata.all { it.value == null }
+            && seriesMetadata != null
+        ) {
+            val firstVolume = bookMetadata.keys.asSequence()
+                .mapNotNull { book -> BookFilenameParser.getVolumes(book.name)?.let { book to it } }
+                .filter { (_, number) -> number.first == number.last }
+                .map { (book, number) -> book to number.first }
+                .filter { (_, number) -> number == 1 }
+                .map { (book, _) -> book }
+                .firstOrNull()
+
+            return if (firstVolume != null) {
+                val comicInfo = metadataUpdateMapper.toSeriesComicInfo(seriesMetadata)
+                comicInfoWriter.writeMetadata(Path.of(firstVolume.url), comicInfo)
+                bookMetadata.filter { it.key != firstVolume }
+            } else bookMetadata
+
+        } else bookMetadata
     }
 }
