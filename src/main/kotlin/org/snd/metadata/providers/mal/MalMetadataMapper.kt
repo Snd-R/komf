@@ -4,6 +4,7 @@ import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.*
 import org.snd.metadata.providers.mal.model.Series
+import java.time.LocalDate
 
 class MalMetadataMapper(
     private val metadataConfig: SeriesMetadataConfig,
@@ -46,6 +47,15 @@ class MalMetadataMapper(
                 else -> emptyList()
             }
         }
+        val releaseDate = try {
+            series.startDate?.let {
+                it.toIntOrNull()
+                    ?.let { year -> ReleaseDate(year, null, null) }
+                    ?: LocalDate.parse(series.startDate).toReleaseDate()
+            }
+        } catch (e: Exception) {
+            null
+        }
 
         val metadata = SeriesMetadata(
             status = status,
@@ -60,7 +70,8 @@ class MalMetadataMapper(
             alternativeTitles = series.alternativeTitles?.let { it.synonyms + listOf(it.en, it.ja) }
                 ?.filter { it.isNotBlank() }
                 ?.filter { it != series.title }
-                ?: emptyList()
+                ?: emptyList(),
+            releaseDate = releaseDate
         )
 
         return MetadataConfigApplier.apply(

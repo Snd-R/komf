@@ -74,7 +74,12 @@ class AniListMetadataMapper(
             authors = authors ?: emptyList(),
             thumbnail = thumbnail,
             totalBookCount = series.volumes,
-            alternativeTitles = series.title?.let { listOfNotNull(it.english, it.romaji, it.native) } ?: emptyList()
+            alternativeTitles = series.title?.let { listOfNotNull(it.english, it.romaji, it.native) } ?: emptyList(),
+            releaseDate = ReleaseDate(
+                year = series.startDate?.year,
+                month = series.startDate?.month,
+                day = series.startDate?.day,
+            )
         )
         return MetadataConfigApplier.apply(
             ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), metadata = metadata),

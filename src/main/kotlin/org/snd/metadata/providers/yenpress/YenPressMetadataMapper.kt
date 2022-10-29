@@ -3,14 +3,7 @@ package org.snd.metadata.providers.yenpress
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.Image
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesBook
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.*
 import org.snd.metadata.providers.yenpress.model.YenPressBook
 
 class YenPressMetadataMapper(
@@ -29,7 +22,8 @@ class YenPressMetadataMapper(
             authors = emptyList(),
             thumbnail = thumbnail,
             totalBookCount = book.seriesBooks.size.let { if (it < 1) null else it },
-            ageRating = null
+            ageRating = null,
+            releaseDate = book.releaseDate?.toReleaseDate()
         )
 
         val providerMetadata = ProviderSeriesMetadata(

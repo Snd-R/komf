@@ -57,6 +57,7 @@ class MangaUpdatesMetadataMapper(
             authors = authors,
             alternativeTitles = series.associatedNames,
             thumbnail = thumbnail,
+            releaseDate = ReleaseDate(series.year?.value, null, null)
         )
 
         return MetadataConfigApplier.apply(

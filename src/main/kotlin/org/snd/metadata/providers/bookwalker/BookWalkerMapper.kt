@@ -3,16 +3,7 @@ package org.snd.metadata.providers.bookwalker
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.Author
-import org.snd.metadata.model.AuthorRole
-import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.Image
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesBook
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.*
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
@@ -45,6 +36,11 @@ class BookWalkerMapper(
             totalBookCount = allBooks.size.let { if (it < 1) null else it },
             authors = getAuthors(book),
             thumbnail = thumbnail,
+            releaseDate = ReleaseDate(
+                year = book.availableSince?.year,
+                month = book.availableSince?.monthValue,
+                day = book.availableSince?.dayOfMonth,
+            )
         )
 
         val providerMetadata = ProviderSeriesMetadata(

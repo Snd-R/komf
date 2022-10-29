@@ -6,23 +6,28 @@ fragment aniListManga on Media {
                 english
                 native
             },
-            status,
-            description(asHtml: false),
-            chapters,
-            volumes,
-            coverImage {
-                large
-            },
-            genres,
-            synonyms,
-            tags {
-                name,
-                description,
-                category,
-                rank
-            },
-            staff {
-                edges {
+    status,
+    description(asHtml: false),
+    chapters,
+    volumes,
+    coverImage {
+        large
+    },
+    startDate {
+        year,
+        month,
+        day
+    }
+    genres,
+    synonyms,
+    tags {
+        name,
+        description,
+        category,
+        rank
+    },
+    staff {
+        edges {
                     node {
                         name @nonnull {
                             full

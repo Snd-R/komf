@@ -4,13 +4,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import org.snd.metadata.providers.nautiljon.model.Chapter
-import org.snd.metadata.providers.nautiljon.model.SearchResult
-import org.snd.metadata.providers.nautiljon.model.Series
-import org.snd.metadata.providers.nautiljon.model.SeriesId
-import org.snd.metadata.providers.nautiljon.model.SeriesVolume
-import org.snd.metadata.providers.nautiljon.model.Volume
-import org.snd.metadata.providers.nautiljon.model.VolumeId
+import org.snd.metadata.providers.nautiljon.model.*
 import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.Year
@@ -225,18 +219,24 @@ class NautiljonParser {
 
     private fun parseVolumeOriginalReleaseDate(dataEntries: Elements): LocalDate? {
         return runCatching {
-            dataEntries
+            val dateElement = dataEntries
                 .firstOrNull { it.child(0).text().equals("Date de parution VO :") }
-                ?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
+
+            (dateElement?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
+                ?: dateElement?.textNodes()?.firstOrNull()?.text())
+                ?.trim()
                 ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
         }.getOrNull()
     }
 
     private fun parseVolumeFrenchReleaseDate(dataEntries: Elements): LocalDate? {
         return runCatching {
-            dataEntries
+            val dateElement = dataEntries
                 .firstOrNull { it.child(0).text().equals("Date de parution VF :") }
-                ?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
+
+            (dateElement?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
+                ?: dateElement?.textNodes()?.firstOrNull()?.text())
+                ?.trim()
                 ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
         }.getOrNull()
     }

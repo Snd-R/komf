@@ -188,6 +188,7 @@ data class SeriesMetadataConfig(
     val tags: Boolean = true,
     val totalBookCount: Boolean = true,
     val authors: Boolean = true,
+    val releaseDate: Boolean = true,
     val thumbnail: Boolean = true,
     val books: Boolean = true,
 

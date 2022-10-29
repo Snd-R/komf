@@ -34,6 +34,7 @@ class VizMetadataMapper(
             totalBookCount = allBooks.size.let { if (it < 1) null else it },
             authors = getAuthors(book),
             thumbnail = thumbnail,
+            releaseDate = book.releaseDate?.toReleaseDate()
         )
 
         val providerMetadata = ProviderSeriesMetadata(

@@ -1,5 +1,7 @@
 package org.snd.metadata.model
 
+import java.time.LocalDate
+
 data class SeriesMetadata(
     val status: SeriesStatus? = null,
     val title: String? = null,
@@ -15,8 +17,15 @@ data class SeriesMetadata(
     val totalBookCount: Int? = null,
     val authors: List<Author> = emptyList(),
     val alternativeTitles: Collection<String> = emptyList(),
-    val releaseYear: Int? = null,
+    val releaseDate: ReleaseDate? = null,
 
     val thumbnail: Image? = null,
 )
 
+data class ReleaseDate(
+    val year: Int?,
+    val month: Int?,
+    val day: Int?
+)
+
+fun LocalDate.toReleaseDate() = ReleaseDate(year = year, month = monthValue, day = dayOfMonth)

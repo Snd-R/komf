@@ -53,7 +53,8 @@ class NautiljonSeriesMetadataMapper(
             thumbnail = thumbnail,
             totalBookCount = series.numberOfVolumes,
             ageRating = series.recommendedAge,
-            alternativeTitles = series.alternativeTitles + series.originalTitles
+            alternativeTitles = series.alternativeTitles + series.originalTitles,
+            releaseDate = ReleaseDate(series.startYear?.value, null, null)
         )
         val providerMetadata = ProviderSeriesMetadata(
             id = ProviderSeriesId(series.id.id),
