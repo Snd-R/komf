@@ -131,6 +131,7 @@ metadataProviders:
       totalBookCount: true
       authors: true
       thumbnail: true
+      releaseDate: true
       books: true
       useOriginalPublisher: true # prefer original publisher and volume information if source has data about multiple providers. If false will use english or other available publisher
       #TagName: if specified and if provider has data about publisher in that language then additional tag will be added using format ({TagName}: publisherName)
