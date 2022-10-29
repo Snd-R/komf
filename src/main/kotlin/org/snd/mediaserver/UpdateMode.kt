@@ -6,5 +6,7 @@ enum class UpdateMode {
     @Deprecated("use COMIC_INFO instead")
     FILE_EMBED,
     COMIC_INFO,
+
+    @Deprecated("deprecating support")
     SERIES_JSON
 }
