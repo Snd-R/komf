@@ -1,4 +1,4 @@
-# Komga metadata fetcher
+# Komga and Kavita metadata fetcher
 
 ## Features
 
@@ -6,7 +6,7 @@
 - manually search and identify series (http endpoints or cli commands)
 - match entire library or a series (http endpoints or cli commands)
 
-In addition, you can also install [userscript](https://github.com/Snd-R/komf-userscript) that adds komf integration
+In addition, if you use komga there is a [userscript](https://github.com/Snd-R/komf-userscript) that adds komf integration
 directly to komga ui allowing you to launch manual or automatic metadata identification
 
 ## Build
@@ -36,6 +36,8 @@ services:
       - KOMF_KOMGA_BASE_URI=http://komga:8080
       - KOMF_KOMGA_USER=admin@example.org
       - KOMF_KOMGA_PASSWORD=admin
+      - KOMF_KAVITA_BASE_URI=http://kavita:5000
+      - KOMF_KAVITA_API_KEY=16707507-d05d-4696-b126-c3976ae14ffb
       - KOMF_LOG_LEVEL=INFO
     volumes:
       - /path/to/config:/config #path to directory with application.yml and database file
