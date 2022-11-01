@@ -84,24 +84,14 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
         kavitaClient.updateSeriesMetadata(kavitaSeriesResetRequest(seriesId.kavitaSeriesId()))
     }
 
-    override fun uploadSeriesThumbnail(seriesId: MediaServerSeriesId, thumbnail: Image, selected: Boolean): MediaServerSeriesThumbnail {
+    override fun uploadSeriesThumbnail(seriesId: MediaServerSeriesId, thumbnail: Image, selected: Boolean): MediaServerSeriesThumbnail? {
         kavitaClient.uploadSeriesCover(seriesId.kavitaSeriesId(), thumbnail)
-        return MediaServerSeriesThumbnail(
-            id = MediaServerThumbnailId(seriesId.id),
-            seriesId = seriesId,
-            type = null,
-            selected = true
-        )
+        return null
     }
 
-    override fun uploadBookThumbnail(bookId: MediaServerBookId, thumbnail: Image, selected: Boolean): MediaServerBookThumbnail {
+    override fun uploadBookThumbnail(bookId: MediaServerBookId, thumbnail: Image, selected: Boolean): MediaServerBookThumbnail? {
         kavitaClient.uploadBookCover(bookId.kavitaChapterId(), thumbnail)
-        return MediaServerBookThumbnail(
-            id = MediaServerThumbnailId(bookId.id),
-            bookId = bookId,
-            type = null,
-            selected = true
-        )
+        return null
     }
 
     override fun refreshMetadata(seriesId: MediaServerSeriesId) {

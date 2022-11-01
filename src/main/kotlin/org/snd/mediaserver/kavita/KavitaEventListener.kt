@@ -5,6 +5,7 @@ import com.microsoft.signalr.HubConnectionBuilder
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import mu.KotlinLogging
 import org.snd.mediaserver.MetadataService
 import org.snd.mediaserver.NotificationService
 import org.snd.mediaserver.kavita.model.KavitaChapter
@@ -20,6 +21,8 @@ import java.time.ZoneOffset
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit.SECONDS
 import java.util.function.Predicate
+
+private val logger = KotlinLogging.logger {}
 
 //ugly
 class KavitaEventListener(
@@ -45,10 +48,21 @@ class KavitaEventListener(
             .build()
         hubConnection.on("NotificationProgress", ::processNotification, NotificationProgressEvent::class.java)
         hubConnection.on("CoverUpdate", ::processCoverUpdate, CoverUpdateEvent::class.java)
+        hubConnection.onClosed { reconnect(hubConnection) }
         registerInvocations(hubConnection)
 
-        Completable.defer { hubConnection.start().delaySubscription(10, SECONDS, Schedulers.trampoline()) }
+        Completable.defer {
+            hubConnection.start().delaySubscription(10, SECONDS, Schedulers.trampoline()).doOnError { logger.error(it) { } }
+        }
             .retry().subscribeOn(Schedulers.io()).subscribe()
+        this.hubConnection = hubConnection
+    }
+
+    private fun reconnect(hubConnection: HubConnection) {
+        Completable.defer {
+            hubConnection.start().delaySubscription(10, SECONDS, Schedulers.trampoline())
+                .doOnError { logger.error(it) { "Failed to reconnect to Kavita" } }
+        }.retry().subscribeOn(Schedulers.io()).subscribe()
     }
 
     fun stop() {
@@ -58,7 +72,8 @@ class KavitaEventListener(
     @Synchronized
     private fun processNotification(notification: NotificationProgressEvent) {
         if (notification.name == "ScanProgress" && notification.eventType == "ended") {
-            executor.execute { processEvents(volumesChanged.toList()) }
+            val volumes = volumesChanged.toList()
+            executor.execute { processEvents(volumes) }
             volumesChanged.clear()
         }
     }

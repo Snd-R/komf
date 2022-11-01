@@ -25,13 +25,13 @@ interface MediaServerClient {
         seriesId: MediaServerSeriesId,
         thumbnail: Image,
         selected: Boolean = false
-    ): MediaServerSeriesThumbnail
+    ): MediaServerSeriesThumbnail?
 
     fun uploadBookThumbnail(
         bookId: MediaServerBookId,
         thumbnail: Image,
         selected: Boolean = false
-    ): MediaServerBookThumbnail
+    ): MediaServerBookThumbnail?
 
     fun refreshMetadata(seriesId: MediaServerSeriesId)
 
