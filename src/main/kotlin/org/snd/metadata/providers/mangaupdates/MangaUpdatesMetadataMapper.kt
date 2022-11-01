@@ -34,13 +34,13 @@ class MangaUpdatesMetadataMapper(
             }
         }
 
-        val originalPublisher = series.publishers.firstOrNull { it.type == "Original" }?.name
-        val englishPublisher = series.publishers.firstOrNull { it.type == "English" }?.name
+        val originalPublishers = series.publishers.filter { it.type == "Original" }.map { it.name }
+        val englishPublishers = series.publishers.filter { it.type == "English" }.map { it.name }
 
         val originalPublisherTag = metadataConfig.originalPublisherTagName
-            ?.let { tag -> originalPublisher?.let { "$tag: $originalPublisher" } }
+            ?.let { tag -> originalPublishers.firstOrNull()?.let { "$tag: $it" } }
         val englishPublisherTag = metadataConfig.englishPublisherTagName
-            ?.let { tag -> englishPublisher?.let { "$tag: $englishPublisher" } }
+            ?.let { tag -> englishPublishers.firstOrNull()?.let { "$tag: $it" } }
         val tags = series.categories.sortedByDescending { it.votes }.take(15)
             .map { it.name } + listOfNotNull(originalPublisherTag, englishPublisherTag)
 
@@ -49,9 +49,10 @@ class MangaUpdatesMetadataMapper(
             title = series.title,
             titleSort = series.title,
             summary = series.description,
-            publisher = if (metadataConfig.useOriginalPublisher) originalPublisher else englishPublisher ?: originalPublisher,
-            alternativePublishers = if (metadataConfig.useOriginalPublisher) listOfNotNull(englishPublisher)
-            else englishPublisher?.let { listOfNotNull(originalPublisher) } ?: emptyList(),
+            publisher = if (metadataConfig.useOriginalPublisher) originalPublishers.firstOrNull() else englishPublishers.firstOrNull()
+                ?: originalPublishers.firstOrNull(),
+            alternativePublishers = if (metadataConfig.useOriginalPublisher) englishPublishers
+            else englishPublishers,
             genres = series.genres,
             tags = tags,
             authors = authors,

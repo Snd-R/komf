@@ -18,6 +18,7 @@ object MetadataMerger {
             titleSort = originalSeriesMetadata.titleSort ?: newSeriesMetadata.titleSort,
             summary = originalSeriesMetadata.summary ?: newSeriesMetadata.summary,
             publisher = originalSeriesMetadata.publisher ?: newSeriesMetadata.publisher,
+            alternativePublishers = originalSeriesMetadata.alternativePublishers.ifEmpty { newSeriesMetadata.alternativePublishers },
             readingDirection = originalSeriesMetadata.readingDirection ?: newSeriesMetadata.readingDirection,
             ageRating = originalSeriesMetadata.ageRating ?: newSeriesMetadata.ageRating,
             language = originalSeriesMetadata.language ?: newSeriesMetadata.language,
