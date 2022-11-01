@@ -52,7 +52,7 @@ komga:
   komgaUser: admin@example.org #or env:KOMF_KOMGA_USER
   komgaPassword: admin #or env:KOMF_KOMGA_PASSWORD
   eventListener:
-    enabled: true
+    enabled: true # if disabled will not connect to komga and won't pick up newly added entries
     libraries: [ ]  # listen to all events if empty
   notifications:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
@@ -69,7 +69,7 @@ kavita:
   baseUri: "http://localhost:5000" #or env:KOMF_KAVITA_BASE_URI
   apiKey: "16707507-d05d-4696-b126-c3976ae14ffb" #or env:KOMF_KAVITA_API_KEY
   eventListener:
-    enabled: true
+    enabled: false # if disabled will not connect to kavita and won't pick up newly added entries
     libraries: [ ]  # listen to all events if empty
   notifications:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
