@@ -117,7 +117,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         readingDirection = null,
         publisher = null,
         alternativePublishers = publishers.map { it.name },
-        ageRating = null,
+        ageRating = ageRating.ageRating,
         language = language,
         genres = genres.map { it.title },
         tags = tags.map { it.title },

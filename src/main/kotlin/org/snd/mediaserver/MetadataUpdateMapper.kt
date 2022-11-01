@@ -67,7 +67,7 @@ class MetadataUpdateMapper(
         val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }) ?: seriesMetadata?.authors
 
         return ComicInfo(
-            title = bookMetadata?.title,
+//            title = bookMetadata?.title, // disabled until common naming convention is implemented
             series = if (metadataUpdateConfig.seriesTitle) seriesMetadata?.title else null,
             number = bookMetadata?.number?.toString(),
             count = seriesMetadata?.totalBookCount,
@@ -88,8 +88,12 @@ class MetadataUpdateMapper(
             tags = bookMetadata?.tags?.joinToString(","),
             ageRating = seriesMetadata?.ageRating
                 ?.let { metadataRating ->
-                    AgeRating.values().filter { it.ageRating != null }
-                        .maxByOrNull { it.ageRating!!.coerceAtLeast(metadataRating) }?.value
+                    (AgeRating.values()
+                        .filter { it.ageRating != null }
+                        .sortedBy { it.ageRating }
+                        .firstOrNull { it.ageRating == it.ageRating!!.coerceAtLeast(metadataRating) }
+                        ?: AgeRating.ADULTS_ONLY_18)
+                        .value
                 }
         )
     }
@@ -117,8 +121,12 @@ class MetadataUpdateMapper(
             tags = seriesMetadata.tags.joinToString(","),
             ageRating = seriesMetadata.ageRating
                 ?.let { metadataRating ->
-                    AgeRating.values().filter { it.ageRating != null }
-                        .maxByOrNull { it.ageRating!!.coerceAtLeast(metadataRating) }?.value
+                    (AgeRating.values()
+                        .filter { it.ageRating != null }
+                        .sortedBy { it.ageRating }
+                        .firstOrNull { it.ageRating == it.ageRating!!.coerceAtLeast(metadataRating) }
+                        ?: AgeRating.ADULTS_ONLY_18)
+                        .value
                 }
         )
     }

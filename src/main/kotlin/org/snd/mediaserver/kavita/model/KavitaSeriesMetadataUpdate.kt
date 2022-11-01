@@ -29,6 +29,14 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
             .map { KavitaAuthor(id = 0, name = it, role = PUBLISHER) }
 
     val authors = authors?.groupBy { it.role }
+    val ageRating = ageRating
+        ?.let { metadataRating ->
+            KavitaAgeRating.values()
+                .filter { it.ageRating != null }
+                .sortedBy { it.ageRating }
+                .firstOrNull { it.ageRating == it.ageRating!!.coerceAtLeast(metadataRating) }
+                ?: KavitaAgeRating.ADULTS_ONLY
+        }
 
     val collectionTags = oldMeta.collectionTags
     val metadata = oldMeta.copy(
@@ -59,6 +67,7 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
             ?.map { KavitaAuthor(id = 0, name = it.name, role = EDITOR) } ?: oldMeta.editors,
         translators = authors?.get(AuthorRole.TRANSLATOR.name)
             ?.map { KavitaAuthor(id = 0, name = it.name, role = TRANSLATOR) } ?: oldMeta.translators,
+        ageRating = ageRating ?: oldMeta.ageRating
     )
     return KavitaSeriesMetadataUpdate(metadata, collectionTags)
 }
