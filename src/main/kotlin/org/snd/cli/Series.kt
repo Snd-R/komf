@@ -18,7 +18,7 @@ class Series : CliktCommand() {
         private val name by argument()
 
         override fun run() {
-            val client = module.mediaServerModule.komgaMediaServerClient
+            val client = module.mediaServerClient
             val series = client.searchSeries(name = name)
                 .joinToString("\n") { "${it.name} - ${it.id}" }
             echo(series)
@@ -30,7 +30,7 @@ class Series : CliktCommand() {
         private val module by requireObject<CliModule>()
         private val id by argument()
         override fun run() {
-            module.mediaServerModule.komgaMetadataService.matchSeriesMetadata(MediaServerSeriesId(id))
+            module.metadataService.matchSeriesMetadata(MediaServerSeriesId(id))
             exitProcess(0)
         }
     }
@@ -42,8 +42,8 @@ class Series : CliktCommand() {
         private val id by argument()
 
         override fun run() {
-            val client = module.mediaServerModule.komgaMediaServerClient
-            val komgaMetadataService = module.mediaServerModule.komgaMetadataService
+            val client = module.mediaServerClient
+            val komgaMetadataService = module.metadataService
             val series = client.getSeries(MediaServerSeriesId(id))
             echo("searching...")
             val results = komgaMetadataService.searchSeriesMetadata(name)
@@ -73,7 +73,7 @@ class Series : CliktCommand() {
         private val id by argument()
 
         override fun run() {
-            module.mediaServerModule.komgaMetadataUpdateService.resetSeriesMetadata(MediaServerSeriesId(id))
+            module.metadataUpdateService.resetSeriesMetadata(MediaServerSeriesId(id))
             exitProcess(0)
         }
     }

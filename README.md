@@ -63,6 +63,23 @@ komga:
     seriesTitle: false #update series title
     readingDirectionValue: #override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
   aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
+kavita:
+  baseUri: "http://localhost:5000" #or env:KOMF_KAVITA_BASE_URI
+  apiKey: "16707507-d05d-4696-b126-c3976ae14ffb" #or env:KOMF_KAVITA_API_KEY
+  eventListener:
+    enabled: true
+    libraries: [ ]  # listen to all events if empty
+  notifications:
+    libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
+  metadataUpdate:
+    # Update modes is the way komf will update metadata.
+    # If you're using anything other than API then your existing files might be modified with embedded metadata
+    modes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
+    bookThumbnails: false #update book thumbnails
+    seriesThumbnails: true #update series thumbnails
+    seriesTitle: false #update series title
+    readingDirectionValue: #override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
+  aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
 discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
   templatesDirectory: "./" #path to a directory with discordWebhook.vm template
@@ -204,6 +221,9 @@ named `application.yml`. This option overrides all other config path options
 
 `--verbose` - flag to enable debug messages
 
+`--media-server` - media server on which to execute subcommands. Available values are `komga` or `kavita`. Defaults to komga if not
+provided. Ignored in server mode
+
 ### Commands
 
 subcommands will launch komf without starting server or event listener and will perform specified operation. Example of
@@ -238,11 +258,13 @@ results
 
 ## Http endpoints
 
-`GET /providers` - list of enabled metadata providers
+use komga or kavita in place of {media-server}
 
-`GET /search?name=...` - search results from enabled metadata providers
+`GET /{media-server}/providers` - list of enabled metadata providers
 
-`POST /identify` - set series metadata from specified provider
+`GET /{media-server}/search?name=...` - search results from enabled metadata providers
+
+`POST /{media-server}/identify` - set series metadata from specified provider
 
 ```json
 {
@@ -252,10 +274,10 @@ results
 }
 ```
 
-`POST /match/series/{seriesId}`try to match series
+`POST /{media-server}/match/series/{seriesId}`try to match series
 
-`POST /match/library/{libraryId}` try to match series of a library
+`POST /{media-server}/match/library/{libraryId}` try to match series of a library
 
-`POST /reset/series/{seriesId}` reset all metadata of a series
+`POST /{media-server}/reset/series/{seriesId}` reset all metadata of a series
 
-`POST /reset/library/{libraryId}` reset metadata of all series in a library
+`POST /{media-server}/reset/library/{libraryId}` reset metadata of all series in a library

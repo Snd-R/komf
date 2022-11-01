@@ -48,6 +48,11 @@ class ConfigLoader {
         val komgaPassword = System.getenv("KOMF_KOMGA_PASSWORD") ?: komgaConfig.komgaPassword
         val discordTemplatesDirectory = configDirectory ?: config.discord.templatesDirectory
 
+
+        val kavitaConfig = config.kavita
+        val kavitaBaseUri = System.getenv("KOMF_KAVITA_BASE_URI") ?: kavitaConfig.baseUri
+        val kavitaApiKey = System.getenv("KOMF_KAVITA_API_KEY") ?: kavitaConfig.apiKey
+
         val serverConfig = config.server
         val serverPort = System.getenv("KOMF_SERVER_PORT")?.toInt() ?: serverConfig.port
         val logLevel = System.getenv("KOMF_LOG_LEVEL") ?: config.logLevel
@@ -58,6 +63,11 @@ class ConfigLoader {
                 komgaUser = komgaUser,
                 komgaPassword = komgaPassword
             ),
+            kavita = kavitaConfig.copy(
+                baseUri = kavitaBaseUri,
+                apiKey = kavitaApiKey,
+            ),
+
             database = databaseConfig.copy(
                 file = databaseFile
             ),

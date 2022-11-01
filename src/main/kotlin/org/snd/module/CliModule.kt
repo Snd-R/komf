@@ -2,10 +2,14 @@ package org.snd.module
 
 import okhttp3.OkHttpClient
 import org.snd.config.AppConfig
+import org.snd.mediaserver.model.MediaServer
+import org.snd.mediaserver.model.MediaServer.KAVITA
+import org.snd.mediaserver.model.MediaServer.KOMGA
 import java.time.Clock
 
 class CliModule(
-    appConfig: AppConfig
+    appConfig: AppConfig,
+    serverType: MediaServer = KOMGA,
 ) {
     private val okHttpClient = OkHttpClient.Builder().build()
     private val jsonModule = JsonModule()
@@ -28,4 +32,17 @@ class CliModule(
         discordModule = null,
         clock = Clock.systemUTC()
     )
+    val mediaServerClient = when (serverType) {
+        KOMGA -> mediaServerModule.komgaMediaServerClient
+        KAVITA -> mediaServerModule.kavitaMediaServerClient
+    }
+
+    val metadataService = when (serverType) {
+        KOMGA -> mediaServerModule.komgaMetadataService
+        KAVITA -> mediaServerModule.kavitaMetadataService
+    }
+    val metadataUpdateService = when (serverType) {
+        KOMGA -> mediaServerModule.komgaMetadataUpdateService
+        KAVITA -> mediaServerModule.kavitaMetadataUpdateService
+    }
 }

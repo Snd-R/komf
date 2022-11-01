@@ -155,7 +155,7 @@ class MediaServerModule(
         moshi = jsonModule.moshi,
         baseUrl = kavitaConfig.baseUri.toHttpUrl()
     )
-    private val kavitaMediaServerClient = KavitaMediaServerClientAdapter(kavitaClient)
+    val kavitaMediaServerClient = KavitaMediaServerClientAdapter(kavitaClient)
     val kavitaMetadataUpdateService = MetadataUpdateService(
         mediaServerClient = kavitaMediaServerClient,
         matchedSeriesRepository = repositoryModule.matchedSeriesRepository,

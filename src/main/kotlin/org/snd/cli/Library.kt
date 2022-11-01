@@ -14,7 +14,7 @@ class Library : CliktCommand() {
         private val module by requireObject<CliModule>()
         private val id by argument()
         override fun run() {
-            module.mediaServerModule.komgaMetadataService.matchLibraryMetadata(MediaServerLibraryId(id))
+            module.metadataService.matchLibraryMetadata(MediaServerLibraryId(id))
             exitProcess(0)
         }
     }
@@ -23,7 +23,7 @@ class Library : CliktCommand() {
         private val module by requireObject<CliModule>()
         private val id by argument()
         override fun run() {
-            module.mediaServerModule.komgaMetadataUpdateService.resetLibraryMetadata(MediaServerLibraryId(id))
+            module.metadataUpdateService.resetLibraryMetadata(MediaServerLibraryId(id))
             exitProcess(0)
         }
     }
