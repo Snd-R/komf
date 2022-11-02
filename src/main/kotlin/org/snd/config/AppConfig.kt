@@ -35,7 +35,7 @@ data class KomgaConfig(
 data class KavitaConfig(
     val baseUri: String = "http://localhost:5000",
     val apiKey: String = "",
-    val eventListener: EventListenerConfig = EventListenerConfig(),
+    val eventListener: EventListenerConfig = EventListenerConfig().copy(enabled = false),
     val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
     val aggregateMetadata: Boolean = false,
