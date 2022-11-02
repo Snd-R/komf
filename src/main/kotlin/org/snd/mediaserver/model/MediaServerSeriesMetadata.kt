@@ -10,7 +10,7 @@ data class MediaServerSeriesMetadata(
     val summary: String,
     val readingDirection: ReadingDirection?,
     val publisher: String?,
-    val alternativePublishers: Collection<String>,
+    val alternativePublishers: Set<String>,
     val ageRating: Int?,
     val language: String?,
     val genres: Collection<String>,

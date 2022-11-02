@@ -45,8 +45,8 @@ class NautiljonSeriesMetadataMapper(
             summary = series.description,
             publisher = if (seriesMetadataConfig.useOriginalPublisher) series.originalPublisher
             else series.frenchPublisher ?: series.originalPublisher,
-            alternativePublishers = if (seriesMetadataConfig.useOriginalPublisher) listOfNotNull(series.frenchPublisher)
-            else series.frenchPublisher?.let { listOfNotNull(series.originalPublisher) } ?: emptyList(),
+            alternativePublishers = if (seriesMetadataConfig.useOriginalPublisher) setOfNotNull(series.frenchPublisher)
+            else series.frenchPublisher?.let { setOfNotNull(series.originalPublisher) } ?: emptySet(),
             genres = series.genres,
             tags = tags,
             authors = authors,

@@ -8,7 +8,7 @@ data class SeriesMetadata(
     val titleSort: String? = null,
     val summary: String? = null,
     val publisher: String? = null,
-    val alternativePublishers: Collection<String> = emptyList(),
+    val alternativePublishers: Set<String> = emptySet(),
     val readingDirection: ReadingDirection? = null,
     val ageRating: Int? = null,
     val language: String? = null,

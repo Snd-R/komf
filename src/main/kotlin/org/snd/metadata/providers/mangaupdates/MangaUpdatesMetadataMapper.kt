@@ -34,8 +34,8 @@ class MangaUpdatesMetadataMapper(
             }
         }
 
-        val originalPublishers = series.publishers.filter { it.type == "Original" }.map { it.name }
-        val englishPublishers = series.publishers.filter { it.type == "English" }.map { it.name }
+        val originalPublishers = series.publishers.filter { it.type == "Original" }.map { it.name }.toSet()
+        val englishPublishers = series.publishers.filter { it.type == "English" }.map { it.name }.toSet()
 
         val originalPublisherTag = metadataConfig.originalPublisherTagName
             ?.let { tag -> originalPublishers.firstOrNull()?.let { "$tag: $it" } }

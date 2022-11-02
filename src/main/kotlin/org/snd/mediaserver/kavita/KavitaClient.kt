@@ -5,7 +5,6 @@ import com.squareup.moshi.adapter
 import okhttp3.HttpUrl
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.internal.EMPTY_BYTE_ARRAY
 import org.snd.infra.HttpClient
 import org.snd.infra.MEDIA_TYPE_JSON
 import org.snd.mediaserver.kavita.model.*
@@ -38,7 +37,7 @@ class KavitaClient(
                     .addQueryParameter("pageSize", "500")
                     .build()
             )
-            .post(EMPTY_BYTE_ARRAY.toRequestBody(MEDIA_TYPE_JSON))
+            .post("{}".toRequestBody(MEDIA_TYPE_JSON))
             .build()
 
         val response = client.executeWithResponse(request)

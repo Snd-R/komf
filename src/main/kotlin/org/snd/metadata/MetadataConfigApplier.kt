@@ -20,7 +20,7 @@ object MetadataConfigApplier {
                     titleSort = getIfEnabled(metadata.titleSort, config.titleSort),
                     summary = getIfEnabled(metadata.summary, config.summary),
                     publisher = getIfEnabled(metadata.publisher, config.publisher),
-                    alternativePublishers = getIfEnabled(metadata.alternativePublishers, config.publisher) ?: emptyList(),
+                    alternativePublishers = getIfEnabled(metadata.alternativePublishers, config.publisher) ?: emptySet(),
                     readingDirection = getIfEnabled(metadata.readingDirection, config.readingDirection),
                     ageRating = getIfEnabled(metadata.ageRating, config.ageRating),
                     language = getIfEnabled(metadata.language, config.language),

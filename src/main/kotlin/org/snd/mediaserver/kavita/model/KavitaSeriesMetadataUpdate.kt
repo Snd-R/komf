@@ -26,7 +26,7 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
     val publishers =
         if (publisher == null && alternativePublishers == null) oldMeta.publishers
         else ((alternativePublishers ?: emptyList()) + listOfNotNull(publisher))
-            .map { KavitaAuthor(id = 0, name = it, role = PUBLISHER) }
+            .map { KavitaAuthor(id = 0, name = it, role = PUBLISHER) }.toSet()
 
     val authors = authors?.groupBy { it.role }
     val ageRating = ageRating
@@ -43,30 +43,30 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
         publicationStatus = status ?: oldMeta.publicationStatus,
         summary = summary ?: oldMeta.summary,
         publishers = publishers,
-        genres = genres?.map { KavitaGenre(id = 0, title = it) } ?: oldMeta.genres,
-        tags = tags?.map { KavitaTag(id = 0, title = it) } ?: oldMeta.tags,
+        genres = genres?.map { KavitaGenre(id = 0, title = it) }?.toSet() ?: oldMeta.genres,
+        tags = tags?.map { KavitaTag(id = 0, title = it) }?.toSet() ?: oldMeta.tags,
         writers = authors?.get(AuthorRole.WRITER.name)
-            ?.map { KavitaAuthor(id = 0, name = it.name, role = WRITER) }
+            ?.map { KavitaAuthor(id = 0, name = it.name, role = WRITER) }?.toSet()
             ?.ifEmpty { oldMeta.writers } ?: oldMeta.writers,
         coverArtists = authors?.get(AuthorRole.COVER.name)
-            ?.map { KavitaAuthor(id = 0, name = it.name, role = COVER_ARTIST) }
+            ?.map { KavitaAuthor(id = 0, name = it.name, role = COVER_ARTIST) }?.toSet()
             ?.ifEmpty { oldMeta.coverArtists } ?: oldMeta.coverArtists,
         pencillers = authors?.get(AuthorRole.PENCILLER.name)
-            ?.map { KavitaAuthor(id = 0, name = it.name, role = PENCILLER) }
+            ?.map { KavitaAuthor(id = 0, name = it.name, role = PENCILLER) }?.toSet()
             ?.ifEmpty { oldMeta.pencillers } ?: oldMeta.pencillers,
         inkers = authors?.get(AuthorRole.INKER.name)
-            ?.map { KavitaAuthor(id = 0, name = it.name, role = INKER) }
+            ?.map { KavitaAuthor(id = 0, name = it.name, role = INKER) }?.toSet()
             ?.ifEmpty { oldMeta.inkers } ?: oldMeta.inkers,
         colorists = authors?.get(AuthorRole.COLORIST.name)
-            ?.map { KavitaAuthor(id = 0, name = it.name, role = COLORIST) }
+            ?.map { KavitaAuthor(id = 0, name = it.name, role = COLORIST) }?.toSet()
             ?.ifEmpty { oldMeta.colorists } ?: oldMeta.colorists,
         letterers = authors?.get(AuthorRole.LETTERER.name)
-            ?.map { KavitaAuthor(id = 0, name = it.name, role = LETTERER) }
+            ?.map { KavitaAuthor(id = 0, name = it.name, role = LETTERER) }?.toSet()
             ?.ifEmpty { oldMeta.letterers } ?: oldMeta.letterers,
         editors = authors?.get(AuthorRole.EDITOR.name)
-            ?.map { KavitaAuthor(id = 0, name = it.name, role = EDITOR) } ?: oldMeta.editors,
+            ?.map { KavitaAuthor(id = 0, name = it.name, role = EDITOR) }?.toSet() ?: oldMeta.editors,
         translators = authors?.get(AuthorRole.TRANSLATOR.name)
-            ?.map { KavitaAuthor(id = 0, name = it.name, role = TRANSLATOR) } ?: oldMeta.translators,
+            ?.map { KavitaAuthor(id = 0, name = it.name, role = TRANSLATOR) }?.toSet() ?: oldMeta.translators,
         ageRating = ageRating ?: oldMeta.ageRating
     )
     return KavitaSeriesMetadataUpdate(metadata, collectionTags)
@@ -78,18 +78,18 @@ fun kavitaSeriesResetRequest(seriesId: KavitaSeriesId): KavitaSeriesMetadataUpda
         seriesId = seriesId.id,
         summary = "",
         collectionTags = emptyList(),
-        genres = emptyList(),
-        tags = emptyList(),
-        writers = emptyList(),
-        coverArtists = emptyList(),
-        publishers = emptyList(),
-        characters = emptyList(),
-        pencillers = emptyList(),
-        inkers = emptyList(),
-        colorists = emptyList(),
-        letterers = emptyList(),
-        editors = emptyList(),
-        translators = emptyList(),
+        genres = emptySet(),
+        tags = emptySet(),
+        writers = emptySet(),
+        coverArtists = emptySet(),
+        publishers = emptySet(),
+        characters = emptySet(),
+        pencillers = emptySet(),
+        inkers = emptySet(),
+        colorists = emptySet(),
+        letterers = emptySet(),
+        editors = emptySet(),
+        translators = emptySet(),
         ageRating = UNKNOWN,
         releaseYear = 0,
         language = "",
