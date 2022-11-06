@@ -39,6 +39,7 @@ services:
       - KOMF_KAVITA_BASE_URI=http://kavita:5000
       - KOMF_KAVITA_API_KEY=16707507-d05d-4696-b126-c3976ae14ffb
       - KOMF_LOG_LEVEL=INFO
+      - KOMF_SERVER_PORT=8085
     volumes:
       - /path/to/config:/config #path to directory with application.yml and database file
     restart: unless-stopped
