@@ -17,7 +17,9 @@ class ConfigLoader {
         val config = configRaw?.let { Yaml.default.decodeFromString(AppConfig.serializer(), it) }
             ?: AppConfig()
 
-        return checkDeprecatedOptions(overrideFromEnvVariables(config))
+        return checkDeprecatedOptions(
+            overrideConfigDirAndEnvVars(config, configDirectory?.toString())
+        )
     }
 
     private fun loadFromDirectory(configDirectory: Path?): String? {
@@ -38,8 +40,7 @@ class ConfigLoader {
         return AppConfig::class.java.getResource("/application.yml")?.readText()
     }
 
-    private fun overrideFromEnvVariables(config: AppConfig): AppConfig {
-        val configDirectory = System.getenv("KOMF_CONFIG_DIR")
+    private fun overrideConfigDirAndEnvVars(config: AppConfig, configDirectory: String?): AppConfig {
         val databaseConfig = config.database
         val databaseFile = configDirectory?.let { "$it/database.sqlite" } ?: databaseConfig.file
         val komgaConfig = config.komga
