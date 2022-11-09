@@ -60,15 +60,19 @@ class VizParser {
             ?.removePrefix("Release ")
             ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MMMM d, yyyy", ENGLISH)) }
         val isbn = details.getElementsByClass("o_isbn13").firstOrNull()?.text()?.removePrefix("ISBN-13 ")
-        val ageRating = details.child(1).child(3).text().removePrefix("Age Rating ").let {
-            when (it) {
-                "All Ages" -> ALL_AGES
-                "Teen" -> TEEN
-                "Teen Plus" -> TEEN_PLUS
-                "Mature" -> MATURE
-                else -> null
+        val ageRating = details.child(1)
+            .children()
+            .map { it }
+            .firstOrNull { it.text().startsWith("Age Rating") }
+            ?.text()?.removePrefix("Age Rating ").let {
+                when (it) {
+                    "All Ages" -> ALL_AGES
+                    "Teen" -> TEEN
+                    "Teen Plus" -> TEEN_PLUS
+                    "Mature" -> MATURE
+                    else -> null
+                }
             }
-        }
 
         return VizBook(
             id = parseBookId(document),
