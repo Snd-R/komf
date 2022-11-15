@@ -6,9 +6,9 @@ import ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.convert
-import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import org.slf4j.LoggerFactory.getLogger
@@ -26,7 +26,7 @@ class Komf : CliktCommand(invokeWithoutSubcommand = true) {
     private val configFile by option().convert { Path.of(it) }
     private val configFileArgument by argument().convert { Path.of(it) }.optional()
     private val verbose by option().flag()
-    private val serverType by argument().convert { MediaServer.valueOf(it.uppercase()) }.default(KOMGA)
+    private val mediaServer by option().convert { MediaServer.valueOf(it.uppercase()) }.default(KOMGA)
 
     override fun run() {
         val config = ConfigLoader().loadConfig(configFile ?: configFileArgument, configDir)
@@ -37,7 +37,7 @@ class Komf : CliktCommand(invokeWithoutSubcommand = true) {
             Runtime.getRuntime().addShutdownHook(Thread { appModule.close() })
         } else {
             setCliLogLevel(verbose)
-            currentContext.findOrSetObject { CliModule(config, serverType) }
+            currentContext.findOrSetObject { CliModule(config, mediaServer) }
         }
     }
 
