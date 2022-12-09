@@ -24,8 +24,6 @@ class AppModule(
         jsonModule = jsonModule
     )
 
-    private val clock = Clock.systemUTC()
-
     private val mediaServerModule = MediaServerModule(
         komgaConfig = appConfig.komga,
         kavitaConfig = appConfig.kavita,
@@ -34,7 +32,8 @@ class AppModule(
         repositoryModule = repositoryModule,
         metadataModule = metadataModule,
         discordModule = discordModule,
-        clock = clock
+        clock = Clock.systemUTC(),
+        systemDefaultClock = Clock.systemDefaultZone()
     )
 
     private val serverModule = ServerModule(

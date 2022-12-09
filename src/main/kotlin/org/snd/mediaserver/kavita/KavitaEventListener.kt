@@ -17,7 +17,7 @@ import org.snd.mediaserver.model.MediaServerBookId
 import org.snd.mediaserver.model.MediaServerSeriesId
 import java.time.Clock
 import java.time.Instant
-import java.time.ZoneOffset
+import java.time.OffsetDateTime
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit.SECONDS
 import java.util.function.Predicate
@@ -107,7 +107,8 @@ class KavitaEventListener(
 
     private fun getNew(volumes: Collection<KavitaVolume>): Map<KavitaVolume, Collection<KavitaChapter>> {
         return volumes.mapNotNull { volume ->
-            val newChapters = volume.chapters.filter { it.created.toInstant(ZoneOffset.UTC).isAfter(lastScan) }
+            val newChapters = volume.chapters
+                .filter { it.created.toInstant(OffsetDateTime.now().offset).isAfter(lastScan) }
             if (newChapters.isEmpty()) null
             else volume to newChapters
         }.toMap()

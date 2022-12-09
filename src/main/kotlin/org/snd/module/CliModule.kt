@@ -30,7 +30,8 @@ class CliModule(
         repositoryModule = repositoryModule,
         metadataModule = metadataModule,
         discordModule = null,
-        clock = Clock.systemUTC()
+        clock = Clock.systemUTC(),
+        systemDefaultClock = Clock.systemDefaultZone()
     )
     val mediaServerClient = when (serverType) {
         KOMGA -> mediaServerModule.komgaMediaServerClient

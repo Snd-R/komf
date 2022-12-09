@@ -34,7 +34,8 @@ class MediaServerModule(
     repositoryModule: RepositoryModule,
     metadataModule: MetadataModule,
     discordModule: DiscordModule?,
-    clock: Clock
+    clock: Clock,
+    systemDefaultClock: Clock
 ) : AutoCloseable {
     private val metadataAggregationExecutor = Executors.newFixedThreadPool(
         4,
@@ -194,7 +195,7 @@ class MediaServerModule(
         },
         notificationService = kavitaNotificationService,
         executor = eventListenerExecutor,
-        clock = clock
+        clock = systemDefaultClock
     )
 
     init {
