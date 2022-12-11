@@ -10,7 +10,7 @@ import org.snd.metadata.model.SeriesStatus
 data class KavitaSeriesMetadata(
     val id: Int,
     val seriesId: Int,
-    val summary: String,
+    val summary: String?,
     val collectionTags: Collection<KavitaCollectionTag>,
     val genres: Set<KavitaGenre>,
     val tags: Set<KavitaTag>,
@@ -113,7 +113,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         status = status,
         title = series.name,
         titleSort = series.sortName,
-        summary = summary,
+        summary = summary ?: "",
         readingDirection = null,
         publisher = null,
         alternativePublishers = publishers.map { it.name }.toSet(),

@@ -47,7 +47,7 @@ fun KavitaChapterMetadata.mediaServerBookMetadata(chapter: KavitaChapter): Media
     return MediaServerBookMetadata(
         title = title,
         summary = summary,
-        number = chapter.number,
+        number = chapter.number ?: "0",
         numberSort = chapter.number,
 //        releaseDate = releaseDate.toLocalDate(),
         releaseDate = null,

@@ -10,8 +10,8 @@ import java.time.LocalDateTime
 @JsonClass(generateAdapter = true)
 data class KavitaChapter(
     val id: Int,
-    val range: String,
-    val number: String,
+    val range: String?,
+    val number: String?,
     val pages: Int,
     val isSpecial: Boolean,
     val title: String,
@@ -21,7 +21,7 @@ data class KavitaChapter(
     val volumeId: Int,
     val created: LocalDateTime,
     val releaseDate: LocalDateTime,
-    val titleName: String,
+    val titleName: String?,
     val summary: String?,
     val ageRating: Int,
 ) {
@@ -49,7 +49,7 @@ fun KavitaChapter.mediaServerBook(volume: KavitaVolume, metadata: KavitaChapterM
         seriesTitle = title,
         name = fileName,
         url = filePath.toString(),
-        number = number.toIntOrNull() ?: 0,
+        number = number?.toIntOrNull() ?: 0,
         metadata = metadata.mediaServerBookMetadata(this),
         deleted = false,
     )
