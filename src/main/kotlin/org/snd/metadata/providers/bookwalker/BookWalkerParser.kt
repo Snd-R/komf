@@ -3,12 +3,7 @@ package org.snd.metadata.providers.bookwalker
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
-import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
-import org.snd.metadata.providers.bookwalker.model.BookWalkerBookListPage
-import org.snd.metadata.providers.bookwalker.model.BookWalkerSearchResult
-import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesBook
-import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
+import org.snd.metadata.providers.bookwalker.model.*
 import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,7 +34,7 @@ class BookWalkerParser {
     fun parseBook(book: String): BookWalkerBook {
         val document = Jsoup.parse(book)
         val synopsis = document.getElementsByClass("synopsis-text").first()?.wholeText()?.trim()?.replace("\n\n", "\n")
-        val image = document.getElementsByClass("book-img").first()?.child(0)?.child(0)?.attr("src")
+        val image = document.getElementsByClass("book-img").first()?.firstElementChild()?.firstElementChild()?.attr("src")
         val name = document.getElementsByClass("detail-book-title").first()!!.child(0).textNodes().first().text()
         val productDetail = document.getElementsByClass("product-detail").first()!!.child(0)
         val seriesTitle = productDetail.children().first { it.child(0).text() == "Series Title" }
