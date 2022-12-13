@@ -6,8 +6,8 @@
 - manually search and identify series (http endpoints or cli commands)
 - match entire library or a series (http endpoints or cli commands)
 
-In addition, if you use komga there is a [userscript](https://github.com/Snd-R/komf-userscript) that adds komf integration
-directly to komga ui allowing you to launch manual or automatic metadata identification
+In addition, you can also install [userscript](https://github.com/Snd-R/komf-userscript) that adds komf integration
+directly to komga and kavita ui allowing you to launch manual or automatic metadata identification
 
 ## Build
 
