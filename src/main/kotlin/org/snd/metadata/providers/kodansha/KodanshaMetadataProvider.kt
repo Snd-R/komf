@@ -3,20 +3,10 @@ package org.snd.metadata.providers.kodansha
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
-import org.snd.metadata.model.Image
-import org.snd.metadata.model.Provider
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesSearchResult
-import org.snd.metadata.providers.kodansha.model.KodanshaBookId
-import org.snd.metadata.providers.kodansha.model.KodanshaSeries
-import org.snd.metadata.providers.kodansha.model.KodanshaSeriesBook
-import org.snd.metadata.providers.kodansha.model.KodanshaSeriesId
-import org.snd.metadata.providers.kodansha.model.toSeriesSearchResult
+import org.snd.metadata.model.*
+import org.snd.metadata.providers.kodansha.model.*
 
-class KondanshaMetadataProvider(
+class KodanshaMetadataProvider(
     private val client: KodanshaClient,
     private val metadataMapper: KodanshaMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
