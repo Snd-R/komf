@@ -53,7 +53,7 @@ komga:
   komgaUser: admin@example.org #or env:KOMF_KOMGA_USER
   komgaPassword: admin #or env:KOMF_KOMGA_PASSWORD
   eventListener:
-    enabled: true # if disabled will not connect to komga and won't pick up newly added entries
+    enabled: false # if disabled will not connect to komga and won't pick up newly added entries
     libraries: [ ]  # listen to all events if empty
   notifications:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries

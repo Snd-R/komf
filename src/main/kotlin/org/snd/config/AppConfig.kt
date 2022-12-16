@@ -64,7 +64,7 @@ data class DatabaseConfig(
 
 @Serializable
 data class EventListenerConfig(
-    val enabled: Boolean = true,
+    val enabled: Boolean = false,
     val libraries: Collection<String> = emptyList()
 )
 
