@@ -9,7 +9,6 @@ import io.javalin.http.HttpStatus.*
 import org.snd.mediaserver.MetadataService
 import org.snd.mediaserver.MetadataUpdateService
 import org.snd.mediaserver.model.MediaServer
-import org.snd.mediaserver.model.MediaServer.KOMGA
 import org.snd.mediaserver.model.MediaServerLibraryId
 import org.snd.mediaserver.model.MediaServerSeriesId
 import org.snd.metadata.model.Provider
@@ -27,17 +26,6 @@ class MetadataController(
 
     fun register() {
         path("/") {
-            //deprecated endpoints
-            if (serverType == KOMGA) {
-                get("providers", this::providers)
-                get("search", this::searchSeries)
-                post("identify", this::identifySeries)
-                post("match/series/{id}", this::matchSeries)
-                post("match/library/{id}", this::matchLibrary)
-                post("reset/series/{id}", this::resetSeries)
-                post("reset/library/{id}", this::resetLibrary)
-            }
-
             path(serverType.name.lowercase()) {
                 get("providers", this::providers)
                 get("search", this::searchSeries)
