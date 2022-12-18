@@ -69,9 +69,10 @@ class MetadataService(
 
     fun matchSeriesMetadata(seriesId: MediaServerSeriesId) {
         val series = mediaServerClient.getSeries(seriesId)
-        logger.info { "attempting to match series \"${series.name}\" ${series.id}" }
+        val seriesTitle = series.metadata.title.ifBlank { series.name }
+        logger.info { "attempting to match series \"${seriesTitle}\" ${series.id}" }
         val matchResult = metadataProviders.providers(series.libraryId.id).asSequence()
-            .mapNotNull { provider -> provider.matchSeriesMetadata(series.name)?.let { provider to it } }
+            .mapNotNull { provider -> provider.matchSeriesMetadata(seriesTitle)?.let { provider to it } }
             .map { (provider, seriesMetadata) ->
                 logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
                 val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, null)
@@ -80,7 +81,7 @@ class MetadataService(
             .firstOrNull()
 
         if (matchResult == null) {
-            logger.info { "no match found for series ${series.name} ${series.id}" }
+            logger.info { "no match found for series $seriesTitle ${series.id}" }
             return
         }
 
@@ -96,7 +97,7 @@ class MetadataService(
         }
 
         metadataUpdateService.updateMetadata(series, metadata)
-        logger.info { "finished metadata update of series \"${series.name}\" ${series.id}" }
+        logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
     }
 
     private fun getBookMetadata(
@@ -162,8 +163,10 @@ class MetadataService(
         logger.info { "launching metadata aggregation using ${providers.map { it.providerName() }}" }
 
         val searchTitles =
-            setOfNotNull(series.name, metadata.seriesMetadata?.title) + (metadata.seriesMetadata?.alternativeTitles
-                ?: emptySet())
+            setOfNotNull(
+                series.metadata.title.ifBlank { series.name },
+                metadata.seriesMetadata?.title
+            ) + (metadata.seriesMetadata?.alternativeTitles ?: emptySet())
 
         return providers.map { provider ->
             CompletableFuture.supplyAsync({
