@@ -82,6 +82,7 @@ kavita:
     seriesThumbnails: true #update series thumbnails
     seriesTitle: false #update series title
     readingDirectionValue: #override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
+    orderBooks: false # will order books using parsed volume or chapter number
   aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
 discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added

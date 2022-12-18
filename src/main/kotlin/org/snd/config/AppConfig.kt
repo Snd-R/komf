@@ -50,7 +50,8 @@ data class MetadataUpdateConfig(
     val bookThumbnails: Boolean = false,
     val seriesThumbnails: Boolean = true,
     val seriesTitle: Boolean = false,
-    val readingDirectionValue: ReadingDirection? = null
+    val readingDirectionValue: ReadingDirection? = null,
+    val orderBooks: Boolean = false,
 )
 
 @Serializable

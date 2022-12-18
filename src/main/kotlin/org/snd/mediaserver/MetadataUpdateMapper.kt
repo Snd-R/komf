@@ -2,11 +2,13 @@ package org.snd.mediaserver
 
 import org.snd.config.MetadataUpdateConfig
 import org.snd.mediaserver.model.*
+import org.snd.metadata.BookFilenameParser
 import org.snd.metadata.comicinfo.model.AgeRating
 import org.snd.metadata.comicinfo.model.ComicInfo
 import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
+import kotlin.math.floor
 
 class MetadataUpdateMapper(
     private val metadataUpdateConfig: MetadataUpdateConfig,
@@ -15,14 +17,19 @@ class MetadataUpdateMapper(
     fun toBookMetadataUpdate(
         bookMetadata: BookMetadata?,
         seriesMetadata: SeriesMetadata?,
-        metadata: MediaServerBookMetadata
-    ): MediaServerBookMetadataUpdate? {
-        if (bookMetadata == null && seriesMetadata == null) return null
+        book: MediaServerBook
+    ): MediaServerBookMetadataUpdate {
+        val number = if (metadataUpdateConfig.orderBooks) {
+            BookFilenameParser.getVolumes(book.name)?.first
+                ?: BookFilenameParser.getChapters(book.name)?.start?.let {
+                    if (floor(it) == it) it.toInt()
+                    else it
+                }
+        } else null
 
-        return with(metadata) {
-            val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }
-                ?: seriesMetadata?.authors?.ifEmpty { null })?.map { author -> MediaServerAuthor(author.name, author.role.name) }
-                ?: emptyList()
+        return with(book.metadata) {
+            val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors } ?: seriesMetadata?.authors?.ifEmpty { null })
+                ?.map { author -> MediaServerAuthor(author.name, author.role.name) }
 
             MediaServerBookMetadataUpdate(
                 summary = getIfNotLockedOrEmpty(bookMetadata?.summary, summaryLock),
@@ -30,6 +37,8 @@ class MetadataUpdateMapper(
                 authors = getIfNotLockedOrEmpty(authors, authorsLock),
                 tags = getIfNotLockedOrEmpty(bookMetadata?.tags, tagsLock),
                 isbn = getIfNotLockedOrEmpty(bookMetadata?.isbn, isbnLock),
+                number = getIfNotLockedOrEmpty(number?.toString(), numberLock),
+                numberSort = getIfNotLockedOrEmpty(number?.toDouble(), numberSortLock),
             )
         }
     }

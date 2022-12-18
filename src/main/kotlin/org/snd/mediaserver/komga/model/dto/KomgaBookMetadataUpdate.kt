@@ -10,7 +10,7 @@ data class KomgaBookMetadataUpdate(
     val title: String? = null,
     val summary: String? = null,
     val number: String? = null,
-    val numberSort: Float? = null,
+    val numberSort: Double? = null,
     val releaseDate: LocalDate? = null,
     val authors: List<KomgaAuthor>? = null,
     val tags: Collection<String>? = null,

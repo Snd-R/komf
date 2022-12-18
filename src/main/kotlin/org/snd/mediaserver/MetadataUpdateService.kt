@@ -77,8 +77,9 @@ class MetadataUpdateService(
     ) {
         metadataUpdateConfig.modes.forEach { mode ->
             when (mode) {
-                API -> metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book.metadata)
-                    ?.let { mediaServerClient.updateBookMetadata(book.id, it) }
+                API -> metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book)
+                    .let { mediaServerClient.updateBookMetadata(book.id, it) }
+
 
                 COMIC_INFO -> {
                     if (book.deleted.not()) {
