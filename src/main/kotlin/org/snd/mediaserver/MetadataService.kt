@@ -7,6 +7,7 @@ import org.snd.metadata.BookFilenameParser
 import org.snd.metadata.MetadataMerger
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.model.*
+import org.snd.module.MetadataModule.MetadataProviders
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 
@@ -14,15 +15,15 @@ private val logger = KotlinLogging.logger {}
 
 class MetadataService(
     private val mediaServerClient: MediaServerClient,
-    private val metadataProviders: Map<Provider, MetadataProvider>,
+    private val metadataProviders: MetadataProviders,
     private val aggregateMetadata: Boolean,
     private val executor: ExecutorService,
     private val metadataUpdateService: MetadataUpdateService
 ) {
-    fun availableProviders(): Set<Provider> = metadataProviders.keys
+    fun availableProviders(): List<MetadataProvider> = metadataProviders.defaultProviders()
 
     fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
-        return metadataProviders.values.flatMap { it.searchSeries(seriesName) }
+        return metadataProviders.defaultProviders().flatMap { it.searchSeries(seriesName) }
     }
 
     fun setSeriesMetadata(
@@ -31,8 +32,8 @@ class MetadataService(
         providerSeriesId: ProviderSeriesId,
         edition: String?
     ) {
-        val provider = metadataProviders[providerName] ?: throw RuntimeException()
         val series = mediaServerClient.getSeries(seriesId)
+        val provider = metadataProviders.provider(series.libraryId.id, providerName) ?: throw RuntimeException()
 
         val seriesMetadata = provider.getSeriesMetadata(providerSeriesId)
         val bookMetadata = getBookMetadata(seriesId, seriesMetadata, provider, edition)
@@ -41,7 +42,7 @@ class MetadataService(
             aggregateMetadataFromProviders(
                 series,
                 SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata),
-                metadataProviders.values.filter { it != provider },
+                metadataProviders.providers(series.libraryId.id).filter { it != provider },
                 edition
             )
         } else SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
@@ -66,7 +67,7 @@ class MetadataService(
     fun matchSeriesMetadata(seriesId: MediaServerSeriesId) {
         val series = mediaServerClient.getSeries(seriesId)
         logger.info { "attempting to match series \"${series.name}\" ${series.id}" }
-        val matchResult = metadataProviders.values.asSequence()
+        val matchResult = metadataProviders.providers(series.libraryId.id).asSequence()
             .mapNotNull { provider -> provider.matchSeriesMetadata(series.name)?.let { provider to it } }
             .map { (provider, seriesMetadata) ->
                 logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
@@ -85,7 +86,7 @@ class MetadataService(
                 aggregateMetadataFromProviders(
                     series,
                     metadata,
-                    metadataProviders.values.filter { it != provider },
+                    metadataProviders.providers(series.libraryId.id).filter { it != provider },
                     null
                 )
             } else metadata
@@ -101,8 +102,6 @@ class MetadataService(
         provider: MetadataProvider,
         bookEdition: String?
     ): Map<MediaServerBook, BookMetadata?> {
-//        if (serverType == KAVITA && metadataUpdateConfig.mode == API) return emptyMap()
-
         val books = mediaServerClient.getBooks(seriesId)
         val metadataMatch = associateBookMetadata(books, seriesMeta.books, bookEdition)
 

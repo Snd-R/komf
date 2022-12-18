@@ -70,93 +70,53 @@ data class EventListenerConfig(
 
 @Serializable
 data class MetadataProvidersConfig(
+    val malClientId: String = "",
     val nameMatchingMode: NameMatchingMode = CLOSEST_MATCH,
-    val mal: MalConfig = MalConfig(),
-    val mangaUpdates: MangaUpdatesConfig = MangaUpdatesConfig(),
-    val nautiljon: NautiljonConfig = NautiljonConfig(),
-    val aniList: AniListConfig = AniListConfig(),
-    val yenPress: YenPressConfig = YenPressConfig(),
-    val kodansha: KodanshaConfig = KodanshaConfig(),
-    val viz: VizConfig = VizConfig(),
-    val bookWalker: BookWalkerConfig = BookWalkerConfig(),
+    val defaultProviders: ProvidersConfig = ProvidersConfig(),
+    val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
+
+    @Deprecated("moved to default providers config")
+    val mangaUpdates: ProviderConfig? = null,
+
+    @Deprecated("moved to default providers config")
+    val mal: ProviderConfig? = null,
+
+    @Deprecated("moved to default providers config")
+    val nautiljon: ProviderConfig? = null,
+
+    @Deprecated("moved to default providers config")
+    val aniList: ProviderConfig? = null,
+
+    @Deprecated("moved to default providers config")
+    val yenPress: ProviderConfig? = null,
+
+    @Deprecated("moved to default providers config")
+    val kodansha: ProviderConfig? = null,
+
+    @Deprecated("moved to default providers config")
+    val viz: ProviderConfig? = null,
+
+    @Deprecated("moved to default providers config")
+    val bookWalker: ProviderConfig? = null,
 )
 
 @Serializable
-data class MangaUpdatesConfig(
-    val priority: Int = 10,
-    val enabled: Boolean = true,
-    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
-    val nameMatchingMode: NameMatchingMode? = null,
+data class ProvidersConfig(
+    val mangaUpdates: ProviderConfig = ProviderConfig(),
+    val mal: ProviderConfig = ProviderConfig(),
+    val nautiljon: ProviderConfig = ProviderConfig(),
+    val aniList: ProviderConfig = ProviderConfig(),
+    val yenPress: ProviderConfig = ProviderConfig(),
+    val kodansha: ProviderConfig = ProviderConfig(),
+    val viz: ProviderConfig = ProviderConfig(),
+    val bookWalker: ProviderConfig = ProviderConfig(),
 )
 
 @Serializable
-data class MalConfig(
+data class ProviderConfig(
+    @Deprecated("moved to separate config")
     val clientId: String = "",
-    val priority: Int = 20,
-    val enabled: Boolean = false,
-    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
-    val nameMatchingMode: NameMatchingMode? = null,
-)
-
-@Serializable
-data class NautiljonConfig(
-    val priority: Int = 30,
-    val enabled: Boolean = false,
-    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
-    val nameMatchingMode: NameMatchingMode? = null,
-
-    @Deprecated("no longer used")
-    val fetchBookMetadata: Boolean? = null,
-    @Deprecated("moved to seriesMetadata config")
-    val useOriginalPublisher: Boolean? = null,
-    @Deprecated("moved to seriesMetadata config")
-    val originalPublisherTag: String? = null,
-    @Deprecated("moved to seriesMetadata config")
-    val frenchPublisherTag: String? = null,
-)
-
-@Serializable
-data class AniListConfig(
-    val priority: Int = 40,
-    val enabled: Boolean = false,
-    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
-    val nameMatchingMode: NameMatchingMode? = null,
-)
-
-@Serializable
-data class YenPressConfig(
-    val priority: Int = 50,
-    val enabled: Boolean = false,
-    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
-    val nameMatchingMode: NameMatchingMode? = null,
-)
-
-@Serializable
-data class KodanshaConfig(
-    val priority: Int = 60,
-    val enabled: Boolean = false,
-    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
-    val nameMatchingMode: NameMatchingMode? = null,
-)
-
-@Serializable
-data class VizConfig(
-    val priority: Int = 70,
-    val enabled: Boolean = false,
-    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
-    val nameMatchingMode: NameMatchingMode? = null,
-)
-
-@Serializable
-data class BookWalkerConfig(
-    val priority: Int = 80,
+    val priority: Int = 10,
     val enabled: Boolean = false,
     val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     val bookMetadata: BookMetadataConfig = BookMetadataConfig(),

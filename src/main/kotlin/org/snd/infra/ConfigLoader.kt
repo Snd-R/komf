@@ -85,14 +85,16 @@ class ConfigLoader {
         val discordConfig = config.discord
         val discordWebhooks = discordConfig.webhooks ?: config.komga.webhooks
 
+        val defaultProviders = config.metadataProviders.defaultProviders
+        val mangaUpdates = config.metadataProviders.mangaUpdates
+        val mal = config.metadataProviders.mal
         val nautiljon = config.metadataProviders.nautiljon
-        val nautiljonSeriesMetadataConfig = with(nautiljon.seriesMetadata) {
-            this.copy(
-                useOriginalPublisher = nautiljon.useOriginalPublisher ?: useOriginalPublisher,
-                originalPublisherTagName = nautiljon.originalPublisherTag ?: originalPublisherTagName,
-                frenchPublisherTagName = nautiljon.frenchPublisherTag ?: frenchPublisherTagName
-            )
-        }
+        val aniList = config.metadataProviders.aniList
+        val yenPress = config.metadataProviders.yenPress
+        val kodansha = config.metadataProviders.kodansha
+        val viz = config.metadataProviders.viz
+        val bookWalker = config.metadataProviders.bookWalker
+
         val komgaUpdateModes = config.komga.metadataUpdate.mode?.let { setOf(it) } ?: config.komga.metadataUpdate.modes
         warnAboutDeprecatedOptions(config)
 
@@ -101,8 +103,15 @@ class ConfigLoader {
                 webhooks = discordWebhooks
             ),
             metadataProviders = config.metadataProviders.copy(
-                nautiljon = nautiljon.copy(
-                    seriesMetadata = nautiljonSeriesMetadataConfig
+                defaultProviders = defaultProviders.copy(
+                    mangaUpdates = mangaUpdates ?: defaultProviders.mangaUpdates,
+                    mal = mal ?: defaultProviders.mal,
+                    nautiljon = nautiljon ?: defaultProviders.nautiljon,
+                    aniList = aniList ?: defaultProviders.aniList,
+                    yenPress = yenPress ?: defaultProviders.yenPress,
+                    kodansha = kodansha ?: defaultProviders.kodansha,
+                    viz = viz ?: defaultProviders.viz,
+                    bookWalker = bookWalker ?: defaultProviders.bookWalker,
                 )
             ),
             komga = config.komga.copy(
@@ -117,17 +126,21 @@ class ConfigLoader {
     private fun warnAboutDeprecatedOptions(config: AppConfig) {
         val deprecatedOptions = listOfNotNull(
             config.komga.webhooks?.let { "komga.webhooks" },
-            config.metadataProviders.nautiljon.fetchBookMetadata?.let { "metadataProviders.nautiljon.fetchBookMetadata" },
-            config.metadataProviders.nautiljon.useOriginalPublisher?.let { "metadataProviders.nautiljon.useOriginalPublisher" },
-            config.metadataProviders.nautiljon.originalPublisherTag?.let { "metadataProviders.nautiljon.originalPublisherTag" },
-            config.metadataProviders.nautiljon.frenchPublisherTag?.let { "metadataProviders.nautiljon.frenchPublisherTag" },
             config.komga.metadataUpdate.mode?.let { "komga.metadataUpdate.mode" },
             config.kavita.metadataUpdate.mode?.let { "kavita.metadataUpdate.mode" },
+            config.metadataProviders.mangaUpdates?.let { "metadataProviders.mangaUpdates" },
+            config.metadataProviders.mal?.let { "metadataProviders.mal" },
+            config.metadataProviders.nautiljon?.let { "metadataProviders.nautiljon" },
+            config.metadataProviders.aniList?.let { "metadataProviders.aniList" },
+            config.metadataProviders.yenPress?.let { "metadataProviders.yenPress" },
+            config.metadataProviders.kodansha?.let { "metadataProviders.kodansha" },
+            config.metadataProviders.viz?.let { "metadataProviders.viz" },
+            config.metadataProviders.bookWalker?.let { "metadataProviders.bookWalker" },
         )
         if (deprecatedOptions.isNotEmpty()) {
             logger.warn {
                 "DETECTED DEPRECATED CONFIG OPTIONS $deprecatedOptions\n" +
-                        "These config options will eventually be deleted in future releases"
+                        "These config options will be removed in future releases"
             }
         }
     }

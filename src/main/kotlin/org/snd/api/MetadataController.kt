@@ -104,7 +104,7 @@ class MetadataController(
     }
 
     private fun providers(ctx: Context): Context {
-        val providers = metadataService.availableProviders().map { it.name }
+        val providers = metadataService.availableProviders().map { it.providerName().name }
         return ctx.result(moshi.adapter<Collection<String>>().toJson(providers))
             .contentType(APPLICATION_JSON)
             .status(OK)

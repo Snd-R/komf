@@ -6,12 +6,16 @@ import mu.KotlinLogging
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.snd.config.*
+import org.snd.config.MetadataProvidersConfig
+import org.snd.config.ProviderConfig
+import org.snd.config.ProvidersConfig
 import org.snd.infra.HttpClient
 import org.snd.infra.HttpException
+import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameMatchingMode
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.comicinfo.ComicInfoWriter
+import org.snd.metadata.model.Provider
 import org.snd.metadata.mylar.SeriesJsonWriter
 import org.snd.metadata.providers.anilist.AniListClient
 import org.snd.metadata.providers.anilist.AniListMetadataMapper
@@ -42,7 +46,7 @@ import java.time.Duration
 
 
 class MetadataModule(
-    private val config: MetadataProvidersConfig,
+    config: MetadataProvidersConfig,
     private val okHttpClient: OkHttpClient,
     private val jsonModule: JsonModule
 ) {
@@ -50,7 +54,7 @@ class MetadataModule(
     val seriesJsonWriter = SeriesJsonWriter(jsonModule.moshi)
     private val nameSimilarityMatcher = createNameSimilarityMatcher(config.nameMatchingMode)
 
-    private val malClient = createMalClient(config.mal.clientId)
+    private val malClient = createMalClient(config.malClientId)
     private val mangaUpdatesClient = createMangaUpdatesClient()
     private val nautiljonClient = createNautiljonClient()
     private val aniListClient = createAnilistClient()
@@ -59,29 +63,35 @@ class MetadataModule(
     private val vizClient = createVizClient()
     private val bookWalkerClient = createBookWalkerClient()
 
-    private val malMetadataProvider = createMalMetadataProvider(config.mal, malClient)
-    private val mangaUpdatesMetadataProvider = createMangaUpdatesMetadataProvider(config.mangaUpdates, mangaUpdatesClient)
-    private val nautiljonMetadataProvider = createNautiljonMetadataProvider(config.nautiljon, nautiljonClient)
-    private val aniListMetadataProvider = createAnilistMetadataProvider(config.aniList, aniListClient)
-    private val yenPressMetadataProvider = createYenPressMetadataProvider(config.yenPress, yenPressClient)
-    private val kodanshaMetadataProvider = createKodanshaMetadataProvider(config.kodansha, kodanshaClient)
-    private val vizMetadataProvider = createVizMetadataProvider(config.viz, vizClient)
-    private val bookWalkerMetadataProvider = createBookWalkerMetadataProvider(config.bookWalker, bookWalkerClient)
+    val metadataProviders = createMetadataProviders(config)
 
+    private fun createMetadataProviders(config: MetadataProvidersConfig): MetadataProviders {
+        val defaultProviders = createMetadataProviders(config.defaultProviders)
+        val libraryProviders = config.libraryProviders
+            .map { (libraryId, config) -> libraryId to createMetadataProviders(config) }
+            .toMap()
 
-    val metadataProviders = listOfNotNull(
-        malMetadataProvider?.let { it to config.mal.priority },
-        mangaUpdatesMetadataProvider?.let { it to config.mangaUpdates.priority },
-        nautiljonMetadataProvider?.let { it to config.nautiljon.priority },
-        aniListMetadataProvider?.let { it to config.aniList.priority },
-        yenPressMetadataProvider?.let { it to config.yenPress.priority },
-        kodanshaMetadataProvider?.let { it to config.kodansha.priority },
-        vizMetadataProvider?.let { it to config.viz.priority },
-        bookWalkerMetadataProvider?.let { it to config.bookWalker.priority }
+        return MetadataProviders(defaultProviders, libraryProviders)
+    }
+
+    private fun createMetadataProviders(config: ProvidersConfig) = MetadataProvidersContainer(
+        mangaupdates = createMangaUpdatesMetadataProvider(config.mangaUpdates, mangaUpdatesClient),
+        mangaupdatesPriority = config.mangaUpdates.priority,
+        mal = createMalMetadataProvider(config.mal, malClient),
+        malPriority = config.mal.priority,
+        nautiljon = createNautiljonMetadataProvider(config.nautiljon, nautiljonClient),
+        nautiljonPriority = config.nautiljon.priority,
+        anilist = createAnilistMetadataProvider(config.aniList, aniListClient),
+        anilistPriority = config.aniList.priority,
+        yenPress = createYenPressMetadataProvider(config.yenPress, yenPressClient),
+        yenPressPriority = config.yenPress.priority,
+        kodansha = createKodanshaMetadataProvider(config.kodansha, kodanshaClient),
+        kodanshaPriority = config.kodansha.priority,
+        viz = createVizMetadataProvider(config.viz, vizClient),
+        vizPriority = config.viz.priority,
+        bookwalker = createBookWalkerMetadataProvider(config.bookWalker, bookWalkerClient),
+        bookwalkerPriority = config.bookWalker.priority,
     )
-        .sortedBy { (_, priority) -> priority }
-        .associate { (provider, _) -> provider.providerName() to provider }
-
 
     private fun createComicInfoWriter() = ComicInfoWriter()
     private fun createNameSimilarityMatcher(mode: NameMatchingMode) = NameSimilarityMatcher.getInstance(mode)
@@ -229,7 +239,7 @@ class MetadataModule(
 
 
     private fun createMalMetadataProvider(
-        config: MalConfig,
+        config: ProviderConfig,
         client: MalClient,
     ): MalMetadataProvider? {
         if (config.enabled.not()) return null
@@ -241,7 +251,7 @@ class MetadataModule(
     }
 
     private fun createMangaUpdatesMetadataProvider(
-        config: MangaUpdatesConfig,
+        config: ProviderConfig,
         client: MangaUpdatesClient,
     ): MangaUpdatesMetadataProvider? {
         if (config.enabled.not()) return null
@@ -252,7 +262,7 @@ class MetadataModule(
         return MangaUpdatesMetadataProvider(client, mangaUpdatesMetadataMapper, mangaUpdatesSimilarityMatcher)
     }
 
-    private fun createNautiljonMetadataProvider(config: NautiljonConfig, client: NautiljonClient): NautiljonMetadataProvider? {
+    private fun createNautiljonMetadataProvider(config: ProviderConfig, client: NautiljonClient): NautiljonMetadataProvider? {
         if (config.enabled.not()) return null
         val seriesMetadataMapper = NautiljonSeriesMetadataMapper(
             config.seriesMetadata,
@@ -263,7 +273,7 @@ class MetadataModule(
         return NautiljonMetadataProvider(client, seriesMetadataMapper, similarityMatcher)
     }
 
-    private fun createAnilistMetadataProvider(config: AniListConfig, client: AniListClient): AniListMetadataProvider? {
+    private fun createAnilistMetadataProvider(config: ProviderConfig, client: AniListClient): AniListMetadataProvider? {
         if (config.enabled.not()) return null
 
         val metadataMapper = AniListMetadataMapper(config.seriesMetadata)
@@ -272,7 +282,7 @@ class MetadataModule(
         return AniListMetadataProvider(client, metadataMapper, similarityMatcher)
     }
 
-    private fun createYenPressMetadataProvider(config: YenPressConfig, client: YenPressClient): YenPressMetadataProvider? {
+    private fun createYenPressMetadataProvider(config: ProviderConfig, client: YenPressClient): YenPressMetadataProvider? {
         if (config.enabled.not()) return null
 
         val metadataMapper = YenPressMetadataMapper(config.seriesMetadata, config.bookMetadata)
@@ -281,7 +291,7 @@ class MetadataModule(
         return YenPressMetadataProvider(client, metadataMapper, similarityMatcher)
     }
 
-    private fun createKodanshaMetadataProvider(config: KodanshaConfig, client: KodanshaClient): KodanshaMetadataProvider? {
+    private fun createKodanshaMetadataProvider(config: ProviderConfig, client: KodanshaClient): KodanshaMetadataProvider? {
         if (config.enabled.not()) return null
 
         val metadataMapper = KodanshaMetadataMapper(config.seriesMetadata, config.bookMetadata)
@@ -291,7 +301,7 @@ class MetadataModule(
         return KodanshaMetadataProvider(client, metadataMapper, similarityMatcher)
     }
 
-    private fun createVizMetadataProvider(config: VizConfig, client: VizClient): VizMetadataProvider? {
+    private fun createVizMetadataProvider(config: ProviderConfig, client: VizClient): VizMetadataProvider? {
         if (config.enabled.not()) return null
 
         val metadataMapper = VizMetadataMapper(config.seriesMetadata, config.bookMetadata)
@@ -301,7 +311,7 @@ class MetadataModule(
         return VizMetadataProvider(client, metadataMapper, similarityMatcher)
     }
 
-    private fun createBookWalkerMetadataProvider(config: BookWalkerConfig, client: BookWalkerClient): BookWalkerMetadataProvider? {
+    private fun createBookWalkerMetadataProvider(config: ProviderConfig, client: BookWalkerClient): BookWalkerMetadataProvider? {
         if (config.enabled.not()) return null
 
         val bookWalkerMapper = BookWalkerMapper(config.seriesMetadata, config.bookMetadata)
@@ -310,4 +320,73 @@ class MetadataModule(
 
         return BookWalkerMetadataProvider(client, bookWalkerMapper, similarityMatcher)
     }
+
+    class MetadataProviders(
+        private val defaultProviders: MetadataProvidersContainer,
+        private val libraryProviders: Map<String, MetadataProvidersContainer>,
+    ) {
+        fun defaultProviders() = defaultProviders.providers
+
+        fun providers(libraryId: String): Collection<MetadataProvider> {
+            return libraryProviders[libraryId]?.providers ?: defaultProviders.providers
+        }
+
+        fun provider(libraryId: String, provider: Provider) =
+            libraryProviders[libraryId]?.provider(provider) ?: defaultProviders.provider(provider)
+    }
+
+    class MetadataProvidersContainer(
+        private val mangaupdates: MangaUpdatesMetadataProvider?,
+        private val mangaupdatesPriority: Int,
+
+        private val mal: MalMetadataProvider?,
+        private val malPriority: Int,
+
+        private val nautiljon: NautiljonMetadataProvider?,
+        private val nautiljonPriority: Int,
+
+        private val anilist: AniListMetadataProvider?,
+        private val anilistPriority: Int,
+
+        private val yenPress: YenPressMetadataProvider?,
+        private val yenPressPriority: Int,
+
+        private val kodansha: KodanshaMetadataProvider?,
+        private val kodanshaPriority: Int,
+
+        private val viz: VizMetadataProvider?,
+        private val vizPriority: Int,
+
+        private val bookwalker: BookWalkerMetadataProvider?,
+        private val bookwalkerPriority: Int
+    ) {
+
+        val providers = listOfNotNull(
+            mangaupdates?.let { it to mangaupdatesPriority },
+            mal?.let { it to malPriority },
+            nautiljon?.let { it to nautiljonPriority },
+            anilist?.let { it to anilistPriority },
+            yenPress?.let { it to yenPressPriority },
+            kodansha?.let { it to kodanshaPriority },
+            viz?.let { it to vizPriority },
+            bookwalker?.let { it to bookwalkerPriority }
+        )
+            .sortedBy { (_, priority) -> priority }
+            .toMap()
+            .map { (provider, _) -> provider }
+
+        fun provider(provider: Provider): MetadataProvider? {
+            return when (provider) {
+                Provider.MAL -> mal
+                Provider.MANGA_UPDATES -> mangaupdates
+                Provider.NAUTILJON -> nautiljon
+                Provider.ANILIST -> anilist
+                Provider.YEN_PRESS -> yenPress
+                Provider.KODANSHA -> kodansha
+                Provider.VIZ -> viz
+                Provider.BOOK_WALKER -> bookwalker
+            }
+        }
+    }
 }
+
