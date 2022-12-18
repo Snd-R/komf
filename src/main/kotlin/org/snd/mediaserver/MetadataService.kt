@@ -20,10 +20,13 @@ class MetadataService(
     private val executor: ExecutorService,
     private val metadataUpdateService: MetadataUpdateService
 ) {
-    fun availableProviders(): List<MetadataProvider> = metadataProviders.defaultProviders()
+    fun availableProviders(libraryId: String?) = libraryId
+        ?.let { metadataProviders.providers(it) }
+        ?: metadataProviders.defaultProviders()
 
-    fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
-        return metadataProviders.defaultProviders().flatMap { it.searchSeries(seriesName) }
+    fun searchSeriesMetadata(seriesName: String, libraryId: String?): Collection<SeriesSearchResult> {
+        val providers = libraryId?.let { metadataProviders.providers(it) } ?: metadataProviders.defaultProviders()
+        return providers.flatMap { it.searchSeries(seriesName) }
     }
 
     fun setSeriesMetadata(

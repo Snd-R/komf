@@ -50,9 +50,18 @@ class MetadataController(
         }
     }
 
+    private fun providers(ctx: Context): Context {
+        val libraryId = ctx.queryParam("libraryId")
+        val providers = metadataService.availableProviders(libraryId).map { it.providerName().name }
+        return ctx.result(moshi.adapter<Collection<String>>().toJson(providers))
+            .contentType(APPLICATION_JSON)
+            .status(OK)
+    }
+
     private fun searchSeries(ctx: Context): Context {
         val seriesName = ctx.queryParam("name") ?: return ctx.status(BAD_REQUEST)
-        val searchResults = metadataService.searchSeriesMetadata(seriesName)
+        val libraryId = ctx.queryParam("libraryId")
+        val searchResults = metadataService.searchSeriesMetadata(seriesName, libraryId)
 
         return ctx.result(moshi.adapter<Collection<SeriesSearchResult>>().toJson(searchResults))
             .contentType(APPLICATION_JSON)
@@ -101,12 +110,5 @@ class MetadataController(
         val libraryId = MediaServerLibraryId(ctx.pathParam("id"))
         metadataUpdateService.resetLibraryMetadata(libraryId)
         return ctx.status(NO_CONTENT)
-    }
-
-    private fun providers(ctx: Context): Context {
-        val providers = metadataService.availableProviders().map { it.providerName().name }
-        return ctx.result(moshi.adapter<Collection<String>>().toJson(providers))
-            .contentType(APPLICATION_JSON)
-            .status(OK)
     }
 }
