@@ -57,6 +57,7 @@ komga:
     libraries: [ ]  # listen to all events if empty
   notifications:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
+  aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
   metadataUpdate:
     # Update modes is the way komf will update metadata.
     # If you're using anything other than API then your existing files might be modified with embedded metadata
@@ -65,7 +66,8 @@ komga:
     seriesThumbnails: true #update series thumbnails
     seriesTitle: false #update series title
     readingDirectionValue: #override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
-  aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
+    languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
+    orderBooks: false # will order books using parsed volume or chapter number
 kavita:
   baseUri: "http://localhost:5000" #or env:KOMF_KAVITA_BASE_URI
   apiKey: "16707507-d05d-4696-b126-c3976ae14ffb" #or env:KOMF_KAVITA_API_KEY
@@ -74,6 +76,7 @@ kavita:
     libraries: [ ]  # listen to all events if empty
   notifications:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
+  aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
   metadataUpdate:
     # Update modes is the way komf will update metadata.
     # If you're using anything other than API then your existing files might be modified with embedded metadata
@@ -81,9 +84,7 @@ kavita:
     bookThumbnails: false #update book thumbnails
     seriesThumbnails: true #update series thumbnails
     seriesTitle: false #update series title
-    readingDirectionValue: #override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
-    orderBooks: false # will order books using parsed volume or chapter number
-  aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
+    languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
   templatesDirectory: "./" #path to a directory with discordWebhook.vm template

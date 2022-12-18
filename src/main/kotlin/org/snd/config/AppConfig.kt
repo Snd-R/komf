@@ -51,6 +51,7 @@ data class MetadataUpdateConfig(
     val seriesThumbnails: Boolean = true,
     val seriesTitle: Boolean = false,
     val readingDirectionValue: ReadingDirection? = null,
+    val languageValue: String? = null,
     val orderBooks: Boolean = false,
 )
 

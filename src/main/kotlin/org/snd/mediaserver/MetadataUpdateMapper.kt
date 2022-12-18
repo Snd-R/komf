@@ -59,11 +59,11 @@ class MetadataUpdateMapper(
                 alternativePublishers = getIfNotLockedOrEmpty(patch.alternativePublishers, publisherLock),
                 readingDirection = newReadingDirection,
                 ageRating = getIfNotLockedOrEmpty(patch.ageRating, ageRatingLock),
-                language = getIfNotLockedOrEmpty(patch.language, languageLock),
+                language = getIfNotLockedOrEmpty(patch.language ?: metadataUpdateConfig.languageValue, languageLock),
                 genres = getIfNotLockedOrEmpty(patch.genres, genresLock),
                 tags = getIfNotLockedOrEmpty(patch.tags, tagsLock),
                 totalBookCount = getIfNotLockedOrEmpty(patch.totalBookCount, totalBookCountLock),
-                authors = getIfNotLockedOrEmpty(authors, authorsLock)
+                authors = getIfNotLockedOrEmpty(authors, authorsLock),
             )
         }
 
@@ -99,7 +99,8 @@ class MetadataUpdateMapper(
                         .firstOrNull { it.ageRating == it.ageRating!!.coerceAtLeast(metadataRating) }
                         ?: AgeRating.ADULTS_ONLY_18)
                         .value
-                }
+                },
+            languageISO = seriesMetadata?.language ?: metadataUpdateConfig.languageValue
         )
     }
 
@@ -132,7 +133,8 @@ class MetadataUpdateMapper(
                         .firstOrNull { it.ageRating == it.ageRating!!.coerceAtLeast(metadataRating) }
                         ?: AgeRating.ADULTS_ONLY_18)
                         .value
-                }
+                },
+            languageISO = seriesMetadata.language ?: metadataUpdateConfig.languageValue
         )
     }
 

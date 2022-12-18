@@ -67,7 +67,8 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
             ?.map { KavitaAuthor(id = 0, name = it.name, role = EDITOR) }?.toSet() ?: oldMeta.editors,
         translators = authors?.get(AuthorRole.TRANSLATOR.name)
             ?.map { KavitaAuthor(id = 0, name = it.name, role = TRANSLATOR) }?.toSet() ?: oldMeta.translators,
-        ageRating = ageRating ?: oldMeta.ageRating
+        ageRating = ageRating ?: oldMeta.ageRating,
+        language = language ?: oldMeta.language
     )
     return KavitaSeriesMetadataUpdate(metadata, collectionTags)
 }
