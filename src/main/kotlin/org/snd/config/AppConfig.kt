@@ -26,8 +26,6 @@ data class KomgaConfig(
     val eventListener: EventListenerConfig = EventListenerConfig(),
     val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
-    @Deprecated("moved to its own config")
-    val webhooks: Collection<String>? = null,
     val aggregateMetadata: Boolean = false,
 )
 
@@ -48,8 +46,6 @@ data class NotificationConfig(
 
 @Serializable
 data class MetadataUpdateConfig(
-    @Deprecated("use modes instead")
-    val mode: UpdateMode? = null,
     val modes: Set<UpdateMode> = setOf(API),
     val bookThumbnails: Boolean = false,
     val seriesThumbnails: Boolean = true,

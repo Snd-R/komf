@@ -4,8 +4,6 @@ import org.snd.mediaserver.model.MediaServerBookId
 import org.snd.metadata.comicinfo.model.ComicInfo
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.mylar.model.MylarMetadata
-import org.snd.metadata.mylar.model.MylarStatus
 
 object MetadataMerger {
     fun mergeSeriesMetadata(
@@ -102,25 +100,4 @@ object MetadataMerger {
         )
     }
 
-    fun mergeMylarMetadata(old: MylarMetadata, new: MylarMetadata): MylarMetadata {
-        return MylarMetadata(
-            type = new.type.ifBlank { old.type },
-            publisher = new.publisher.ifBlank { old.publisher },
-            imprint = new.imprint ?: old.imprint,
-            name = new.name.ifBlank { old.name },
-            comicid = new.comicid,
-            cid = new.cid,
-            year = if (new.year != 0) new.year else old.year,
-            descriptionText = new.descriptionText ?: old.descriptionText,
-            descriptionFormatted = new.descriptionFormatted ?: old.descriptionFormatted,
-            volume = new.volume ?: old.volume,
-            bookType = new.bookType.ifBlank { old.bookType },
-            ageRating = new.ageRating ?: old.ageRating,
-            comicImage = new.comicImage.ifBlank { old.comicImage },
-            totalIssues = if (new.totalIssues != 0) new.totalIssues else old.totalIssues,
-            publicationRun = new.publicationRun.ifBlank { old.publicationRun },
-            status = (new.status ?: old.status) ?: MylarStatus.Continuing,
-            collects = new.collects.ifEmpty { old.collects }
-        )
-    }
 }

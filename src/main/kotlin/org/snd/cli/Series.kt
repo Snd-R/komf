@@ -46,7 +46,7 @@ class Series : CliktCommand() {
             val komgaMetadataService = module.metadataService
             val series = client.getSeries(MediaServerSeriesId(id))
             echo("searching...")
-            val results = komgaMetadataService.searchSeriesMetadata(name)
+            val results = komgaMetadataService.searchSeriesMetadata(name, series.libraryId.id)
             val output = results.mapIndexed { index, result -> "${index + 1}. ${result.title} - ${result.provider} id=${result.resultId}" }
                 .joinToString("\n")
             echo(output)

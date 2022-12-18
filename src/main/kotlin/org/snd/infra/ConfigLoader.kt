@@ -82,9 +82,6 @@ class ConfigLoader {
 
     @Suppress("DEPRECATION")
     private fun checkDeprecatedOptions(config: AppConfig): AppConfig {
-        val discordConfig = config.discord
-        val discordWebhooks = discordConfig.webhooks ?: config.komga.webhooks
-
         val defaultProviders = config.metadataProviders.defaultProviders
         val mangaUpdates = config.metadataProviders.mangaUpdates
         val mal = config.metadataProviders.mal
@@ -95,13 +92,9 @@ class ConfigLoader {
         val viz = config.metadataProviders.viz
         val bookWalker = config.metadataProviders.bookWalker
 
-        val komgaUpdateModes = config.komga.metadataUpdate.mode?.let { setOf(it) } ?: config.komga.metadataUpdate.modes
         warnAboutDeprecatedOptions(config)
 
         return config.copy(
-            discord = discordConfig.copy(
-                webhooks = discordWebhooks
-            ),
             metadataProviders = config.metadataProviders.copy(
                 defaultProviders = defaultProviders.copy(
                     mangaUpdates = mangaUpdates ?: defaultProviders.mangaUpdates,
@@ -114,20 +107,12 @@ class ConfigLoader {
                     bookWalker = bookWalker ?: defaultProviders.bookWalker,
                 )
             ),
-            komga = config.komga.copy(
-                metadataUpdate = config.komga.metadataUpdate.copy(
-                    modes = komgaUpdateModes
-                )
-            )
         )
     }
 
     @Suppress("DEPRECATION")
     private fun warnAboutDeprecatedOptions(config: AppConfig) {
         val deprecatedOptions = listOfNotNull(
-            config.komga.webhooks?.let { "komga.webhooks" },
-            config.komga.metadataUpdate.mode?.let { "komga.metadataUpdate.mode" },
-            config.kavita.metadataUpdate.mode?.let { "kavita.metadataUpdate.mode" },
             config.metadataProviders.mangaUpdates?.let { "metadataProviders.mangaUpdates" },
             config.metadataProviders.mal?.let { "metadataProviders.mal" },
             config.metadataProviders.nautiljon?.let { "metadataProviders.nautiljon" },

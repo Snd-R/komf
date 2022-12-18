@@ -84,7 +84,6 @@ class MediaServerModule(
         metadataUpdateConfig = komgaConfig.metadataUpdate,
         metadataUpdateMapper = MetadataUpdateMapper(komgaConfig.metadataUpdate),
         comicInfoWriter = metadataModule.comicInfoWriter,
-        seriesJsonWriter = metadataModule.seriesJsonWriter,
         serverType = KOMGA,
     )
     val komgaMetadataService = MetadataService(
@@ -164,7 +163,6 @@ class MediaServerModule(
         metadataUpdateConfig = kavitaConfig.metadataUpdate,
         metadataUpdateMapper = MetadataUpdateMapper(kavitaConfig.metadataUpdate),
         comicInfoWriter = metadataModule.comicInfoWriter,
-        seriesJsonWriter = metadataModule.seriesJsonWriter,
         serverType = KAVITA,
     )
     val kavitaMetadataService = MetadataService(

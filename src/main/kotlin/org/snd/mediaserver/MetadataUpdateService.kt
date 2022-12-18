@@ -1,7 +1,8 @@
 package org.snd.mediaserver
 
 import org.snd.config.MetadataUpdateConfig
-import org.snd.mediaserver.UpdateMode.*
+import org.snd.mediaserver.UpdateMode.API
+import org.snd.mediaserver.UpdateMode.COMIC_INFO
 import org.snd.mediaserver.model.*
 import org.snd.mediaserver.repository.MatchedBook
 import org.snd.mediaserver.repository.MatchedBookRepository
@@ -12,7 +13,6 @@ import org.snd.metadata.comicinfo.ComicInfoWriter
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.mylar.SeriesJsonWriter
 import java.nio.file.Path
 
 class MetadataUpdateService(
@@ -22,10 +22,9 @@ class MetadataUpdateService(
     private val metadataUpdateConfig: MetadataUpdateConfig,
     private val metadataUpdateMapper: MetadataUpdateMapper,
     private val comicInfoWriter: ComicInfoWriter,
-    private val seriesJsonWriter: SeriesJsonWriter,
     private val serverType: MediaServer,
 ) {
-    private val requireMetadataRefresh = setOf(FILE_EMBED, COMIC_INFO, SERIES_JSON)
+    private val requireMetadataRefresh = setOf(COMIC_INFO)
 
     fun updateMetadata(series: MediaServerSeries, metadata: SeriesAndBookMetadata) {
         if (metadata.seriesMetadata != null) updateSeriesMetadata(series, metadata.seriesMetadata)
@@ -43,11 +42,7 @@ class MetadataUpdateService(
                     mediaServerClient.updateSeriesMetadata(series.id, metadataUpdate)
                 }
 
-                COMIC_INFO, FILE_EMBED -> {}
-                SERIES_JSON -> {
-                    val mylarMetadata = metadataUpdateMapper.toMylarMetadata(series, metadata)
-                    seriesJsonWriter.write(Path.of(series.url), mylarMetadata)
-                }
+                COMIC_INFO -> {}
             }
         }
 
@@ -85,7 +80,7 @@ class MetadataUpdateService(
                 API -> metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book.metadata)
                     ?.let { mediaServerClient.updateBookMetadata(book.id, it) }
 
-                COMIC_INFO, FILE_EMBED -> {
+                COMIC_INFO -> {
                     if (book.deleted.not()) {
                         if (writeSeriesMetadata) seriesMeta?.let {
                             val comicInfo = metadataUpdateMapper.toSeriesComicInfo(it)
@@ -95,8 +90,6 @@ class MetadataUpdateService(
                             ?.let { comicInfoWriter.writeMetadata(Path.of(book.url), it) }
                     }
                 }
-
-                SERIES_JSON -> {}
             }
         }
 
@@ -187,7 +180,7 @@ class MetadataUpdateService(
     }
 
     private fun bookToWriteSeriesMetadata(bookMetadata: Map<MediaServerBook, BookMetadata?>): MediaServerBookId? {
-        return if (metadataUpdateConfig.modes.any { it == COMIC_INFO || it == FILE_EMBED }
+        return if (metadataUpdateConfig.modes.any { it == COMIC_INFO }
             && bookMetadata.all { it.value == null }) {
             return bookMetadata.keys.asSequence()
                 .mapNotNull { book -> BookFilenameParser.getVolumes(book.name)?.let { book to it } }

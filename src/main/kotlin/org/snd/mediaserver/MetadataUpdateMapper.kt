@@ -7,10 +7,6 @@ import org.snd.metadata.comicinfo.model.ComicInfo
 import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.SeriesStatus
-import org.snd.metadata.mylar.model.MylarAgeRating
-import org.snd.metadata.mylar.model.MylarMetadata
-import org.snd.metadata.mylar.model.MylarStatus
 
 class MetadataUpdateMapper(
     private val metadataUpdateConfig: MetadataUpdateConfig,
@@ -128,37 +124,6 @@ class MetadataUpdateMapper(
                         ?: AgeRating.ADULTS_ONLY_18)
                         .value
                 }
-        )
-    }
-
-    fun toMylarMetadata(series: MediaServerSeries, seriesMetadata: SeriesMetadata): MylarMetadata {
-        val status = when (seriesMetadata.status) {
-            SeriesStatus.ENDED -> MylarStatus.Ended
-            SeriesStatus.ONGOING -> MylarStatus.Continuing
-            else -> MylarStatus.Continuing
-        }
-
-        return MylarMetadata(
-            type = "",
-            publisher = seriesMetadata.publisher ?: "",
-            imprint = null,
-            name = if (metadataUpdateConfig.seriesTitle) seriesMetadata.title ?: series.name else series.name,
-            comicid = "",
-            cid = "",
-            year = 0,
-            descriptionText = null,
-            descriptionFormatted = seriesMetadata.summary,
-            volume = null,
-            bookType = "",
-            ageRating = seriesMetadata.ageRating?.let { metadataRating ->
-                MylarAgeRating.values().filter { it.ageRating != null }
-                    .maxByOrNull { it.ageRating!!.coerceAtLeast(metadataRating) }?.value
-            },
-            comicImage = "",
-            totalIssues = seriesMetadata.totalBookCount ?: series.booksCount ?: 1,
-            publicationRun = "",
-            status = status,
-            collects = emptyList(),
         )
     }
 

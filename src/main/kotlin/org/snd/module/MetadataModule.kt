@@ -16,7 +16,6 @@ import org.snd.metadata.NameMatchingMode
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.comicinfo.ComicInfoWriter
 import org.snd.metadata.model.Provider
-import org.snd.metadata.mylar.SeriesJsonWriter
 import org.snd.metadata.providers.anilist.AniListClient
 import org.snd.metadata.providers.anilist.AniListMetadataMapper
 import org.snd.metadata.providers.anilist.AniListMetadataProvider
@@ -51,7 +50,6 @@ class MetadataModule(
     private val jsonModule: JsonModule
 ) {
     val comicInfoWriter = createComicInfoWriter()
-    val seriesJsonWriter = SeriesJsonWriter(jsonModule.moshi)
     private val nameSimilarityMatcher = createNameSimilarityMatcher(config.nameMatchingMode)
 
     private val malClient = createMalClient(config.malClientId)
