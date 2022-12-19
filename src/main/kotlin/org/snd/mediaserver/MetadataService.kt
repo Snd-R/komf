@@ -74,7 +74,7 @@ class MetadataService(
         val matchResult = metadataProviders.providers(series.libraryId.id).asSequence()
             .mapNotNull { provider -> provider.matchSeriesMetadata(seriesTitle)?.let { provider to it } }
             .map { (provider, seriesMetadata) ->
-                logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
+                logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
                 val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, null)
                 provider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
             }
@@ -162,11 +162,8 @@ class MetadataService(
         if (providers.isEmpty()) return metadata
         logger.info { "launching metadata aggregation using ${providers.map { it.providerName() }}" }
 
-        val searchTitles =
-            setOfNotNull(
-                series.metadata.title.ifBlank { series.name },
-                metadata.seriesMetadata?.title
-            ) + (metadata.seriesMetadata?.alternativeTitles ?: emptySet())
+        val searchTitles = listOf(series.metadata.title.ifBlank { series.name }) +
+                (metadata.seriesMetadata?.titles?.map { it.name } ?: emptySet())
 
         return providers.map { provider ->
             CompletableFuture.supplyAsync({
@@ -193,7 +190,7 @@ class MetadataService(
             .onEach { logger.info { "searching \"$it\" using ${provider.providerName()}" } }
             .mapNotNull { provider.matchSeriesMetadata(it) }
             .map { seriesMetadata ->
-                logger.info { "found match: \"${seriesMetadata.metadata.title}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
+                logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
                 val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, bookEdition)
                 SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
             }

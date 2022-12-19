@@ -60,11 +60,19 @@ class NautiljonParser {
         val authorsArt = parseAuthorsArt(dataEntries).ifEmpty { authorsStory }
         val (numberOfVolumes, status) = parseNumberOfVolumesAndStatus(dataEntries)
 
+        val originalTitles = parseOriginalTitles(dataEntries)
+        val (romajiTitle, japaneseTitle) = if (originalTitles.size == 2) {
+            originalTitles[0] to originalTitles[1]
+        } else {
+            null to null
+        }
+
         return Series(
             id = parseSeriesId(document),
             title = parseTitle(document),
             alternativeTitles = parseAlternativeTitles(dataEntries),
-            originalTitles = parseOriginalTitles(dataEntries),
+            romajiTitle = romajiTitle,
+            japaneseTitle = japaneseTitle,
             description = parseDescription(document),
             imageUrl = parseImageUrl(document),
             country = country,
@@ -142,7 +150,7 @@ class NautiljonParser {
             ?: emptyList()
     }
 
-    private fun parseOriginalTitles(dataEntries: Elements): Collection<String> {
+    private fun parseOriginalTitles(dataEntries: Elements): List<String> {
         return dataEntries
             .firstOrNull { it.child(0).text().equals("Titre original :") }
             ?.textNodes()?.first()?.text()?.split("/")

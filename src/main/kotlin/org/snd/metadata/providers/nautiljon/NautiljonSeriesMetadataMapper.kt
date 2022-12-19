@@ -4,6 +4,8 @@ import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.*
+import org.snd.metadata.model.TitleType.NATIVE
+import org.snd.metadata.model.TitleType.ROMAJI
 import org.snd.metadata.providers.nautiljon.model.Series
 import org.snd.metadata.providers.nautiljon.model.Volume
 
@@ -37,11 +39,15 @@ class NautiljonSeriesMetadataMapper(
             seriesMetadataConfig.frenchPublisherTagName
                 ?.let { tag -> series.frenchPublisher?.let { publisher -> "$tag: $publisher" } }
         )
+        val titles = listOfNotNull(
+            SeriesTitle(series.title, TitleType.LOCALIZED),
+            series.romajiTitle?.let { SeriesTitle(it, ROMAJI) },
+            series.japaneseTitle?.let { SeriesTitle(it, NATIVE) },
+        ) + series.alternativeTitles.map { SeriesTitle(it, null) }
 
         val metadata = SeriesMetadata(
             status = status,
-            title = series.title,
-            titleSort = series.title,
+            titles = titles,
             summary = series.description,
             publisher = if (seriesMetadataConfig.useOriginalPublisher) series.originalPublisher
             else series.frenchPublisher ?: series.originalPublisher,
@@ -53,7 +59,6 @@ class NautiljonSeriesMetadataMapper(
             thumbnail = thumbnail,
             totalBookCount = series.numberOfVolumes,
             ageRating = series.recommendedAge,
-            alternativeTitles = series.alternativeTitles + series.originalTitles,
             releaseDate = ReleaseDate(series.startYear?.value, null, null)
         )
         val providerMetadata = ProviderSeriesMetadata(

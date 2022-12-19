@@ -9,6 +9,7 @@ data class BookWalkerBook(
 
     val seriesTitle: String,
     val japaneseTitle: String?,
+    val romajiTitle: String?,
     val artists: Collection<String>,
     val authors: Collection<String>,
     val publisher: String,

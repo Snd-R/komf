@@ -5,6 +5,7 @@ import org.snd.config.SeriesMetadataConfig
 import org.snd.fragment.AniListManga
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.*
+import org.snd.metadata.model.TitleType.*
 import org.snd.type.MediaStatus
 
 class AniListMetadataMapper(
@@ -61,20 +62,27 @@ class AniListMetadataMapper(
             ?.toList()
             ?: emptyList()
 
-        val title = series.title?.english ?: series.title?.romaji ?: series.title?.native
-
+        val titles = listOfNotNull(
+            series.title?.english?.let {
+                SeriesTitle(name = it, type = LOCALIZED)
+            },
+            series.title?.romaji?.let {
+                SeriesTitle(name = it, type = ROMAJI)
+            },
+            series.title?.native?.let {
+                SeriesTitle(name = it, type = NATIVE)
+            },
+        )
 
         val metadata = SeriesMetadata(
             status = status,
-            title = title,
-            titleSort = title,
+            titles = titles,
             summary = series.description?.let { Jsoup.parse(it).wholeText() },
             genres = series.genres?.filterNotNull() ?: emptyList(),
             tags = tags,
             authors = authors ?: emptyList(),
             thumbnail = thumbnail,
             totalBookCount = series.volumes,
-            alternativeTitles = series.title?.let { listOfNotNull(it.english, it.romaji, it.native) } ?: emptyList(),
             releaseDate = ReleaseDate(
                 year = series.startDate?.year,
                 month = series.startDate?.month,

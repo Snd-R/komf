@@ -42,6 +42,7 @@ class BookWalkerParser {
         val japaneseTitles = productDetail.children().firstOrNull { it.child(0).text() == "Japanese Title" }
             ?.child(1)?.child(0)?.child(0)
         val japaneseTitle = japaneseTitles?.textNodes()?.firstOrNull()?.text()?.removeSuffix(" (")
+        val romajiTitle = japaneseTitles?.getElementsByClass("product-detail-romaji")?.first()?.text()?.removeSuffix(")")
         val authors = productDetail.children().firstOrNull { it.child(0).text() == "Author" || it.child(0).text() == "By (author)" }
             ?.child(1)?.children()?.map { it.text() } ?: emptyList()
         val artists = productDetail.children().firstOrNull { it.child(0).text() == "Artist" || it.child(0).text() == "By (artist)" }
@@ -62,6 +63,7 @@ class BookWalkerParser {
             number = parseBookNumber(name),
             seriesTitle = seriesTitle,
             japaneseTitle = japaneseTitle,
+            romajiTitle = romajiTitle,
             artists = artists,
             authors = authors,
             publisher = publisher,

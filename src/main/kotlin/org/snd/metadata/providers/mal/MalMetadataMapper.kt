@@ -3,6 +3,7 @@ package org.snd.metadata.providers.mal
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.*
+import org.snd.metadata.model.TitleType.*
 import org.snd.metadata.providers.mal.model.Series
 import java.time.LocalDate
 
@@ -57,20 +58,20 @@ class MalMetadataMapper(
             null
         }
 
+        val titles = listOfNotNull(
+            SeriesTitle(series.title, ROMAJI),
+            series.alternativeTitles?.en?.let { SeriesTitle(it, LOCALIZED) },
+            series.alternativeTitles?.ja?.let { SeriesTitle(it, NATIVE) })
+
         val metadata = SeriesMetadata(
             status = status,
-            title = series.title,
-            titleSort = series.title,
+            titles = titles,
             summary = series.synopsis,
             genres = series.genres,
             authors = authors,
             publisher = null,
             thumbnail = thumbnail,
             tags = emptyList(),
-            alternativeTitles = series.alternativeTitles?.let { it.synonyms + listOf(it.en, it.ja) }
-                ?.filter { it.isNotBlank() }
-                ?.filter { it != series.title }
-                ?: emptyList(),
             releaseDate = releaseDate
         )
 

@@ -4,6 +4,7 @@ import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.*
+import org.snd.metadata.model.TitleType.LOCALIZED
 import org.snd.metadata.providers.yenpress.model.YenPressBook
 
 class YenPressMetadataMapper(
@@ -13,8 +14,7 @@ class YenPressMetadataMapper(
     fun toSeriesMetadata(book: YenPressBook, thumbnail: Image? = null): ProviderSeriesMetadata {
         val metadata = SeriesMetadata(
             status = null,
-            title = book.name,
-            titleSort = book.name,
+            titles = listOf(SeriesTitle(book.name, LOCALIZED)),
             summary = book.description,
             publisher = book.publisher,
             genres = book.genres,

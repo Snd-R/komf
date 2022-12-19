@@ -3,6 +3,7 @@ package org.snd.metadata.providers.mangaupdates
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.*
+import org.snd.metadata.model.TitleType.ROMAJI
 import org.snd.metadata.providers.mangaupdates.model.Series
 import org.snd.metadata.providers.mangaupdates.model.Status
 
@@ -44,10 +45,11 @@ class MangaUpdatesMetadataMapper(
         val tags = series.categories.sortedByDescending { it.votes }.take(15)
             .map { it.name } + listOfNotNull(originalPublisherTag, englishPublisherTag)
 
+        val titles = listOf(SeriesTitle(series.title, ROMAJI)) + series.associatedNames.map { SeriesTitle(it, null) }
+
         val metadata = SeriesMetadata(
             status = status,
-            title = series.title,
-            titleSort = series.title,
+            titles = titles,
             summary = series.description,
             publisher = if (metadataConfig.useOriginalPublisher) originalPublishers.firstOrNull() else englishPublishers.firstOrNull()
                 ?: originalPublishers.firstOrNull(),
@@ -56,7 +58,6 @@ class MangaUpdatesMetadataMapper(
             genres = series.genres,
             tags = tags,
             authors = authors,
-            alternativeTitles = series.associatedNames,
             thumbnail = thumbnail,
             releaseDate = ReleaseDate(series.year?.value, null, null)
         )

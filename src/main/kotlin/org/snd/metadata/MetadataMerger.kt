@@ -12,8 +12,7 @@ object MetadataMerger {
     ): SeriesMetadata {
         return SeriesMetadata(
             status = originalSeriesMetadata.status ?: newSeriesMetadata.status,
-            title = originalSeriesMetadata.title ?: newSeriesMetadata.title,
-            titleSort = originalSeriesMetadata.titleSort ?: newSeriesMetadata.titleSort,
+            titles = originalSeriesMetadata.titles + newSeriesMetadata.titles,
             summary = originalSeriesMetadata.summary ?: newSeriesMetadata.summary,
             publisher = originalSeriesMetadata.publisher ?: newSeriesMetadata.publisher,
             alternativePublishers = originalSeriesMetadata.alternativePublishers.ifEmpty { newSeriesMetadata.alternativePublishers },

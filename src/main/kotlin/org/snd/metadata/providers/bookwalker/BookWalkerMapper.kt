@@ -4,6 +4,8 @@ import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.*
+import org.snd.metadata.model.TitleType.LOCALIZED
+import org.snd.metadata.model.TitleType.NATIVE
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
@@ -26,9 +28,14 @@ class BookWalkerMapper(
         allBooks: Collection<BookWalkerSeriesBook>,
         thumbnail: Image? = null
     ): ProviderSeriesMetadata {
+        val titles = listOfNotNull(
+            SeriesTitle(book.seriesTitle, LOCALIZED),
+            book.romajiTitle?.let { SeriesTitle(it, LOCALIZED) },
+            book.japaneseTitle?.let { SeriesTitle(it, NATIVE) }
+        )
+
         val metadata = SeriesMetadata(
-            title = book.seriesTitle,
-            titleSort = book.seriesTitle,
+            titles = titles,
             summary = book.synopsis,
             publisher = book.publisher,
             genres = book.genres,

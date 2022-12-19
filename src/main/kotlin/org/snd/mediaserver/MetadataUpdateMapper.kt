@@ -8,6 +8,7 @@ import org.snd.metadata.comicinfo.model.ComicInfo
 import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesTitle
 import kotlin.math.floor
 
 class MetadataUpdateMapper(
@@ -49,11 +50,16 @@ class MetadataUpdateMapper(
                 ?: getIfNotLockedOrEmpty(patch.readingDirection, readingDirectionLock)
 
             val authors = (patch.authors.map { MediaServerAuthor(it.name, it.role.name) }.ifEmpty { null })
+            val seriesTitle = seriesTitle(patch.titles)
 
             MediaServerSeriesMetadataUpdate(
                 status = getIfNotLockedOrEmpty(patch.status, statusLock),
-                title = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.title, titleLock) else null,
-                titleSort = if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(patch.titleSort, titleSortLock) else null,
+                title =
+                if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(seriesTitle, titleLock)
+                else null,
+                titleSort =
+                if (metadataUpdateConfig.seriesTitle) getIfNotLockedOrEmpty(seriesTitle, titleSortLock)
+                else null,
                 summary = getIfNotLockedOrEmpty(patch.summary, summaryLock),
                 publisher = getIfNotLockedOrEmpty(patch.publisher, publisherLock),
                 alternativePublishers = getIfNotLockedOrEmpty(patch.alternativePublishers, publisherLock),
@@ -73,7 +79,7 @@ class MetadataUpdateMapper(
 
         return ComicInfo(
 //            title = bookMetadata?.title, // disabled until common naming convention is implemented
-            series = if (metadataUpdateConfig.seriesTitle) seriesMetadata?.title else null,
+            series = if (metadataUpdateConfig.seriesTitle) seriesMetadata?.titles?.let { seriesTitle(it) } else null,
             number = bookMetadata?.number?.toString(),
             count = seriesMetadata?.totalBookCount,
             summary = bookMetadata?.summary,
@@ -107,7 +113,7 @@ class MetadataUpdateMapper(
     fun toSeriesComicInfo(seriesMetadata: SeriesMetadata): ComicInfo {
         val authors = seriesMetadata.authors
         return ComicInfo(
-            series = if (metadataUpdateConfig.seriesTitle) seriesMetadata.title else null,
+            series = if (metadataUpdateConfig.seriesTitle) seriesTitle(seriesMetadata.titles) else null,
             number = "1",
             count = seriesMetadata.totalBookCount,
             summary = seriesMetadata.summary,
@@ -142,4 +148,11 @@ class MetadataUpdateMapper(
         if (patched is Collection<*> && patched.isEmpty()) null
         else if (patched != null && !lock) patched
         else null
+
+    private fun seriesTitle(titles: Collection<SeriesTitle>): String? {
+        val preferredType = metadataUpdateConfig.titleType
+        val knownTitles = titles.filter { it.type != null }
+
+        return (knownTitles.find { it.type == preferredType } ?: knownTitles.firstOrNull())?.name
+    }
 }

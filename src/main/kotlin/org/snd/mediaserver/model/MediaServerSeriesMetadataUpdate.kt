@@ -2,10 +2,12 @@ package org.snd.mediaserver.model
 
 import org.snd.metadata.model.ReadingDirection
 import org.snd.metadata.model.SeriesStatus
+import org.snd.metadata.model.SeriesTitle
 
 data class MediaServerSeriesMetadataUpdate(
     val status: SeriesStatus? = null,
     val title: String? = null,
+    val alternativeTitles: Collection<SeriesTitle>? = null,
     val titleSort: String? = null,
     val summary: String? = null,
     val readingDirection: ReadingDirection? = null,

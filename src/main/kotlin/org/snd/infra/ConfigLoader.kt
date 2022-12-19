@@ -96,6 +96,7 @@ class ConfigLoader {
 
         return config.copy(
             metadataProviders = config.metadataProviders.copy(
+                malClientId = mal?.clientId ?: config.metadataProviders.malClientId,
                 defaultProviders = defaultProviders.copy(
                     mangaUpdates = mangaUpdates ?: defaultProviders.mangaUpdates,
                     mal = mal ?: defaultProviders.mal,

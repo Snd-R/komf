@@ -6,6 +6,7 @@ import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.*
 import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.SeriesStatus.ENDED
+import org.snd.metadata.model.TitleType.LOCALIZED
 import org.snd.metadata.providers.viz.model.VizBook
 import org.snd.metadata.providers.viz.model.VizSeriesBook
 
@@ -24,8 +25,7 @@ class VizMetadataMapper(
     fun toSeriesMetadata(book: VizBook, allBooks: Collection<VizSeriesBook>, thumbnail: Image? = null): ProviderSeriesMetadata {
         val metadata = SeriesMetadata(
             status = if (allBooks.any { it.final }) ENDED else null,
-            title = book.seriesName,
-            titleSort = book.seriesName,
+            titles = listOf(SeriesTitle(book.seriesName, LOCALIZED)),
             summary = book.description,
             publisher = book.publisher,
             ageRating = book.ageRating?.age,

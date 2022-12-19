@@ -6,6 +6,7 @@ import org.snd.mediaserver.UpdateMode.API
 import org.snd.metadata.NameMatchingMode
 import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
 import org.snd.metadata.model.ReadingDirection
+import org.snd.metadata.model.TitleType
 
 @Serializable
 data class AppConfig(
@@ -50,6 +51,7 @@ data class MetadataUpdateConfig(
     val bookThumbnails: Boolean = false,
     val seriesThumbnails: Boolean = true,
     val seriesTitle: Boolean = false,
+    val titleType: TitleType = TitleType.LOCALIZED,
     val readingDirectionValue: ReadingDirection? = null,
     val languageValue: String? = null,
     val orderBooks: Boolean = false,

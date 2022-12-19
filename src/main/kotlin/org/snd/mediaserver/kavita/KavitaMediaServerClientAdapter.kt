@@ -65,6 +65,11 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
     }
 
     override fun updateSeriesMetadata(seriesId: MediaServerSeriesId, metadata: MediaServerSeriesMetadataUpdate) {
+        if (metadata.title != null) {
+            val series = kavitaClient.getSeries(seriesId.kavitaSeriesId())
+            kavitaClient.updateSeries(series.kavitaTitleUpdate(metadata.title))
+        }
+
         val oldMetadata = kavitaClient.getSeriesMetadata(seriesId.kavitaSeriesId())
         kavitaClient.updateSeriesMetadata(metadata.kavitaSeriesMetadataUpdate(oldMetadata))
     }

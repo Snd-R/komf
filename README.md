@@ -62,10 +62,11 @@ komga:
     # Update modes is the way komf will update metadata.
     # If you're using anything other than API then your existing files might be modified with embedded metadata
     modes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
-    bookThumbnails: false #update book thumbnails
-    seriesThumbnails: true #update series thumbnails
-    seriesTitle: false #update series title
-    readingDirectionValue: #override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
+    bookThumbnails: false # update book thumbnails
+    seriesThumbnails: true # update series thumbnails
+    seriesTitle: false # update series title
+    titleType: LOCALIZED # "LOCALIZED" "ROMAJI" or "NATIVE"
+    readingDirectionValue: # override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
     languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
     orderBooks: false # will order books using parsed volume or chapter number
 kavita:
@@ -84,6 +85,7 @@ kavita:
     bookThumbnails: false #update book thumbnails
     seriesThumbnails: true #update series thumbnails
     seriesTitle: false #update series title
+    titleType: LOCALIZED # Can be "LOCALIZED" "ROMAJI" or "NATIVE". Sets Localized Name api field and series comicinfo field. 
     languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
