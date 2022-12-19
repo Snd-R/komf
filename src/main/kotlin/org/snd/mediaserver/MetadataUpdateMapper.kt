@@ -114,7 +114,6 @@ class MetadataUpdateMapper(
         val authors = seriesMetadata.authors
         return ComicInfo(
             series = if (metadataUpdateConfig.seriesTitle) seriesTitle(seriesMetadata.titles) else null,
-            number = "1",
             count = seriesMetadata.totalBookCount,
             summary = seriesMetadata.summary,
             year = seriesMetadata.releaseDate?.year,

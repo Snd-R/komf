@@ -183,13 +183,14 @@ class MetadataUpdateService(
     private fun bookToWriteSeriesMetadata(bookMetadata: Map<MediaServerBook, BookMetadata?>): MediaServerBookId? {
         return if (metadataUpdateConfig.modes.any { it == COMIC_INFO }
             && bookMetadata.all { it.value == null }) {
-            return bookMetadata.keys.asSequence()
+            val books = bookMetadata.keys.sortedBy { it.name.lowercase() }
+            return books.asSequence()
                 .mapNotNull { book -> BookFilenameParser.getVolumes(book.name)?.let { book to it } }
                 .filter { (_, number) -> number.first == number.last }
                 .map { (book, number) -> book to number.first }
                 .filter { (_, number) -> number == 1 }
                 .map { (book, _) -> book.id }
-                .firstOrNull()
+                .firstOrNull() ?: books[0].id
 
         } else null
     }
