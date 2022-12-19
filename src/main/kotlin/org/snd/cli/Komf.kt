@@ -44,8 +44,16 @@ class Komf : CliktCommand(invokeWithoutSubcommand = true) {
     private fun setAppLogLevel(verbose: Boolean, config: AppConfig) {
         val rootLogger = getLogger(ROOT_LOGGER_NAME) as Logger
         if (verbose) rootLogger.level = DEBUG
-        else rootLogger.level = valueOf(config.logLevel.uppercase())
-        (getLogger("org.eclipse.jetty") as Logger).level = ERROR
+        else {
+            val logLevel = valueOf(config.logLevel.uppercase())
+            if (logLevel == INFO) {
+                (getLogger("org.flywaydb") as Logger).level = WARN
+                (getLogger("com.zaxxer.hikari") as Logger).level = WARN
+            }
+
+            rootLogger.level = valueOf(config.logLevel.uppercase())
+        }
+        (getLogger("org.eclipse.jetty") as Logger).level = WARN
     }
 
     private fun setCliLogLevel(verbose: Boolean) {
