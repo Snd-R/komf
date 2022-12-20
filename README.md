@@ -93,34 +93,63 @@ discord:
 database:
   file: ./database.sqlite #database file location.
 metadataProviders:
-  mangaUpdates:
-    priority: 10
-    enabled: true
-  mal: #requires clientId. See https://myanimelist.net/forum/?topicid=1973077
-    clientId: ""
-    priority: 20
-    enabled: false
-  nautiljon:
-    priority: 30
-    enabled: false
-  aniList:
-    priority: 40
-    enabled: false
-  yenPress:
-    priority: 50
-    enabled: false
-  kodansha:
-    priority: 60
-    enabled: false
-  viz:
-    priority: 70
-    enabled: false
-  bookWalker:
-    priority: 80
-    enabled: false
+  malClientId: #required for mal provider. See https://myanimelist.net/forum/?topicid=1973077
+  defaultProviders:
+    mangaUpdates:
+      priority: 10
+      enabled: true
+    mal:
+      priority: 20
+      enabled: false
+    nautiljon:
+      priority: 30
+      enabled: false
+    aniList:
+      priority: 40
+      enabled: false
+    yenPress:
+      priority: 50
+      enabled: false
+    kodansha:
+      priority: 60
+      enabled: false
+    viz:
+      priority: 70
+      enabled: false
+    bookWalker:
+      priority: 80
+      enabled: false
 server:
   port: 8085 #or env:KOMF_SERVER_PORT
 logLevel: INFO #or env:KOMF_LOG_LEVEL
+```
+
+## Providers config for a library
+
+You can configure a set of metadata providers that will only be used with specified library. If no providers are specified for a library
+then default providers will be used. kavita or komga library ids are used as library identifiers
+
+```yaml
+metadataProviders:
+  defaultProviders:
+    mangaUpdates:
+      priority: 10
+      enabled: true
+  libraryProviders:
+    09PERX1TW8GEK:
+      mangaUpdates:
+        priority: 10
+        enabled: true
+      bookWalker:
+        priority: 20
+        enabled: true
+    123:
+      aniList:
+        priority: 10
+        enabled: true
+      mal:
+        priority: 20
+        enabled: true
 ```
 
 ## Metadata aggregation
