@@ -2,9 +2,8 @@ package org.snd.metadata
 
 object BookFilenameParser {
     private val volumeRegex = "\\s\\(?[vtT](?<volume>[0-9]+)(?<volumeRange>-[0-9]+)?\\)?".toRegex()
-    private val chapterRegex = "\\sc?(?<startChapter>[0-9]+([.x][0-9]+)?)(?<endChapter>-c?[0-9]+([.x][0-9]+)?)?".toRegex()
-    private val extraDataRegex = "\\[(?<extra>.*?)\\]".toRegex()
-    private val titleRegex = "(?<title>^.*\\s-)".toRegex()
+    private val chapterRegex = "\\sc?(?<startChapter>[0-9]+([.x#][0-9]+)?)(?<endChapter>-[0-9]+([.x#][0-9]+)?)?".toRegex()
+    private val extraDataRegex = "\\[(?<extra>.*?)]".toRegex()
 
     fun getVolumes(name: String): IntRange? {
         val matchedGroups = volumeRegex.find(name)?.groups
@@ -19,14 +18,13 @@ object BookFilenameParser {
     }
 
     fun getChapters(name: String): ChapterRange? {
-        val matchedGroups = chapterRegex.find(name)?.groups
+        val matchedGroups = chapterRegex.findAll(name).lastOrNull()?.groups
         val startChapter = matchedGroups?.get("startChapter")?.value
-            ?.replace("x", ".")
+            ?.replace("[x#]".toRegex(), ".")
             ?.toDoubleOrNull()
         val endChapter = matchedGroups?.get("endChapter")?.value
             ?.replace("-", "")
-            ?.replace("c", "")
-            ?.replace("x", ".")
+            ?.replace("[x#]".toRegex(), ".")
             ?.toDoubleOrNull()
 
         return if (startChapter != null && endChapter != null) {
@@ -34,10 +32,6 @@ object BookFilenameParser {
         } else if (startChapter != null) {
             ChapterRange(startChapter, startChapter)
         } else null
-    }
-
-    fun getTitle(name: String): String? {
-        return titleRegex.find(name)?.groups?.get("title")?.value?.removeSuffix(" -")
     }
 
     fun getExtraData(name: String): List<String> {
