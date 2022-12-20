@@ -18,8 +18,8 @@ import org.snd.mediaserver.komga.model.event.TaskQueueStatusEvent
 import org.snd.mediaserver.model.MediaServer.KOMGA
 import org.snd.mediaserver.model.MediaServerBookId
 import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.mediaserver.repository.MatchedBookRepository
-import org.snd.mediaserver.repository.MatchedSeriesRepository
+import org.snd.mediaserver.repository.BookThumbnailsRepository
+import org.snd.mediaserver.repository.SeriesThumbnailsRepository
 import java.util.concurrent.ExecutorService
 import java.util.function.Predicate
 
@@ -31,8 +31,8 @@ class KomgaEventListener(
     private val komgaUrl: HttpUrl,
 
     private val metadataService: MetadataService,
-    private val matchedBookRepository: MatchedBookRepository,
-    private val matchedSeriesRepository: MatchedSeriesRepository,
+    private val bookThumbnailsRepository: BookThumbnailsRepository,
+    private val seriesThumbnailsRepository: SeriesThumbnailsRepository,
     private val libraryFilter: Predicate<String>,
     private val notificationService: NotificationService,
     private val executor: ExecutorService,
@@ -97,13 +97,13 @@ class KomgaEventListener(
                     val events = bookAddedEvents.groupBy({ MediaServerSeriesId(it.seriesId) }, { MediaServerBookId(it.bookId) })
 
                     bookDeletedEvents.forEach { book ->
-                        matchedBookRepository.findFor(MediaServerBookId(book.bookId), KOMGA)?.let {
-                            matchedBookRepository.delete(it.bookId, KOMGA)
+                        bookThumbnailsRepository.findFor(MediaServerBookId(book.bookId), KOMGA)?.let {
+                            bookThumbnailsRepository.delete(it.bookId, KOMGA)
                         }
                     }
                     seriesDeletedEvents.forEach { series ->
-                        matchedSeriesRepository.findFor(MediaServerSeriesId(series.seriesId), KOMGA)?.let {
-                            matchedSeriesRepository.delete(it.seriesId, KOMGA)
+                        seriesThumbnailsRepository.findFor(MediaServerSeriesId(series.seriesId), KOMGA)?.let {
+                            seriesThumbnailsRepository.delete(it.seriesId, KOMGA)
                         }
                     }
 

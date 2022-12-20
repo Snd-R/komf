@@ -3,11 +3,11 @@ package org.snd.mediaserver.repository
 import org.snd.mediaserver.model.MediaServer
 import org.snd.mediaserver.model.MediaServerBookId
 
-interface MatchedBookRepository {
+interface BookThumbnailsRepository {
 
-    fun findFor(bookId: MediaServerBookId, type: MediaServer): MatchedBook?
+    fun findFor(bookId: MediaServerBookId, type: MediaServer): BookThumbnail?
 
-    fun save(matchedBook: MatchedBook)
+    fun save(bookThumbnail: BookThumbnail)
 
     fun delete(bookId: MediaServerBookId, type: MediaServer)
 }

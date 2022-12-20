@@ -3,6 +3,9 @@ package org.snd.mediaserver
 import mu.KotlinLogging
 import org.apache.commons.lang3.StringUtils
 import org.snd.mediaserver.model.*
+import org.snd.mediaserver.model.MatchType.MANUAL
+import org.snd.mediaserver.repository.SeriesMatch
+import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.metadata.BookFilenameParser
 import org.snd.metadata.MetadataMerger
 import org.snd.metadata.MetadataProvider
@@ -18,7 +21,8 @@ class MetadataService(
     private val metadataProviders: MetadataProviders,
     private val aggregateMetadata: Boolean,
     private val executor: ExecutorService,
-    private val metadataUpdateService: MetadataUpdateService
+    private val metadataUpdateService: MetadataUpdateService,
+    private val seriesMatchRepository: SeriesMatchRepository
 ) {
     fun availableProviders(libraryId: String?) = libraryId
         ?.let { metadataProviders.providers(it) }
@@ -51,6 +55,15 @@ class MetadataService(
         } else SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
 
         metadataUpdateService.updateMetadata(series, metadata)
+        seriesMatchRepository.save(
+            SeriesMatch(
+                seriesId = series.id,
+                type = MANUAL,
+                provider = providerName,
+                providerSeriesId = providerSeriesId,
+                edition = edition
+            )
+        )
     }
 
     fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
@@ -70,15 +83,26 @@ class MetadataService(
     fun matchSeriesMetadata(seriesId: MediaServerSeriesId) {
         val series = mediaServerClient.getSeries(seriesId)
         val seriesTitle = series.metadata.title.ifBlank { series.name }
-        logger.info { "attempting to match series \"${seriesTitle}\" ${series.id}" }
-        val matchResult = metadataProviders.providers(series.libraryId.id).asSequence()
-            .mapNotNull { provider -> provider.matchSeriesMetadata(seriesTitle)?.let { provider to it } }
-            .map { (provider, seriesMetadata) ->
-                logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
-                val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, null)
-                provider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
-            }
-            .firstOrNull()
+
+        val existingMatch = seriesMatchRepository.findManualFor(seriesId)
+        val matchProvider = existingMatch?.provider?.let { metadataProviders.provider(series.libraryId.id, it) }
+
+        val matchResult = if (existingMatch != null && matchProvider != null) {
+            logger.info { "using ${matchProvider.providerName()} from previous manual identification for $seriesTitle ${series.id}" }
+            val seriesMetadata = matchProvider.getSeriesMetadata(existingMatch.providerSeriesId)
+            val bookMetadata = getBookMetadata(seriesId, seriesMetadata, matchProvider, existingMatch.edition)
+            matchProvider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
+        } else {
+            logger.info { "attempting to match series \"${seriesTitle}\" ${series.id}" }
+            metadataProviders.providers(series.libraryId.id).asSequence()
+                .mapNotNull { provider -> provider.matchSeriesMetadata(seriesTitle)?.let { provider to it } }
+                .map { (provider, seriesMetadata) ->
+                    logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()?.name}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
+                    val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, null)
+                    provider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
+                }
+                .firstOrNull()
+        }
 
         if (matchResult == null) {
             logger.info { "no match found for series $seriesTitle ${series.id}" }
@@ -190,7 +214,7 @@ class MetadataService(
             .onEach { logger.info { "searching \"$it\" using ${provider.providerName()}" } }
             .mapNotNull { provider.matchSeriesMetadata(it) }
             .map { seriesMetadata ->
-                logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
+                logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()?.name}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
                 val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, bookEdition)
                 SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
             }

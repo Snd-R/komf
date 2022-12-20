@@ -29,20 +29,20 @@ class MalMetadataMapper(
         val authors = series.authors.flatMap { author ->
             when (author.role) {
                 "Art" -> {
-                    artistRoles.map { role -> Author("${author.firstName} ${author.lastName}", role) }
+                    artistRoles.map { role -> Author("${author.firstName} ${author.lastName}".trim(), role) }
                 }
 
                 "Story" -> {
-                    listOf(Author("${author.firstName} ${author.lastName}", AuthorRole.WRITER))
+                    listOf(Author("${author.firstName} ${author.lastName}".trim(), AuthorRole.WRITER))
                 }
 
                 "Story & Art" -> {
                     artistRoles.map { role ->
                         Author(
-                            "${author.firstName} ${author.lastName}",
+                            "${author.firstName} ${author.lastName}".trim(),
                             role
                         )
-                    } + Author("${author.firstName} ${author.lastName}", AuthorRole.WRITER)
+                    } + Author("${author.firstName} ${author.lastName}".trim(), AuthorRole.WRITER)
                 }
 
                 else -> emptyList()

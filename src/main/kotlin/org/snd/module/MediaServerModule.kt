@@ -79,8 +79,8 @@ class MediaServerModule(
     val komgaMediaServerClient = KomgaMediaServerClientAdapter(komgaClient)
     val komgaMetadataUpdateService = MetadataUpdateService(
         mediaServerClient = komgaMediaServerClient,
-        matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
-        matchedBookRepository = repositoryModule.matchedBookRepository,
+        seriesThumbnailsRepository = repositoryModule.seriesThumbnailsRepository,
+        bookThumbnailsRepository = repositoryModule.bookThumbnailsRepository,
         metadataUpdateConfig = komgaConfig.metadataUpdate,
         metadataUpdateMapper = MetadataUpdateMapper(komgaConfig.metadataUpdate),
         comicInfoWriter = metadataModule.comicInfoWriter,
@@ -91,7 +91,8 @@ class MediaServerModule(
         metadataProviders = metadataModule.metadataProviders,
         aggregateMetadata = komgaConfig.aggregateMetadata,
         executor = metadataAggregationExecutor,
-        metadataUpdateService = komgaMetadataUpdateService
+        metadataUpdateService = komgaMetadataUpdateService,
+        seriesMatchRepository = repositoryModule.komgaSeriesMatchRepository
     )
 
     private val komgaNotificationService = NotificationService(
@@ -113,8 +114,8 @@ class MediaServerModule(
             else komgaConfig.eventListener.libraries.contains(it)
         },
         notificationService = komgaNotificationService,
-        matchedBookRepository = repositoryModule.matchedBookRepository,
-        matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
+        bookThumbnailsRepository = repositoryModule.bookThumbnailsRepository,
+        seriesThumbnailsRepository = repositoryModule.seriesThumbnailsRepository,
         executor = eventListenerExecutor,
     )
 
@@ -158,8 +159,8 @@ class MediaServerModule(
     val kavitaMediaServerClient = KavitaMediaServerClientAdapter(kavitaClient)
     val kavitaMetadataUpdateService = MetadataUpdateService(
         mediaServerClient = kavitaMediaServerClient,
-        matchedSeriesRepository = repositoryModule.matchedSeriesRepository,
-        matchedBookRepository = repositoryModule.matchedBookRepository,
+        seriesThumbnailsRepository = repositoryModule.seriesThumbnailsRepository,
+        bookThumbnailsRepository = repositoryModule.bookThumbnailsRepository,
         metadataUpdateConfig = kavitaConfig.metadataUpdate,
         metadataUpdateMapper = MetadataUpdateMapper(kavitaConfig.metadataUpdate),
         comicInfoWriter = metadataModule.comicInfoWriter,
@@ -170,7 +171,8 @@ class MediaServerModule(
         metadataProviders = metadataModule.metadataProviders,
         aggregateMetadata = kavitaConfig.aggregateMetadata,
         executor = metadataAggregationExecutor,
-        metadataUpdateService = kavitaMetadataUpdateService
+        metadataUpdateService = kavitaMetadataUpdateService,
+        seriesMatchRepository = repositoryModule.kavitaSeriesMatchRepository
     )
 
     private val kavitaNotificationService = NotificationService(
