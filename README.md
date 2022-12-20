@@ -93,7 +93,7 @@ discord:
 database:
   file: ./database.sqlite #database file location.
 metadataProviders:
-  malClientId: #required for mal provider. See https://myanimelist.net/forum/?topicid=1973077
+  malClientId: "" #required for mal provider. See https://myanimelist.net/forum/?topicid=1973077
   defaultProviders:
     mangaUpdates:
       priority: 10
