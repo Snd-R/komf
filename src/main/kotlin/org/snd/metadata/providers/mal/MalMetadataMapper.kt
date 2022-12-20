@@ -60,8 +60,8 @@ class MalMetadataMapper(
 
         val titles = listOfNotNull(
             SeriesTitle(series.title, ROMAJI),
-            series.alternativeTitles?.en?.let { SeriesTitle(it, LOCALIZED) },
-            series.alternativeTitles?.ja?.let { SeriesTitle(it, NATIVE) })
+            series.alternativeTitles?.en?.let { if (it.isNotBlank()) SeriesTitle(it, LOCALIZED) else null },
+            series.alternativeTitles?.ja?.let { if (it.isNotBlank()) SeriesTitle(it, NATIVE) else null })
 
         val metadata = SeriesMetadata(
             status = status,
