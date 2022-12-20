@@ -83,9 +83,13 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
 
     override fun deleteBookThumbnail(bookId: MediaServerBookId, thumbnailId: MediaServerThumbnailId) {}
 
-    override fun resetBookMetadata(bookId: MediaServerBookId, bookName: String) {}
+    override fun resetBookMetadata(bookId: MediaServerBookId, bookName: String) {
+        kavitaClient.resetChapterLock(bookId.kavitaChapterId())
+    }
 
     override fun resetSeriesMetadata(seriesId: MediaServerSeriesId, seriesName: String) {
+        val series = kavitaClient.getSeries(seriesId.kavitaSeriesId())
+        kavitaClient.updateSeries(series.kavitaCoverResetRequest())
         kavitaClient.updateSeriesMetadata(kavitaSeriesResetRequest(seriesId.kavitaSeriesId()))
     }
 

@@ -201,6 +201,19 @@ class KavitaClient(
         client.execute(request)
     }
 
+    fun resetChapterLock(chapterId: KavitaChapterId) {
+        val postBody = toJson(mapOf("id" to chapterId.id, "url" to ""))
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/upload/reset-chapter-lock")
+                    .build()
+            )
+            .post(postBody.toRequestBody(MEDIA_TYPE_JSON))
+            .build()
+
+        client.execute(request)
+    }
 
     private inline fun <reified T> parseJson(json: String): T {
         return moshi.adapter<T>().lenient().fromJson(json) ?: throw RuntimeException()
