@@ -12,14 +12,16 @@ private val logger = KotlinLogging.logger {}
 class ConfigLoader {
 
     fun loadConfig(configPath: Path?, configDirectory: Path?): AppConfig {
-        val configRaw = loadFromDirectory(configDirectory) ?: loadFromFile(configPath) ?: loadDefault()
+        val configRaw = loadFromDirectory(configDirectory) ?: loadFromFile(configPath)
 
         val config = configRaw?.let { Yaml.default.decodeFromString(AppConfig.serializer(), it) }
             ?: AppConfig()
 
-        return checkDeprecatedOptions(
+        val processedConfig = checkDeprecatedOptions(
             overrideConfigDirAndEnvVars(config, configDirectory?.toString())
         )
+        warnAboutDisabledProviders(processedConfig)
+        return processedConfig
     }
 
     private fun loadFromDirectory(configDirectory: Path?): String? {
@@ -34,10 +36,6 @@ class ConfigLoader {
         return path?.let {
             Files.readString(it.toRealPath())
         }
-    }
-
-    private fun loadDefault(): String? {
-        return AppConfig::class.java.getResource("/application.yml")?.readText()
     }
 
     private fun overrideConfigDirAndEnvVars(config: AppConfig, configDirectory: String?): AppConfig {
@@ -128,6 +126,22 @@ class ConfigLoader {
                 "DETECTED DEPRECATED CONFIG OPTIONS $deprecatedOptions\n" +
                         "These config options will be removed in future releases"
             }
+        }
+    }
+
+    private fun warnAboutDisabledProviders(config: AppConfig) {
+        if (
+            config.metadataProviders.defaultProviders.mangaUpdates.enabled.not() &&
+            config.metadataProviders.defaultProviders.mal.enabled.not() &&
+            config.metadataProviders.defaultProviders.nautiljon.enabled.not() &&
+            config.metadataProviders.defaultProviders.aniList.enabled.not() &&
+            config.metadataProviders.defaultProviders.yenPress.enabled.not() &&
+            config.metadataProviders.defaultProviders.kodansha.enabled.not() &&
+            config.metadataProviders.defaultProviders.viz.enabled.not() &&
+            config.metadataProviders.defaultProviders.bookWalker.enabled.not() &&
+            config.metadataProviders.libraryProviders.isEmpty()
+        ) {
+            logger.warn { "No metadata providers enabled. You will not be able to get new metadata" }
         }
     }
 }
