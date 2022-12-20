@@ -1,11 +1,12 @@
 package org.snd.metadata.providers.yenpress.model
 
+import org.snd.metadata.model.BookRange
 import java.time.LocalDate
 
 data class YenPressBook(
     val id: YenPressBookId,
     val name: String,
-    val number: Int?,
+    val number: BookRange?,
     val publisher: String = "Yen Press",
     val releaseDate: LocalDate?,
     val description: String?,
@@ -17,6 +18,6 @@ data class YenPressBook(
 
 data class YenPressSeriesBook(
     val id: YenPressBookId,
-    val number: Int?,
+    val number: BookRange?,
     val name: String?
 )

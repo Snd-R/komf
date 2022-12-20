@@ -14,7 +14,14 @@ class YenPressMetadataMapper(
     fun toSeriesMetadata(book: YenPressBook, thumbnail: Image? = null): ProviderSeriesMetadata {
         val metadata = SeriesMetadata(
             status = null,
-            titles = listOf(SeriesTitle(book.name, LOCALIZED)),
+            titles = listOf(
+                SeriesTitle(
+                    book.name
+                        .replace(", Vol. [0-9]+".toRegex(), "")
+                        .removeSuffix(" (manga)"),
+                    LOCALIZED
+                )
+            ),
             summary = book.description,
             publisher = book.publisher,
             genres = book.genres,

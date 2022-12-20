@@ -1,11 +1,12 @@
 package org.snd.metadata.providers.bookwalker.model
 
+import org.snd.metadata.model.BookRange
 import java.time.LocalDate
 
 data class BookWalkerBook(
     val id: BookWalkerBookId,
     val name: String,
-    val number: Int?,
+    val number: BookRange?,
 
     val seriesTitle: String,
     val japaneseTitle: String?,

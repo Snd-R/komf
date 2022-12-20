@@ -37,7 +37,7 @@ class KodanshaMetadataMapper(
             books = series.books.map {
                 SeriesBook(
                     id = ProviderBookId(it.id.id),
-                    number = it.number,
+                    number = it.number?.let { number -> BookRange(number.toDouble(), number.toDouble()) },
                     name = "${series.title} $it.number",
                     type = null,
                     edition = null
@@ -51,7 +51,7 @@ class KodanshaMetadataMapper(
         val metadata = BookMetadata(
             title = book.name,
             summary = book.summary,
-            number = book.number,
+            number = book.number?.let { number -> BookRange(number.toDouble(), number.toDouble()) },
             releaseDate = book.ebookReleaseDate ?: book.printReleaseDate,
             tags = book.tags.toSet(),
             isbn = book.eisbn ?: book.isbn,

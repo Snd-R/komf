@@ -12,7 +12,7 @@ data class YenPressSearchResult(
 fun YenPressSearchResult.toSeriesSearchResult(): SeriesSearchResult {
     return SeriesSearchResult(
         imageUrl = imageUrl,
-        title = title,
+        title = title.replace(", Vol. [0-9]+".toRegex(), ""),
         provider = YEN_PRESS,
         resultId = id.id
     )

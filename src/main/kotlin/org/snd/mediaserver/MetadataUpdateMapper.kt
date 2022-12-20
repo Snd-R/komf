@@ -2,14 +2,13 @@ package org.snd.mediaserver
 
 import org.snd.config.MetadataUpdateConfig
 import org.snd.mediaserver.model.*
-import org.snd.metadata.BookFilenameParser
+import org.snd.metadata.BookNameParser
 import org.snd.metadata.comicinfo.model.AgeRating
 import org.snd.metadata.comicinfo.model.ComicInfo
 import org.snd.metadata.model.AuthorRole.*
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesTitle
-import kotlin.math.floor
 
 class MetadataUpdateMapper(
     private val metadataUpdateConfig: MetadataUpdateConfig,
@@ -21,12 +20,9 @@ class MetadataUpdateMapper(
         book: MediaServerBook
     ): MediaServerBookMetadataUpdate {
         val number = if (metadataUpdateConfig.orderBooks) {
-            BookFilenameParser.getVolumes(book.name)?.first
-                ?: BookFilenameParser.getChapters(book.name)?.start?.let {
-                    if (floor(it) == it) it.toInt()
-                    else it
-                }
-        } else null
+            BookNameParser.getVolumes(book.name)
+                ?: BookNameParser.getChapters(book.name)
+        } else bookMetadata?.number
 
         return with(book.metadata) {
             val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors } ?: seriesMetadata?.authors?.ifEmpty { null })
@@ -39,7 +35,7 @@ class MetadataUpdateMapper(
                 tags = getIfNotLockedOrEmpty(bookMetadata?.tags, tagsLock),
                 isbn = getIfNotLockedOrEmpty(bookMetadata?.isbn, isbnLock),
                 number = getIfNotLockedOrEmpty(number?.toString(), numberLock),
-                numberSort = getIfNotLockedOrEmpty(number?.toDouble(), numberSortLock),
+                numberSort = getIfNotLockedOrEmpty(number?.start, numberSortLock),
             )
         }
     }

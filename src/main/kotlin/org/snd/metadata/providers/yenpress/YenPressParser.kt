@@ -3,6 +3,7 @@ package org.snd.metadata.providers.yenpress
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.snd.metadata.BookNameParser
 import org.snd.metadata.providers.yenpress.model.YenPressBook
 import org.snd.metadata.providers.yenpress.model.YenPressBookId
 import org.snd.metadata.providers.yenpress.model.YenPressSearchResult
@@ -21,11 +22,11 @@ class YenPressParser {
     }
 
     private fun parseSearchResult(result: Element): YenPressSearchResult? {
-        val titleFull = result.getElementsByClass("series-title").first()!!.text()
-        if (titleFull.contains("(light novel)")) return null
+        val title = result.getElementsByClass("series-title").first()!!.text()
+        if (title.contains("(light novel)")) return null
 
-        val (title, bookNumber) = getTitleAndBookNumber(titleFull)
-        if (bookNumber != 1) return null
+        val bookNumber = BookNameParser.getVolumes(title)
+        if (bookNumber?.start?.toInt() != 1) return null
 
         val cover = result.getElementsByClass("search-cover").first()!!.child(0)
         val coverImage = cover.child(0).attr("src").removeSuffix("?auto=format&w=298")
@@ -48,8 +49,7 @@ class YenPressParser {
             ?.removeSuffix("?auto=format&w=298")
             ?.plus("?w=1000")
 
-        val (title, bookNumber) = getTitleAndBookNumber(document.getElementById("book-title")!!.text())
-
+        val title = document.getElementById("book-title")!!.text()
         val description = document.getElementById("book-description-full")?.text()
         val genres = document.getElementById("book-categories")?.textNodes()?.get(3)?.text()
             ?.split("/")?.map { it.trim() }
@@ -67,14 +67,13 @@ class YenPressParser {
             ?.map { it.child(0).child(0) }
             ?.map { it.attr("href") to it.attr("alt") }
             ?.map { (id, name) ->
-                val (seriesBookTitle, seriesBookNumber) = getTitleAndBookNumber(name)
-                YenPressSeriesBook(id = YenPressBookId(id), number = seriesBookNumber, name = seriesBookTitle)
+                YenPressSeriesBook(id = YenPressBookId(id), number = BookNameParser.getVolumes(name), name = name)
             } ?: emptyList()
 
         return YenPressBook(
             id = parseBookId(document),
             name = title,
-            number = bookNumber,
+            number = BookNameParser.getVolumes(title),
             releaseDate = releaseDate,
             description = description,
             imageUrl = coverImage,
@@ -90,13 +89,5 @@ class YenPressParser {
             .removePrefix("$baseUrl/")
 
         return YenPressBookId(URLDecoder.decode(id, "UTF-8"))
-    }
-
-    private fun getTitleAndBookNumber(name: String): Pair<String, Int?> {
-        val title = name.replace(", Vol. [0-9]+".toRegex(), "")
-            .removeSuffix(" (manga)")
-        val bookNumber = ", Vol. (?<bookNumber>[0-9]+)".toRegex().find(name)?.groups?.get("bookNumber")?.value?.toIntOrNull()
-
-        return title to bookNumber
     }
 }

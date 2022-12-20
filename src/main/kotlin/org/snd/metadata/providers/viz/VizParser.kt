@@ -3,6 +3,7 @@ package org.snd.metadata.providers.viz
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.snd.metadata.BookNameParser
 import org.snd.metadata.providers.viz.model.AgeRating.*
 import org.snd.metadata.providers.viz.model.VizAllBooksId
 import org.snd.metadata.providers.viz.model.VizBook
@@ -22,7 +23,7 @@ class VizParser {
         val document = Jsoup.parse(results)
         return document.getElementById("results")?.children()
             ?.mapNotNull { parseSeriesBook(it) }
-            ?.filter { it.number == 1 } ?: emptyList()
+            ?.filter { it.number?.start?.toInt() == 1 } ?: emptyList()
     }
 
     private fun parseSeriesBook(result: Element): VizSeriesBook {
@@ -30,7 +31,7 @@ class VizParser {
         val titleElement = result.child(1).child(1)
         val id = URLDecoder.decode(titleElement.attr("href"), "UTF-8")
             .removePrefix("/read/manga/")
-        val bookNumber = getBookNumber(titleElement.text())
+        val bookNumber = BookNameParser.getVolumes(titleElement.text())
         val final = result.child(0).child(0).text() == "Final Volume!"
 
         return VizSeriesBook(
@@ -52,7 +53,7 @@ class VizParser {
         val genres = purchaseLinksBlock.child(0).child(0).getElementsByTag("a")
             .filter { element -> !element.hasClass("bg-yellow") }
             .map { it.text() }
-        val bookNumber = getBookNumber(titleElement.text())
+        val bookNumber = BookNameParser.getVolumes(titleElement.text())
         val summary = productRow.child(1).child(1).text()
         val details = productRow.child(1).child(2)
         val authors = details.child(0).child(0).text()
@@ -95,13 +96,6 @@ class VizParser {
 
         return document.getElementById("c-0-s-0")?.child(0)
             ?.children()?.mapNotNull { parseSeriesBook(it) } ?: emptyList()
-    }
-
-    private fun getBookNumber(name: String): Int? {
-        return ", Vol. (?<bookNumber>[0-9]+)".toRegex()
-            .find(name)
-            ?.groups?.get("bookNumber")?.value
-            ?.toIntOrNull()
     }
 
     private fun getSeriesName(name: String): String {

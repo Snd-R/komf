@@ -3,19 +3,9 @@ package org.snd.metadata.providers.bookwalker
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
-import org.snd.metadata.model.Image
-import org.snd.metadata.model.Provider
+import org.snd.metadata.model.*
 import org.snd.metadata.model.Provider.BOOK_WALKER
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesSearchResult
-import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
-import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
-import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesBook
-import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
-import org.snd.metadata.providers.bookwalker.model.toSeriesSearchResult
+import org.snd.metadata.providers.bookwalker.model.*
 
 class BookWalkerMetadataProvider(
     private val client: BookWalkerClient,
@@ -59,7 +49,7 @@ class BookWalkerMetadataProvider(
     private fun getThumbnail(url: String?): Image? = url?.toHttpUrl()?.let { client.getThumbnail(it) }
 
     private fun getFirstBook(books: Collection<BookWalkerSeriesBook>): BookWalkerBook {
-        val firstBook = books.sortedWith(compareBy(nullsLast()) { it.number }).first()
+        val firstBook = books.sortedWith(compareBy(nullsLast()) { it.number?.start }).first()
         return client.getBook(firstBook.id)
     }
 

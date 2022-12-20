@@ -6,7 +6,7 @@ import java.time.LocalDate
 data class BookMetadata(
     val title: String? = null,
     val summary: String? = null,
-    val number: Int? = null,
+    val number: BookRange? = null,
     val numberSort: Float? = null,
     val releaseDate: LocalDate? = null,
     val authors: List<Author> = emptyList(),

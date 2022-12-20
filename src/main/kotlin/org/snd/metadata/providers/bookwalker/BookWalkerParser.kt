@@ -3,6 +3,7 @@ package org.snd.metadata.providers.bookwalker
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.snd.metadata.BookNameParser
 import org.snd.metadata.providers.bookwalker.model.*
 import java.net.URLDecoder
 import java.time.LocalDate
@@ -60,7 +61,7 @@ class BookWalkerParser {
         return BookWalkerBook(
             id = parseDocumentBookId(document),
             name = name,
-            number = parseBookNumber(name),
+            number = BookNameParser.getVolumes(name),
             seriesTitle = seriesTitle,
             japaneseTitle = japaneseTitle,
             romajiTitle = romajiTitle,
@@ -79,7 +80,7 @@ class BookWalkerParser {
         return BookWalkerSeriesBook(
             id = getBookId(titleElement.child(0).attr("href")),
             name = titleElement.text(),
-            number = parseBookNumber(titleElement.text())
+            number = BookNameParser.getVolumes(titleElement.text())
         )
     }
 
@@ -118,13 +119,6 @@ class BookWalkerParser {
             ?.child(0)?.attr("data-srcset")
             ?.split(",")?.get(1)
             ?.removeSuffix(" 2x")
-    }
-
-    private fun parseBookNumber(name: String): Int? {
-        return " (?<bookNumber>[0-9]+)\$".toRegex()
-            .find(name)
-            ?.groups?.get("bookNumber")?.value
-            ?.toIntOrNull()
     }
 
     private fun parseDocumentBookId(document: Document): BookWalkerBookId {

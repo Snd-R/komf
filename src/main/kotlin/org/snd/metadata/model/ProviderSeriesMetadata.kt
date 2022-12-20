@@ -8,7 +8,7 @@ data class ProviderSeriesMetadata(
 
 data class SeriesBook(
     val id: ProviderBookId,
-    val number: Int?,
+    val number: BookRange?,
     val name: String?,
     val type: String?,
     val edition: String?

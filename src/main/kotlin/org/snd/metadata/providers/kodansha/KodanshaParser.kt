@@ -3,14 +3,7 @@ package org.snd.metadata.providers.kodansha
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import org.snd.metadata.providers.kodansha.model.KodanshaBook
-import org.snd.metadata.providers.kodansha.model.KodanshaBookId
-import org.snd.metadata.providers.kodansha.model.KodanshaBookListPage
-import org.snd.metadata.providers.kodansha.model.KodanshaSearchResult
-import org.snd.metadata.providers.kodansha.model.KodanshaSeries
-import org.snd.metadata.providers.kodansha.model.KodanshaSeriesBook
-import org.snd.metadata.providers.kodansha.model.KodanshaSeriesId
-import org.snd.metadata.providers.kodansha.model.Status
+import org.snd.metadata.providers.kodansha.model.*
 import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -157,7 +150,7 @@ class KodanshaParser {
                 KodanshaSeriesBook(
                     id = book.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/")
                         .let { KodanshaBookId(URLDecoder.decode(it, "UTF-8")) },
-                    number = book.child(0).child(0).child(1).text().removePrefix("Volume ").toIntOrNull(),
+                    number = book.child(0).child(0).child(1).text().removePrefix("Volume ").trim().toIntOrNull(),
                 )
             }
     }

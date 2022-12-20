@@ -8,7 +8,7 @@ import org.snd.mediaserver.repository.BookThumbnail
 import org.snd.mediaserver.repository.BookThumbnailsRepository
 import org.snd.mediaserver.repository.SeriesThumbnail
 import org.snd.mediaserver.repository.SeriesThumbnailsRepository
-import org.snd.metadata.BookFilenameParser
+import org.snd.metadata.BookNameParser
 import org.snd.metadata.comicinfo.ComicInfoWriter
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Image
@@ -182,10 +182,9 @@ class MetadataUpdateService(
             && bookMetadata.all { it.value == null }) {
             val books = bookMetadata.keys.sortedBy { it.name.lowercase() }
             return books.asSequence()
-                .mapNotNull { book -> BookFilenameParser.getVolumes(book.name)?.let { book to it } }
-                .filter { (_, number) -> number.first == number.last }
-                .map { (book, number) -> book to number.first }
-                .filter { (_, number) -> number == 1 }
+                .mapNotNull { book -> BookNameParser.getVolumes(book.name)?.let { book to it } }
+                .map { (book, number) -> book to number.start }
+                .filter { (_, number) -> number.toInt() == 1 }
                 .map { (book, _) -> book.id }
                 .firstOrNull() ?: books[0].id
 

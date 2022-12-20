@@ -6,7 +6,7 @@ import org.snd.mediaserver.model.*
 import org.snd.mediaserver.model.MatchType.MANUAL
 import org.snd.mediaserver.repository.SeriesMatch
 import org.snd.mediaserver.repository.SeriesMatchRepository
-import org.snd.metadata.BookFilenameParser
+import org.snd.metadata.BookNameParser
 import org.snd.metadata.MetadataMerger
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.model.*
@@ -153,25 +153,23 @@ class MetadataService(
 
         if (edition != null) {
             val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
-            return books.associateWith { komgaBook ->
-                val volume = BookFilenameParser.getVolumes(komgaBook.name)?.first ?: komgaBook.number
+            return books.associateWith { book ->
+                val volume = BookNameParser.getVolumes(book.name) ?: book.number..book.number
                 editions[editionName]?.firstOrNull { volume == it.number }
             }
         }
 
         val byEdition: Map<MediaServerBook, String?> = books.associateWith { book ->
-            val bookExtraData = BookFilenameParser.getExtraData(book.name).map { it.lowercase() }
+            val bookExtraData = BookNameParser.getExtraData(book.name).map { it.lowercase() }
             editions.keys.firstOrNull { bookExtraData.contains(it) }
         }
 
         return byEdition.map { (book, edition) ->
-            val volume = BookFilenameParser.getVolumes(book.name)
-            val matched = if (volume == null || volume.first != volume.last) {
-                null
-            } else if (edition == null) {
-                noEditionBooks.firstOrNull { it.number == volume.first }
+            val volumes = BookNameParser.getVolumes(book.name)
+            val matched = if (edition == null) {
+                noEditionBooks.firstOrNull { it.number == volumes }
             } else {
-                editions[edition]?.firstOrNull { it.number == volume.first }
+                editions[edition]?.firstOrNull { it.number == volumes }
             }
             book to matched
         }.toMap()
