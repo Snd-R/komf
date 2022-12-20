@@ -13,8 +13,10 @@ import org.snd.mediaserver.kavita.model.KavitaVolume
 import org.snd.mediaserver.kavita.model.KavitaVolumeId
 import org.snd.mediaserver.kavita.model.events.CoverUpdateEvent
 import org.snd.mediaserver.kavita.model.events.NotificationProgressEvent
+import org.snd.mediaserver.kavita.model.events.SeriesRemovedEvent
 import org.snd.mediaserver.model.MediaServerBookId
 import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.repository.SeriesMatchRepository
 import java.time.Clock
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -32,6 +34,7 @@ class KavitaEventListener(
     private val tokenProvider: KavitaTokenProvider,
     private val libraryFilter: Predicate<String>,
     private val notificationService: NotificationService,
+    private val seriesMatchRepository: SeriesMatchRepository,
     private val executor: ExecutorService,
     private val clock: Clock
 ) {
@@ -48,6 +51,8 @@ class KavitaEventListener(
             .build()
         hubConnection.on("NotificationProgress", ::processNotification, NotificationProgressEvent::class.java)
         hubConnection.on("CoverUpdate", ::processCoverUpdate, CoverUpdateEvent::class.java)
+        hubConnection.on("SeriesRemoved", ::seriesRemoved, SeriesRemovedEvent::class.java)
+
         hubConnection.onClosed { reconnect(hubConnection) }
         registerInvocations(hubConnection)
 
@@ -83,6 +88,10 @@ class KavitaEventListener(
         if (event.body?.get("entityType") == "volume") {
             volumesChanged.add((event.body["id"] as Double).toInt())
         }
+    }
+
+    private fun seriesRemoved(event: SeriesRemovedEvent) {
+        seriesMatchRepository.delete(MediaServerSeriesId(event.body.seriesId.toString()))
     }
 
     private fun processEvents(volumeIds: Collection<Int>) {
@@ -133,7 +142,6 @@ class KavitaEventListener(
         hubConnection.on("SendingToDevice", { }, Object::class.java)
         hubConnection.on("SeriesAdded", { }, Object::class.java)
         hubConnection.on("SeriesAddedToCollection", { }, Object::class.java)
-        hubConnection.on("SeriesRemoved", { }, Object::class.java)
         hubConnection.on("SiteThemeProgress", { }, Object::class.java)
         hubConnection.on("UpdateAvailable", { }, Object::class.java)
         hubConnection.on("UserUpdate", { }, Object::class.java)

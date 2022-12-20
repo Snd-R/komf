@@ -22,7 +22,6 @@ class MetadataUpdateService(
     private val metadataUpdateConfig: MetadataUpdateConfig,
     private val metadataUpdateMapper: MetadataUpdateMapper,
     private val comicInfoWriter: ComicInfoWriter,
-    private val serverType: MediaServer,
 ) {
     private val requireMetadataRefresh = setOf(COMIC_INFO)
 
@@ -50,12 +49,11 @@ class MetadataUpdateService(
         val thumbnailId = replaceSeriesThumbnail(series.id, newThumbnail)
 
         if (thumbnailId == null) {
-            seriesThumbnailsRepository.delete(series.id, serverType)
+            seriesThumbnailsRepository.delete(series.id)
         } else {
             seriesThumbnailsRepository.save(
                 SeriesThumbnail(
                     seriesId = series.id,
-                    type = serverType,
                     thumbnailId = thumbnailId,
                 )
             )
@@ -98,13 +96,12 @@ class MetadataUpdateService(
         val thumbnailId = replaceBookThumbnail(book.id, newThumbnail)
 
         if (thumbnailId == null) {
-            bookThumbnailsRepository.delete(book.id, serverType)
+            bookThumbnailsRepository.delete(book.id)
         } else {
             bookThumbnailsRepository.save(
                 BookThumbnail(
                     seriesId = book.seriesId,
                     bookId = book.id,
-                    type = serverType,
                     thumbnailId = thumbnailId,
                 )
             )
@@ -112,7 +109,7 @@ class MetadataUpdateService(
     }
 
     private fun replaceBookThumbnail(bookId: MediaServerBookId, thumbnail: Image?): MediaServerThumbnailId? {
-        val existingMatch = bookThumbnailsRepository.findFor(bookId, serverType)
+        val existingMatch = bookThumbnailsRepository.findFor(bookId)
         val thumbnails = mediaServerClient.getBookThumbnails(bookId)
 
         val uploadedThumbnail = thumbnail?.let {
@@ -133,7 +130,7 @@ class MetadataUpdateService(
     }
 
     private fun replaceSeriesThumbnail(seriesId: MediaServerSeriesId, thumbnail: Image?): MediaServerThumbnailId? {
-        val matchedSeries = seriesThumbnailsRepository.findFor(seriesId, serverType)
+        val matchedSeries = seriesThumbnailsRepository.findFor(seriesId)
         val thumbnails = mediaServerClient.getSeriesThumbnails(seriesId)
 
         val uploadedThumbnail = thumbnail?.let {
@@ -170,14 +167,14 @@ class MetadataUpdateService(
             .forEach { resetBookMetadata(it) }
 
         replaceSeriesThumbnail(series.id, null)
-        seriesThumbnailsRepository.delete(series.id, serverType)
+        seriesThumbnailsRepository.delete(series.id)
     }
 
     private fun resetBookMetadata(book: MediaServerBook) {
         mediaServerClient.resetBookMetadata(book.id, book.name)
 
         replaceBookThumbnail(book.id, null)
-        bookThumbnailsRepository.delete(book.id, serverType)
+        bookThumbnailsRepository.delete(book.id)
     }
 
     private fun bookToWriteSeriesMetadata(bookMetadata: Map<MediaServerBook, BookMetadata?>): MediaServerBookId? {

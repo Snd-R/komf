@@ -20,8 +20,6 @@ import org.snd.mediaserver.kavita.*
 import org.snd.mediaserver.komga.KomgaClient
 import org.snd.mediaserver.komga.KomgaEventListener
 import org.snd.mediaserver.komga.KomgaMediaServerClientAdapter
-import org.snd.mediaserver.model.MediaServer.KAVITA
-import org.snd.mediaserver.model.MediaServer.KOMGA
 import java.time.Clock
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit.SECONDS
@@ -79,12 +77,11 @@ class MediaServerModule(
     val komgaMediaServerClient = KomgaMediaServerClientAdapter(komgaClient)
     val komgaMetadataUpdateService = MetadataUpdateService(
         mediaServerClient = komgaMediaServerClient,
-        seriesThumbnailsRepository = repositoryModule.seriesThumbnailsRepository,
-        bookThumbnailsRepository = repositoryModule.bookThumbnailsRepository,
+        seriesThumbnailsRepository = repositoryModule.komgaSeriesThumbnailsRepository,
+        bookThumbnailsRepository = repositoryModule.komgaBookThumbnailsRepository,
         metadataUpdateConfig = komgaConfig.metadataUpdate,
         metadataUpdateMapper = MetadataUpdateMapper(komgaConfig.metadataUpdate),
         comicInfoWriter = metadataModule.comicInfoWriter,
-        serverType = KOMGA,
     )
     val komgaMetadataService = MetadataService(
         mediaServerClient = komgaMediaServerClient,
@@ -114,8 +111,9 @@ class MediaServerModule(
             else komgaConfig.eventListener.libraries.contains(it)
         },
         notificationService = komgaNotificationService,
-        bookThumbnailsRepository = repositoryModule.bookThumbnailsRepository,
-        seriesThumbnailsRepository = repositoryModule.seriesThumbnailsRepository,
+        bookThumbnailsRepository = repositoryModule.komgaBookThumbnailsRepository,
+        seriesThumbnailsRepository = repositoryModule.komgaSeriesThumbnailsRepository,
+        seriesMatchRepository = repositoryModule.komgaSeriesMatchRepository,
         executor = eventListenerExecutor,
     )
 
@@ -159,12 +157,11 @@ class MediaServerModule(
     val kavitaMediaServerClient = KavitaMediaServerClientAdapter(kavitaClient)
     val kavitaMetadataUpdateService = MetadataUpdateService(
         mediaServerClient = kavitaMediaServerClient,
-        seriesThumbnailsRepository = repositoryModule.seriesThumbnailsRepository,
-        bookThumbnailsRepository = repositoryModule.bookThumbnailsRepository,
+        seriesThumbnailsRepository = repositoryModule.kavitaSeriesThumbnailsRepository,
+        bookThumbnailsRepository = repositoryModule.kavitaBookThumbnailsRepository,
         metadataUpdateConfig = kavitaConfig.metadataUpdate,
         metadataUpdateMapper = MetadataUpdateMapper(kavitaConfig.metadataUpdate),
         comicInfoWriter = metadataModule.comicInfoWriter,
-        serverType = KAVITA,
     )
     val kavitaMetadataService = MetadataService(
         mediaServerClient = kavitaMediaServerClient,
@@ -194,6 +191,7 @@ class MediaServerModule(
             else kavitaConfig.eventListener.libraries.contains(it)
         },
         notificationService = kavitaNotificationService,
+        seriesMatchRepository = repositoryModule.kavitaSeriesMatchRepository,
         executor = eventListenerExecutor,
         clock = systemDefaultClock
     )

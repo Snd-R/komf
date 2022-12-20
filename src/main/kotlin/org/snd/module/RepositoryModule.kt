@@ -7,10 +7,7 @@ import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.snd.config.DatabaseConfig
-import org.snd.db.JooqBookThumbnailsRepository
-import org.snd.db.JooqKavitaSeriesMatchRepository
-import org.snd.db.JooqKomgaSeriesMatchRepository
-import org.snd.db.JooqSeriesThumbnailsRepository
+import org.snd.db.*
 import org.snd.mediaserver.repository.BookThumbnailsRepository
 import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.mediaserver.repository.SeriesThumbnailsRepository
@@ -40,9 +37,12 @@ class RepositoryModule(
     }
 
 
-    val seriesThumbnailsRepository: SeriesThumbnailsRepository = JooqSeriesThumbnailsRepository(dsl)
-    val bookThumbnailsRepository: BookThumbnailsRepository = JooqBookThumbnailsRepository(dsl)
+    val komgaSeriesThumbnailsRepository: SeriesThumbnailsRepository = JooqKomgaSeriesThumbnailsRepository(dsl)
+    val komgaBookThumbnailsRepository: BookThumbnailsRepository = JooqKomgaBookThumbnailsRepository(dsl)
     val komgaSeriesMatchRepository: SeriesMatchRepository = JooqKomgaSeriesMatchRepository(dsl)
+
+    val kavitaSeriesThumbnailsRepository: SeriesThumbnailsRepository = JooqKavitaSeriesThumbnailsRepository(dsl)
+    val kavitaBookThumbnailsRepository: BookThumbnailsRepository = JooqKavitaBookThumbnailsRepository(dsl)
     val kavitaSeriesMatchRepository: SeriesMatchRepository = JooqKavitaSeriesMatchRepository(dsl)
 
 }

@@ -15,10 +15,10 @@ import org.snd.mediaserver.NotificationService
 import org.snd.mediaserver.komga.model.event.BookEvent
 import org.snd.mediaserver.komga.model.event.SeriesEvent
 import org.snd.mediaserver.komga.model.event.TaskQueueStatusEvent
-import org.snd.mediaserver.model.MediaServer.KOMGA
 import org.snd.mediaserver.model.MediaServerBookId
 import org.snd.mediaserver.model.MediaServerSeriesId
 import org.snd.mediaserver.repository.BookThumbnailsRepository
+import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.mediaserver.repository.SeriesThumbnailsRepository
 import java.util.concurrent.ExecutorService
 import java.util.function.Predicate
@@ -33,6 +33,7 @@ class KomgaEventListener(
     private val metadataService: MetadataService,
     private val bookThumbnailsRepository: BookThumbnailsRepository,
     private val seriesThumbnailsRepository: SeriesThumbnailsRepository,
+    private val seriesMatchRepository: SeriesMatchRepository,
     private val libraryFilter: Predicate<String>,
     private val notificationService: NotificationService,
     private val executor: ExecutorService,
@@ -97,14 +98,11 @@ class KomgaEventListener(
                     val events = bookAddedEvents.groupBy({ MediaServerSeriesId(it.seriesId) }, { MediaServerBookId(it.bookId) })
 
                     bookDeletedEvents.forEach { book ->
-                        bookThumbnailsRepository.findFor(MediaServerBookId(book.bookId), KOMGA)?.let {
-                            bookThumbnailsRepository.delete(it.bookId, KOMGA)
-                        }
+                        bookThumbnailsRepository.delete(MediaServerBookId(book.bookId))
                     }
                     seriesDeletedEvents.forEach { series ->
-                        seriesThumbnailsRepository.findFor(MediaServerSeriesId(series.seriesId), KOMGA)?.let {
-                            seriesThumbnailsRepository.delete(it.seriesId, KOMGA)
-                        }
+                        seriesThumbnailsRepository.delete(MediaServerSeriesId(series.seriesId))
+                        seriesMatchRepository.delete(MediaServerSeriesId(series.seriesId))
                     }
 
                     executor.execute { processEvents(events.toMap()) }
