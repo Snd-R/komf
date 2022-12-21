@@ -42,7 +42,6 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
 
     override fun getBooks(seriesId: MediaServerSeriesId): Collection<MediaServerBook> {
         return kavitaClient.getVolumes(seriesId.kavitaSeriesId())
-            .filter { it.number != 0 } //TODO not necessary?
             .flatMap { volume ->
                 volume.chapters.map {
                     val metadata = kavitaClient.getChapterMetadata(it.chapterId())

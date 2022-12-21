@@ -186,7 +186,7 @@ class MetadataUpdateService(
                 .map { (book, number) -> book to number.start }
                 .filter { (_, number) -> number.toInt() == 1 }
                 .map { (book, _) -> book.id }
-                .firstOrNull() ?: books[0].id
+                .firstOrNull() ?: books.firstOrNull()?.id
 
         } else null
     }
