@@ -145,7 +145,7 @@ class KodanshaParser {
     }
 
     private fun parseSeriesBooksFromShelf(document: Document): Collection<KodanshaSeriesBook>? {
-        return document.getElementsByClass("bookshelf").first()?.children()
+        val books = document.getElementsByClass("bookshelf").first()?.children()
             ?.map { book ->
                 KodanshaSeriesBook(
                     id = book.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/")
@@ -153,10 +153,12 @@ class KodanshaParser {
                     number = book.child(0).child(0).child(1).text().removePrefix("Volume ").trim().toIntOrNull(),
                 )
             }
+        return if (books?.size == 30) null
+        else books
     }
 
     private fun parseSeriesBooksFromDiscovery(document: Document): Collection<KodanshaSeriesBook>? {
-        return document.getElementsByClass("product-discovery").first()
+        val books = document.getElementsByClass("product-discovery").first()
             ?.getElementsByTag("ul")?.first()?.children()
             ?.map { it.child(0).child(1) }
             ?.map {
@@ -167,6 +169,8 @@ class KodanshaParser {
                     number = number
                 )
             }
+        return if (books?.size == 4) return null
+        else books
     }
 
     private fun parseSeriesBooksFromBookListPage(document: Document): Collection<KodanshaSeriesBook> {

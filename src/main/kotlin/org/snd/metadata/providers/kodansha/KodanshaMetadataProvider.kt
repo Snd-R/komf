@@ -49,7 +49,7 @@ class KodanshaMetadataProvider(
 
     private fun getSeries(seriesId: KodanshaSeriesId): KodanshaSeries {
         val series = client.getSeries(seriesId)
-        return if (series.books.size == 30) {
+        return if (series.books.isEmpty()) {
             val allBooks = getAllBooks(series)
             series.copy(books = allBooks)
         } else series
