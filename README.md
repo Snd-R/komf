@@ -296,9 +296,10 @@ results
 
 use komga or kavita in place of {media-server}
 
-`GET /{media-server}/providers` - list of enabled metadata providers
+`GET /{media-server}/providers` - list of enabled metadata providers. Optional `libraryId` parameter can be used for library providers
 
-`GET /{media-server}/search?name=...` - search results from enabled metadata providers
+`GET /{media-server}/search?name=...` - search results from enabled metadata providers. Optional `libraryId` parameter can be used for
+library providers
 
 `POST /{media-server}/identify` - set series metadata from specified provider
 

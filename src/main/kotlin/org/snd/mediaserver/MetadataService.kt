@@ -24,12 +24,24 @@ class MetadataService(
     private val metadataUpdateService: MetadataUpdateService,
     private val seriesMatchRepository: SeriesMatchRepository
 ) {
-    fun availableProviders(libraryId: String?) = libraryId
-        ?.let { metadataProviders.providers(it) }
-        ?: metadataProviders.defaultProviders()
+    fun availableProviders(seriesId: MediaServerSeriesId) = availableProviders(mediaServerClient.getSeries(seriesId).libraryId)
 
-    fun searchSeriesMetadata(seriesName: String, libraryId: String?): Collection<SeriesSearchResult> {
-        val providers = libraryId?.let { metadataProviders.providers(it) } ?: metadataProviders.defaultProviders()
+    fun availableProviders(libraryId: MediaServerLibraryId) = metadataProviders.providers(libraryId.id)
+
+    fun availableProviders() = metadataProviders.defaultProviders()
+
+    fun searchSeriesMetadata(seriesName: String, seriesId: MediaServerSeriesId): Collection<SeriesSearchResult> {
+        val series = mediaServerClient.getSeries(seriesId)
+        return searchSeriesMetadata(seriesName, series.libraryId)
+    }
+
+    fun searchSeriesMetadata(seriesName: String, libraryId: MediaServerLibraryId): Collection<SeriesSearchResult> {
+        val providers = metadataProviders.providers(libraryId.id)
+        return providers.flatMap { it.searchSeries(seriesName) }
+    }
+
+    fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
+        val providers = metadataProviders.defaultProviders()
         return providers.flatMap { it.searchSeries(seriesName) }
     }
 
