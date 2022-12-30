@@ -1,41 +1,34 @@
-package org.snd.infra
+package org.snd.config
 
 import com.charleskorn.kaml.Yaml
 import mu.KotlinLogging
-import org.snd.config.AppConfig
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.isReadable
 
 private val logger = KotlinLogging.logger {}
 
 class ConfigLoader {
+    fun loadDirectory(directory: Path): AppConfig {
+        val path = directory.resolve("application.yml")
+        val config = Yaml.default.decodeFromString(AppConfig.serializer(), Files.readString(path))
+        return postProcessConfig(config, directory)
+    }
 
-    fun loadConfig(configPath: Path?, configDirectory: Path?): AppConfig {
-        val configRaw = loadFromDirectory(configDirectory) ?: loadFromFile(configPath)
+    fun loadFile(file: Path): AppConfig {
+        val config = Yaml.default.decodeFromString(AppConfig.serializer(), Files.readString(file.toRealPath()))
+        return postProcessConfig(config, null)
+    }
 
-        val config = configRaw?.let { Yaml.default.decodeFromString(AppConfig.serializer(), it) }
-            ?: AppConfig()
+    fun default(): AppConfig {
+        return postProcessConfig(AppConfig(), null)
+    }
 
-        val processedConfig = checkDeprecatedOptions(
+    private fun postProcessConfig(config: AppConfig, configDirectory: Path?): AppConfig {
+        val processedConfig = overrideDeprecatedOptions(
             overrideConfigDirAndEnvVars(config, configDirectory?.toString())
         )
         warnAboutDisabledProviders(processedConfig)
         return processedConfig
-    }
-
-    private fun loadFromDirectory(configDirectory: Path?): String? {
-        return configDirectory?.let {
-            val path = configDirectory.resolve("application.yml")
-            if (path.isReadable()) Files.readString(path)
-            else null
-        }
-    }
-
-    private fun loadFromFile(path: Path?): String? {
-        return path?.let {
-            Files.readString(it.toRealPath())
-        }
     }
 
     private fun overrideConfigDirAndEnvVars(config: AppConfig, configDirectory: String?): AppConfig {
@@ -79,7 +72,7 @@ class ConfigLoader {
     }
 
     @Suppress("DEPRECATION")
-    private fun checkDeprecatedOptions(config: AppConfig): AppConfig {
+    private fun overrideDeprecatedOptions(config: AppConfig): AppConfig {
         val defaultProviders = config.metadataProviders.defaultProviders
         val mangaUpdates = config.metadataProviders.mangaUpdates
         val mal = config.metadataProviders.mal

@@ -5,7 +5,8 @@ import org.snd.config.AppConfig
 import java.time.Clock
 
 class AppModule(
-    appConfig: AppConfig
+    appConfig: AppConfig,
+    context: AppContext
 ) : AutoCloseable {
     private val okHttpClient = OkHttpClient.Builder().build()
     private val jsonModule = JsonModule()
@@ -39,7 +40,8 @@ class AppModule(
     private val serverModule = ServerModule(
         config = appConfig.server,
         mediaServerModule = mediaServerModule,
-        jsonModule = jsonModule
+        jsonModule = jsonModule,
+        appContext = context
     )
 
     override fun close() {

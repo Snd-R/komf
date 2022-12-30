@@ -11,7 +11,8 @@ import java.util.concurrent.Executors
 class ServerModule(
     config: ServerConfig,
     mediaServerModule: MediaServerModule,
-    jsonModule: JsonModule
+    jsonModule: JsonModule,
+    appContext: AppContext
 ) : AutoCloseable {
     private val executor = Executors.newSingleThreadExecutor(
         BasicThreadFactory.Builder()
