@@ -13,7 +13,7 @@ import java.nio.file.Path
 import kotlin.io.path.isDirectory
 
 class AppContext(
-    private val configPath: Path? = null
+    val configPath: Path? = null
 ) {
     var verbose: Boolean = false
 

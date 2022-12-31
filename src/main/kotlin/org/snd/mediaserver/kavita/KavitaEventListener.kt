@@ -71,7 +71,7 @@ class KavitaEventListener(
     }
 
     fun stop() {
-        hubConnection?.stop()?.blockingAwait()
+        hubConnection?.close()
     }
 
     @Synchronized

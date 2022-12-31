@@ -7,17 +7,21 @@ import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.snd.config.DatabaseConfig
-import org.snd.db.*
+import org.snd.db.JooqKavitaBookThumbnailsRepository
+import org.snd.db.JooqKavitaSeriesMatchRepository
+import org.snd.db.JooqKavitaSeriesThumbnailsRepository
+import org.snd.db.JooqKomgaBookThumbnailsRepository
+import org.snd.db.JooqKomgaSeriesMatchRepository
+import org.snd.db.JooqKomgaSeriesThumbnailsRepository
 import org.snd.mediaserver.repository.BookThumbnailsRepository
 import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.mediaserver.repository.SeriesThumbnailsRepository
-import javax.sql.DataSource
 
 
 class RepositoryModule(
     config: DatabaseConfig,
-) {
-    private val datasource: DataSource
+) : AutoCloseable {
+    private val datasource: HikariDataSource
     private val dsl: DSLContext
 
     init {
@@ -31,6 +35,7 @@ class RepositoryModule(
         hikariConfig.jdbcUrl = "jdbc:sqlite:${config.file}"
         hikariConfig.maximumPoolSize = 1
         this.datasource = HikariDataSource(hikariConfig)
+
         this.dsl = DSL.using(datasource, SQLDialect.SQLITE)
         System.getProperties().setProperty("org.jooq.no-logo", "true")
         System.getProperties().setProperty("org.jooq.no-tips", "true")
@@ -45,4 +50,7 @@ class RepositoryModule(
     val kavitaBookThumbnailsRepository: BookThumbnailsRepository = JooqKavitaBookThumbnailsRepository(dsl)
     val kavitaSeriesMatchRepository: SeriesMatchRepository = JooqKavitaSeriesMatchRepository(dsl)
 
+    override fun close() {
+        datasource.close()
+    }
 }

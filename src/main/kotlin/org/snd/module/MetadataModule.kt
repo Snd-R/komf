@@ -48,7 +48,7 @@ class MetadataModule(
     config: MetadataProvidersConfig,
     private val okHttpClient: OkHttpClient,
     private val jsonModule: JsonModule
-) {
+) : AutoCloseable {
     val comicInfoWriter = createComicInfoWriter()
     private val nameSimilarityMatcher = createNameSimilarityMatcher(config.nameMatchingMode)
 
@@ -385,6 +385,10 @@ class MetadataModule(
                 Provider.BOOK_WALKER -> bookwalker
             }
         }
+    }
+
+    override fun close() {
+        aniListClient.close()
     }
 }
 

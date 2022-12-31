@@ -38,14 +38,21 @@ class AppModule(
     )
 
     private val serverModule = ServerModule(
-        config = appConfig.server,
+        appConfig = appConfig,
+        appContext = context,
         mediaServerModule = mediaServerModule,
         jsonModule = jsonModule,
-        appContext = context
     )
 
     override fun close() {
+
         serverModule.close()
         mediaServerModule.close()
+        repositoryModule.close()
+        mediaServerModule.close()
+
+        okHttpClient.dispatcher.executorService.shutdown()
+        okHttpClient.connectionPool.evictAll()
+        okHttpClient.cache?.close()
     }
 }

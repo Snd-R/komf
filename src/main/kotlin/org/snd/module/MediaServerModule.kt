@@ -16,7 +16,11 @@ import org.snd.mediaserver.MetadataService
 import org.snd.mediaserver.MetadataUpdateMapper
 import org.snd.mediaserver.MetadataUpdateService
 import org.snd.mediaserver.NotificationService
-import org.snd.mediaserver.kavita.*
+import org.snd.mediaserver.kavita.KavitaAuthClient
+import org.snd.mediaserver.kavita.KavitaClient
+import org.snd.mediaserver.kavita.KavitaEventListener
+import org.snd.mediaserver.kavita.KavitaMediaServerClientAdapter
+import org.snd.mediaserver.kavita.KavitaTokenProvider
 import org.snd.mediaserver.komga.KomgaClient
 import org.snd.mediaserver.komga.KomgaEventListener
 import org.snd.mediaserver.komga.KomgaMediaServerClientAdapter
@@ -207,5 +211,7 @@ class MediaServerModule(
     override fun close() {
         komgaEventListener.stop()
         kavitaEventListener.stop()
+        metadataAggregationExecutor.shutdown()
+        eventListenerExecutor.shutdown()
     }
 }

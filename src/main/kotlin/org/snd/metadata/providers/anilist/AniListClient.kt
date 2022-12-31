@@ -1,6 +1,7 @@
 package org.snd.metadata.providers.anilist
 
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.network.http.HttpNetworkTransport
 import com.apollographql.apollo3.network.okHttpClient
 import io.github.resilience4j.kotlin.ratelimiter.rateLimiter
 import io.github.resilience4j.kotlin.retry.retry
@@ -31,6 +32,9 @@ class AniListClient(
     private val apolloClient = ApolloClient.Builder()
         .serverUrl("https://graphql.anilist.co")
         .okHttpClient(okHttpClient)
+        // avoids thread pool leak on client dispose by using HttpNetworkTransport instead of default WebSocketNetworkTransport that has backgroundDispatcher which is not getting closed
+        // subscription is not used so this does not affect anything
+        .subscriptionNetworkTransport(HttpNetworkTransport.Builder().serverUrl("https://graphql.anilist.co").build())
         .build()
 
     fun search(name: String, pageSize: Int = 10): List<SearchQuery.Medium> {
@@ -73,5 +77,9 @@ class AniListClient(
         return RateLimiter.decorateCheckedSupplier(rateLimit, supplier)
             .let { Retry.decorateCheckedSupplier(retry, it) }
             .apply()
+    }
+
+    fun close() {
+        apolloClient.close()
     }
 }

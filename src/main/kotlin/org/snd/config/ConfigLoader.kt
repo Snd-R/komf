@@ -4,6 +4,7 @@ import com.charleskorn.kaml.Yaml
 import mu.KotlinLogging
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.isReadable
 
 private val logger = KotlinLogging.logger {}
 
@@ -20,7 +21,13 @@ class ConfigLoader {
     }
 
     fun default(): AppConfig {
-        return postProcessConfig(AppConfig(), null)
+        val filePath = Path.of(".").toAbsolutePath().normalize().resolve("application.yml")
+        return if (filePath.isReadable()) {
+            val config = Yaml.default.decodeFromString(AppConfig.serializer(), Files.readString(filePath.toRealPath()))
+            postProcessConfig(config, null)
+        } else {
+            postProcessConfig(AppConfig(), null)
+        }
     }
 
     private fun postProcessConfig(config: AppConfig, configDirectory: Path?): AppConfig {
