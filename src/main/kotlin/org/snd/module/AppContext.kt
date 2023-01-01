@@ -12,16 +12,14 @@ import org.snd.config.ConfigLoader
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 
-class AppContext(
-    val configPath: Path? = null
-) {
+class AppContext(val configPath: Path? = null) {
     var verbose: Boolean = false
-
-    private val configLoader = ConfigLoader()
 
     @Volatile
     lateinit var appConfig: AppConfig
         private set
+
+    private val configLoader = ConfigLoader()
 
     @Volatile
     private lateinit var appModule: AppModule

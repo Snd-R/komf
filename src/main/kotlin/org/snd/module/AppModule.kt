@@ -38,7 +38,7 @@ class AppModule(
     )
 
     private val serverModule = ServerModule(
-        appConfig = appConfig,
+        config = appConfig.server,
         appContext = context,
         mediaServerModule = mediaServerModule,
         jsonModule = jsonModule,

@@ -2,18 +2,22 @@ package org.snd.module
 
 import com.charleskorn.kaml.Yaml
 import io.javalin.Javalin
+import io.javalin.util.ConcurrencyUtil
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
+import org.eclipse.jetty.server.LowResourceMonitor
+import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.server.handler.StatisticsHandler
 import org.snd.api.ConfigController
 import org.snd.api.ConfigUpdateMapper
 import org.snd.api.MetadataController
-import org.snd.config.AppConfig
 import org.snd.config.ConfigWriter
+import org.snd.config.ServerConfig
 import org.snd.mediaserver.model.MediaServer.KAVITA
 import org.snd.mediaserver.model.MediaServer.KOMGA
 import java.util.concurrent.Executors
 
 class ServerModule(
-    appConfig: AppConfig,
+    config: ServerConfig,
     appContext: AppContext,
     mediaServerModule: MediaServerModule,
     jsonModule: JsonModule,
@@ -29,6 +33,14 @@ class ServerModule(
     private val server = Javalin.create { config ->
         config.plugins.enableCors { cors -> cors.add { it.anyHost() } }
         config.showJavalinBanner = false
+        config.jetty.server {
+            Server(ConcurrencyUtil.jettyThreadPool("JettyServerThreadPool")).apply {
+                addBean(LowResourceMonitor(this))
+                insertHandler(StatisticsHandler())
+                setAttribute("is-default-server", true)
+                stopTimeout = 5000L
+            }
+        }
     }.routes {
         MetadataController(
             metadataService = mediaServerModule.komgaMetadataService,
@@ -47,7 +59,6 @@ class ServerModule(
 
         ConfigController(
             appContext = appContext,
-            config = appConfig,
             configWriter = configWriter,
             moshi = jsonModule.moshi,
             configMapper = configMapper
@@ -55,7 +66,7 @@ class ServerModule(
     }
 
     init {
-        server.start(appConfig.server.port)
+        server.start(config.port)
     }
 
     override fun close() {
