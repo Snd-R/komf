@@ -76,7 +76,7 @@ class AniListClient(
     private fun <T> rateLimited(supplier: () -> T): T {
         return RateLimiter.decorateCheckedSupplier(rateLimit, supplier)
             .let { Retry.decorateCheckedSupplier(retry, it) }
-            .apply()
+            .get()
     }
 
     fun close() {

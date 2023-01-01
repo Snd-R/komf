@@ -1,13 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.20"
-    kotlin("plugin.serialization") version "1.7.20"
+    kotlin("jvm") version "1.7.21"
+    kotlin("plugin.serialization") version "1.7.21"
     id("com.github.johnrengelman.shadow").version("7.1.2")
-    id("com.google.devtools.ksp").version("1.7.20-1.0.7")
-    id("org.flywaydb.flyway") version "9.4.0"
-    id("nu.studer.jooq") version "7.1.1"
-    id("com.apollographql.apollo3").version("3.6.2")
+    id("com.google.devtools.ksp").version("1.7.21-1.0.8")
+    id("org.flywaydb.flyway") version "9.10.2"
+    id("nu.studer.jooq") version "8.1"
+    id("com.apollographql.apollo3").version("3.7.3")
 }
 
 group = "org.snd"
@@ -19,10 +19,10 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("ch.qos.logback:logback-core:1.4.4")
-    implementation("ch.qos.logback:logback-classic:1.4.4")
-    implementation("org.slf4j:slf4j-api:2.0.3")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.2")
+    implementation("ch.qos.logback:logback-core:1.4.5")
+    implementation("ch.qos.logback:logback-classic:1.4.5")
+    implementation("org.slf4j:slf4j-api:2.0.5")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
 
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.squareup.okhttp3:okhttp-sse:4.10.0")
@@ -31,16 +31,16 @@ dependencies {
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.14.0")
     implementation("com.apollographql.apollo3:apollo-runtime")
 
-    implementation("io.javalin:javalin:5.1.1")
+    implementation("io.javalin:javalin:5.2.0")
 
-    implementation("io.github.resilience4j:resilience4j-ratelimiter:1.7.1")
-    implementation("io.github.resilience4j:resilience4j-retry:1.7.1")
-    implementation("io.github.resilience4j:resilience4j-kotlin:1.7.1")
+    implementation("io.github.resilience4j:resilience4j-ratelimiter:2.0.2")
+    implementation("io.github.resilience4j:resilience4j-retry:2.0.2")
+    implementation("io.github.resilience4j:resilience4j-kotlin:2.0.2")
 
-    implementation("org.flywaydb:flyway-core:9.4.0")
-    implementation("org.jooq:jooq:3.16.10")
-    implementation("org.xerial:sqlite-jdbc:3.39.3.0")
-    jooqGenerator("org.xerial:sqlite-jdbc:3.39.3.0")
+    implementation("org.flywaydb:flyway-core:9.10.2")
+    implementation("org.jooq:jooq:3.17.6")
+    implementation("org.xerial:sqlite-jdbc:3.40.0.0")
+    jooqGenerator("org.xerial:sqlite-jdbc:3.40.0.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
     implementation("io.github.pdvrieze.xmlutil:core-jvm:0.84.3")
@@ -59,7 +59,7 @@ dependencies {
 
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
         freeCompilerArgs = freeCompilerArgs + listOf(
             "-opt-in=kotlin.ExperimentalStdlibApi"
         )
@@ -109,7 +109,7 @@ tasks.flywayMigrate {
 }
 
 jooq {
-    version.set("3.16.10")
+    version.set("3.17.6")
     configurations {
         create("main") {
             jooqConfiguration.apply {

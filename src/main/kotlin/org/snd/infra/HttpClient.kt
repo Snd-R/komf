@@ -52,7 +52,7 @@ open class HttpClient(
     private fun <T> rateLimited(supplier: () -> T): T {
         return RateLimiter.decorateCheckedSupplier(rateLimit, supplier)
             .let { Retry.decorateCheckedSupplier(retry, it) }
-            .apply()
+            .get()
     }
 
     private fun httpResponse(response: Response) = HttpResponse(

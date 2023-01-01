@@ -34,7 +34,7 @@ class ServerModule(
         config.plugins.enableCors { cors -> cors.add { it.anyHost() } }
         config.showJavalinBanner = false
         config.jetty.server {
-            Server(ConcurrencyUtil.jettyThreadPool("JettyServerThreadPool")).apply {
+            Server(ConcurrencyUtil.jettyThreadPool("JettyServerThreadPool", 1, 20)).apply {
                 addBean(LowResourceMonitor(this))
                 insertHandler(StatisticsHandler())
                 setAttribute("is-default-server", true)
