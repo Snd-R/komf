@@ -20,6 +20,10 @@ class AppContext(
     private val configLoader = ConfigLoader()
 
     @Volatile
+    lateinit var appConfig: AppConfig
+        private set
+
+    @Volatile
     private lateinit var appModule: AppModule
 
     fun init() {
@@ -29,17 +33,18 @@ class AppContext(
 
     @Synchronized
     fun refresh() {
-        if (::appModule.isInitialized) {
-            appModule.close()
-        }
+        close()
         val config = loadConfig()
         setLogLevel(config)
+        appConfig = config
         appModule = AppModule(config, this)
     }
 
     @Synchronized
     private fun close() {
-        appModule.close()
+        if (::appModule.isInitialized) {
+            appModule.close()
+        }
     }
 
     private fun loadConfig(): AppConfig {

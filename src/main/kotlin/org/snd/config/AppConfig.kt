@@ -1,5 +1,10 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package org.snd.config
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.EncodeDefault.Mode.NEVER
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import org.snd.mediaserver.UpdateMode
 import org.snd.mediaserver.UpdateMode.API
@@ -10,11 +15,11 @@ import org.snd.metadata.model.TitleType
 
 @Serializable
 data class AppConfig(
+    @EncodeDefault(NEVER) val komga: KomgaConfig = KomgaConfig(),
+    @EncodeDefault(NEVER) val kavita: KavitaConfig = KavitaConfig(),
     val metadataProviders: MetadataProvidersConfig = MetadataProvidersConfig(),
-    val komga: KomgaConfig = KomgaConfig(),
-    val kavita: KavitaConfig = KavitaConfig(),
-    val discord: DiscordConfig = DiscordConfig(),
-    val database: DatabaseConfig = DatabaseConfig(),
+    @EncodeDefault(NEVER) val discord: DiscordConfig = DiscordConfig(),
+    @EncodeDefault(NEVER) val database: DatabaseConfig = DatabaseConfig(),
     val server: ServerConfig = ServerConfig(),
     val logLevel: String = "INFO"
 )
@@ -27,6 +32,7 @@ data class KomgaConfig(
     val eventListener: EventListenerConfig = EventListenerConfig(),
     val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
+    @Deprecated("moved to metadata update config")
     val aggregateMetadata: Boolean = false,
 )
 
@@ -47,7 +53,6 @@ data class NotificationConfig(
 
 @Serializable
 data class MetadataUpdateConfig(
-    val modes: Set<UpdateMode> = setOf(API),
     val bookThumbnails: Boolean = false,
     val seriesThumbnails: Boolean = true,
     val seriesTitle: Boolean = false,
@@ -55,6 +60,7 @@ data class MetadataUpdateConfig(
     val readingDirectionValue: ReadingDirection? = null,
     val languageValue: String? = null,
     val orderBooks: Boolean = false,
+    val modes: Set<UpdateMode> = setOf(API),
 )
 
 @Serializable
@@ -70,34 +76,34 @@ data class EventListenerConfig(
 
 @Serializable
 data class MetadataProvidersConfig(
-    val malClientId: String = "",
+    @EncodeDefault(NEVER) val malClientId: String = "",
     val nameMatchingMode: NameMatchingMode = CLOSEST_MATCH,
     val defaultProviders: ProvidersConfig = ProvidersConfig(),
-    val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
+    @EncodeDefault(NEVER) val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
 
     @Deprecated("moved to default providers config")
-    val mangaUpdates: ProviderConfig? = null,
+    @EncodeDefault(NEVER) val mangaUpdates: ProviderConfig? = null,
 
     @Deprecated("moved to default providers config")
-    val mal: ProviderConfig? = null,
+    @EncodeDefault(NEVER) val mal: ProviderConfig? = null,
 
     @Deprecated("moved to default providers config")
-    val nautiljon: ProviderConfig? = null,
+    @EncodeDefault(NEVER) val nautiljon: ProviderConfig? = null,
 
     @Deprecated("moved to default providers config")
-    val aniList: ProviderConfig? = null,
+    @EncodeDefault(NEVER) val aniList: ProviderConfig? = null,
 
     @Deprecated("moved to default providers config")
-    val yenPress: ProviderConfig? = null,
+    @EncodeDefault(NEVER) val yenPress: ProviderConfig? = null,
 
     @Deprecated("moved to default providers config")
-    val kodansha: ProviderConfig? = null,
+    @EncodeDefault(NEVER) val kodansha: ProviderConfig? = null,
 
     @Deprecated("moved to default providers config")
-    val viz: ProviderConfig? = null,
+    @EncodeDefault(NEVER) val viz: ProviderConfig? = null,
 
     @Deprecated("moved to default providers config")
-    val bookWalker: ProviderConfig? = null,
+    @EncodeDefault(NEVER) val bookWalker: ProviderConfig? = null,
 )
 
 @Serializable
@@ -115,12 +121,12 @@ data class ProvidersConfig(
 @Serializable
 data class ProviderConfig(
     @Deprecated("moved to separate config")
-    val clientId: String = "",
+    @EncodeDefault(NEVER) val clientId: String = "",
     val priority: Int = 10,
     val enabled: Boolean = false,
-    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
-    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
-    val nameMatchingMode: NameMatchingMode? = null,
+    @EncodeDefault(NEVER) val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
+    @EncodeDefault(NEVER) val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    @EncodeDefault(NEVER) val nameMatchingMode: NameMatchingMode? = null,
 )
 
 @Serializable
@@ -136,38 +142,38 @@ data class ServerConfig(
 
 @Serializable
 data class SeriesMetadataConfig(
-    val status: Boolean = true,
-    val title: Boolean = true,
-    val titleSort: Boolean = true,
-    val summary: Boolean = true,
-    val publisher: Boolean = true,
-    val readingDirection: Boolean = true,
-    val ageRating: Boolean = true,
-    val language: Boolean = true,
-    val genres: Boolean = true,
-    val tags: Boolean = true,
-    val totalBookCount: Boolean = true,
-    val authors: Boolean = true,
-    val releaseDate: Boolean = true,
-    val thumbnail: Boolean = true,
-    val books: Boolean = true,
+    @EncodeDefault(NEVER) val status: Boolean = true,
+    @EncodeDefault(NEVER) val title: Boolean = true,
+    @EncodeDefault(NEVER) val titleSort: Boolean = true,
+    @EncodeDefault(NEVER) val summary: Boolean = true,
+    @EncodeDefault(NEVER) val publisher: Boolean = true,
+    @EncodeDefault(NEVER) val readingDirection: Boolean = true,
+    @EncodeDefault(NEVER) val ageRating: Boolean = true,
+    @EncodeDefault(NEVER) val language: Boolean = true,
+    @EncodeDefault(NEVER) val genres: Boolean = true,
+    @EncodeDefault(NEVER) val tags: Boolean = true,
+    @EncodeDefault(NEVER) val totalBookCount: Boolean = true,
+    @EncodeDefault(NEVER) val authors: Boolean = true,
+    @EncodeDefault(NEVER) val releaseDate: Boolean = true,
+    @EncodeDefault(NEVER) val thumbnail: Boolean = true,
+    @EncodeDefault(NEVER) val books: Boolean = true,
 
-    val useOriginalPublisher: Boolean = false,
-    val originalPublisherTagName: String? = null,
-    val englishPublisherTagName: String? = null,
-    val frenchPublisherTagName: String? = null,
+    @EncodeDefault(NEVER) val useOriginalPublisher: Boolean = false,
+    @EncodeDefault(NEVER) val originalPublisherTagName: String? = null,
+    @EncodeDefault(NEVER) val englishPublisherTagName: String? = null,
+    @EncodeDefault(NEVER) val frenchPublisherTagName: String? = null,
 )
 
 @Serializable
 data class BookMetadataConfig(
-    val title: Boolean = true,
-    val summary: Boolean = true,
-    val number: Boolean = true,
-    val numberSort: Boolean = true,
-    val releaseDate: Boolean = true,
-    val authors: Boolean = true,
-    val tags: Boolean = true,
-    val isbn: Boolean = true,
-    val links: Boolean = true,
-    val thumbnail: Boolean = true,
+    @EncodeDefault(NEVER) val title: Boolean = true,
+    @EncodeDefault(NEVER) val summary: Boolean = true,
+    @EncodeDefault(NEVER) val number: Boolean = true,
+    @EncodeDefault(NEVER) val numberSort: Boolean = true,
+    @EncodeDefault(NEVER) val releaseDate: Boolean = true,
+    @EncodeDefault(NEVER) val authors: Boolean = true,
+    @EncodeDefault(NEVER) val tags: Boolean = true,
+    @EncodeDefault(NEVER) val isbn: Boolean = true,
+    @EncodeDefault(NEVER) val links: Boolean = true,
+    @EncodeDefault(NEVER) val thumbnail: Boolean = true,
 )
