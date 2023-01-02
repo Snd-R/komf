@@ -1,11 +1,23 @@
 package org.snd.mediaserver
 
-import org.snd.mediaserver.model.*
+import org.snd.mediaserver.model.MediaServerBook
+import org.snd.mediaserver.model.MediaServerBookId
+import org.snd.mediaserver.model.MediaServerBookMetadataUpdate
+import org.snd.mediaserver.model.MediaServerBookThumbnail
+import org.snd.mediaserver.model.MediaServerLibrary
+import org.snd.mediaserver.model.MediaServerLibraryId
+import org.snd.mediaserver.model.MediaServerSeries
+import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
+import org.snd.mediaserver.model.MediaServerSeriesSearch
+import org.snd.mediaserver.model.MediaServerSeriesThumbnail
+import org.snd.mediaserver.model.MediaServerThumbnailId
 import org.snd.metadata.model.Image
 
 interface MediaServerClient {
     fun getSeries(seriesId: MediaServerSeriesId): MediaServerSeries
     fun getSeries(libraryId: MediaServerLibraryId): Sequence<MediaServerSeries>
+    fun getSeriesThumbnail(seriesId: MediaServerSeriesId): ByteArray?
     fun getSeriesThumbnails(seriesId: MediaServerSeriesId): Collection<MediaServerSeriesThumbnail>
     fun getBook(bookId: MediaServerBookId): MediaServerBook
     fun getBooks(seriesId: MediaServerSeriesId): Collection<MediaServerBook>

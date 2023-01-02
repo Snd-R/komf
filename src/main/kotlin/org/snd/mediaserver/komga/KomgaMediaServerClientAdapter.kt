@@ -1,8 +1,33 @@
 package org.snd.mediaserver.komga
 
 import org.snd.mediaserver.MediaServerClient
-import org.snd.mediaserver.komga.model.dto.*
-import org.snd.mediaserver.model.*
+import org.snd.mediaserver.komga.model.dto.KomgaSeriesId
+import org.snd.mediaserver.komga.model.dto.bookMetadataResetRequest
+import org.snd.mediaserver.komga.model.dto.komgaBookId
+import org.snd.mediaserver.komga.model.dto.komgaLibraryId
+import org.snd.mediaserver.komga.model.dto.komgaMetadataUpdate
+import org.snd.mediaserver.komga.model.dto.komgaSeriesId
+import org.snd.mediaserver.komga.model.dto.komgaThumbnailId
+import org.snd.mediaserver.komga.model.dto.mediaServerBook
+import org.snd.mediaserver.komga.model.dto.mediaServerBookThumbnail
+import org.snd.mediaserver.komga.model.dto.mediaServerLibrary
+import org.snd.mediaserver.komga.model.dto.mediaServerSeries
+import org.snd.mediaserver.komga.model.dto.mediaServerSeriesSearch
+import org.snd.mediaserver.komga.model.dto.mediaServerSeriesThumbnail
+import org.snd.mediaserver.komga.model.dto.metadataResetRequest
+import org.snd.mediaserver.komga.model.dto.metadataUpdateRequest
+import org.snd.mediaserver.model.MediaServerBook
+import org.snd.mediaserver.model.MediaServerBookId
+import org.snd.mediaserver.model.MediaServerBookMetadataUpdate
+import org.snd.mediaserver.model.MediaServerBookThumbnail
+import org.snd.mediaserver.model.MediaServerLibrary
+import org.snd.mediaserver.model.MediaServerLibraryId
+import org.snd.mediaserver.model.MediaServerSeries
+import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
+import org.snd.mediaserver.model.MediaServerSeriesSearch
+import org.snd.mediaserver.model.MediaServerSeriesThumbnail
+import org.snd.mediaserver.model.MediaServerThumbnailId
 import org.snd.metadata.model.Image
 
 class KomgaMediaServerClientAdapter(private val komgaClient: KomgaClient) : MediaServerClient {
@@ -17,6 +42,10 @@ class KomgaMediaServerClientAdapter(private val komgaClient: KomgaClient) : Medi
             if (it.last) null
             else komgaClient.getSeries(komgaLibraryId, it.number + 1)
         }.flatMap { it.content }.map { it.mediaServerSeries() }
+    }
+
+    override fun getSeriesThumbnail(seriesId: MediaServerSeriesId): ByteArray? {
+        return runCatching { komgaClient.getSeriesThumbnail(seriesId.komgaSeriesId()) }.getOrNull()
     }
 
     override fun getSeriesThumbnails(seriesId: MediaServerSeriesId): Collection<MediaServerSeriesThumbnail> {

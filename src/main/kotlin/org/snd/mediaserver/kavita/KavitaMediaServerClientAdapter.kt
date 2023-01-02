@@ -1,8 +1,29 @@
 package org.snd.mediaserver.kavita
 
 import org.snd.mediaserver.MediaServerClient
-import org.snd.mediaserver.kavita.model.*
-import org.snd.mediaserver.model.*
+import org.snd.mediaserver.kavita.model.kavitaChapterId
+import org.snd.mediaserver.kavita.model.kavitaCoverResetRequest
+import org.snd.mediaserver.kavita.model.kavitaLibraryId
+import org.snd.mediaserver.kavita.model.kavitaSeriesId
+import org.snd.mediaserver.kavita.model.kavitaSeriesMetadataUpdate
+import org.snd.mediaserver.kavita.model.kavitaSeriesResetRequest
+import org.snd.mediaserver.kavita.model.kavitaTitleUpdate
+import org.snd.mediaserver.kavita.model.mediaServerBook
+import org.snd.mediaserver.kavita.model.mediaServerLibrary
+import org.snd.mediaserver.kavita.model.mediaServerSeries
+import org.snd.mediaserver.kavita.model.mediaServerSeriesSearch
+import org.snd.mediaserver.model.MediaServerBook
+import org.snd.mediaserver.model.MediaServerBookId
+import org.snd.mediaserver.model.MediaServerBookMetadataUpdate
+import org.snd.mediaserver.model.MediaServerBookThumbnail
+import org.snd.mediaserver.model.MediaServerLibrary
+import org.snd.mediaserver.model.MediaServerLibraryId
+import org.snd.mediaserver.model.MediaServerSeries
+import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
+import org.snd.mediaserver.model.MediaServerSeriesSearch
+import org.snd.mediaserver.model.MediaServerSeriesThumbnail
+import org.snd.mediaserver.model.MediaServerThumbnailId
 import org.snd.metadata.model.Image
 
 class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : MediaServerClient {
@@ -25,6 +46,10 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
                 val metadata = kavitaClient.getSeriesMetadata(it.seriesId())
                 it.mediaServerSeries(metadata)
             }
+    }
+
+    override fun getSeriesThumbnail(seriesId: MediaServerSeriesId): ByteArray? {
+        return runCatching { kavitaClient.getSeriesCover(seriesId.kavitaSeriesId()) }.getOrNull()
     }
 
     override fun getSeriesThumbnails(seriesId: MediaServerSeriesId): Collection<MediaServerSeriesThumbnail> {

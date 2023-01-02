@@ -7,7 +7,22 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.snd.infra.HttpClient
 import org.snd.infra.MEDIA_TYPE_JSON
-import org.snd.mediaserver.kavita.model.*
+import org.snd.mediaserver.kavita.model.KavitaChapter
+import org.snd.mediaserver.kavita.model.KavitaChapterId
+import org.snd.mediaserver.kavita.model.KavitaChapterMetadata
+import org.snd.mediaserver.kavita.model.KavitaCoverUploadRequest
+import org.snd.mediaserver.kavita.model.KavitaLibrary
+import org.snd.mediaserver.kavita.model.KavitaLibraryId
+import org.snd.mediaserver.kavita.model.KavitaPage
+import org.snd.mediaserver.kavita.model.KavitaSearch
+import org.snd.mediaserver.kavita.model.KavitaSeries
+import org.snd.mediaserver.kavita.model.KavitaSeriesId
+import org.snd.mediaserver.kavita.model.KavitaSeriesMetadata
+import org.snd.mediaserver.kavita.model.KavitaSeriesMetadataUpdate
+import org.snd.mediaserver.kavita.model.KavitaSeriesUpdate
+import org.snd.mediaserver.kavita.model.KavitaVolume
+import org.snd.mediaserver.kavita.model.KavitaVolumeId
+import org.snd.mediaserver.kavita.model.Pagination
 import org.snd.metadata.model.Image
 import java.util.*
 
@@ -44,6 +59,19 @@ class KavitaClient(
         val series = parseJson<Collection<KavitaSeries>>(response.body?.decodeToString()!!)
         val pagination = parseJson<Pagination>(response.headers["Pagination"]!!)
         return KavitaPage(series, pagination)
+    }
+
+    fun getSeriesCover(seriesId: KavitaSeriesId): ByteArray {
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/image/series-cover")
+                    .addQueryParameter("seriesId", seriesId.id.toString())
+                    .build()
+            )
+            .build()
+
+        return client.executeWithByteResponse(request)
     }
 
     fun updateSeries(seriesUpdate: KavitaSeriesUpdate) {

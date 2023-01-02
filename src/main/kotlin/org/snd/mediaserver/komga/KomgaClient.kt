@@ -10,7 +10,18 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
 import org.snd.infra.HttpClient
 import org.snd.infra.MEDIA_TYPE_JSON
-import org.snd.mediaserver.komga.model.dto.*
+import org.snd.mediaserver.komga.model.dto.KomgaBook
+import org.snd.mediaserver.komga.model.dto.KomgaBookId
+import org.snd.mediaserver.komga.model.dto.KomgaBookMetadataUpdate
+import org.snd.mediaserver.komga.model.dto.KomgaBookThumbnail
+import org.snd.mediaserver.komga.model.dto.KomgaLibrary
+import org.snd.mediaserver.komga.model.dto.KomgaLibraryId
+import org.snd.mediaserver.komga.model.dto.KomgaSeries
+import org.snd.mediaserver.komga.model.dto.KomgaSeriesId
+import org.snd.mediaserver.komga.model.dto.KomgaSeriesMetadataUpdate
+import org.snd.mediaserver.komga.model.dto.KomgaSeriesThumbnail
+import org.snd.mediaserver.komga.model.dto.KomgaThumbnailId
+import org.snd.mediaserver.komga.model.dto.Page
 import org.snd.metadata.model.Image
 
 class KomgaClient(
@@ -43,6 +54,14 @@ class KomgaClient(
             .build()
 
         return parseJson(client.execute(request))
+    }
+
+    fun getSeriesThumbnail(seriesId: KomgaSeriesId): ByteArray {
+        val request = Request.Builder()
+            .url(baseUrl.newBuilder().addPathSegments("api/v1/series/${seriesId.id}/thumbnail").build())
+            .build()
+
+        return client.executeWithByteResponse(request)
     }
 
     fun updateSeriesMetadata(

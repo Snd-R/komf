@@ -32,7 +32,6 @@ data class KomgaConfig(
     val eventListener: EventListenerConfig = EventListenerConfig(),
     val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
-    @Deprecated("moved to metadata update config")
     val aggregateMetadata: Boolean = false,
 )
 
@@ -132,6 +131,8 @@ data class ProviderConfig(
 @Serializable
 data class DiscordConfig(
     val webhooks: Collection<String>? = null,
+    val seriesCover: Boolean = false,
+    val imgurClientId: String? = null,
     val templatesDirectory: String = "./",
 )
 

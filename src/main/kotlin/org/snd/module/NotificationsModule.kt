@@ -8,15 +8,17 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.snd.config.DiscordConfig
-import org.snd.discord.DiscordWebhookService
-import org.snd.discord.client.DiscordClient
 import org.snd.infra.HttpClient
 import org.snd.infra.HttpException
+import org.snd.noifications.discord.DiscordWebhookService
+import org.snd.noifications.discord.client.DiscordClient
+import org.snd.noifications.imgur.ClientIdAuthInterceptor
+import org.snd.noifications.imgur.ImgurClient
 import java.time.Duration
 import java.util.*
 
 
-class DiscordModule(
+class NotificationsModule(
     config: DiscordConfig,
     okHttpClient: OkHttpClient,
     jsonModule: JsonModule,
@@ -61,11 +63,28 @@ class DiscordModule(
         ),
         moshi = jsonModule.moshi
     )
+
+    private val imgurClient = config.imgurClientId?.let { clientId ->
+        ImgurClient(
+            HttpClient(
+                client = okHttpClient.newBuilder()
+                    .addInterceptor(HttpLoggingInterceptor { message -> KotlinLogging.logger {}.debug { message } }
+                        .setLevel(HttpLoggingInterceptor.Level.BASIC))
+                    .addInterceptor(ClientIdAuthInterceptor(clientId))
+                    .build(),
+                name = "Imgur"
+            ),
+            moshi = jsonModule.moshi
+        )
+    }
+
     val discordWebhookService: DiscordWebhookService? = config.webhooks?.let {
         DiscordWebhookService(
             config.webhooks,
             discordClient,
-            templateEngine
+            config.seriesCover,
+            imgurClient,
+            templateEngine,
         )
     }
 }

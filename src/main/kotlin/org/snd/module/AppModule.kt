@@ -13,7 +13,7 @@ class AppModule(
 
     private val repositoryModule = RepositoryModule(appConfig.database)
 
-    private val discordModule = DiscordModule(
+    private val notificationsModule = NotificationsModule(
         config = appConfig.discord,
         okHttpClient = okHttpClient,
         jsonModule = jsonModule,
@@ -32,7 +32,7 @@ class AppModule(
         jsonModule = jsonModule,
         repositoryModule = repositoryModule,
         metadataModule = metadataModule,
-        discordModule = discordModule,
+        notificationsModule = notificationsModule,
         clock = Clock.systemUTC(),
         systemDefaultClock = Clock.systemDefaultZone()
     )

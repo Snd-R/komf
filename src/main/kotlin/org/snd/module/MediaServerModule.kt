@@ -35,7 +35,7 @@ class MediaServerModule(
     jsonModule: JsonModule,
     repositoryModule: RepositoryModule,
     metadataModule: MetadataModule,
-    discordModule: DiscordModule?,
+    notificationsModule: NotificationsModule?,
     clock: Clock,
     systemDefaultClock: Clock
 ) : AutoCloseable {
@@ -98,7 +98,7 @@ class MediaServerModule(
 
     private val komgaNotificationService = NotificationService(
         mediaServerClient = komgaMediaServerClient,
-        discordWebhookService = discordModule?.discordWebhookService,
+        discordWebhookService = notificationsModule?.discordWebhookService,
         libraryFilter = {
             if (komgaConfig.notifications.libraries.isEmpty()) true
             else komgaConfig.notifications.libraries.contains(it)
@@ -178,7 +178,7 @@ class MediaServerModule(
 
     private val kavitaNotificationService = NotificationService(
         mediaServerClient = kavitaMediaServerClient,
-        discordWebhookService = discordModule?.discordWebhookService,
+        discordWebhookService = notificationsModule?.discordWebhookService,
         libraryFilter = {
             if (kavitaConfig.notifications.libraries.isEmpty()) true
             else kavitaConfig.notifications.libraries.contains(it)

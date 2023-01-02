@@ -29,7 +29,7 @@ class CliModule(
         jsonModule = jsonModule,
         repositoryModule = repositoryModule,
         metadataModule = metadataModule,
-        discordModule = null,
+        notificationsModule = null,
         clock = Clock.systemUTC(),
         systemDefaultClock = Clock.systemDefaultZone()
     )

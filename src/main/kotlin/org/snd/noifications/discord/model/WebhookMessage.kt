@@ -1,11 +1,12 @@
-package org.snd.discord.model
+package org.snd.noifications.discord.model
 
 import org.apache.velocity.VelocityContext
 
 data class WebhookMessage(
     val library: Library,
     val series: Series,
-    val books: Collection<Book>
+    val books: Collection<Book>,
+    val seriesCover: ByteArray?,
 )
 
 data class Library(val name: String)

@@ -1,4 +1,4 @@
-package org.snd.discord.model
+package org.snd.noifications.discord.model
 
 import com.squareup.moshi.JsonClass
 
