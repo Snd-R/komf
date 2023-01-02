@@ -8,11 +8,11 @@ import org.snd.metadata.model.TitleType
 import kotlin.properties.Delegates
 
 @JsonClass(generateAdapter = true)
-data class ConfigUpdateRequest(
-    val metadataProviders: MetadataProvidersConfigDto? = null,
+data class AppConfigDto(
     val komga: KomgaConfigDto? = null,
     val kavita: KavitaConfigDto? = null,
     val discord: DiscordConfigDto? = null,
+    val metadataProviders: MetadataProvidersConfigDto? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -59,6 +59,8 @@ class DiscordConfigDto {
     fun isSet(prop: String) = isSet.getOrDefault(prop, false)
 
     var webhooks: Collection<String>? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
+    var seriesCover: Boolean? = null
+    var imgurClientId: String? = null
 }
 
 @JsonClass(generateAdapter = true)

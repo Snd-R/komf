@@ -2,11 +2,13 @@ package org.snd.api
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
+import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.patch
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.http.ContentType.APPLICATION_JSON
 import io.javalin.http.Context
 import io.javalin.http.HttpStatus.BAD_REQUEST
+import io.javalin.http.HttpStatus.NO_CONTENT
 import io.javalin.http.HttpStatus.OK
 import io.javalin.http.HttpStatus.UNPROCESSABLE_CONTENT
 import org.snd.config.ConfigWriter
@@ -21,12 +23,20 @@ class ConfigController(
 
     fun register() {
         path("/") {
-            patch("config", this::config)
+            get("config", this::getConfig)
+            patch("config", this::updateConfig)
         }
     }
 
-    private fun config(ctx: Context): Context {
-        val request = moshi.adapter<ConfigUpdateRequest>().fromJson(ctx.body())
+    private fun getConfig(ctx: Context): Context {
+        val config = configMapper.toDto(appContext.appConfig)
+        return ctx.result(moshi.adapter<AppConfigDto>().toJson(config))
+            .contentType(APPLICATION_JSON)
+            .status(OK)
+    }
+
+    private fun updateConfig(ctx: Context): Context {
+        val request = moshi.adapter<AppConfigDto>().fromJson(ctx.body())
             ?: return ctx.status(BAD_REQUEST)
 
         val config = configMapper.patch(appContext.appConfig, request)
@@ -47,6 +57,6 @@ class ConfigController(
         thread.isDaemon = false
         thread.start()
 
-        return ctx.status(OK)
+        return ctx.status(NO_CONTENT)
     }
 }

@@ -15,7 +15,16 @@ import org.snd.config.SeriesMetadataConfig
 
 class ConfigUpdateMapper {
 
-    fun patch(config: AppConfig, patch: ConfigUpdateRequest): AppConfig {
+    fun toDto(config: AppConfig): AppConfigDto {
+        return AppConfigDto(
+            metadataProviders = toDto(config.metadataProviders),
+            komga = toDto(config.komga),
+            kavita = toDto(config.kavita),
+            discord = toDto(config.discord),
+        )
+    }
+
+    fun patch(config: AppConfig, patch: AppConfigDto): AppConfig {
         return config.copy(
             metadataProviders = patch.metadataProviders
                 ?.let { metadataProviders(config.metadataProviders, it) }
@@ -23,6 +32,129 @@ class ConfigUpdateMapper {
             komga = patch.komga?.let { komgaConfig(config.komga, it) } ?: config.komga,
             kavita = patch.kavita?.let { kavitaConfig(config.kavita, it) } ?: config.kavita,
             discord = patch.discord?.let { discord(config.discord, it) } ?: config.discord
+        )
+    }
+
+
+    private fun toDto(config: KomgaConfig): KomgaConfigDto {
+        return KomgaConfigDto(
+            eventListener = toDto(config.eventListener),
+            notifications = toDto(config.notifications),
+            metadataUpdate = toDto(config.metadataUpdate),
+            aggregateMetadata = config.aggregateMetadata
+        )
+    }
+
+    private fun toDto(config: KavitaConfig): KavitaConfigDto {
+        return KavitaConfigDto(
+            eventListener = toDto(config.eventListener),
+            notifications = toDto(config.notifications),
+            metadataUpdate = toDto(config.metadataUpdate),
+            aggregateMetadata = config.aggregateMetadata
+        )
+    }
+
+    private fun toDto(config: EventListenerConfig): EventListenerConfigDto {
+        return EventListenerConfigDto(
+            enabled = config.enabled,
+            libraries = config.libraries
+        )
+    }
+
+    private fun toDto(config: NotificationConfig): NotificationConfigDto {
+        return NotificationConfigDto(libraries = config.libraries)
+    }
+
+    private fun toDto(config: MetadataUpdateConfig): MetadataUpdateConfigDto {
+        return MetadataUpdateConfigDto().apply {
+            readingDirectionValue = config.readingDirectionValue
+            languageValue = config.languageValue
+            modes = config.modes
+            bookThumbnails = config.bookThumbnails
+            seriesThumbnails = config.seriesThumbnails
+            seriesTitle = config.seriesTitle
+            titleType = config.titleType
+            orderBooks = config.orderBooks
+        }
+    }
+
+    private fun toDto(config: DiscordConfig): DiscordConfigDto {
+        return DiscordConfigDto().apply {
+            webhooks = config.webhooks
+            seriesCover = config.seriesCover
+            imgurClientId = config.imgurClientId
+        }
+    }
+
+    private fun toDto(config: MetadataProvidersConfig): MetadataProvidersConfigDto {
+        return MetadataProvidersConfigDto(
+            malClientId = config.malClientId,
+            nameMatchingMode = config.nameMatchingMode,
+            defaultProviders = toDto(config.defaultProviders),
+            libraryProviders = config.libraryProviders
+                .map { (libraryId, config) -> libraryId to toDto(config) }
+                .toMap()
+        )
+    }
+
+    private fun toDto(config: ProvidersConfig): ProvidersConfigDto {
+        return ProvidersConfigDto(
+            mangaUpdates = toDto(config.mangaUpdates),
+            mal = toDto(config.mangaUpdates),
+            nautiljon = toDto(config.mangaUpdates),
+            aniList = toDto(config.mangaUpdates),
+            yenPress = toDto(config.mangaUpdates),
+            kodansha = toDto(config.mangaUpdates),
+            viz = toDto(config.mangaUpdates),
+            bookWalker = toDto(config.mangaUpdates),
+        )
+    }
+
+    private fun toDto(config: ProviderConfig): ProviderConfigDto {
+        return ProviderConfigDto().apply {
+            nameMatchingMode = config.nameMatchingMode
+            priority = config.priority
+            enabled = config.enabled
+            seriesMetadata = toDto(config.seriesMetadata)
+            bookMetadata = toDto(config.bookMetadata)
+        }
+    }
+
+    private fun toDto(config: SeriesMetadataConfig): SeriesMetadataConfigDto {
+        return SeriesMetadataConfigDto().apply {
+            status = config.status
+            title = config.title
+            summary = config.summary
+            publisher = config.publisher
+            readingDirection = config.readingDirection
+            ageRating = config.ageRating
+            language = config.language
+            genres = config.genres
+            tags = config.tags
+            totalBookCount = config.totalBookCount
+            authors = config.authors
+            releaseDate = config.releaseDate
+            thumbnail = config.thumbnail
+            books = config.books
+            useOriginalPublisher = config.useOriginalPublisher
+            originalPublisherTagName = config.originalPublisherTagName
+            englishPublisherTagName = config.englishPublisherTagName
+            frenchPublisherTagName = config.frenchPublisherTagName
+        }
+    }
+
+    private fun toDto(config: BookMetadataConfig): BookMetadataConfigDto {
+        return BookMetadataConfigDto(
+            title = config.title,
+            summary = config.summary,
+            number = config.number,
+            numberSort = config.numberSort,
+            releaseDate = config.releaseDate,
+            authors = config.authors,
+            tags = config.tags,
+            isbn = config.isbn,
+            links = config.links,
+            thumbnail = config.thumbnail
         )
     }
 

@@ -17,9 +17,9 @@ import org.snd.metadata.model.TitleType
 data class AppConfig(
     @EncodeDefault(NEVER) val komga: KomgaConfig = KomgaConfig(),
     @EncodeDefault(NEVER) val kavita: KavitaConfig = KavitaConfig(),
-    val metadataProviders: MetadataProvidersConfig = MetadataProvidersConfig(),
     @EncodeDefault(NEVER) val discord: DiscordConfig = DiscordConfig(),
     @EncodeDefault(NEVER) val database: DatabaseConfig = DatabaseConfig(),
+    val metadataProviders: MetadataProvidersConfig = MetadataProvidersConfig(),
     val server: ServerConfig = ServerConfig(),
     val logLevel: String = "INFO"
 )
