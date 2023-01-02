@@ -233,7 +233,11 @@ Example of a template:
     $series.summary
 
 #end
-***new books were added to library $library.name***:
+#if($books.size() == 1)
+***new book was added to library $library.name:***
+#else
+***new books were added to library $library.name:***
+#end
 #foreach ($book in $books)
 **$book.name**
 #end
