@@ -66,6 +66,11 @@ tasks.withType<KotlinCompile>().configureEach {
     }
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    sourceCompatibility = "17"
+    targetCompatibility = "17"
+}
+
 tasks {
     shadowJar {
         manifest {
@@ -138,7 +143,9 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
 }
 
 apollo {
-    packageName.set("org.snd")
+    service("service") {
+        packageName.set("org.snd")
+    }
 }
 
 tasks.wrapper {
