@@ -3,10 +3,23 @@ package org.snd.metadata.providers.kodansha
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.*
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.BookRange
+import org.snd.metadata.model.Image
+import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
+import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.SeriesBook
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesStatus
+import org.snd.metadata.model.SeriesTitle
+import org.snd.metadata.model.TitleType
 import org.snd.metadata.providers.kodansha.model.KodanshaBook
 import org.snd.metadata.providers.kodansha.model.KodanshaSeries
-import org.snd.metadata.providers.kodansha.model.Status.*
+import org.snd.metadata.providers.kodansha.model.Status.COMPLETE
+import org.snd.metadata.providers.kodansha.model.Status.COMPLETED
+import org.snd.metadata.providers.kodansha.model.Status.ONGOING
 
 class KodanshaMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
@@ -38,7 +51,7 @@ class KodanshaMetadataMapper(
                 SeriesBook(
                     id = ProviderBookId(it.id.id),
                     number = it.number?.let { number -> BookRange(number.toDouble(), number.toDouble()) },
-                    name = "${series.title} $it.number",
+                    name = "${series.title} ${it.number}",
                     type = null,
                     edition = null
                 )
