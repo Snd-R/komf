@@ -83,15 +83,15 @@ class ConfigUpdateMapper {
 
     private fun toDto(config: DiscordConfig): DiscordConfigDto {
         return DiscordConfigDto().apply {
-            webhooks = config.webhooks
+            webhooks = config.webhooks?.map { it.replace("(?<=.{34}).(?=.{10})".toRegex(), "*") }
             seriesCover = config.seriesCover
-            imgurClientId = config.imgurClientId
+            imgurClientId = config.imgurClientId?.replace("(?<=.{4}).".toRegex(), "*")
         }
     }
 
     private fun toDto(config: MetadataProvidersConfig): MetadataProvidersConfigDto {
         return MetadataProvidersConfigDto(
-            malClientId = config.malClientId,
+            malClientId = config.malClientId.replace("(?<=.{4}).".toRegex(), "*"),
             nameMatchingMode = config.nameMatchingMode,
             defaultProviders = toDto(config.defaultProviders),
             libraryProviders = config.libraryProviders
