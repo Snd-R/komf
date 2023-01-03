@@ -4,7 +4,13 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.snd.metadata.BookNameParser
-import org.snd.metadata.providers.bookwalker.model.*
+import org.snd.metadata.model.BookRange
+import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
+import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
+import org.snd.metadata.providers.bookwalker.model.BookWalkerBookListPage
+import org.snd.metadata.providers.bookwalker.model.BookWalkerSearchResult
+import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesBook
+import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
 import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -61,7 +67,7 @@ class BookWalkerParser {
         return BookWalkerBook(
             id = parseDocumentBookId(document),
             name = name,
-            number = BookNameParser.getVolumes(name),
+            number = parseBookNumber(name),
             seriesTitle = seriesTitle,
             japaneseTitle = japaneseTitle,
             romajiTitle = romajiTitle,
@@ -80,7 +86,7 @@ class BookWalkerParser {
         return BookWalkerSeriesBook(
             id = getBookId(titleElement.child(0).attr("href")),
             name = titleElement.text(),
-            number = BookNameParser.getVolumes(titleElement.text())
+            number = parseBookNumber(titleElement.text())
         )
     }
 
@@ -124,5 +130,11 @@ class BookWalkerParser {
     private fun parseDocumentBookId(document: Document): BookWalkerBookId {
         return getBookId(document.getElementsByTag("meta").first { it.attr("property") == "og:url" }
             .attr("content"))
+    }
+
+    private fun parseBookNumber(name: String): BookRange? {
+        return BookNameParser.getVolumes(name)
+            ?: "(?i)(?<!chapter)\\s\\d+".toRegex().findAll(name).lastOrNull()?.value?.toDoubleOrNull()
+                ?.let { BookRange(it, it) }
     }
 }
