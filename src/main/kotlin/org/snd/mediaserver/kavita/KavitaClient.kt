@@ -22,7 +22,6 @@ import org.snd.mediaserver.kavita.model.KavitaSeriesMetadataUpdate
 import org.snd.mediaserver.kavita.model.KavitaSeriesUpdate
 import org.snd.mediaserver.kavita.model.KavitaVolume
 import org.snd.mediaserver.kavita.model.KavitaVolumeId
-import org.snd.mediaserver.kavita.model.Pagination
 import org.snd.metadata.model.Image
 import java.util.*
 
@@ -57,8 +56,7 @@ class KavitaClient(
 
         val response = client.executeWithResponse(request)
         val series = parseJson<Collection<KavitaSeries>>(response.body?.decodeToString()!!)
-        val pagination = parseJson<Pagination>(response.headers["Pagination"]!!)
-        return KavitaPage(series, pagination)
+        return KavitaPage(series, page)
     }
 
     fun getSeriesCover(seriesId: KavitaSeriesId): ByteArray {

@@ -38,8 +38,8 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
         val kavitaLibraryId = libraryId.kavitaLibraryId()
 
         return generateSequence(kavitaClient.getSeries(kavitaLibraryId, 1)) {
-            if (it.pagination.currentPage >= it.pagination.totalPages) null
-            else kavitaClient.getSeries(kavitaLibraryId, it.pagination.currentPage + 1)
+            if (it.content.isEmpty()) null
+            else kavitaClient.getSeries(kavitaLibraryId, it.currentPage + 1)
         }
             .flatMap { it.content }
             .map {
