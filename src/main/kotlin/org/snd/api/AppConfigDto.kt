@@ -17,6 +17,9 @@ data class AppConfigDto(
 
 @JsonClass(generateAdapter = true)
 data class KomgaConfigDto(
+    val baseUri: String? = null,
+    val komgaUser: String? = null,
+    val komgaPassword: String? = null,
     val eventListener: EventListenerConfigDto? = null,
     val notifications: NotificationConfigDto? = null,
     val metadataUpdate: MetadataUpdateConfigDto? = null,
@@ -25,6 +28,8 @@ data class KomgaConfigDto(
 
 @JsonClass(generateAdapter = true)
 data class KavitaConfigDto(
+    val baseUri: String? = null,
+    val apiKey: String? = null,
     val eventListener: EventListenerConfigDto? = null,
     val notifications: NotificationConfigDto? = null,
     val metadataUpdate: MetadataUpdateConfigDto? = null,

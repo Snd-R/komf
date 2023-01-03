@@ -38,6 +38,8 @@ class ConfigUpdateMapper {
 
     private fun toDto(config: KomgaConfig): KomgaConfigDto {
         return KomgaConfigDto(
+            baseUri = config.baseUri,
+            komgaUser = config.komgaUser,
             eventListener = toDto(config.eventListener),
             notifications = toDto(config.notifications),
             metadataUpdate = toDto(config.metadataUpdate),
@@ -47,6 +49,7 @@ class ConfigUpdateMapper {
 
     private fun toDto(config: KavitaConfig): KavitaConfigDto {
         return KavitaConfigDto(
+            baseUri = config.baseUri,
             eventListener = toDto(config.eventListener),
             notifications = toDto(config.notifications),
             metadataUpdate = toDto(config.metadataUpdate),
@@ -273,6 +276,9 @@ class ConfigUpdateMapper {
 
     private fun komgaConfig(config: KomgaConfig, patch: KomgaConfigDto): KomgaConfig {
         return config.copy(
+            baseUri = patch.baseUri ?: config.baseUri,
+            komgaUser = patch.komgaUser ?: config.komgaUser,
+            komgaPassword = patch.komgaPassword ?: config.komgaPassword,
             eventListener = patch.eventListener?.let { eventListener(config.eventListener, it) } ?: config.eventListener,
             notifications = patch.notifications?.let { notifications(config.notifications, it) } ?: config.notifications,
             metadataUpdate = patch.metadataUpdate?.let { metadataUpdate(config.metadataUpdate, it) } ?: config.metadataUpdate,
@@ -282,6 +288,8 @@ class ConfigUpdateMapper {
 
     private fun kavitaConfig(config: KavitaConfig, patch: KavitaConfigDto): KavitaConfig {
         return config.copy(
+            baseUri = patch.baseUri ?: config.baseUri,
+            apiKey = patch.apiKey ?: config.apiKey,
             notifications = patch.notifications?.let { notifications(config.notifications, it) } ?: config.notifications,
             eventListener = patch.eventListener?.let { eventListener(config.eventListener, it) } ?: config.eventListener,
             metadataUpdate = patch.metadataUpdate?.let { metadataUpdate(config.metadataUpdate, it) } ?: config.metadataUpdate,
