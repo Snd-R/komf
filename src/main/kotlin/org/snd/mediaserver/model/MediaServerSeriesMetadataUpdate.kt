@@ -19,6 +19,7 @@ data class MediaServerSeriesMetadataUpdate(
     val tags: Collection<String>? = null,
     val totalBookCount: Int? = null,
     val authors: Collection<MediaServerAuthor>? = null,
+    val releaseYear: Int? = null,
 
     val statusLock: Boolean? = null,
     val titleLock: Boolean? = null,
@@ -32,4 +33,5 @@ data class MediaServerSeriesMetadataUpdate(
     val tagsLock: Boolean? = null,
     val totalBookCountLock: Boolean? = null,
     val authorsLock: Boolean? = null,
+    val releaseYearLock: Boolean? = null,
 )

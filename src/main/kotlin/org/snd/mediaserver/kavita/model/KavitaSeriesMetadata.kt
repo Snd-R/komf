@@ -49,6 +49,7 @@ data class KavitaSeriesMetadata(
     val publishersLocked: Boolean,
     val translatorsLocked: Boolean,
     val coverArtistsLocked: Boolean,
+    val releaseYearLocked: Boolean,
 )
 
 @JsonClass(generateAdapter = true)
@@ -123,6 +124,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         tags = tags.map { it.title },
         totalBookCount = null,
         authors = authors,
+        releaseYear = releaseYear,
 
         statusLock = publicationStatusLocked,
         titleLock = series.nameLocked,
@@ -135,6 +137,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         genresLock = genresLocked,
         tagsLock = tagsLocked,
         totalBookCountLock = false,
-        authorsLock = authorsLock
+        authorsLock = authorsLock,
+        releaseYearLock = releaseYearLocked
     )
 }

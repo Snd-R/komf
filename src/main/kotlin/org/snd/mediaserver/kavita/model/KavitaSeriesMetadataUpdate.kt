@@ -2,7 +2,15 @@ package org.snd.mediaserver.kavita.model
 
 import com.squareup.moshi.JsonClass
 import org.snd.mediaserver.kavita.model.KavitaAgeRating.UNKNOWN
-import org.snd.mediaserver.kavita.model.KavitaPersonRole.*
+import org.snd.mediaserver.kavita.model.KavitaPersonRole.COLORIST
+import org.snd.mediaserver.kavita.model.KavitaPersonRole.COVER_ARTIST
+import org.snd.mediaserver.kavita.model.KavitaPersonRole.EDITOR
+import org.snd.mediaserver.kavita.model.KavitaPersonRole.INKER
+import org.snd.mediaserver.kavita.model.KavitaPersonRole.LETTERER
+import org.snd.mediaserver.kavita.model.KavitaPersonRole.PENCILLER
+import org.snd.mediaserver.kavita.model.KavitaPersonRole.PUBLISHER
+import org.snd.mediaserver.kavita.model.KavitaPersonRole.TRANSLATOR
+import org.snd.mediaserver.kavita.model.KavitaPersonRole.WRITER
 import org.snd.mediaserver.kavita.model.KavitaPublicationStatus.ONGOING
 import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
 import org.snd.metadata.model.AuthorRole
@@ -68,7 +76,8 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
         translators = authors?.get(AuthorRole.TRANSLATOR.name)
             ?.map { KavitaAuthor(id = 0, name = it.name, role = TRANSLATOR) }?.toSet() ?: oldMeta.translators,
         ageRating = ageRating ?: oldMeta.ageRating,
-        language = language ?: oldMeta.language
+        language = language ?: oldMeta.language,
+        releaseYear = releaseYear ?: oldMeta.releaseYear
     )
     return KavitaSeriesMetadataUpdate(metadata, collectionTags)
 }
@@ -114,6 +123,7 @@ fun kavitaSeriesResetRequest(seriesId: KavitaSeriesId): KavitaSeriesMetadataUpda
         publishersLocked = false,
         translatorsLocked = false,
         coverArtistsLocked = false,
+        releaseYearLocked = false,
     )
     return KavitaSeriesMetadataUpdate(metadata, emptyList())
 }

@@ -1,11 +1,22 @@
 package org.snd.mediaserver
 
 import org.snd.config.MetadataUpdateConfig
-import org.snd.mediaserver.model.*
+import org.snd.mediaserver.model.MediaServerAuthor
+import org.snd.mediaserver.model.MediaServerBook
+import org.snd.mediaserver.model.MediaServerBookMetadataUpdate
+import org.snd.mediaserver.model.MediaServerSeriesMetadata
+import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
 import org.snd.metadata.BookNameParser
 import org.snd.metadata.comicinfo.model.AgeRating
 import org.snd.metadata.comicinfo.model.ComicInfo
-import org.snd.metadata.model.AuthorRole.*
+import org.snd.metadata.model.AuthorRole.COLORIST
+import org.snd.metadata.model.AuthorRole.COVER
+import org.snd.metadata.model.AuthorRole.EDITOR
+import org.snd.metadata.model.AuthorRole.INKER
+import org.snd.metadata.model.AuthorRole.LETTERER
+import org.snd.metadata.model.AuthorRole.PENCILLER
+import org.snd.metadata.model.AuthorRole.TRANSLATOR
+import org.snd.metadata.model.AuthorRole.WRITER
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesTitle
@@ -66,6 +77,7 @@ class MetadataUpdateMapper(
                 tags = getIfNotLockedOrEmpty(patch.tags, tagsLock),
                 totalBookCount = getIfNotLockedOrEmpty(patch.totalBookCount, totalBookCountLock),
                 authors = getIfNotLockedOrEmpty(authors, authorsLock),
+                releaseYear = getIfNotLockedOrEmpty(patch.releaseDate?.year, releaseYearLock)
             )
         }
 
