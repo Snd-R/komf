@@ -17,7 +17,7 @@ directly to komga and kavita ui allowing you to launch manual or automatic metad
 
 ### Jar
 
-Requires Java 11 or higher
+Requires Java 17 or higher
 
 `java -jar komf-1.0-SNAPSHOT-all.jar <path to config>`
 
@@ -89,6 +89,8 @@ kavita:
     languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
+  seriesCover: false # include series cover in message. Requires imgurClientId
+  imgurClientId: # client id for imgur image uploads
   templatesDirectory: "./" #path to a directory with discordWebhook.vm template
 database:
   file: ./database.sqlite #database file location.
