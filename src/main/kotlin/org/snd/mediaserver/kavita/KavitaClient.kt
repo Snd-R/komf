@@ -54,8 +54,8 @@ class KavitaClient(
             .post("{}".toRequestBody(MEDIA_TYPE_JSON))
             .build()
 
-        val response = client.executeWithResponse(request)
-        val series = parseJson<Collection<KavitaSeries>>(response.body?.decodeToString()!!)
+        val response = client.execute(request)
+        val series = parseJson<Collection<KavitaSeries>>(response)
         return KavitaPage(series, page)
     }
 
