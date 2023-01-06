@@ -5,6 +5,7 @@ import java.time.LocalDate
 
 data class BookWalkerBook(
     val id: BookWalkerBookId,
+    val seriesId: BookWalkerSeriesId?,
     val name: String,
     val number: BookRange?,
 

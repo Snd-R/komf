@@ -22,7 +22,7 @@ class BookWalkerParser {
     fun parseSearchResults(results: String): Collection<BookWalkerSearchResult> {
         val document = Jsoup.parse(results)
         return document.getElementsByClass("o-tile-list").first()?.children()
-            ?.mapNotNull { parseSearchResult(it) }
+            ?.map { parseSearchResult(it) }
             ?: emptyList()
     }
 
@@ -44,8 +44,11 @@ class BookWalkerParser {
         val image = document.getElementsByClass("book-img").first()?.firstElementChild()?.firstElementChild()?.attr("src")
         val name = document.getElementsByClass("detail-book-title").first()!!.child(0).textNodes().first().text()
         val productDetail = document.getElementsByClass("product-detail").first()!!.child(0)
-        val seriesTitle = productDetail.children().first { it.child(0).text() == "Series Title" }
-            .child(1).text().let { parseSeriesName(it) }
+        val seriesTitleElement = productDetail.children()
+            .first { it.child(0).text() == "Series Title" }
+            .child(1)
+        val seriesTitle = parseSeriesName(seriesTitleElement.text())
+        val seriesId = seriesTitleElement.getElementsByTag("a").first()?.attr("href")?.let { parseSeriesId(it) }
         val japaneseTitles = productDetail.children().firstOrNull { it.child(0).text() == "Japanese Title" }
             ?.child(1)?.child(0)?.child(0)
         val japaneseTitle = japaneseTitles?.textNodes()?.firstOrNull()?.text()?.removeSuffix(" (")
@@ -66,6 +69,7 @@ class BookWalkerParser {
 
         return BookWalkerBook(
             id = parseDocumentBookId(document),
+            seriesId = seriesId,
             name = name,
             number = parseBookNumber(name),
             seriesTitle = seriesTitle,
@@ -84,25 +88,26 @@ class BookWalkerParser {
     private fun parseSeriesBook(book: Element): BookWalkerSeriesBook {
         val titleElement = book.getElementsByClass("a-tile-ttl").first()!!
         return BookWalkerSeriesBook(
-            id = getBookId(titleElement.child(0).attr("href")),
+            id = parseBookId(titleElement.child(0).attr("href")),
             name = titleElement.text(),
             number = parseBookNumber(titleElement.text())
         )
     }
 
-    private fun parseSearchResult(result: Element): BookWalkerSearchResult? {
+    private fun parseSearchResult(result: Element): BookWalkerSearchResult {
         val imageUrl = getSearchResultThumbnail(result)
         val titleElement = result.getElementsByClass("a-tile-ttl").first()!!
-        val id = getSeriesId(titleElement.child(0).attr("href")) ?: return null
+        val resultUrl = titleElement.child(0).attr("href")
 
         return BookWalkerSearchResult(
-            id = id,
+            seriesId = parseSeriesId(resultUrl),
+            bookId = parseBookId(resultUrl),
             seriesName = parseSeriesName(titleElement.text()),
             imageUrl = imageUrl,
         )
     }
 
-    private fun getSeriesId(url: String): BookWalkerSeriesId? {
+    private fun parseSeriesId(url: String): BookWalkerSeriesId? {
         if (url.startsWith("$baseUrl/series/").not()) return null
 
         return url.removePrefix("$baseUrl/series/")
@@ -110,7 +115,7 @@ class BookWalkerParser {
             .let { BookWalkerSeriesId(URLDecoder.decode(it, "UTF-8")) }
     }
 
-    private fun getBookId(url: String): BookWalkerBookId {
+    private fun parseBookId(url: String): BookWalkerBookId {
         return url.removePrefix("$baseUrl/")
             .replace("/.*/$".toRegex(), "")
             .let { BookWalkerBookId(URLDecoder.decode(it, "UTF-8")) }
@@ -128,7 +133,7 @@ class BookWalkerParser {
     }
 
     private fun parseDocumentBookId(document: Document): BookWalkerBookId {
-        return getBookId(document.getElementsByTag("meta").first { it.attr("property") == "og:url" }
+        return parseBookId(document.getElementsByTag("meta").first { it.attr("property") == "og:url" }
             .attr("content"))
     }
 
