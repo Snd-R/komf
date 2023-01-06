@@ -40,7 +40,7 @@ class DiscordWebhookService(
                 message.seriesCover?.let { imgurClient!!.uploadImage(it) }?.data
             else null
         }
-            .onFailure { it.printStackTrace() }
+            .onFailure { logger.error(it) { } }
             .getOrNull()
 
         val embed = Embed(
@@ -60,9 +60,8 @@ class DiscordWebhookService(
 
     private fun isNotOverLimit(): Boolean {
         return if (imgurClient != null) {
-            val test = imgurClient.getCredits().data
-
-            test.userLimit > 10
+            val credits = imgurClient.getCredits().data
+            credits.userLimit > 10 && credits.clientLimit > 10
         } else false
     }
 }

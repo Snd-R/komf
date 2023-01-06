@@ -3,7 +3,6 @@ package org.snd.mediaserver.komga
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
 import okhttp3.HttpUrl
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -96,7 +95,7 @@ class KomgaClient(
 
     fun uploadSeriesThumbnail(seriesId: KomgaSeriesId, thumbnail: Image, selected: Boolean = false): KomgaSeriesThumbnail {
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
-            .addFormDataPart("file", "thumbnail", thumbnail.image.toRequestBody("image/jpeg".toMediaType()))
+            .addFormDataPart("file", "thumbnail", thumbnail.image.toRequestBody())
             .build()
         val request = Request.Builder()
             .url(
@@ -206,7 +205,7 @@ class KomgaClient(
 
     fun uploadBookThumbnail(bookId: KomgaBookId, thumbnail: Image, selected: Boolean = false): KomgaBookThumbnail {
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
-            .addFormDataPart("file", "thumbnail", thumbnail.image.toRequestBody("image/jpeg".toMediaType()))
+            .addFormDataPart("file", "thumbnail", thumbnail.image.toRequestBody())
             .build()
         val request = Request.Builder()
             .url(
