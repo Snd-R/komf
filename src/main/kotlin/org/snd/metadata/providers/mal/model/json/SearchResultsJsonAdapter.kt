@@ -22,7 +22,8 @@ class SearchResultsJsonAdapter {
                 SearchResult(
                     id = json.id,
                     title = json.title,
-                    alternative_titles = altTitles,
+                    alternativeTitles = altTitles,
+                    mediaType = json.media_type,
                     mainPicture = json.main_picture?.let { pictureFromJson(it) },
                 )
             }

@@ -18,6 +18,7 @@ data class SearchResultJson(
     val id: Int,
     val title: String,
     val alternative_titles: AlternativeTitlesJson,
+    val media_type: String,
     val main_picture: PictureJson? = null,
 )
 

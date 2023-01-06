@@ -41,7 +41,9 @@ class MalMetadataProvider(
             return emptyList()
         }
 
-        return malClient.searchSeries(seriesName.take(64)).results.take(limit)
+        return malClient.searchSeries(seriesName.take(64)).results
+            .filter { it.mediaType != "light_novel" }
+            .take(limit)
             .map { it.toSeriesSearchResult() }
     }
 
@@ -52,10 +54,12 @@ class MalMetadataProvider(
         }
 
         val searchResults = malClient.searchSeries(seriesName.take(64))
-        val match = searchResults.results.firstOrNull {
-            val titles = listOfNotNull(it.title, it.alternative_titles.en, it.alternative_titles.ja) + it.alternative_titles.synonyms
-            nameMatcher.matches(seriesName, titles)
-        }
+        val match = searchResults.results
+            .filter { it.mediaType != "light_novel" }
+            .firstOrNull {
+                val titles = listOfNotNull(it.title, it.alternativeTitles.en, it.alternativeTitles.ja) + it.alternativeTitles.synonyms
+                nameMatcher.matches(seriesName, titles)
+            }
 
         return match?.let {
             val series = malClient.getSeries(it.id)

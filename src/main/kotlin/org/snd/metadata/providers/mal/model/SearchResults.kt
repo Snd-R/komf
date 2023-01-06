@@ -11,7 +11,8 @@ data class SearchResults(
 data class SearchResult(
     val id: Int,
     val title: String,
-    val alternative_titles: AlternativeTitles,
+    val alternativeTitles: AlternativeTitles,
+    val mediaType: String,
     val mainPicture: Picture?,
 )
 

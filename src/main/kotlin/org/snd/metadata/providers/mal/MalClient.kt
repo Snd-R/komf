@@ -47,7 +47,7 @@ class MalClient(
     fun searchSeries(name: String): SearchResults {
         val request = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments("v2/manga")
-                .addQueryParameter("fields", "alternative_titles")
+                .addQueryParameter("fields", "alternative_titles,media_type")
                 .addQueryParameter("q", name)
                 .addQueryParameter("nsfw", "true")
                 .build()
