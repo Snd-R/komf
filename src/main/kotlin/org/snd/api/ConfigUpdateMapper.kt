@@ -1,5 +1,29 @@
 package org.snd.api
 
+import org.snd.api.dto.AppConfigDto
+import org.snd.api.dto.AppConfigUpdateDto
+import org.snd.api.dto.BookMetadataConfigDto
+import org.snd.api.dto.BookMetadataConfigUpdateDto
+import org.snd.api.dto.DiscordConfigDto
+import org.snd.api.dto.DiscordConfigUpdateDto
+import org.snd.api.dto.EventListenerConfigDto
+import org.snd.api.dto.EventListenerConfigUpdateDto
+import org.snd.api.dto.KavitaConfigDto
+import org.snd.api.dto.KavitaConfigUpdateDto
+import org.snd.api.dto.KomgaConfigDto
+import org.snd.api.dto.KomgaConfigUpdateDto
+import org.snd.api.dto.MetadataProvidersConfigDto
+import org.snd.api.dto.MetadataProvidersConfigUpdateDto
+import org.snd.api.dto.MetadataUpdateConfigDto
+import org.snd.api.dto.MetadataUpdateConfigUpdateDto
+import org.snd.api.dto.NotificationConfigDto
+import org.snd.api.dto.NotificationConfigUpdateDto
+import org.snd.api.dto.ProviderConfigDto
+import org.snd.api.dto.ProviderConfigUpdateDto
+import org.snd.api.dto.ProvidersConfigDto
+import org.snd.api.dto.ProvidersConfigUpdateDto
+import org.snd.api.dto.SeriesMetadataConfigDto
+import org.snd.api.dto.SeriesMetadataConfigUpdateDto
 import org.snd.config.AppConfig
 import org.snd.config.BookMetadataConfig
 import org.snd.config.DiscordConfig
@@ -24,7 +48,7 @@ class ConfigUpdateMapper {
         )
     }
 
-    fun patch(config: AppConfig, patch: AppConfigDto): AppConfig {
+    fun patch(config: AppConfig, patch: AppConfigUpdateDto): AppConfig {
         return config.copy(
             metadataProviders = patch.metadataProviders
                 ?.let { metadataProviders(config.metadataProviders, it) }
@@ -69,24 +93,27 @@ class ConfigUpdateMapper {
     }
 
     private fun toDto(config: MetadataUpdateConfig): MetadataUpdateConfigDto {
-        return MetadataUpdateConfigDto().apply {
-            readingDirectionValue = config.readingDirectionValue
-            languageValue = config.languageValue
-            modes = config.modes
-            bookThumbnails = config.bookThumbnails
-            seriesThumbnails = config.seriesThumbnails
-            seriesTitle = config.seriesTitle
-            titleType = config.titleType
-            orderBooks = config.orderBooks
-        }
+        return MetadataUpdateConfigDto(
+            readingDirectionValue = config.readingDirectionValue,
+            languageValue = config.languageValue,
+            modes = config.modes,
+            bookThumbnails = config.bookThumbnails,
+            seriesThumbnails = config.seriesThumbnails,
+            seriesTitle = config.seriesTitle,
+            titleType = config.titleType,
+            orderBooks = config.orderBooks,
+        )
     }
 
     private fun toDto(config: DiscordConfig): DiscordConfigDto {
-        return DiscordConfigDto().apply {
-            webhooks = config.webhooks?.map { it.replace("(?<=.{34}).(?=.{10})".toRegex(), "*") }
-            seriesCover = config.seriesCover
-            imgurClientId = config.imgurClientId?.replace("(?<=.{4}).".toRegex(), "*")
-        }
+        return DiscordConfigDto(
+            webhooks = config.webhooks
+                ?.map { it.replace("(?<=.{34}).(?=.{10})".toRegex(), "*") }
+                ?.mapIndexed { index, value -> index to value }
+                ?.toMap(),
+            seriesCover = config.seriesCover,
+            imgurClientId = config.imgurClientId?.replace("(?<=.{4}).".toRegex(), "*"),
+        )
     }
 
     private fun toDto(config: MetadataProvidersConfig): MetadataProvidersConfigDto {
@@ -103,47 +130,47 @@ class ConfigUpdateMapper {
     private fun toDto(config: ProvidersConfig): ProvidersConfigDto {
         return ProvidersConfigDto(
             mangaUpdates = toDto(config.mangaUpdates),
-            mal = toDto(config.mangaUpdates),
-            nautiljon = toDto(config.mangaUpdates),
-            aniList = toDto(config.mangaUpdates),
-            yenPress = toDto(config.mangaUpdates),
-            kodansha = toDto(config.mangaUpdates),
-            viz = toDto(config.mangaUpdates),
-            bookWalker = toDto(config.mangaUpdates),
+            mal = toDto(config.mal),
+            nautiljon = toDto(config.nautiljon),
+            aniList = toDto(config.aniList),
+            yenPress = toDto(config.yenPress),
+            kodansha = toDto(config.kodansha),
+            viz = toDto(config.viz),
+            bookWalker = toDto(config.bookWalker),
         )
     }
 
     private fun toDto(config: ProviderConfig): ProviderConfigDto {
-        return ProviderConfigDto().apply {
-            nameMatchingMode = config.nameMatchingMode
-            priority = config.priority
-            enabled = config.enabled
-            seriesMetadata = toDto(config.seriesMetadata)
+        return ProviderConfigDto(
+            nameMatchingMode = config.nameMatchingMode,
+            priority = config.priority,
+            enabled = config.enabled,
+            seriesMetadata = toDto(config.seriesMetadata),
             bookMetadata = toDto(config.bookMetadata)
-        }
+        )
     }
 
     private fun toDto(config: SeriesMetadataConfig): SeriesMetadataConfigDto {
-        return SeriesMetadataConfigDto().apply {
-            status = config.status
-            title = config.title
-            summary = config.summary
-            publisher = config.publisher
-            readingDirection = config.readingDirection
-            ageRating = config.ageRating
-            language = config.language
-            genres = config.genres
-            tags = config.tags
-            totalBookCount = config.totalBookCount
-            authors = config.authors
-            releaseDate = config.releaseDate
-            thumbnail = config.thumbnail
-            books = config.books
-            useOriginalPublisher = config.useOriginalPublisher
-            originalPublisherTagName = config.originalPublisherTagName
-            englishPublisherTagName = config.englishPublisherTagName
-            frenchPublisherTagName = config.frenchPublisherTagName
-        }
+        return SeriesMetadataConfigDto(
+            status = config.status,
+            title = config.title,
+            summary = config.summary,
+            publisher = config.publisher,
+            readingDirection = config.readingDirection,
+            ageRating = config.ageRating,
+            language = config.language,
+            genres = config.genres,
+            tags = config.tags,
+            totalBookCount = config.totalBookCount,
+            authors = config.authors,
+            releaseDate = config.releaseDate,
+            thumbnail = config.thumbnail,
+            books = config.books,
+            useOriginalPublisher = config.useOriginalPublisher,
+            originalPublisherTagName = config.originalPublisherTagName ?: "",
+            englishPublisherTagName = config.englishPublisherTagName ?: "",
+            frenchPublisherTagName = config.frenchPublisherTagName ?: "",
+        )
     }
 
     private fun toDto(config: BookMetadataConfig): BookMetadataConfigDto {
@@ -163,7 +190,7 @@ class ConfigUpdateMapper {
 
     private fun metadataProviders(
         config: MetadataProvidersConfig,
-        patch: MetadataProvidersConfigDto
+        patch: MetadataProvidersConfigUpdateDto
     ): MetadataProvidersConfig {
         return config.copy(
             malClientId = patch.malClientId ?: config.malClientId,
@@ -178,11 +205,11 @@ class ConfigUpdateMapper {
 
     private fun libraryProviders(
         config: Map<String, ProvidersConfig>,
-        patch: Map<String, ProvidersConfigDto?>
+        patch: Map<String, ProvidersConfigUpdateDto?>
     ): Map<String, ProvidersConfig> {
         val removeConfig = mutableSetOf<String>()
-        val addConfigDto = mutableMapOf<String, ProvidersConfigDto>()
-        val updateConfigDto = mutableMapOf<String, ProvidersConfigDto>()
+        val addConfigDto = mutableMapOf<String, ProvidersConfigUpdateDto>()
+        val updateConfigDto = mutableMapOf<String, ProvidersConfigUpdateDto>()
 
         patch.forEach { (libraryId, configDto) ->
             if (configDto == null) removeConfig.add(libraryId)
@@ -201,7 +228,7 @@ class ConfigUpdateMapper {
             }.toMap() + addConfig
     }
 
-    private fun providersConfig(config: ProvidersConfig, patch: ProvidersConfigDto): ProvidersConfig {
+    private fun providersConfig(config: ProvidersConfig, patch: ProvidersConfigUpdateDto): ProvidersConfig {
         return config.copy(
             mangaUpdates = patch.mangaUpdates?.let { providerConfig(config.mangaUpdates, it) } ?: config.mangaUpdates,
             mal = patch.mal?.let { providerConfig(config.mal, it) } ?: config.mal,
@@ -214,12 +241,12 @@ class ConfigUpdateMapper {
         )
     }
 
-    private fun providersConfig(patch: ProvidersConfigDto): ProvidersConfig {
+    private fun providersConfig(patch: ProvidersConfigUpdateDto): ProvidersConfig {
         val config = ProvidersConfig()
         return providersConfig(config, patch)
     }
 
-    private fun providerConfig(config: ProviderConfig, patch: ProviderConfigDto): ProviderConfig {
+    private fun providerConfig(config: ProviderConfig, patch: ProviderConfigUpdateDto): ProviderConfig {
         return config.copy(
             priority = patch.priority ?: config.priority,
             enabled = patch.enabled ?: config.enabled,
@@ -233,7 +260,7 @@ class ConfigUpdateMapper {
         )
     }
 
-    private fun seriesMetadataConfig(config: SeriesMetadataConfig, patch: SeriesMetadataConfigDto): SeriesMetadataConfig {
+    private fun seriesMetadataConfig(config: SeriesMetadataConfig, patch: SeriesMetadataConfigUpdateDto): SeriesMetadataConfig {
         return config.copy(
             status = patch.status ?: config.status,
             title = patch.title ?: config.title,
@@ -259,7 +286,7 @@ class ConfigUpdateMapper {
         )
     }
 
-    private fun bookMetadataConfig(config: BookMetadataConfig, patch: BookMetadataConfigDto): BookMetadataConfig {
+    private fun bookMetadataConfig(config: BookMetadataConfig, patch: BookMetadataConfigUpdateDto): BookMetadataConfig {
         return config.copy(
             title = patch.title ?: config.title,
             summary = patch.summary ?: config.summary,
@@ -274,7 +301,7 @@ class ConfigUpdateMapper {
         )
     }
 
-    private fun komgaConfig(config: KomgaConfig, patch: KomgaConfigDto): KomgaConfig {
+    private fun komgaConfig(config: KomgaConfig, patch: KomgaConfigUpdateDto): KomgaConfig {
         return config.copy(
             baseUri = patch.baseUri ?: config.baseUri,
             komgaUser = patch.komgaUser ?: config.komgaUser,
@@ -286,7 +313,7 @@ class ConfigUpdateMapper {
         )
     }
 
-    private fun kavitaConfig(config: KavitaConfig, patch: KavitaConfigDto): KavitaConfig {
+    private fun kavitaConfig(config: KavitaConfig, patch: KavitaConfigUpdateDto): KavitaConfig {
         return config.copy(
             baseUri = patch.baseUri ?: config.baseUri,
             apiKey = patch.apiKey ?: config.apiKey,
@@ -297,18 +324,18 @@ class ConfigUpdateMapper {
         )
     }
 
-    private fun eventListener(config: EventListenerConfig, patch: EventListenerConfigDto): EventListenerConfig {
+    private fun eventListener(config: EventListenerConfig, patch: EventListenerConfigUpdateDto): EventListenerConfig {
         return config.copy(
             enabled = patch.enabled ?: config.enabled,
             libraries = patch.libraries ?: config.libraries
         )
     }
 
-    private fun notifications(config: NotificationConfig, patch: NotificationConfigDto): NotificationConfig {
+    private fun notifications(config: NotificationConfig, patch: NotificationConfigUpdateDto): NotificationConfig {
         return config.copy(libraries = patch.libraries ?: config.libraries)
     }
 
-    private fun metadataUpdate(config: MetadataUpdateConfig, patch: MetadataUpdateConfigDto): MetadataUpdateConfig {
+    private fun metadataUpdate(config: MetadataUpdateConfig, patch: MetadataUpdateConfigUpdateDto): MetadataUpdateConfig {
         return config.copy(
             readingDirectionValue = if (patch.isSet("readingDirectionValue")) patch.readingDirectionValue
             else config.readingDirectionValue,
@@ -323,10 +350,18 @@ class ConfigUpdateMapper {
         )
     }
 
-    private fun discord(config: DiscordConfig, patch: DiscordConfigDto): DiscordConfig {
+    private fun discord(config: DiscordConfig, patch: DiscordConfigUpdateDto): DiscordConfig {
+        val oldWebhooks = config.webhooks?.mapIndexed { index, value -> index to value }?.toMap()
+        val patchWebhooks = patch.webhooks
+        val newWebhooks = if (patch.isSet("webhooks")) {
+            if (oldWebhooks != null && patchWebhooks != null) oldWebhooks + patchWebhooks
+            else patchWebhooks ?: oldWebhooks
+        } else oldWebhooks
+
         return config.copy(
-            webhooks = if (patch.isSet("webhooks")) patch.webhooks
-            else config.webhooks
+            webhooks = newWebhooks?.values?.filterNotNull(),
+            imgurClientId = if (patch.isSet("imgurClientId")) patch.imgurClientId else config.imgurClientId,
+            seriesCover = patch.seriesCover ?: config.seriesCover,
         )
     }
 }

@@ -11,6 +11,8 @@ import io.javalin.http.HttpStatus.BAD_REQUEST
 import io.javalin.http.HttpStatus.NO_CONTENT
 import io.javalin.http.HttpStatus.OK
 import io.javalin.http.HttpStatus.UNPROCESSABLE_CONTENT
+import org.snd.api.dto.AppConfigDto
+import org.snd.api.dto.AppConfigUpdateDto
 import org.snd.config.ConfigWriter
 import org.snd.module.AppContext
 
@@ -36,7 +38,7 @@ class ConfigController(
     }
 
     private fun updateConfig(ctx: Context): Context {
-        val request = moshi.adapter<AppConfigDto>().fromJson(ctx.body())
+        val request = moshi.adapter<AppConfigUpdateDto>().fromJson(ctx.body())
             ?: return ctx.status(BAD_REQUEST)
 
         val config = configMapper.patch(appContext.appConfig, request)

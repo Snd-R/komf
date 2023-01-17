@@ -2,10 +2,16 @@ package org.snd.api
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
-import io.javalin.apibuilder.ApiBuilder.*
+import io.javalin.apibuilder.ApiBuilder.get
+import io.javalin.apibuilder.ApiBuilder.path
+import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.ContentType.APPLICATION_JSON
 import io.javalin.http.Context
-import io.javalin.http.HttpStatus.*
+import io.javalin.http.HttpStatus.ACCEPTED
+import io.javalin.http.HttpStatus.BAD_REQUEST
+import io.javalin.http.HttpStatus.NO_CONTENT
+import io.javalin.http.HttpStatus.OK
+import org.snd.api.dto.IdentifySeriesRequest
 import org.snd.mediaserver.MetadataService
 import org.snd.mediaserver.MetadataUpdateService
 import org.snd.mediaserver.model.MediaServer

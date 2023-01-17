@@ -1,4 +1,4 @@
-package org.snd.api
+package org.snd.api.dto
 
 import com.squareup.moshi.JsonClass
 

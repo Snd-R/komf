@@ -76,8 +76,8 @@ data class EventListenerConfig(
 @Serializable
 data class MetadataProvidersConfig(
     @EncodeDefault(NEVER) val malClientId: String = "",
-    val nameMatchingMode: NameMatchingMode = CLOSEST_MATCH,
-    val defaultProviders: ProvidersConfig = ProvidersConfig(),
+    @EncodeDefault(NEVER) val nameMatchingMode: NameMatchingMode = CLOSEST_MATCH,
+    @EncodeDefault(NEVER) val defaultProviders: ProvidersConfig = ProvidersConfig(),
     @EncodeDefault(NEVER) val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
 
     @Deprecated("moved to default providers config")
@@ -107,22 +107,22 @@ data class MetadataProvidersConfig(
 
 @Serializable
 data class ProvidersConfig(
-    val mangaUpdates: ProviderConfig = ProviderConfig(),
-    val mal: ProviderConfig = ProviderConfig(),
-    val nautiljon: ProviderConfig = ProviderConfig(),
-    val aniList: ProviderConfig = ProviderConfig(),
-    val yenPress: ProviderConfig = ProviderConfig(),
-    val kodansha: ProviderConfig = ProviderConfig(),
-    val viz: ProviderConfig = ProviderConfig(),
-    val bookWalker: ProviderConfig = ProviderConfig(),
+    @EncodeDefault(NEVER) val mangaUpdates: ProviderConfig = ProviderConfig(),
+    @EncodeDefault(NEVER) val mal: ProviderConfig = ProviderConfig(),
+    @EncodeDefault(NEVER) val nautiljon: ProviderConfig = ProviderConfig(),
+    @EncodeDefault(NEVER) val aniList: ProviderConfig = ProviderConfig(),
+    @EncodeDefault(NEVER) val yenPress: ProviderConfig = ProviderConfig(),
+    @EncodeDefault(NEVER) val kodansha: ProviderConfig = ProviderConfig(),
+    @EncodeDefault(NEVER) val viz: ProviderConfig = ProviderConfig(),
+    @EncodeDefault(NEVER) val bookWalker: ProviderConfig = ProviderConfig(),
 )
 
 @Serializable
 data class ProviderConfig(
     @Deprecated("moved to separate config")
     @EncodeDefault(NEVER) val clientId: String = "",
-    val priority: Int = 10,
-    val enabled: Boolean = false,
+    @EncodeDefault(NEVER) val priority: Int = 10,
+    @EncodeDefault(NEVER) val enabled: Boolean = false,
     @EncodeDefault(NEVER) val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     @EncodeDefault(NEVER) val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
     @EncodeDefault(NEVER) val nameMatchingMode: NameMatchingMode? = null,
