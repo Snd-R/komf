@@ -1,9 +1,14 @@
 package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.*
+import org.snd.mediaserver.model.MediaServerAuthor
+import org.snd.mediaserver.model.MediaServerBook
+import org.snd.mediaserver.model.MediaServerBookId
+import org.snd.mediaserver.model.MediaServerBookMetadata
+import org.snd.mediaserver.model.MediaServerLibraryId
+import org.snd.mediaserver.model.MediaServerSeriesId
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 @JsonClass(generateAdapter = true)
 data class KomgaBook(
@@ -14,9 +19,9 @@ data class KomgaBook(
     val name: String,
     val url: String,
     val number: Int,
-    val created: LocalDateTime,
-    val lastModified: LocalDateTime,
-    val fileLastModified: LocalDateTime,
+    val created: ZonedDateTime,
+    val lastModified: ZonedDateTime,
+    val fileLastModified: ZonedDateTime,
     val sizeBytes: Long,
     val size: String,
     val media: Media,
@@ -51,8 +56,8 @@ data class KomgaBookMetadata(
     val isbnLock: Boolean,
     val linksLock: Boolean,
 
-    val created: LocalDateTime,
-    val lastModified: LocalDateTime,
+    val created: ZonedDateTime,
+    val lastModified: ZonedDateTime,
 )
 
 @JsonClass(generateAdapter = true)
@@ -67,9 +72,9 @@ data class Media(
 data class ReadProgress(
     val page: Int,
     val completed: Boolean,
-    val readDate: LocalDateTime,
-    val created: LocalDateTime,
-    val lastModified: LocalDateTime,
+    val readDate: ZonedDateTime,
+    val created: ZonedDateTime,
+    val lastModified: ZonedDateTime,
 )
 
 fun KomgaBook.mediaServerBook() = MediaServerBook(
