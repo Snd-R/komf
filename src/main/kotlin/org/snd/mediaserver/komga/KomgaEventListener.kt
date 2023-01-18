@@ -48,11 +48,11 @@ class KomgaEventListener(
     private var isActive: Boolean = false
 
     fun start() {
+        isActive = true
         val request = Request.Builder()
             .url(komgaUrl.newBuilder().addPathSegments("sse/v1/events").build())
             .build()
         this.eventSource = EventSources.createFactory(client).newEventSource(request, this)
-        isActive = true
     }
 
     @Synchronized

@@ -44,7 +44,11 @@ class KavitaEventListener(
     @Volatile
     private var lastScan: Instant = clock.instant()
 
+    @Volatile
+    private var isActive: Boolean = false
+
     fun start() {
+        isActive = true
         val hubConnection: HubConnection = HubConnectionBuilder
             .create("$baseUrl/hubs/messages")
             .withAccessTokenProvider(Single.defer { Single.just(tokenProvider.getToken()) })
@@ -57,20 +61,28 @@ class KavitaEventListener(
         registerInvocations(hubConnection)
 
         Completable.defer {
-            hubConnection.start().delaySubscription(10, SECONDS, Schedulers.trampoline()).doOnError { logger.error(it) { } }
+            hubConnection.start()
+                .delaySubscription(10, SECONDS, Schedulers.trampoline())
+                .doOnError { logger.error(it) { } }
         }
             .retry().subscribeOn(Schedulers.io()).subscribe()
         this.hubConnection = hubConnection
     }
 
     private fun reconnect(hubConnection: HubConnection) {
-        Completable.defer {
-            hubConnection.start().delaySubscription(10, SECONDS, Schedulers.trampoline())
-                .doOnError { logger.error(it) { "Failed to reconnect to Kavita" } }
-        }.retry().subscribeOn(Schedulers.io()).subscribe()
+        if (isActive) {
+            Completable.defer {
+                hubConnection.start().delaySubscription(10, SECONDS, Schedulers.trampoline())
+                    .doOnError { logger.error(it) { "Failed to reconnect to Kavita" } }
+            }
+                .retry { _ -> isActive }
+                .subscribeOn(Schedulers.io()).subscribe()
+        }
     }
 
+    @Synchronized
     fun stop() {
+        isActive = false
         hubConnection?.close()
     }
 
