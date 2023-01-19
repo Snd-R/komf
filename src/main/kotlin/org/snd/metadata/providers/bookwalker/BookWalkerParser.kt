@@ -45,10 +45,10 @@ class BookWalkerParser {
         val name = document.getElementsByClass("detail-book-title").first()!!.child(0).textNodes().first().text()
         val productDetail = document.getElementsByClass("product-detail").first()!!.child(0)
         val seriesTitleElement = productDetail.children()
-            .first { it.child(0).text() == "Series Title" }
-            .child(1)
-        val seriesTitle = parseSeriesName(seriesTitleElement.text())
-        val seriesId = seriesTitleElement.getElementsByTag("a").first()?.attr("href")?.let { parseSeriesId(it) }
+            .firstOrNull() { it.child(0).text() == "Series Title" }
+            ?.child(1)
+        val seriesTitle = seriesTitleElement?.text()?.let { parseSeriesName(it) }
+        val seriesId = seriesTitleElement?.getElementsByTag("a")?.first()?.attr("href")?.let { parseSeriesId(it) }
         val japaneseTitles = productDetail.children().firstOrNull { it.child(0).text() == "Japanese Title" }
             ?.child(1)?.child(0)?.child(0)
         val japaneseTitle = japaneseTitles?.textNodes()?.firstOrNull()?.text()?.removeSuffix(" (")

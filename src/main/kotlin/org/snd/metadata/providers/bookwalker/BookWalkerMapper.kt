@@ -3,7 +3,18 @@ package org.snd.metadata.providers.bookwalker
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.*
+import org.snd.metadata.model.Author
+import org.snd.metadata.model.AuthorRole
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.Image
+import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
+import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.ReleaseDate
+import org.snd.metadata.model.SeriesBook
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesTitle
 import org.snd.metadata.model.TitleType.LOCALIZED
 import org.snd.metadata.model.TitleType.NATIVE
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
@@ -29,7 +40,7 @@ class BookWalkerMapper(
         thumbnail: Image? = null
     ): ProviderSeriesMetadata {
         val titles = listOfNotNull(
-            SeriesTitle(book.seriesTitle, LOCALIZED),
+            book.seriesTitle?.let { SeriesTitle(it, LOCALIZED) },
             book.romajiTitle?.let { SeriesTitle(it, LOCALIZED) },
             book.japaneseTitle?.let { SeriesTitle(it, NATIVE) }
         )
