@@ -30,17 +30,16 @@ class ServerModule(
     private val configWriter = ConfigWriter(Yaml.default)
     private val configMapper = ConfigUpdateMapper()
 
+    private val jetty = Server(ConcurrencyUtil.jettyThreadPool("JettyServerThreadPool", 1, 20))
+        .apply {
+            addBean(LowResourceMonitor(this))
+            insertHandler(StatisticsHandler())
+            stopTimeout = 5000L
+        }
     private val server = Javalin.create { config ->
         config.plugins.enableCors { cors -> cors.add { it.anyHost() } }
         config.showJavalinBanner = false
-        config.jetty.server {
-            Server(ConcurrencyUtil.jettyThreadPool("JettyServerThreadPool", 1, 20)).apply {
-                addBean(LowResourceMonitor(this))
-                insertHandler(StatisticsHandler())
-                setAttribute("is-default-server", true)
-                stopTimeout = 5000L
-            }
-        }
+        config.jetty.server { jetty }
     }.routes {
         MetadataController(
             metadataService = mediaServerModule.komgaMetadataService,
@@ -66,7 +65,13 @@ class ServerModule(
     }
 
     init {
-        server.start(config.port)
+        try {
+            server.start(config.port)
+        } catch (e: Exception) {
+            if (jetty.isStarted || jetty.isStarting)
+                jetty.stop()
+            throw e
+        }
     }
 
     override fun close() {
