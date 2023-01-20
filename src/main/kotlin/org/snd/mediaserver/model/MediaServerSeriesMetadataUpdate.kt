@@ -8,7 +8,7 @@ data class MediaServerSeriesMetadataUpdate(
     val status: SeriesStatus? = null,
     val title: SeriesTitle? = null,
     val alternativeTitles: Collection<SeriesTitle>? = null,
-    val titleSort: String? = null,
+    val titleSort: SeriesTitle? = null,
     val summary: String? = null,
     val readingDirection: ReadingDirection? = null,
     val publisher: String? = null,

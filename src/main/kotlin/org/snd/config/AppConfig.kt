@@ -90,6 +90,7 @@ data class MetadataProcessingConfig(
 data class MetadataPostProcessingConfig(
     val seriesTitle: Boolean = false,
     val titleType: TitleType = TitleType.LOCALIZED,
+    val alternativeSeriesTitles: Boolean = false,
     val orderBooks: Boolean = false,
     @EncodeDefault(NEVER) val readingDirectionValue: ReadingDirection? = null,
     @EncodeDefault(NEVER) val languageValue: String? = null,

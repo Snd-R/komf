@@ -93,7 +93,7 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
         val localizedName = metadata.alternativeTitles?.find { it.type == LOCALIZED && it != metadata.title }
         if (metadata.title != null || localizedName != null) {
             val series = kavitaClient.getSeries(seriesId.kavitaSeriesId())
-            kavitaClient.updateSeries(series.kavitaTitleUpdate(metadata.title?.name, localizedName?.name))
+            kavitaClient.updateSeries(series.kavitaTitleUpdate(metadata.title?.name, metadata.titleSort?.name, localizedName?.name))
         }
 
         val oldMetadata = kavitaClient.getSeriesMetadata(seriesId.kavitaSeriesId())

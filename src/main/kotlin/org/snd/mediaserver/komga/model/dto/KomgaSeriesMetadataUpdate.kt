@@ -62,7 +62,7 @@ fun metadataResetRequest(name: String) = KomgaSeriesMetadataUpdate(
 fun MediaServerSeriesMetadataUpdate.metadataUpdateRequest() = KomgaSeriesMetadataUpdate(
     status = status?.name,
     title = title?.name,
-    titleSort = titleSort,
+    titleSort = titleSort?.name,
     alternateTitles = alternativeTitles?.mapNotNull { (name, type) ->
         type?.let { KomgaAlternativeTitle(it.label, name) }
     }?.distinctBy { it.label },
