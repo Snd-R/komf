@@ -30,7 +30,10 @@ class Series : CliktCommand() {
         private val context by requireObject<CliContext>()
         private val id by argument()
         override fun run() {
-            context.cliModule.metadataService.matchSeriesMetadata(MediaServerSeriesId(id))
+            val client = context.cliModule.mediaServerClient
+            val series = client.getSeries(MediaServerSeriesId(id))
+            context.cliModule.metadataServiceProvider.serviceFor(series.libraryId.id)
+                .matchSeriesMetadata(MediaServerSeriesId(id))
             exitProcess(0)
         }
     }
@@ -43,8 +46,8 @@ class Series : CliktCommand() {
 
         override fun run() {
             val client = context.cliModule.mediaServerClient
-            val komgaMetadataService = context.cliModule.metadataService
             val series = client.getSeries(MediaServerSeriesId(id))
+            val komgaMetadataService = context.cliModule.metadataServiceProvider.serviceFor(series.libraryId.id)
             echo("searching...")
             val results = komgaMetadataService.searchSeriesMetadata(name, series.libraryId)
             val output = results.mapIndexed { index, result -> "${index + 1}. ${result.title} - ${result.provider} id=${result.resultId}" }
@@ -73,7 +76,10 @@ class Series : CliktCommand() {
         private val id by argument()
 
         override fun run() {
-            context.cliModule.metadataUpdateService.resetSeriesMetadata(MediaServerSeriesId(id))
+            val client = context.cliModule.mediaServerClient
+            val series = client.getSeries(MediaServerSeriesId(id))
+            context.cliModule.metadataUpdateServiceProvider.serviceFor(series.libraryId.id)
+                .resetSeriesMetadata(MediaServerSeriesId(id))
             exitProcess(0)
         }
     }

@@ -32,7 +32,8 @@ data class KomgaConfig(
     val eventListener: EventListenerConfig = EventListenerConfig(),
     val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
-    val aggregateMetadata: Boolean = false,
+    @Deprecated("moved to MetadataUpdateConfig")
+    val aggregateMetadata: Boolean? = null,
 )
 
 @Serializable
@@ -42,7 +43,8 @@ data class KavitaConfig(
     val eventListener: EventListenerConfig = EventListenerConfig(enabled = false),
     val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
-    val aggregateMetadata: Boolean = false,
+    @Deprecated("moved to MetadataUpdateConfig")
+    val aggregateMetadata: Boolean? = null,
 )
 
 @Serializable
@@ -52,14 +54,45 @@ data class NotificationConfig(
 
 @Serializable
 data class MetadataUpdateConfig(
-    val bookThumbnails: Boolean = false,
-    val seriesThumbnails: Boolean = true,
+    @EncodeDefault(NEVER) val default: MetadataProcessingConfig = MetadataProcessingConfig(),
+    @EncodeDefault(NEVER) val library: Map<String, MetadataProcessingConfig> = emptyMap(),
+
+    @Deprecated("moved to default processing config")
+    @EncodeDefault(NEVER) val bookThumbnails: Boolean? = null,
+    @Deprecated("moved to default processing config")
+    @EncodeDefault(NEVER) val seriesThumbnails: Boolean? = null,
+    @Deprecated("moved to default processing config")
+    @EncodeDefault(NEVER) val seriesTitle: Boolean? = null,
+    @Deprecated("moved to default processing config")
+    @EncodeDefault(NEVER) val titleType: TitleType? = null,
+    @Deprecated("moved to default processing config")
+    @EncodeDefault(NEVER) val readingDirectionValue: ReadingDirection? = null,
+    @Deprecated("moved to default processing config")
+    @EncodeDefault(NEVER) val languageValue: String? = null,
+    @Deprecated("moved to default processing config")
+    @EncodeDefault(NEVER) val orderBooks: Boolean? = null,
+    @Deprecated("moved to default processing config")
+    @EncodeDefault(NEVER) val modes: Set<UpdateMode>? = null,
+)
+
+@Serializable
+data class MetadataProcessingConfig(
+    val aggregate: Boolean = false,
+
+    val bookCovers: Boolean = false,
+    val seriesCovers: Boolean = true,
+    val updateModes: Set<UpdateMode> = setOf(API),
+
+    @EncodeDefault(NEVER) val postProcessing: MetadataPostProcessingConfig = MetadataPostProcessingConfig()
+)
+
+@Serializable
+data class MetadataPostProcessingConfig(
     val seriesTitle: Boolean = false,
     val titleType: TitleType = TitleType.LOCALIZED,
-    val readingDirectionValue: ReadingDirection? = null,
-    val languageValue: String? = null,
     val orderBooks: Boolean = false,
-    val modes: Set<UpdateMode> = setOf(API),
+    @EncodeDefault(NEVER) val readingDirectionValue: ReadingDirection? = null,
+    @EncodeDefault(NEVER) val languageValue: String? = null,
 )
 
 @Serializable
@@ -133,7 +166,7 @@ data class DiscordConfig(
     val webhooks: Collection<String>? = null,
     val seriesCover: Boolean = false,
     val imgurClientId: String? = null,
-    val templatesDirectory: String = "./",
+    @EncodeDefault(NEVER) val templatesDirectory: String = "./",
 )
 
 @Serializable

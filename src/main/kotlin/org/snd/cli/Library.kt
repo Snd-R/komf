@@ -14,7 +14,8 @@ class Library : CliktCommand() {
         private val context by requireObject<CliContext>()
         private val id by argument()
         override fun run() {
-            context.cliModule.metadataService.matchLibraryMetadata(MediaServerLibraryId(id))
+            context.cliModule.metadataServiceProvider.serviceFor(id)
+                .matchLibraryMetadata(MediaServerLibraryId(id))
             exitProcess(0)
         }
     }
@@ -23,7 +24,8 @@ class Library : CliktCommand() {
         private val context by requireObject<CliContext>()
         private val id by argument()
         override fun run() {
-            context.cliModule.metadataUpdateService.resetLibraryMetadata(MediaServerLibraryId(id))
+            context.cliModule.metadataUpdateServiceProvider.serviceFor(id)
+                .resetLibraryMetadata(MediaServerLibraryId(id))
             exitProcess(0)
         }
     }

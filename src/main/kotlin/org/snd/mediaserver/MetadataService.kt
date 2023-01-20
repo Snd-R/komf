@@ -31,18 +31,12 @@ class MetadataService(
     private val aggregateMetadata: Boolean,
     private val executor: ExecutorService,
     private val metadataUpdateService: MetadataUpdateService,
-    private val seriesMatchRepository: SeriesMatchRepository
+    private val seriesMatchRepository: SeriesMatchRepository,
+    private val postProcessor: MetadataPostProcessor,
 ) {
-    fun availableProviders(seriesId: MediaServerSeriesId) = availableProviders(mediaServerClient.getSeries(seriesId).libraryId)
-
     fun availableProviders(libraryId: MediaServerLibraryId) = metadataProviders.providers(libraryId.id)
 
     fun availableProviders() = metadataProviders.defaultProviders()
-
-    fun searchSeriesMetadata(seriesName: String, seriesId: MediaServerSeriesId): Collection<SeriesSearchResult> {
-        val series = mediaServerClient.getSeries(seriesId)
-        return searchSeriesMetadata(seriesName, series.libraryId)
-    }
 
     fun searchSeriesMetadata(seriesName: String, libraryId: MediaServerLibraryId): Collection<SeriesSearchResult> {
         val providers = metadataProviders.providers(libraryId.id)
@@ -77,7 +71,7 @@ class MetadataService(
             )
         } else SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
 
-        metadataUpdateService.updateMetadata(series, metadata)
+        metadataUpdateService.updateMetadata(series, postProcessor.process(metadata))
         seriesMatchRepository.save(
             SeriesMatch(
                 seriesId = series.id,
@@ -144,7 +138,7 @@ class MetadataService(
             } else metadata
         }
 
-        metadataUpdateService.updateMetadata(series, metadata)
+        metadataUpdateService.updateMetadata(series, postProcessor.process(metadata))
         logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
     }
 

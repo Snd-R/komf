@@ -12,19 +12,21 @@ import io.javalin.http.HttpStatus.BAD_REQUEST
 import io.javalin.http.HttpStatus.NO_CONTENT
 import io.javalin.http.HttpStatus.OK
 import org.snd.api.dto.IdentifySeriesRequest
-import org.snd.mediaserver.MetadataService
-import org.snd.mediaserver.MetadataUpdateService
+import org.snd.mediaserver.MediaServerClient
 import org.snd.mediaserver.model.MediaServer
 import org.snd.mediaserver.model.MediaServerLibraryId
 import org.snd.mediaserver.model.MediaServerSeriesId
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.module.MediaServerModule.MetadataServiceProvider
+import org.snd.module.MediaServerModule.MetadataUpdateServiceProvider
 import java.util.concurrent.ExecutorService
 
 class MetadataController(
-    private val metadataService: MetadataService,
-    private val metadataUpdateService: MetadataUpdateService,
+    private val metadataServiceProvider: MetadataServiceProvider,
+    private val metadataUpdateServiceProvider: MetadataUpdateServiceProvider,
+    private val mediaServerClient: MediaServerClient,
     private val taskHandler: ExecutorService,
     private val moshi: Moshi,
     private val serverType: MediaServer,
@@ -36,22 +38,28 @@ class MetadataController(
                 get("providers", this::providers)
                 get("search", this::searchSeries)
                 post("identify", this::identifySeries)
-                post("match/series/{id}", this::matchSeries)
+
+                post("match/library/{libraryId}/series/{seriesId}", this::matchLibrarySeries)
                 post("match/library/{id}", this::matchLibrary)
-                post("reset/series/{id}", this::resetSeries)
+
+                post("reset/library/{libraryId}/series/{id}", this::resetLibrarySeries)
                 post("reset/library/{id}", this::resetLibrary)
+
+                post("match/series/{id}", this::matchSeries)
+                post("reset/series/{id}", this::resetSeries)
             }
         }
     }
 
     private fun providers(ctx: Context): Context {
         val libraryId = ctx.queryParam("libraryId")?.let { MediaServerLibraryId(it) }
-        val seriesId = ctx.queryParam("seriesId")?.let { MediaServerSeriesId(it) }
+
         val providers = (
-                libraryId?.let { metadataService.availableProviders(it) }
-                    ?: seriesId?.let { metadataService.availableProviders(it) }
-                    ?: metadataService.availableProviders()
-                ).map { it.providerName().name }
+                libraryId
+                    ?.let { metadataServiceProvider.serviceFor(it.id).availableProviders(it) }
+                    ?: metadataServiceProvider.default().availableProviders()
+                )
+            .map { it.providerName().name }
 
         return ctx.result(moshi.adapter<Collection<String>>().toJson(providers))
             .contentType(APPLICATION_JSON)
@@ -60,11 +68,14 @@ class MetadataController(
 
     private fun searchSeries(ctx: Context): Context {
         val seriesName = ctx.queryParam("name") ?: return ctx.status(BAD_REQUEST)
-        val libraryId = ctx.queryParam("libraryId")?.let { MediaServerLibraryId(it) }
         val seriesId = ctx.queryParam("seriesId")?.let { MediaServerSeriesId(it) }
-        val searchResults = libraryId?.let { metadataService.searchSeriesMetadata(seriesName, it) }
-            ?: seriesId?.let { metadataService.searchSeriesMetadata(seriesName, it) }
-            ?: metadataService.searchSeriesMetadata(seriesName)
+
+        val libraryId = ctx.queryParam("libraryId")?.let { MediaServerLibraryId(it) }
+            ?: seriesId?.let { mediaServerClient.getSeries(it).libraryId }
+
+        val searchResults = libraryId
+            ?.let { metadataServiceProvider.serviceFor(it.id).searchSeriesMetadata(seriesName, it) }
+            ?: metadataServiceProvider.default().searchSeriesMetadata(seriesName)
 
         return ctx.result(moshi.adapter<Collection<SeriesSearchResult>>().toJson(searchResults))
             .contentType(APPLICATION_JSON)
@@ -73,7 +84,8 @@ class MetadataController(
 
     private fun identifySeries(ctx: Context): Context {
         val request = moshi.adapter<IdentifySeriesRequest>().fromJson(ctx.body()) ?: return ctx.status(BAD_REQUEST)
-        metadataService.setSeriesMetadata(
+        val libraryId = request.libraryId ?: mediaServerClient.getSeries(MediaServerSeriesId(request.seriesId)).libraryId.id
+        metadataServiceProvider.serviceFor(libraryId).setSeriesMetadata(
             MediaServerSeriesId(request.seriesId),
             Provider.valueOf(request.provider.uppercase()),
             ProviderSeriesId(request.providerSeriesId),
@@ -83,9 +95,17 @@ class MetadataController(
         return ctx.status(NO_CONTENT)
     }
 
+    private fun matchLibrarySeries(ctx: Context): Context {
+        val libraryId = ctx.pathParam("libraryId")
+        val seriesId = MediaServerSeriesId(ctx.pathParam("seriesId"))
+        metadataServiceProvider.serviceFor(libraryId).matchSeriesMetadata(seriesId)
+        return ctx.status(NO_CONTENT)
+    }
+
+    @Deprecated("use matchLibrarySeries")
     private fun matchSeries(ctx: Context): Context {
         val seriesId = MediaServerSeriesId(ctx.pathParam("id"))
-        metadataService.matchSeriesMetadata(seriesId)
+        metadataServiceProvider.default().matchSeriesMetadata(seriesId)
         return ctx.status(NO_CONTENT)
     }
 
@@ -94,7 +114,7 @@ class MetadataController(
 
         taskHandler.submit {
             try {
-                metadataService.matchLibraryMetadata(libraryId)
+                metadataServiceProvider.serviceFor(libraryId.id).matchLibraryMetadata(libraryId)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -103,15 +123,23 @@ class MetadataController(
         return ctx.status(ACCEPTED)
     }
 
+    private fun resetLibrarySeries(ctx: Context): Context {
+        val libraryId = ctx.pathParam("libraryId")
+        val seriesId = MediaServerSeriesId(ctx.pathParam("seriesId"))
+        metadataUpdateServiceProvider.serviceFor(libraryId).resetSeriesMetadata(seriesId)
+        return ctx.status(NO_CONTENT)
+    }
+
+    @Deprecated("use resetLibrarySeries")
     private fun resetSeries(ctx: Context): Context {
         val seriesId = MediaServerSeriesId(ctx.pathParam("id"))
-        metadataUpdateService.resetSeriesMetadata(seriesId)
+        metadataUpdateServiceProvider.default().resetSeriesMetadata(seriesId)
         return ctx.status(NO_CONTENT)
     }
 
     private fun resetLibrary(ctx: Context): Context {
         val libraryId = MediaServerLibraryId(ctx.pathParam("id"))
-        metadataUpdateService.resetLibraryMetadata(libraryId)
+        metadataUpdateServiceProvider.serviceFor(libraryId.id).resetLibraryMetadata(libraryId)
         return ctx.status(NO_CONTENT)
     }
 }

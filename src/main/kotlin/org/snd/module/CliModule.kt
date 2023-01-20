@@ -22,7 +22,7 @@ class CliModule(
         jsonModule = jsonModule
     )
 
-    val mediaServerModule = MediaServerModule(
+    private val mediaServerModule = MediaServerModule(
         komgaConfig = appConfig.komga.copy(eventListener = appConfig.komga.eventListener.copy(enabled = false)),
         kavitaConfig = appConfig.kavita.copy(eventListener = appConfig.kavita.eventListener.copy(enabled = false)),
         okHttpClient = okHttpClient,
@@ -38,12 +38,12 @@ class CliModule(
         KAVITA -> mediaServerModule.kavitaMediaServerClient
     }
 
-    val metadataService = when (serverType) {
-        KOMGA -> mediaServerModule.komgaMetadataService
-        KAVITA -> mediaServerModule.kavitaMetadataService
+    val metadataServiceProvider = when (serverType) {
+        KOMGA -> mediaServerModule.komgaMetadataServiceProvider
+        KAVITA -> mediaServerModule.kavitaMetadataServiceProvider
     }
-    val metadataUpdateService = when (serverType) {
-        KOMGA -> mediaServerModule.komgaMetadataUpdateService
-        KAVITA -> mediaServerModule.kavitaMetadataUpdateService
+    val metadataUpdateServiceProvider = when (serverType) {
+        KOMGA -> mediaServerModule.komgaMetadataUpdateServiceProvider
+        KAVITA -> mediaServerModule.kavitaMetadataUpdateServiceProvider
     }
 }

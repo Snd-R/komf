@@ -43,18 +43,31 @@ data class NotificationConfigUpdateDto(
 
 @JsonClass(generateAdapter = true)
 class MetadataUpdateConfigUpdateDto {
+    val default: MetadataProcessingConfigUpdateDto? = null
+    val library: Map<String, MetadataProcessingConfigUpdateDto>? = null
+}
+
+@JsonClass(generateAdapter = true)
+data class MetadataProcessingConfigUpdateDto(
+    val aggregate: Boolean? = null,
+    val bookCovers: Boolean? = null,
+    val seriesCover: Boolean? = null,
+    val updateModes: Set<UpdateMode>? = null,
+    val postProcessing: MetadataPostProcessingConfigUpdateDto? = null
+)
+
+@JsonClass(generateAdapter = true)
+class MetadataPostProcessingConfigUpdateDto {
     @Transient
     private val isSet = mutableMapOf<String, Boolean>()
     fun isSet(prop: String) = isSet.getOrDefault(prop, false)
-    var readingDirectionValue: ReadingDirection? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
-    var languageValue: String? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
 
-    var modes: Set<UpdateMode>? = null
-    var bookThumbnails: Boolean? = null
-    var seriesThumbnails: Boolean? = null
-    var seriesTitle: Boolean? = null
-    var titleType: TitleType? = null
-    var orderBooks: Boolean? = null
+    val seriesTitle: Boolean? = null
+    val titleType: TitleType? = null
+    val orderBooks: Boolean? = null
+
+    val readingDirectionValue: ReadingDirection? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
+    val languageValue: String? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
 }
 
 @JsonClass(generateAdapter = true)

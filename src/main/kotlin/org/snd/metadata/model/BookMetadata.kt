@@ -7,7 +7,7 @@ data class BookMetadata(
     val title: String? = null,
     val summary: String? = null,
     val number: BookRange? = null,
-    val numberSort: Float? = null,
+    val numberSort: Double? = null,
     val releaseDate: LocalDate? = null,
     val authors: List<Author> = emptyList(),
     val tags: Set<String> = emptySet(),

@@ -42,15 +42,17 @@ class ServerModule(
         config.jetty.server { jetty }
     }.routes {
         MetadataController(
-            metadataService = mediaServerModule.komgaMetadataService,
-            metadataUpdateService = mediaServerModule.komgaMetadataUpdateService,
+            metadataServiceProvider = mediaServerModule.komgaMetadataServiceProvider,
+            metadataUpdateServiceProvider = mediaServerModule.komgaMetadataUpdateServiceProvider,
+            mediaServerClient = mediaServerModule.komgaMediaServerClient,
             taskHandler = executor,
             moshi = jsonModule.moshi,
             serverType = KOMGA
         ).register()
         MetadataController(
-            metadataService = mediaServerModule.kavitaMetadataService,
-            metadataUpdateService = mediaServerModule.kavitaMetadataUpdateService,
+            metadataServiceProvider = mediaServerModule.kavitaMetadataServiceProvider,
+            metadataUpdateServiceProvider = mediaServerModule.kavitaMetadataUpdateServiceProvider,
+            mediaServerClient = mediaServerModule.komgaMediaServerClient,
             taskHandler = executor,
             moshi = jsonModule.moshi,
             serverType = KAVITA

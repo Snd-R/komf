@@ -12,6 +12,10 @@ import org.snd.api.dto.KavitaConfigDto
 import org.snd.api.dto.KavitaConfigUpdateDto
 import org.snd.api.dto.KomgaConfigDto
 import org.snd.api.dto.KomgaConfigUpdateDto
+import org.snd.api.dto.MetadataPostProcessingConfigDto
+import org.snd.api.dto.MetadataPostProcessingConfigUpdateDto
+import org.snd.api.dto.MetadataProcessingConfigDto
+import org.snd.api.dto.MetadataProcessingConfigUpdateDto
 import org.snd.api.dto.MetadataProvidersConfigDto
 import org.snd.api.dto.MetadataProvidersConfigUpdateDto
 import org.snd.api.dto.MetadataUpdateConfigDto
@@ -30,6 +34,8 @@ import org.snd.config.DiscordConfig
 import org.snd.config.EventListenerConfig
 import org.snd.config.KavitaConfig
 import org.snd.config.KomgaConfig
+import org.snd.config.MetadataPostProcessingConfig
+import org.snd.config.MetadataProcessingConfig
 import org.snd.config.MetadataProvidersConfig
 import org.snd.config.MetadataUpdateConfig
 import org.snd.config.NotificationConfig
@@ -67,7 +73,6 @@ class ConfigUpdateMapper {
             eventListener = toDto(config.eventListener),
             notifications = toDto(config.notifications),
             metadataUpdate = toDto(config.metadataUpdate),
-            aggregateMetadata = config.aggregateMetadata
         )
     }
 
@@ -77,7 +82,6 @@ class ConfigUpdateMapper {
             eventListener = toDto(config.eventListener),
             notifications = toDto(config.notifications),
             metadataUpdate = toDto(config.metadataUpdate),
-            aggregateMetadata = config.aggregateMetadata
         )
     }
 
@@ -94,14 +98,28 @@ class ConfigUpdateMapper {
 
     private fun toDto(config: MetadataUpdateConfig): MetadataUpdateConfigDto {
         return MetadataUpdateConfigDto(
-            readingDirectionValue = config.readingDirectionValue,
-            languageValue = config.languageValue,
-            modes = config.modes,
-            bookThumbnails = config.bookThumbnails,
-            seriesThumbnails = config.seriesThumbnails,
+            default = toDto(config.default),
+            library = config.library.map { (libraryId, config) -> libraryId to toDto(config) }.toMap()
+        )
+    }
+
+    private fun toDto(config: MetadataProcessingConfig): MetadataProcessingConfigDto {
+        return MetadataProcessingConfigDto(
+            aggregate = config.aggregate,
+            bookCovers = config.bookCovers,
+            seriesCover = config.seriesCovers,
+            updateModes = config.updateModes,
+            postProcessing = toDto(config.postProcessing)
+        )
+    }
+
+    private fun toDto(config: MetadataPostProcessingConfig): MetadataPostProcessingConfigDto {
+        return MetadataPostProcessingConfigDto(
             seriesTitle = config.seriesTitle,
             titleType = config.titleType,
             orderBooks = config.orderBooks,
+            readingDirectionValue = config.readingDirectionValue,
+            languageValue = config.languageValue
         )
     }
 
@@ -309,7 +327,6 @@ class ConfigUpdateMapper {
             eventListener = patch.eventListener?.let { eventListener(config.eventListener, it) } ?: config.eventListener,
             notifications = patch.notifications?.let { notifications(config.notifications, it) } ?: config.notifications,
             metadataUpdate = patch.metadataUpdate?.let { metadataUpdate(config.metadataUpdate, it) } ?: config.metadataUpdate,
-            aggregateMetadata = patch.aggregateMetadata ?: config.aggregateMetadata
         )
     }
 
@@ -320,7 +337,6 @@ class ConfigUpdateMapper {
             notifications = patch.notifications?.let { notifications(config.notifications, it) } ?: config.notifications,
             eventListener = patch.eventListener?.let { eventListener(config.eventListener, it) } ?: config.eventListener,
             metadataUpdate = patch.metadataUpdate?.let { metadataUpdate(config.metadataUpdate, it) } ?: config.metadataUpdate,
-            aggregateMetadata = patch.aggregateMetadata ?: config.aggregateMetadata
         )
     }
 
@@ -337,16 +353,68 @@ class ConfigUpdateMapper {
 
     private fun metadataUpdate(config: MetadataUpdateConfig, patch: MetadataUpdateConfigUpdateDto): MetadataUpdateConfig {
         return config.copy(
+            default = patch.default?.let { metadataProcessingConfig(config.default, it) } ?: config.default,
+            library = patch.library?.let { libraryMetadataProcessing(config.library, it) } ?: config.library,
+        )
+    }
+
+    private fun libraryMetadataProcessing(
+        config: Map<String, MetadataProcessingConfig>,
+        patch: Map<String, MetadataProcessingConfigUpdateDto?>
+    ): Map<String, MetadataProcessingConfig> {
+        val removeConfig = mutableSetOf<String>()
+        val addConfigDto = mutableMapOf<String, MetadataProcessingConfigUpdateDto>()
+        val updateConfigDto = mutableMapOf<String, MetadataProcessingConfigUpdateDto>()
+
+        patch.forEach { (libraryId, configDto) ->
+            if (configDto == null) removeConfig.add(libraryId)
+            else if (config.containsKey(libraryId)) updateConfigDto[libraryId] = configDto
+            else addConfigDto[libraryId] = configDto
+        }
+
+        val addConfig = addConfigDto
+            .map { (libraryId, configDto) ->
+                libraryId to metadataProcessingConfig(configDto)
+            }.toMap()
+
+        return config.filterKeys { !removeConfig.contains(it) }
+            .map { (libraryId, config) ->
+                libraryId to (updateConfigDto[libraryId]?.let { metadataProcessingConfig(config, it) } ?: config)
+            }.toMap() + addConfig
+    }
+
+    private fun metadataProcessingConfig(patch: MetadataProcessingConfigUpdateDto): MetadataProcessingConfig {
+        val config = MetadataProcessingConfig()
+        return metadataProcessingConfig(config, patch)
+    }
+
+    private fun metadataProcessingConfig(
+        config: MetadataProcessingConfig,
+        patch: MetadataProcessingConfigUpdateDto
+    ): MetadataProcessingConfig {
+        return config.copy(
+            aggregate = patch.aggregate ?: config.aggregate,
+            bookCovers = patch.bookCovers ?: config.bookCovers,
+            seriesCovers = patch.seriesCover ?: config.seriesCovers,
+            updateModes = patch.updateModes ?: config.updateModes,
+            postProcessing = patch.postProcessing
+                ?.let { metadataPostProcessingConfig(config.postProcessing, it) }
+                ?: config.postProcessing
+        )
+    }
+
+    private fun metadataPostProcessingConfig(
+        config: MetadataPostProcessingConfig,
+        patch: MetadataPostProcessingConfigUpdateDto
+    ): MetadataPostProcessingConfig {
+        return config.copy(
+            seriesTitle = patch.seriesTitle ?: config.seriesTitle,
+            titleType = patch.titleType ?: config.titleType,
+            orderBooks = patch.orderBooks ?: config.orderBooks,
             readingDirectionValue = if (patch.isSet("readingDirectionValue")) patch.readingDirectionValue
             else config.readingDirectionValue,
             languageValue = if (patch.isSet("languageValue")) patch.languageValue
-            else config.languageValue,
-            modes = patch.modes ?: config.modes,
-            bookThumbnails = patch.bookThumbnails ?: config.bookThumbnails,
-            seriesThumbnails = patch.seriesThumbnails ?: config.seriesThumbnails,
-            seriesTitle = patch.seriesTitle ?: config.seriesTitle,
-            titleType = patch.titleType ?: config.titleType,
-            orderBooks = patch.orderBooks ?: config.orderBooks
+            else config.languageValue
         )
     }
 

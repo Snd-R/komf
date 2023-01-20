@@ -1,9 +1,14 @@
 package org.snd.mediaserver
 
-import org.snd.config.MetadataUpdateConfig
 import org.snd.mediaserver.UpdateMode.API
 import org.snd.mediaserver.UpdateMode.COMIC_INFO
-import org.snd.mediaserver.model.*
+import org.snd.mediaserver.model.MediaServerBook
+import org.snd.mediaserver.model.MediaServerBookId
+import org.snd.mediaserver.model.MediaServerLibraryId
+import org.snd.mediaserver.model.MediaServerSeries
+import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.MediaServerThumbnailId
+import org.snd.mediaserver.model.SeriesAndBookMetadata
 import org.snd.mediaserver.repository.BookThumbnail
 import org.snd.mediaserver.repository.BookThumbnailsRepository
 import org.snd.mediaserver.repository.SeriesThumbnail
@@ -19,9 +24,12 @@ class MetadataUpdateService(
     private val mediaServerClient: MediaServerClient,
     private val seriesThumbnailsRepository: SeriesThumbnailsRepository,
     private val bookThumbnailsRepository: BookThumbnailsRepository,
-    private val metadataUpdateConfig: MetadataUpdateConfig,
     private val metadataUpdateMapper: MetadataUpdateMapper,
     private val comicInfoWriter: ComicInfoWriter,
+
+    private val updateModes: Set<UpdateMode>,
+    private val uploadBookCovers: Boolean,
+    private val uploadSeriesCovers: Boolean,
 ) {
     private val requireMetadataRefresh = setOf(COMIC_INFO)
 
@@ -29,12 +37,12 @@ class MetadataUpdateService(
         if (metadata.seriesMetadata != null) updateSeriesMetadata(series, metadata.seriesMetadata)
         updateBookMetadata(metadata.bookMetadata, metadata.seriesMetadata)
 
-        if (metadataUpdateConfig.modes.any { it in requireMetadataRefresh })
+        if (updateModes.any { it in requireMetadataRefresh })
             mediaServerClient.refreshMetadata(series.id)
     }
 
     private fun updateSeriesMetadata(series: MediaServerSeries, metadata: SeriesMetadata) {
-        metadataUpdateConfig.modes.forEach {
+        updateModes.forEach {
             when (it) {
                 API -> {
                     val metadataUpdate = metadataUpdateMapper.toSeriesMetadataUpdate(metadata, series.metadata)
@@ -45,7 +53,7 @@ class MetadataUpdateService(
             }
         }
 
-        val newThumbnail = if (metadataUpdateConfig.seriesThumbnails) metadata.thumbnail else null
+        val newThumbnail = if (uploadSeriesCovers) metadata.thumbnail else null
         val thumbnailId = replaceSeriesThumbnail(series.id, newThumbnail)
 
         if (thumbnailId == null) {
@@ -73,7 +81,7 @@ class MetadataUpdateService(
         seriesMeta: SeriesMetadata?,
         writeSeriesMetadata: Boolean
     ) {
-        metadataUpdateConfig.modes.forEach { mode ->
+        updateModes.forEach { mode ->
             when (mode) {
                 API -> metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book)
                     .let { mediaServerClient.updateBookMetadata(book.id, it) }
@@ -92,7 +100,7 @@ class MetadataUpdateService(
             }
         }
 
-        val newThumbnail = if (metadataUpdateConfig.bookThumbnails) metadata?.thumbnail else null
+        val newThumbnail = if (uploadBookCovers) metadata?.thumbnail else null
         val thumbnailId = replaceBookThumbnail(book.id, newThumbnail)
 
         if (thumbnailId == null) {
@@ -178,7 +186,7 @@ class MetadataUpdateService(
     }
 
     private fun bookToWriteSeriesMetadata(bookMetadata: Map<MediaServerBook, BookMetadata?>): MediaServerBookId? {
-        return if (metadataUpdateConfig.modes.any { it == COMIC_INFO }
+        return if (updateModes.any { it == COMIC_INFO }
             && bookMetadata.all { it.value == null }) {
             val books = bookMetadata.keys.sortedBy { it.name.lowercase() }
             return books.asSequence()

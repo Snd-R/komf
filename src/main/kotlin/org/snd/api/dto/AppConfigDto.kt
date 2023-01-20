@@ -21,7 +21,6 @@ data class KomgaConfigDto(
     val eventListener: EventListenerConfigDto,
     val notifications: NotificationConfigDto,
     val metadataUpdate: MetadataUpdateConfigDto,
-    val aggregateMetadata: Boolean,
 )
 
 @JsonClass(generateAdapter = true)
@@ -30,7 +29,6 @@ data class KavitaConfigDto(
     val eventListener: EventListenerConfigDto,
     val notifications: NotificationConfigDto,
     val metadataUpdate: MetadataUpdateConfigDto,
-    val aggregateMetadata: Boolean,
 )
 
 @JsonClass(generateAdapter = true)
@@ -40,14 +38,27 @@ data class NotificationConfigDto(
 
 @JsonClass(generateAdapter = true)
 data class MetadataUpdateConfigDto(
-    val readingDirectionValue: ReadingDirection?,
-    val languageValue: String?,
-    val modes: Set<UpdateMode>,
-    val bookThumbnails: Boolean,
-    val seriesThumbnails: Boolean,
+    val default: MetadataProcessingConfigDto,
+    val library: Map<String, MetadataProcessingConfigDto>
+)
+
+@JsonClass(generateAdapter = true)
+data class MetadataProcessingConfigDto(
+    val aggregate: Boolean,
+    val bookCovers: Boolean,
+    val seriesCover: Boolean,
+    val updateModes: Set<UpdateMode>,
+    val postProcessing: MetadataPostProcessingConfigDto
+
+)
+
+@JsonClass(generateAdapter = true)
+data class MetadataPostProcessingConfigDto(
     val seriesTitle: Boolean,
     val titleType: TitleType,
     val orderBooks: Boolean,
+    val readingDirectionValue: ReadingDirection?,
+    val languageValue: String?,
 )
 
 @JsonClass(generateAdapter = true)

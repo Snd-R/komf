@@ -6,7 +6,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import mu.KotlinLogging
-import org.snd.mediaserver.MetadataService
 import org.snd.mediaserver.NotificationService
 import org.snd.mediaserver.kavita.model.KavitaChapter
 import org.snd.mediaserver.kavita.model.KavitaVolume
@@ -17,6 +16,7 @@ import org.snd.mediaserver.kavita.model.events.SeriesRemovedEvent
 import org.snd.mediaserver.model.MediaServerBookId
 import org.snd.mediaserver.model.MediaServerSeriesId
 import org.snd.mediaserver.repository.SeriesMatchRepository
+import org.snd.module.MediaServerModule.MetadataServiceProvider
 import java.time.Clock
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -29,7 +29,7 @@ private val logger = KotlinLogging.logger {}
 //ugly
 class KavitaEventListener(
     private val baseUrl: String,
-    private val metadataService: MetadataService,
+    private val metadataServiceProvider: MetadataServiceProvider,
     private val kavitaClient: KavitaClient,
     private val tokenProvider: KavitaTokenProvider,
     private val libraryFilter: Predicate<String>,
@@ -111,18 +111,28 @@ class KavitaEventListener(
 
         val volumes: List<KavitaVolume> = volumeIds.map { kavitaClient.getVolume(KavitaVolumeId(it)) }
         val newVolumes: Map<KavitaVolume, Collection<KavitaChapter>> = getNew(volumes)
-        val seriesIds = newVolumes.keys
+        val seriesToChaptersMap = newVolumes.keys
             .groupBy { it.seriesId() }
             .mapKeys { (s, _) -> kavitaClient.getSeries(s) }
             .filter { (s, _) -> libraryFilter.test(s.libraryId.toString()) }
+            .mapValues { (_, v) -> v.flatMap { newVolumes[it]!! } }
 
-        val series = seriesIds
-            .mapValues { (_, v) -> v.flatMap { newVolumes[it]!! }.map { MediaServerBookId(it.id.toString()) } }
-            .mapKeys { (s, _) -> MediaServerSeriesId(s.id.toString()) }
-            .toMap()
+        val libraryToSeriesMap = seriesToChaptersMap.entries
+            .groupBy { (series, _) -> series.libraryId }
+        libraryToSeriesMap.forEach { (libraryId, series) ->
+            val metadataService = metadataServiceProvider.serviceFor(libraryId.toString())
+            series.forEach { (series, _) ->
+                metadataService.matchSeriesMetadata(MediaServerSeriesId(series.id.toString()))
+            }
+        }
 
-        series.keys.forEach { metadataService.matchSeriesMetadata(it) }
-        notificationService.executeFor(series)
+        notificationService.executeFor(
+            seriesToChaptersMap
+                .map { (series, chapters) ->
+                    MediaServerSeriesId(series.id.toString()) to chapters.map { chapter -> MediaServerBookId(chapter.id.toString()) }
+                }.toMap()
+        )
+
         lastScan = now
     }
 
