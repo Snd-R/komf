@@ -127,6 +127,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         totalBookCount = null,
         authors = authors,
         releaseYear = releaseYear,
+        links = emptyList(),
 
         statusLock = publicationStatusLocked,
         titleLock = series.nameLocked,
@@ -141,6 +142,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         totalBookCountLock = false,
         authorsLock = authorsLock,
         releaseYearLock = releaseYearLocked,
-        alternativeTitlesLock = series.localizedNameLocked
+        alternativeTitlesLock = series.localizedNameLocked,
+        linksLock = false,
     )
 }

@@ -7,6 +7,7 @@ import org.snd.mediaserver.model.MediaServerSeries
 import org.snd.mediaserver.model.MediaServerSeriesId
 import org.snd.mediaserver.model.MediaServerSeriesMetadata
 import org.snd.mediaserver.model.MediaServerSeriesSearch
+import org.snd.metadata.model.MediaServerWebLink
 import org.snd.metadata.model.ReadingDirection.valueOf
 import org.snd.metadata.model.SeriesStatus
 
@@ -53,6 +54,8 @@ data class KomgaSeriesMetadata(
     val tagsLock: Boolean,
     val totalBookCount: Int?,
     val totalBookCountLock: Boolean,
+    val links: Collection<KomgaWebLink>,
+    val linksLock: Boolean,
 )
 
 fun KomgaSeries.mediaServerSeries(): MediaServerSeries {
@@ -91,6 +94,7 @@ fun KomgaSeriesMetadata.mediaServerSeriesMetadata() = MediaServerSeriesMetadata(
     totalBookCount = totalBookCount,
     authors = emptyList(), //TODO take authors from book metadata?,
     releaseYear = null, //TODO take from book metadata?,
+    links = links.map { MediaServerWebLink(it.label, it.url) },
 
     statusLock = statusLock,
     titleLock = titleLock,
@@ -106,4 +110,5 @@ fun KomgaSeriesMetadata.mediaServerSeriesMetadata() = MediaServerSeriesMetadata(
     totalBookCountLock = totalBookCountLock,
     authorsLock = false,
     releaseYearLock = false,
+    linksLock = linksLock
 )

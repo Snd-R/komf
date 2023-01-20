@@ -12,10 +12,12 @@ import org.snd.metadata.providers.nautiljon.model.SeriesId
 import org.snd.metadata.providers.nautiljon.model.Volume
 import org.snd.metadata.providers.nautiljon.model.VolumeId
 
+const val nautiljonBaseUrl = "https://www.nautiljon.com/"
+
 class NautiljonClient(
     private val client: HttpClient,
 ) {
-    private val baseUrl: HttpUrl = "https://www.nautiljon.com/".toHttpUrl()
+    private val baseUrl: HttpUrl = nautiljonBaseUrl.toHttpUrl()
     private val parser = NautiljonParser()
 
     fun searchSeries(name: String): Collection<SearchResult> {

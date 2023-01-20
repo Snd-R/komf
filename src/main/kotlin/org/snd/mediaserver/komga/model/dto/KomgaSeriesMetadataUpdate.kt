@@ -18,6 +18,7 @@ data class KomgaSeriesMetadataUpdate(
     val genres: Collection<String>? = null,
     val tags: Collection<String>? = null,
     val totalBookCount: Int? = null,
+    val links: Collection<KomgaWebLink>? = null,
 
     val statusLock: Boolean? = null,
     val titleLock: Boolean? = null,
@@ -31,6 +32,7 @@ data class KomgaSeriesMetadataUpdate(
     val genresLock: Boolean? = null,
     val tagsLock: Boolean? = null,
     val totalBookCountLock: Boolean? = null,
+    val linksLock: Boolean? = null,
 )
 
 fun metadataResetRequest(name: String) = KomgaSeriesMetadataUpdate(
@@ -46,6 +48,7 @@ fun metadataResetRequest(name: String) = KomgaSeriesMetadataUpdate(
     genres = emptyList(),
     tags = emptyList(),
     totalBookCount = null,
+    links = null,
     statusLock = false,
     titleLock = false,
     titleSortLock = false,
@@ -56,7 +59,8 @@ fun metadataResetRequest(name: String) = KomgaSeriesMetadataUpdate(
     languageLock = false,
     genresLock = false,
     tagsLock = false,
-    totalBookCountLock = false
+    totalBookCountLock = false,
+    linksLock = false,
 )
 
 fun MediaServerSeriesMetadataUpdate.metadataUpdateRequest() = KomgaSeriesMetadataUpdate(
@@ -74,6 +78,7 @@ fun MediaServerSeriesMetadataUpdate.metadataUpdateRequest() = KomgaSeriesMetadat
     genres = genres,
     tags = tags,
     totalBookCount = totalBookCount,
+    links = links?.map { KomgaWebLink(it.label, it.url) },
 
     statusLock = statusLock,
     titleLock = titleLock,
@@ -87,4 +92,5 @@ fun MediaServerSeriesMetadataUpdate.metadataUpdateRequest() = KomgaSeriesMetadat
     genresLock = genresLock,
     tagsLock = tagsLock,
     totalBookCountLock = totalBookCountLock,
+    linksLock = linksLock,
 )

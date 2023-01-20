@@ -2,7 +2,11 @@ package org.snd.metadata
 
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
-import org.snd.metadata.model.*
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.ProviderBookMetadata
+import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesTitle
 
 object MetadataConfigApplier {
 
@@ -26,6 +30,7 @@ object MetadataConfigApplier {
                     authors = getIfEnabled(metadata.authors, config.authors) ?: emptyList(),
                     releaseDate = getIfEnabled(metadata.releaseDate, config.releaseDate),
                     thumbnail = getIfEnabled(metadata.thumbnail, config.thumbnail),
+                    links = getIfEnabled(metadata.links, config.links) ?: emptyList()
                 )
             )
         }

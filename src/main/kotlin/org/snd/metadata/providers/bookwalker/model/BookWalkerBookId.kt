@@ -1,4 +1,5 @@
 package org.snd.metadata.providers.bookwalker.model
 
-data class BookWalkerBookId(val id: String)
+@JvmInline
+value class BookWalkerBookId(val id: String)
 

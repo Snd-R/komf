@@ -11,10 +11,12 @@ import org.snd.metadata.providers.viz.model.VizBook
 import org.snd.metadata.providers.viz.model.VizBookId
 import org.snd.metadata.providers.viz.model.VizSeriesBook
 
+const val vizBaseUrl = "https://www.viz.com/"
+
 class VizClient(
     private val client: HttpClient
 ) {
-    private val baseUrl: HttpUrl = "https://www.viz.com/".toHttpUrl()
+    private val baseUrl: HttpUrl = vizBaseUrl.toHttpUrl()
     private val parser = VizParser()
 
     fun searchSeries(name: String): Collection<VizSeriesBook> {

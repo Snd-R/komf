@@ -12,7 +12,7 @@ data class BookMetadata(
     val authors: List<Author> = emptyList(),
     val tags: Set<String> = emptySet(),
     val isbn: String? = null,
-    val links: List<WebLink> = emptyList(),
+    val links: List<MediaServerWebLink> = emptyList(),
     val chapters: Collection<Chapter> = emptyList(),
 
     val startChapter: Int? = null,
@@ -24,9 +24,4 @@ data class BookMetadata(
 data class Chapter(
     val name: String?,
     val number: Int
-)
-
-data class WebLink(
-    val label: String,
-    val url: String,
 )

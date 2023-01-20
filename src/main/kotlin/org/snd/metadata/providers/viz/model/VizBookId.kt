@@ -1,3 +1,4 @@
 package org.snd.metadata.providers.viz.model
 
-data class VizBookId(val id: String)
+@JvmInline
+value class VizBookId(val id: String)

@@ -7,6 +7,7 @@ import org.snd.mediaserver.model.MediaServerBookId
 import org.snd.mediaserver.model.MediaServerBookMetadata
 import org.snd.mediaserver.model.MediaServerLibraryId
 import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.metadata.model.MediaServerWebLink
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -98,6 +99,7 @@ fun KomgaBookMetadata.mediaServerBookMetadata() = MediaServerBookMetadata(
     authors = authors.map { MediaServerAuthor(it.name, it.role) },
     tags = tags,
     isbn = isbn,
+    links = links.map { MediaServerWebLink(it.label, it.url) },
 
     titleLock = titleLock,
     summaryLock = summaryLock,
@@ -107,4 +109,5 @@ fun KomgaBookMetadata.mediaServerBookMetadata() = MediaServerBookMetadata(
     authorsLock = authorsLock,
     tagsLock = tagsLock,
     isbnLock = isbnLock,
+    linksLock = linksLock
 )

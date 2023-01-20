@@ -48,7 +48,8 @@ class MangaUpdatesSeriesJsonAdapter {
                     type = unescapeHtml4(it.type),
                     notes = it.notes
                 )
-            } ?: emptyList()
+            } ?: emptyList(),
+            url = json.url
         )
     }
 

@@ -10,10 +10,12 @@ import org.snd.metadata.providers.yenpress.model.YenPressBook
 import org.snd.metadata.providers.yenpress.model.YenPressBookId
 import org.snd.metadata.providers.yenpress.model.YenPressSearchResult
 
+const val yenPressBaseUrl = "https://yenpress.com/"
+
 class YenPressClient(
     private val client: HttpClient
 ) {
-    private val baseUrl: HttpUrl = "https://yenpress.com/".toHttpUrl()
+    private val baseUrl: HttpUrl = yenPressBaseUrl.toHttpUrl()
     private val parser = YenPressParser()
 
     fun searchSeries(name: String): Collection<YenPressSearchResult> {

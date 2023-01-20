@@ -3,9 +3,20 @@ package org.snd.metadata.providers.yenpress
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.*
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.Image
+import org.snd.metadata.model.MediaServerWebLink
+import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
+import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.SeriesBook
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesTitle
 import org.snd.metadata.model.TitleType.LOCALIZED
+import org.snd.metadata.model.toReleaseDate
 import org.snd.metadata.providers.yenpress.model.YenPressBook
+import java.net.URLEncoder
 
 class YenPressMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
@@ -30,7 +41,8 @@ class YenPressMetadataMapper(
             thumbnail = thumbnail,
             totalBookCount = book.seriesBooks.size.let { if (it < 1) null else it },
             ageRating = null,
-            releaseDate = book.releaseDate?.toReleaseDate()
+            releaseDate = book.releaseDate?.toReleaseDate(),
+            links = listOf(MediaServerWebLink("YenPress", yenPressBaseUrl + URLEncoder.encode(book.id.id, "UTF-8")))
         )
 
         val providerMetadata = ProviderSeriesMetadata(
@@ -59,7 +71,8 @@ class YenPressMetadataMapper(
             isbn = book.isbn,
             startChapter = null,
             endChapter = null,
-            thumbnail = thumbnail
+            thumbnail = thumbnail,
+            links = listOf(MediaServerWebLink("YenPress", yenPressBaseUrl + book.id))
         )
 
         val providerMetadata = ProviderBookMetadata(

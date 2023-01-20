@@ -24,6 +24,7 @@ object MetadataMerger {
             totalBookCount = originalSeriesMetadata.totalBookCount ?: newSeriesMetadata.totalBookCount,
             authors = originalSeriesMetadata.authors.ifEmpty { newSeriesMetadata.authors },
             thumbnail = originalSeriesMetadata.thumbnail ?: newSeriesMetadata.thumbnail,
+            links = originalSeriesMetadata.links + newSeriesMetadata.links,
         )
     }
 
@@ -35,21 +36,21 @@ object MetadataMerger {
         .mapValues { (_, values) -> mergeBookMetadata(values) }
 
     private fun mergeBookMetadata(metadata: Collection<BookMetadata?>): BookMetadata? {
-        return metadata.filterNotNull().reduceOrNull { a, b ->
+        return metadata.filterNotNull().reduceOrNull { old, new ->
             BookMetadata(
-                title = a.title ?: b.title,
-                summary = a.summary ?: b.summary,
-                number = a.number ?: b.number,
-                numberSort = a.numberSort ?: b.numberSort,
-                releaseDate = a.releaseDate ?: b.releaseDate,
-                authors = a.authors.ifEmpty { b.authors },
-                tags = a.tags.ifEmpty { b.tags },
-                isbn = a.isbn ?: b.isbn,
-                links = a.links.ifEmpty { b.links },
-                chapters = a.chapters.ifEmpty { b.chapters },
-                startChapter = a.startChapter ?: b.startChapter,
-                endChapter = a.endChapter ?: b.endChapter,
-                thumbnail = a.thumbnail ?: b.thumbnail,
+                title = old.title ?: new.title,
+                summary = old.summary ?: new.summary,
+                number = old.number ?: new.number,
+                numberSort = old.numberSort ?: new.numberSort,
+                releaseDate = old.releaseDate ?: new.releaseDate,
+                authors = old.authors.ifEmpty { new.authors },
+                tags = old.tags.ifEmpty { new.tags },
+                isbn = old.isbn ?: new.isbn,
+                links = old.links + new.links,
+                chapters = old.chapters.ifEmpty { new.chapters },
+                startChapter = old.startChapter ?: new.startChapter,
+                endChapter = old.endChapter ?: new.endChapter,
+                thumbnail = old.thumbnail ?: new.thumbnail,
             )
         }
     }

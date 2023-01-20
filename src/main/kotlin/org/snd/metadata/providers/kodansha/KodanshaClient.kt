@@ -12,10 +12,12 @@ import org.snd.metadata.providers.kodansha.model.KodanshaSearchResult
 import org.snd.metadata.providers.kodansha.model.KodanshaSeries
 import org.snd.metadata.providers.kodansha.model.KodanshaSeriesId
 
+const val kodanshaBaseUrl = "https://kodansha.us/"
+
 class KodanshaClient(
     private val client: HttpClient,
 ) {
-    private val baseUrl: HttpUrl = "https://kodansha.us/".toHttpUrl()
+    private val baseUrl = kodanshaBaseUrl.toHttpUrl()
     private val parser = KodanshaParser()
 
     fun searchSeries(name: String): Collection<KodanshaSearchResult> {

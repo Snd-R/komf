@@ -37,6 +37,7 @@ class MetadataUpdateMapper {
                 isbn = getIfNotLockedOrEmpty(bookMetadata?.isbn, isbnLock),
                 number = getIfNotLockedOrEmpty(bookMetadata?.number?.toString(), numberLock),
                 numberSort = getIfNotLockedOrEmpty(bookMetadata?.number?.start, numberSortLock),
+                links = getIfNotLockedOrEmpty(bookMetadata?.links, linksLock),
             )
         }
     }
@@ -60,7 +61,8 @@ class MetadataUpdateMapper {
                 tags = getIfNotLockedOrEmpty(patch.tags, tagsLock),
                 totalBookCount = getIfNotLockedOrEmpty(patch.totalBookCount, totalBookCountLock),
                 authors = getIfNotLockedOrEmpty(authors, authorsLock),
-                releaseYear = getIfNotLockedOrEmpty(patch.releaseDate?.year, releaseYearLock)
+                releaseYear = getIfNotLockedOrEmpty(patch.releaseDate?.year, releaseYearLock),
+                links = getIfNotLockedOrEmpty(patch.links, linksLock),
             )
         }
 

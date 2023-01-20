@@ -192,6 +192,7 @@ data class SeriesMetadataConfig(
     @EncodeDefault(NEVER) val releaseDate: Boolean = true,
     @EncodeDefault(NEVER) val thumbnail: Boolean = true,
     @EncodeDefault(NEVER) val books: Boolean = true,
+    @EncodeDefault(NEVER) val links: Boolean = true,
 
     @EncodeDefault(NEVER) val useOriginalPublisher: Boolean = false,
     @EncodeDefault(NEVER) val originalPublisherTagName: String? = null,

@@ -4,7 +4,13 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
-import org.snd.metadata.providers.nautiljon.model.*
+import org.snd.metadata.providers.nautiljon.model.Chapter
+import org.snd.metadata.providers.nautiljon.model.SearchResult
+import org.snd.metadata.providers.nautiljon.model.Series
+import org.snd.metadata.providers.nautiljon.model.SeriesId
+import org.snd.metadata.providers.nautiljon.model.SeriesVolume
+import org.snd.metadata.providers.nautiljon.model.Volume
+import org.snd.metadata.providers.nautiljon.model.VolumeId
 import java.net.URLDecoder
 import java.time.LocalDate
 import java.time.Year
@@ -99,9 +105,12 @@ class NautiljonParser {
             .getElementsByTag("li")
         val authorsStory = parseAuthorsStory(dataEntries)
         val authorsArt = parseAuthorsArt(dataEntries).ifEmpty { authorsStory }
-
+        val seriesId = document.getElementById("infos_fiche_manga")!!.children()
+            .first { it.child(0).tagName() == "h3" }.child(0).child(0).attr("href")
+            .removeSurrounding("/mangas/", ".html")
         return Volume(
             id = parseVolumeId(document),
+            seriesId = SeriesId(URLDecoder.decode(seriesId, "UTF-8")),
             number = parseVolumeNumber(document),
             originalPublisher = parseOriginalPublisher(dataEntries),
             frenchPublisher = parseFrenchPublisher(dataEntries),
@@ -146,14 +155,14 @@ class NautiljonParser {
     private fun parseAlternativeTitles(dataEntries: Elements): Collection<String> {
         return dataEntries
             .firstOrNull { it.child(0).text().equals("Titre alternatif :") }
-            ?.textNodes()?.first()?.text()?.split("/")
+            ?.textNodes()?.first()?.text()?.split("/")?.map { it.trim() }
             ?: emptyList()
     }
 
     private fun parseOriginalTitles(dataEntries: Elements): List<String> {
         return dataEntries
             .firstOrNull { it.child(0).text().equals("Titre original :") }
-            ?.textNodes()?.first()?.text()?.split("/")
+            ?.textNodes()?.first()?.text()?.split("/")?.map { it.trim() }
             ?: emptyList()
     }
 

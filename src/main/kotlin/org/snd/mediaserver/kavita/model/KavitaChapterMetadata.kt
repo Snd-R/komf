@@ -54,6 +54,7 @@ fun KavitaChapterMetadata.mediaServerBookMetadata(chapter: KavitaChapter): Media
         authors = authors,
         tags = tags.map { it.title },
         isbn = null,
+        links = emptyList(),
 
         titleLock = false,
         summaryLock = false,
@@ -63,5 +64,6 @@ fun KavitaChapterMetadata.mediaServerBookMetadata(chapter: KavitaChapter): Media
         authorsLock = false,
         tagsLock = false,
         isbnLock = false,
+        linksLock = false,
     )
 }

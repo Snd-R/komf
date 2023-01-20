@@ -37,6 +37,7 @@ fun MediaServerBookMetadataUpdate.komgaMetadataUpdate() = KomgaBookMetadataUpdat
     authors = authors?.map { KomgaAuthor(it.name, it.role) },
     tags = tags,
     isbn = isbn,
+    links = links?.map { KomgaWebLink(it.label, it.url) },
 
     titleLock = titleLock,
     summaryLock = summaryLock,

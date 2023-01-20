@@ -17,6 +17,7 @@ data class SeriesMetadata(
     val totalBookCount: Int? = null,
     val authors: List<Author> = emptyList(),
     val releaseDate: ReleaseDate? = null,
+    val links: Collection<MediaServerWebLink> = emptyList(),
 
     val thumbnail: Image? = null,
 )

@@ -3,12 +3,29 @@ package org.snd.metadata.providers.viz
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.*
-import org.snd.metadata.model.AuthorRole.*
+import org.snd.metadata.model.Author
+import org.snd.metadata.model.AuthorRole.COLORIST
+import org.snd.metadata.model.AuthorRole.COVER
+import org.snd.metadata.model.AuthorRole.INKER
+import org.snd.metadata.model.AuthorRole.LETTERER
+import org.snd.metadata.model.AuthorRole.PENCILLER
+import org.snd.metadata.model.AuthorRole.WRITER
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.Image
+import org.snd.metadata.model.MediaServerWebLink
+import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
+import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.SeriesBook
+import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesStatus.ENDED
+import org.snd.metadata.model.SeriesTitle
 import org.snd.metadata.model.TitleType.LOCALIZED
+import org.snd.metadata.model.toReleaseDate
 import org.snd.metadata.providers.viz.model.VizBook
 import org.snd.metadata.providers.viz.model.VizSeriesBook
+import java.net.URLEncoder
 
 class VizMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
@@ -34,7 +51,8 @@ class VizMetadataMapper(
             totalBookCount = allBooks.size.let { if (it < 1) null else it },
             authors = getAuthors(book),
             thumbnail = thumbnail,
-            releaseDate = book.releaseDate?.toReleaseDate()
+            releaseDate = book.releaseDate?.toReleaseDate(),
+            links = listOf(MediaServerWebLink("Viz", vizBaseUrl + URLEncoder.encode(book.allBooksId.id, "UTF-8")))
         )
 
         val providerMetadata = ProviderSeriesMetadata(
@@ -64,7 +82,8 @@ class VizMetadataMapper(
             isbn = book.isbn,
             startChapter = null,
             endChapter = null,
-            thumbnail = thumbnail
+            thumbnail = thumbnail,
+            links = listOf(MediaServerWebLink("Viz", vizBaseUrl + "/read/manga/${URLEncoder.encode(book.id.id, "UTF-8")}"))
         )
 
         val providerMetadata = ProviderBookMetadata(

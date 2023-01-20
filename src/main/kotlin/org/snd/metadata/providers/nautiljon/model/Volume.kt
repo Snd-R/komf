@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 data class Volume(
     val id: VolumeId,
+    val seriesId: SeriesId,
     val number: Int,
     val originalPublisher: String?,
     val frenchPublisher: String?,

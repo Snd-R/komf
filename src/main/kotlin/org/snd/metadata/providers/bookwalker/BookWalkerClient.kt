@@ -12,10 +12,12 @@ import org.snd.metadata.providers.bookwalker.model.BookWalkerBookListPage
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSearchResult
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
 
+const val bookWalkerBaseUrl = "https://global.bookwalker.jp/"
+
 class BookWalkerClient(
     private val client: HttpClient
 ) {
-    private val baseUrl: HttpUrl = "https://global.bookwalker.jp/".toHttpUrl()
+    private val baseUrl = bookWalkerBaseUrl.toHttpUrl()
     private val parser = BookWalkerParser()
 
     fun searchSeries(name: String): Collection<BookWalkerSearchResult> {

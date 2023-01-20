@@ -16,6 +16,7 @@ data class Series(
     val authors: Collection<Author>,
     val year: Year?,
     val publishers: Collection<Publisher>,
+    val url: String
 )
 
 data class Category(

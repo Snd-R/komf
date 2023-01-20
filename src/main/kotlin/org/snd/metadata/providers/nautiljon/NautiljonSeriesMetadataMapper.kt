@@ -3,11 +3,27 @@ package org.snd.metadata.providers.nautiljon
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.*
+import org.snd.metadata.model.Author
+import org.snd.metadata.model.AuthorRole
+import org.snd.metadata.model.BookMetadata
+import org.snd.metadata.model.BookRange
+import org.snd.metadata.model.Image
+import org.snd.metadata.model.MediaServerWebLink
+import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
+import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.ReleaseDate
+import org.snd.metadata.model.SeriesBook
+import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.SeriesStatus
+import org.snd.metadata.model.SeriesTitle
+import org.snd.metadata.model.TitleType
 import org.snd.metadata.model.TitleType.NATIVE
 import org.snd.metadata.model.TitleType.ROMAJI
 import org.snd.metadata.providers.nautiljon.model.Series
 import org.snd.metadata.providers.nautiljon.model.Volume
+import java.net.URLEncoder
 
 class NautiljonSeriesMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
@@ -25,6 +41,7 @@ class NautiljonSeriesMetadataMapper(
         val status = when (series.status) {
             "En cours" -> SeriesStatus.ONGOING
             "En attente" -> SeriesStatus.ONGOING
+            "Abandonné" -> SeriesStatus.ABANDONED
             "Terminé" -> SeriesStatus.ENDED
             else -> SeriesStatus.ONGOING
         }
@@ -45,6 +62,7 @@ class NautiljonSeriesMetadataMapper(
             series.japaneseTitle?.let { SeriesTitle(it, NATIVE) },
         ) + series.alternativeTitles.map { SeriesTitle(it, null) }
 
+
         val metadata = SeriesMetadata(
             status = status,
             titles = titles,
@@ -59,7 +77,13 @@ class NautiljonSeriesMetadataMapper(
             thumbnail = thumbnail,
             totalBookCount = series.numberOfVolumes,
             ageRating = series.recommendedAge,
-            releaseDate = ReleaseDate(series.startYear?.value, null, null)
+            releaseDate = ReleaseDate(series.startYear?.value, null, null),
+            links = listOf(
+                MediaServerWebLink(
+                    "Nautiljon",
+                    nautiljonBaseUrl + "mangas/${URLEncoder.encode(series.id.id, "UTF-8")}.html"
+                )
+            )
         )
         val providerMetadata = ProviderSeriesMetadata(
             id = ProviderSeriesId(series.id.id),
@@ -86,6 +110,15 @@ class NautiljonSeriesMetadataMapper(
             number = volume.number.let { number -> BookRange(number.toDouble(), number.toDouble()) },
             releaseDate = if (seriesMetadataConfig.useOriginalPublisher) volume.originalReleaseDate else volume.frenchReleaseDate,
             authors = authors,
+            links = listOf(
+                MediaServerWebLink(
+                    "Nautiljon",
+                    nautiljonBaseUrl +
+                            "mangas/${URLEncoder.encode(volume.seriesId.id, "UTF-8")}/" +
+                            "volume-${URLEncoder.encode(volume.id.id, "UTF-8")}.html"
+                )
+            ),
+
             startChapter = null,
             endChapter = null,
 
