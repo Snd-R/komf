@@ -1,6 +1,7 @@
 package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
+import org.snd.mediaserver.model.MediaServerAlternativeTitle
 import org.snd.mediaserver.model.MediaServerLibraryId
 import org.snd.mediaserver.model.MediaServerSeries
 import org.snd.mediaserver.model.MediaServerSeriesId
@@ -30,6 +31,8 @@ data class KomgaSeriesMetadata(
     val status: String,
     val statusLock: Boolean,
     val title: String,
+    val alternateTitles: Collection<KomgaAlternativeTitle>,
+    val alternateTitlesLock: Boolean,
     val titleLock: Boolean,
     val titleSort: String,
     val titleSortLock: Boolean,
@@ -76,6 +79,7 @@ fun KomgaSeriesMetadata.mediaServerSeriesMetadata() = MediaServerSeriesMetadata(
     status = SeriesStatus.valueOf(status),
     title = title,
     titleSort = titleSort,
+    alternativeTitles = alternateTitles.map { (label, title) -> MediaServerAlternativeTitle(label, title) },
     summary = summary,
     readingDirection = readingDirection?.let { valueOf(it) },
     publisher = publisher,
@@ -91,6 +95,7 @@ fun KomgaSeriesMetadata.mediaServerSeriesMetadata() = MediaServerSeriesMetadata(
     statusLock = statusLock,
     titleLock = titleLock,
     titleSortLock = titleSortLock,
+    alternativeTitlesLock = alternateTitlesLock,
     summaryLock = summaryLock,
     readingDirectionLock = readingDirectionLock,
     publisherLock = publisherLock,

@@ -25,6 +25,7 @@ import org.snd.mediaserver.model.MediaServerSeriesSearch
 import org.snd.mediaserver.model.MediaServerSeriesThumbnail
 import org.snd.mediaserver.model.MediaServerThumbnailId
 import org.snd.metadata.model.Image
+import org.snd.metadata.model.TitleType.LOCALIZED
 
 class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : MediaServerClient {
 
@@ -89,9 +90,10 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
     }
 
     override fun updateSeriesMetadata(seriesId: MediaServerSeriesId, metadata: MediaServerSeriesMetadataUpdate) {
-        if (metadata.title != null) {
+        val localizedName = metadata.alternativeTitles?.find { it.type == LOCALIZED && it != metadata.title }
+        if (metadata.title != null || localizedName != null) {
             val series = kavitaClient.getSeries(seriesId.kavitaSeriesId())
-            kavitaClient.updateSeries(series.kavitaTitleUpdate(metadata.title))
+            kavitaClient.updateSeries(series.kavitaTitleUpdate(metadata.title?.name, localizedName?.name))
         }
 
         val oldMetadata = kavitaClient.getSeriesMetadata(seriesId.kavitaSeriesId())

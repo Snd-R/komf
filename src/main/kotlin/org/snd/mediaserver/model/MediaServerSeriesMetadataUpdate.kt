@@ -6,7 +6,7 @@ import org.snd.metadata.model.SeriesTitle
 
 data class MediaServerSeriesMetadataUpdate(
     val status: SeriesStatus? = null,
-    val title: String? = null,
+    val title: SeriesTitle? = null,
     val alternativeTitles: Collection<SeriesTitle>? = null,
     val titleSort: String? = null,
     val summary: String? = null,
@@ -24,6 +24,7 @@ data class MediaServerSeriesMetadataUpdate(
     val statusLock: Boolean? = null,
     val titleLock: Boolean? = null,
     val titleSortLock: Boolean? = null,
+    val alternativeTitlesLock: Boolean? = null,
     val summaryLock: Boolean? = null,
     val readingDirectionLock: Boolean? = null,
     val publisherLock: Boolean? = null,

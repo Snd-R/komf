@@ -47,8 +47,9 @@ class MetadataUpdateMapper {
 
             MediaServerSeriesMetadataUpdate(
                 status = getIfNotLockedOrEmpty(patch.status, statusLock),
-                title = getIfNotLockedOrEmpty(patch.title?.name, titleLock),
+                title = getIfNotLockedOrEmpty(patch.title, titleLock),
                 titleSort = getIfNotLockedOrEmpty(patch.title?.name, titleSortLock),
+                alternativeTitles = getIfNotLockedOrEmpty(patch.titles.filter { it != patch.title }, titleSortLock),
                 summary = getIfNotLockedOrEmpty(patch.summary, summaryLock),
                 publisher = getIfNotLockedOrEmpty(patch.publisher, publisherLock),
                 alternativePublishers = getIfNotLockedOrEmpty(patch.alternativePublishers, publisherLock),

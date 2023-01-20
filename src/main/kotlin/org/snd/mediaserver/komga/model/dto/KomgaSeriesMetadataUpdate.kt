@@ -9,6 +9,7 @@ data class KomgaSeriesMetadataUpdate(
     val status: String? = null,
     val title: String? = null,
     val titleSort: String? = null,
+    val alternateTitles: Collection<KomgaAlternativeTitle>? = null,
     val summary: String? = null,
     val publisher: String? = null,
     val readingDirection: String? = null,
@@ -21,6 +22,7 @@ data class KomgaSeriesMetadataUpdate(
     val statusLock: Boolean? = null,
     val titleLock: Boolean? = null,
     val titleSortLock: Boolean? = null,
+    val alternateTitlesLock: Boolean? = null,
     val summaryLock: Boolean? = null,
     val publisherLock: Boolean? = null,
     val readingDirectionLock: Boolean? = null,
@@ -35,6 +37,7 @@ fun metadataResetRequest(name: String) = KomgaSeriesMetadataUpdate(
     status = ONGOING.name,
     title = name,
     titleSort = name,
+    alternateTitles = null,
     summary = "",
     publisher = "",
     readingDirection = null,
@@ -58,8 +61,11 @@ fun metadataResetRequest(name: String) = KomgaSeriesMetadataUpdate(
 
 fun MediaServerSeriesMetadataUpdate.metadataUpdateRequest() = KomgaSeriesMetadataUpdate(
     status = status?.name,
-    title = title,
+    title = title?.name,
     titleSort = titleSort,
+    alternateTitles = alternativeTitles?.mapNotNull { (name, type) ->
+        type?.let { KomgaAlternativeTitle(it.label, name) }
+    }?.distinctBy { it.label },
     summary = summary,
     publisher = publisher,
     readingDirection = readingDirection?.name,
@@ -72,6 +78,7 @@ fun MediaServerSeriesMetadataUpdate.metadataUpdateRequest() = KomgaSeriesMetadat
     statusLock = statusLock,
     titleLock = titleLock,
     titleSortLock = titleSortLock,
+    alternateTitlesLock = alternativeTitlesLock,
     summaryLock = summaryLock,
     publisherLock = publisherLock,
     readingDirectionLock = readingDirectionLock,

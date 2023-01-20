@@ -5,8 +5,8 @@ data class SeriesTitle(
     val type: TitleType?,
 )
 
-enum class TitleType {
-    ROMAJI,
-    LOCALIZED,
-    NATIVE,
+enum class TitleType(val label: String) {
+    ROMAJI("Romaji"),
+    LOCALIZED("Localized"),
+    NATIVE("Native"),
 }

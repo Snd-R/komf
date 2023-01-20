@@ -14,10 +14,10 @@ data class KavitaSeriesUpdate(
     val localizedNameLocked: Boolean
 )
 
-fun KavitaSeries.kavitaTitleUpdate(localizedName: String) = KavitaSeriesUpdate(
+fun KavitaSeries.kavitaTitleUpdate(newName: String?, newLocalizedName: String?) = KavitaSeriesUpdate(
     id = id,
-    name = name,
-    localizedName = localizedName,
+    name = newName ?: name,
+    localizedName = newLocalizedName ?: localizedName,
     sortName = sortName,
     nameLocked = nameLocked,
     sortNameLocked = sortNameLocked,
