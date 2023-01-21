@@ -47,9 +47,9 @@ class AppModule(
     override fun close() {
 
         serverModule.close()
+        metadataModule.close()
         mediaServerModule.close()
         repositoryModule.close()
-        mediaServerModule.close()
 
         okHttpClient.dispatcher.executorService.shutdown()
         okHttpClient.connectionPool.evictAll()

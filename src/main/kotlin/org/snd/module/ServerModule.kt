@@ -34,7 +34,7 @@ class ServerModule(
         .apply {
             addBean(LowResourceMonitor(this))
             insertHandler(StatisticsHandler())
-            stopTimeout = 5000L
+            stopTimeout = 30000L
         }
     private val server = Javalin.create { config ->
         config.plugins.enableCors { cors -> cors.add { it.anyHost() } }
@@ -77,7 +77,16 @@ class ServerModule(
     }
 
     override fun close() {
-        server.close()
         executor.shutdown()
+
+        while (true) {
+            try {
+                if (!jetty.isStopped || !jetty.isFailed)
+                    server.close()
+                return
+            } catch (e: Exception) {
+                //ignore
+            }
+        }
     }
 }
