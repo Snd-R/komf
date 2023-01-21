@@ -56,18 +56,21 @@ komga:
     libraries: [ ]  # listen to all events if empty
   notifications:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
-  aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
   metadataUpdate:
-    # Update modes is the way komf will update metadata.
-    # If you're using anything other than API then your existing files might be modified with embedded metadata
-    modes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
-    bookThumbnails: false # update book thumbnails
-    seriesThumbnails: true # update series thumbnails
-    seriesTitle: false # update series title
-    titleType: LOCALIZED # "LOCALIZED" "ROMAJI" or "NATIVE"
-    readingDirectionValue: # override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
-    languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
-    orderBooks: false # will order books using parsed volume or chapter number
+    default:
+      # Update modes is the way komf will update metadata.
+      # If you're using anything other than API then your existing files might be modified with embedded metadata
+      updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
+      aggregate: false # if enabled will search and aggregate metadata from all configured providers
+      bookCovers: false # update book thumbnails
+      seriesCovers: false # update series thumbnails
+      postProcessing:
+        seriesTitle: false # update series title
+        titleType: LOCALIZED # "LOCALIZED" "ROMAJI" or "NATIVE"
+        alternativeSeriesTitles: false # use other title types as alternative title option
+        orderBooks: false # will order books using parsed volume or chapter number
+        readingDirectionValue: # override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
+        languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 kavita:
   baseUri: "http://localhost:5000" #or env:KOMF_KAVITA_BASE_URI
   apiKey: "16707507-d05d-4696-b126-c3976ae14ffb" #or env:KOMF_KAVITA_API_KEY
@@ -76,16 +79,19 @@ kavita:
     libraries: [ ]  # listen to all events if empty
   notifications:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
-  aggregateMetadata: false #if enabled will search and aggregate metadata from all configured providers
   metadataUpdate:
-    # Update modes is the way komf will update metadata.
-    # If you're using anything other than API then your existing files might be modified with embedded metadata
-    modes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
-    bookThumbnails: false #update book thumbnails
-    seriesThumbnails: true #update series thumbnails
-    seriesTitle: false #update series title
-    titleType: LOCALIZED # Can be "LOCALIZED" "ROMAJI" or "NATIVE". Sets Localized Name api field and series comicinfo field. 
-    languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
+    default:
+      # Update modes is the way komf will update metadata.
+      # If you're using anything other than API then your existing files might be modified with embedded metadata
+      updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
+      aggregate: false # if enabled will search and aggregate metadata from all configured providers
+      bookCovers: false #update book thumbnails
+      seriesCovers: false #update series thumbnails
+      postProcessing:
+        seriesTitle: false #update series title
+        titleType: LOCALIZED # Can be "LOCALIZED" "ROMAJI" or "NATIVE". Sets Localized Name api field and series comicinfo field. 
+        alternativeSeriesTitles: false # use other title types as alternative title option
+        languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
   seriesCover: false # include series cover in message. Requires imgurClientId
@@ -126,6 +132,32 @@ logLevel: INFO #or env:KOMF_LOG_LEVEL
 ```
 
 ## Providers config for a library
+
+You can configure a set of metadata update option that will only be used with specified library. If no options are specified for a library
+then default options will be used. kavita or komga library ids are used as library identifiers
+
+```yaml
+komga_or_kavita:
+  metadataUpdate:
+    default:
+      aggregateMetadata: false
+    library:
+      09PERX1TW8GEK:
+        updateModes: [ API ]
+        aggregateMetadata: false
+        bookCovers: false
+        seriesCovers: false
+        postProcessing:
+          seriesTitle: false
+          titleType: LOCALIZED
+          alternativeSeriesTitles: false
+          languageValue:
+      123:
+        aggregateMetadata: true
+        seriesCovers: true
+```
+
+## Metadata update config for a library
 
 You can configure a set of metadata providers that will only be used with specified library. If no providers are specified for a library
 then default providers will be used. kavita or komga library ids are used as library identifiers
@@ -186,6 +218,7 @@ metadataProviders:
       authors: true
       thumbnail: true
       releaseDate: true
+      links: true
       books: true
       useOriginalPublisher: true # prefer original publisher and volume information if source has data about multiple providers. If false will use english or other available publisher
       #TagName: if specified and if provider has data about publisher in that language then additional tag will be added using format ({TagName}: publisherName)
@@ -310,16 +343,17 @@ library providers
 
 ```json
 {
+  "libraryId": "09TDSWK3Q0XRA",
   "seriesId": "07XF6HKAWHHV4",
   "provider": "MANGA_UPDATES",
   "providerSeriesId": "1"
 }
 ```
 
-`POST /{media-server}/match/series/{seriesId}`try to match series
+`POST /{media-server}/match/library/{libraryId}/series/{seriesId}`try to match series
 
 `POST /{media-server}/match/library/{libraryId}` try to match series of a library
 
-`POST /{media-server}/reset/series/{seriesId}` reset all metadata of a series
+`POST /{media-server}/reset/library/{libraryId}/series/{seriesId}` reset all metadata of a series
 
 `POST /{media-server}/reset/library/{libraryId}` reset metadata of all series in a library
