@@ -80,7 +80,7 @@ data class MetadataProcessingConfig(
     val aggregate: Boolean = false,
 
     val bookCovers: Boolean = false,
-    val seriesCovers: Boolean = true,
+    val seriesCovers: Boolean = false,
     val updateModes: Set<UpdateMode> = setOf(API),
 
     @EncodeDefault(NEVER) val postProcessing: MetadataPostProcessingConfig = MetadataPostProcessingConfig()

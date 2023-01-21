@@ -23,7 +23,6 @@ data class KomgaConfigUpdateDto(
     val eventListener: EventListenerConfigUpdateDto? = null,
     val notifications: NotificationConfigUpdateDto? = null,
     val metadataUpdate: MetadataUpdateConfigUpdateDto? = null,
-    val aggregateMetadata: Boolean? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -33,7 +32,6 @@ data class KavitaConfigUpdateDto(
     val eventListener: EventListenerConfigUpdateDto? = null,
     val notifications: NotificationConfigUpdateDto? = null,
     val metadataUpdate: MetadataUpdateConfigUpdateDto? = null,
-    val aggregateMetadata: Boolean? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -42,16 +40,16 @@ data class NotificationConfigUpdateDto(
 )
 
 @JsonClass(generateAdapter = true)
-class MetadataUpdateConfigUpdateDto {
-    val default: MetadataProcessingConfigUpdateDto? = null
+data class MetadataUpdateConfigUpdateDto(
+    val default: MetadataProcessingConfigUpdateDto? = null,
     val library: Map<String, MetadataProcessingConfigUpdateDto>? = null
-}
+)
 
 @JsonClass(generateAdapter = true)
 data class MetadataProcessingConfigUpdateDto(
     val aggregate: Boolean? = null,
     val bookCovers: Boolean? = null,
-    val seriesCover: Boolean? = null,
+    val seriesCovers: Boolean? = null,
     val updateModes: Set<UpdateMode>? = null,
     val postProcessing: MetadataPostProcessingConfigUpdateDto? = null
 )
@@ -62,12 +60,13 @@ class MetadataPostProcessingConfigUpdateDto {
     private val isSet = mutableMapOf<String, Boolean>()
     fun isSet(prop: String) = isSet.getOrDefault(prop, false)
 
-    val seriesTitle: Boolean? = null
-    val titleType: TitleType? = null
-    val orderBooks: Boolean? = null
+    var seriesTitle: Boolean? = null
+    var titleType: TitleType? = null
+    var orderBooks: Boolean? = null
+    var alternativeSeriesTitles: Boolean? = null
 
-    val readingDirectionValue: ReadingDirection? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
-    val languageValue: String? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
+    var readingDirectionValue: ReadingDirection? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
+    var languageValue: String? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
 }
 
 @JsonClass(generateAdapter = true)

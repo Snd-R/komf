@@ -107,7 +107,7 @@ class ConfigUpdateMapper {
         return MetadataProcessingConfigDto(
             aggregate = config.aggregate,
             bookCovers = config.bookCovers,
-            seriesCover = config.seriesCovers,
+            seriesCovers = config.seriesCovers,
             updateModes = config.updateModes,
             postProcessing = toDto(config.postProcessing)
         )
@@ -117,6 +117,7 @@ class ConfigUpdateMapper {
         return MetadataPostProcessingConfigDto(
             seriesTitle = config.seriesTitle,
             titleType = config.titleType,
+            alternativeSeriesTitles = config.alternativeSeriesTitles,
             orderBooks = config.orderBooks,
             readingDirectionValue = config.readingDirectionValue,
             languageValue = config.languageValue
@@ -395,7 +396,7 @@ class ConfigUpdateMapper {
         return config.copy(
             aggregate = patch.aggregate ?: config.aggregate,
             bookCovers = patch.bookCovers ?: config.bookCovers,
-            seriesCovers = patch.seriesCover ?: config.seriesCovers,
+            seriesCovers = patch.seriesCovers ?: config.seriesCovers,
             updateModes = patch.updateModes ?: config.updateModes,
             postProcessing = patch.postProcessing
                 ?.let { metadataPostProcessingConfig(config.postProcessing, it) }
@@ -410,6 +411,7 @@ class ConfigUpdateMapper {
         return config.copy(
             seriesTitle = patch.seriesTitle ?: config.seriesTitle,
             titleType = patch.titleType ?: config.titleType,
+            alternativeSeriesTitles = patch.alternativeSeriesTitles ?: config.alternativeSeriesTitles,
             orderBooks = patch.orderBooks ?: config.orderBooks,
             readingDirectionValue = if (patch.isSet("readingDirectionValue")) patch.readingDirectionValue
             else config.readingDirectionValue,

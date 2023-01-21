@@ -46,7 +46,7 @@ data class MetadataUpdateConfigDto(
 data class MetadataProcessingConfigDto(
     val aggregate: Boolean,
     val bookCovers: Boolean,
-    val seriesCover: Boolean,
+    val seriesCovers: Boolean,
     val updateModes: Set<UpdateMode>,
     val postProcessing: MetadataPostProcessingConfigDto
 
@@ -56,6 +56,7 @@ data class MetadataProcessingConfigDto(
 data class MetadataPostProcessingConfigDto(
     val seriesTitle: Boolean,
     val titleType: TitleType,
+    val alternativeSeriesTitles: Boolean?,
     val orderBooks: Boolean,
     val readingDirectionValue: ReadingDirection?,
     val languageValue: String?,
