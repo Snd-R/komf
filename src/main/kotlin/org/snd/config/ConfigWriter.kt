@@ -2,6 +2,7 @@ package org.snd.config
 
 import com.charleskorn.kaml.Yaml
 import java.nio.file.Path
+import kotlin.io.path.isDirectory
 import kotlin.io.path.isWritable
 import kotlin.io.path.writeText
 import kotlin.text.Charsets.UTF_8
@@ -10,11 +11,18 @@ class ConfigWriter(
     private val yaml: Yaml
 ) {
 
+    @Synchronized
     fun writeConfig(config: AppConfig, path: Path) {
         checkWriteAccess(path)
-        path.writeText(yaml.encodeToString(AppConfig.serializer(), removeDeprecatedOptions(config)), UTF_8)
+        if (path.isDirectory()) {
+            path.resolve("application.yml")
+                .writeText(yaml.encodeToString(AppConfig.serializer(), removeDeprecatedOptions(config)), UTF_8)
+        } else {
+            path.writeText(yaml.encodeToString(AppConfig.serializer(), removeDeprecatedOptions(config)), UTF_8)
+        }
     }
 
+    @Synchronized
     fun writeConfigToDefaultPath(config: AppConfig) {
         val filePath = Path.of(".").toAbsolutePath().normalize().resolve("application.yml")
         checkWriteAccess(filePath)
