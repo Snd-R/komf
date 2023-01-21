@@ -57,14 +57,14 @@ class KomgaEventListener(
 
     @Synchronized
     fun stop() {
-        eventSource?.cancel()
         isActive = false
+        eventSource?.cancel()
     }
 
     override fun onClosed(eventSource: EventSource) {
         logger.debug { "event source closed $eventSource" }
         if (isActive) {
-            start()
+            reconnect()
         }
     }
 
@@ -139,11 +139,21 @@ class KomgaEventListener(
         if (isActive) {
             logger.error(t) { "${t?.message} ${t?.cause} response code ${response?.code}" }
             Thread.sleep(10000)
-            start()
+            reconnect()
         }
     }
 
     override fun onOpen(eventSource: EventSource, response: Response) {
         logger.info { "connected to komga on $komgaUrl" }
+    }
+
+    @Synchronized
+    private fun reconnect() {
+        if (isActive) {
+            val request = Request.Builder()
+                .url(komgaUrl.newBuilder().addPathSegments("sse/v1/events").build())
+                .build()
+            this.eventSource = EventSources.createFactory(client).newEventSource(request, this)
+        }
     }
 }
