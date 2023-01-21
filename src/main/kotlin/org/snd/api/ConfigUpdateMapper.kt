@@ -44,6 +44,7 @@ import org.snd.config.ProvidersConfig
 import org.snd.config.SeriesMetadataConfig
 
 class ConfigUpdateMapper {
+    private val maskedPlaceholder = "********"
 
     fun toDto(config: AppConfig): AppConfigDto {
         return AppConfigDto(
@@ -125,19 +126,28 @@ class ConfigUpdateMapper {
     }
 
     private fun toDto(config: DiscordConfig): DiscordConfigDto {
+        val imgurClientId = config.imgurClientId?.let {
+            if (it.length < 15) maskedPlaceholder
+            else it.replace("(?<=.{4}).".toRegex(), "*")
+        }
         return DiscordConfigDto(
             webhooks = config.webhooks
-                ?.map { it.replace("(?<=.{34}).(?=.{10})".toRegex(), "*") }
+                ?.map {
+                    if (it.length < 110) maskedPlaceholder
+                    else it.replace("(?<=.{34}).(?=.{10})".toRegex(), "*")
+                }
                 ?.mapIndexed { index, value -> index to value }
                 ?.toMap(),
             seriesCover = config.seriesCover,
-            imgurClientId = config.imgurClientId?.replace("(?<=.{4}).".toRegex(), "*"),
+            imgurClientId = imgurClientId,
         )
     }
 
     private fun toDto(config: MetadataProvidersConfig): MetadataProvidersConfigDto {
+        val malClientId = if (config.malClientId.length < 32) maskedPlaceholder
+        else config.malClientId.replace("(?<=.{4}).".toRegex(), "*")
         return MetadataProvidersConfigDto(
-            malClientId = config.malClientId.replace("(?<=.{4}).".toRegex(), "*"),
+            malClientId = malClientId,
             nameMatchingMode = config.nameMatchingMode,
             defaultProviders = toDto(config.defaultProviders),
             libraryProviders = config.libraryProviders

@@ -33,7 +33,7 @@ data class KomgaConfig(
     val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
     @Deprecated("moved to MetadataUpdateConfig")
-    val aggregateMetadata: Boolean? = null,
+    @EncodeDefault(NEVER) val aggregateMetadata: Boolean? = null,
 )
 
 @Serializable
@@ -44,7 +44,7 @@ data class KavitaConfig(
     val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
     @Deprecated("moved to MetadataUpdateConfig")
-    val aggregateMetadata: Boolean? = null,
+    @EncodeDefault(NEVER) val aggregateMetadata: Boolean? = null,
 )
 
 @Serializable

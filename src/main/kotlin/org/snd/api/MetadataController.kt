@@ -46,7 +46,7 @@ class MetadataController(
                 post("match/library/{libraryId}/series/{seriesId}", this::matchLibrarySeries)
                 post("match/library/{id}", this::matchLibrary)
 
-                post("reset/library/{libraryId}/series/{id}", this::resetLibrarySeries)
+                post("reset/library/{libraryId}/series/{seriesId}", this::resetLibrarySeries)
                 post("reset/library/{id}", this::resetLibrary)
 
                 post("match/series/{id}", this::matchSeries)
