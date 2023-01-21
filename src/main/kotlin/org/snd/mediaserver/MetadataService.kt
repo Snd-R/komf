@@ -173,7 +173,7 @@ class MetadataService(
             val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
             return books.associateWith { book ->
                 val volume = BookNameParser.getVolumes(book.name) ?: book.number..book.number
-                editions[editionName]?.firstOrNull { volume == it.number }
+                editions[editionName]?.firstOrNull { it.number != null && volume == it.number }
             }
         }
 
@@ -185,9 +185,9 @@ class MetadataService(
         return byEdition.map { (book, edition) ->
             val volumes = BookNameParser.getVolumes(book.name)
             val matched = if (edition == null) {
-                noEditionBooks.firstOrNull { it.number == volumes }
+                noEditionBooks.firstOrNull { it.number != null && it.number == volumes }
             } else {
-                editions[edition]?.firstOrNull { it.number == volumes }
+                editions[edition]?.firstOrNull { it.number != null && it.number == volumes }
             }
             book to matched
         }.toMap()
