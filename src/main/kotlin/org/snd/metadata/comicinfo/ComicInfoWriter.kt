@@ -90,7 +90,7 @@ class ComicInfoWriter {
     }
 
     private fun validate(path: Path) {
-        if (!supportedExtensions.contains(path.extension)) {
+        if (!supportedExtensions.contains(path.extension.lowercase())) {
             throw ValidationException("Unsupported file extension $path")
         }
         if (!path.isWritable()) {
