@@ -138,6 +138,7 @@ class SeriesMetadataConfigUpdateDto {
     var authors: Boolean? = null
     var releaseDate: Boolean? = null
     var thumbnail: Boolean? = null
+    var links: Boolean? = null
     var books: Boolean? = null
     var useOriginalPublisher: Boolean? = null
 

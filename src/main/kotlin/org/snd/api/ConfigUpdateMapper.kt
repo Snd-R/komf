@@ -194,6 +194,7 @@ class ConfigUpdateMapper {
             authors = config.authors,
             releaseDate = config.releaseDate,
             thumbnail = config.thumbnail,
+            links = config.links,
             books = config.books,
             useOriginalPublisher = config.useOriginalPublisher,
             originalPublisherTagName = config.originalPublisherTagName ?: "",
@@ -304,6 +305,7 @@ class ConfigUpdateMapper {
             authors = patch.authors ?: config.authors,
             releaseDate = patch.releaseDate ?: config.releaseDate,
             thumbnail = patch.thumbnail ?: config.thumbnail,
+            links = patch.links ?: config.links,
             books = patch.books ?: config.books,
             useOriginalPublisher = patch.useOriginalPublisher ?: config.useOriginalPublisher,
             originalPublisherTagName = if (patch.isSet("originalPublisherTagName")) patch.originalPublisherTagName

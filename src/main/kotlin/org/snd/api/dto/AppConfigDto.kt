@@ -119,6 +119,7 @@ data class SeriesMetadataConfigDto(
     val authors: Boolean,
     val releaseDate: Boolean,
     val thumbnail: Boolean,
+    val links: Boolean,
     val books: Boolean,
     val useOriginalPublisher: Boolean,
     val originalPublisherTagName: String?,
