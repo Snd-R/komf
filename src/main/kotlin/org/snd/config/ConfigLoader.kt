@@ -90,9 +90,51 @@ class ConfigLoader {
         val viz = config.metadataProviders.viz
         val bookWalker = config.metadataProviders.bookWalker
 
+
+        val komgaMetadataUpdate = config.komga.metadataUpdate
+        val kavitaMetadataUpdate = config.kavita.metadataUpdate
+
         warnAboutDeprecatedOptions(config)
 
         return config.copy(
+            komga = config.komga.copy(
+                metadataUpdate = komgaMetadataUpdate.copy(
+                    default = config.komga.metadataUpdate.default.copy(
+                        aggregate = config.komga.aggregateMetadata ?: komgaMetadataUpdate.default.aggregate,
+                        bookCovers = komgaMetadataUpdate.bookThumbnails ?: komgaMetadataUpdate.default.bookCovers,
+                        seriesCovers = komgaMetadataUpdate.seriesThumbnails ?: komgaMetadataUpdate.default.seriesCovers,
+                        updateModes = komgaMetadataUpdate.modes ?: komgaMetadataUpdate.default.updateModes,
+                        postProcessing = komgaMetadataUpdate.default.postProcessing.copy(
+                            seriesTitle = komgaMetadataUpdate.seriesTitle ?: komgaMetadataUpdate.default.postProcessing.seriesTitle,
+                            titleType = komgaMetadataUpdate.titleType ?: komgaMetadataUpdate.default.postProcessing.titleType,
+                            orderBooks = komgaMetadataUpdate.orderBooks ?: komgaMetadataUpdate.default.postProcessing.orderBooks,
+                            readingDirectionValue = komgaMetadataUpdate.readingDirectionValue
+                                ?: komgaMetadataUpdate.default.postProcessing.readingDirectionValue,
+                            languageValue = komgaMetadataUpdate.languageValue
+                                ?: komgaMetadataUpdate.default.postProcessing.languageValue
+                        )
+                    )
+                )
+            ),
+            kavita = config.kavita.copy(
+                metadataUpdate = kavitaMetadataUpdate.copy(
+                    default = config.kavita.metadataUpdate.default.copy(
+                        bookCovers = kavitaMetadataUpdate.bookThumbnails ?: kavitaMetadataUpdate.default.bookCovers,
+                        aggregate = config.kavita.aggregateMetadata ?: kavitaMetadataUpdate.default.aggregate,
+                        seriesCovers = kavitaMetadataUpdate.seriesThumbnails ?: kavitaMetadataUpdate.default.seriesCovers,
+                        updateModes = kavitaMetadataUpdate.modes ?: kavitaMetadataUpdate.default.updateModes,
+                        postProcessing = kavitaMetadataUpdate.default.postProcessing.copy(
+                            seriesTitle = kavitaMetadataUpdate.seriesTitle ?: kavitaMetadataUpdate.default.postProcessing.seriesTitle,
+                            titleType = kavitaMetadataUpdate.titleType ?: kavitaMetadataUpdate.default.postProcessing.titleType,
+                            orderBooks = kavitaMetadataUpdate.orderBooks ?: kavitaMetadataUpdate.default.postProcessing.orderBooks,
+                            readingDirectionValue = kavitaMetadataUpdate.readingDirectionValue
+                                ?: kavitaMetadataUpdate.default.postProcessing.readingDirectionValue,
+                            languageValue = kavitaMetadataUpdate.languageValue
+                                ?: kavitaMetadataUpdate.default.postProcessing.languageValue
+                        )
+                    )
+                )
+            ),
             metadataProviders = config.metadataProviders.copy(
                 malClientId = mal?.clientId ?: config.metadataProviders.malClientId,
                 defaultProviders = defaultProviders.copy(
@@ -120,6 +162,24 @@ class ConfigLoader {
             config.metadataProviders.kodansha?.let { "metadataProviders.kodansha" },
             config.metadataProviders.viz?.let { "metadataProviders.viz" },
             config.metadataProviders.bookWalker?.let { "metadataProviders.bookWalker" },
+
+            config.komga.metadataUpdate.bookThumbnails?.let { "komga.metadataUpdate.bookThumbnails" },
+            config.komga.metadataUpdate.seriesThumbnails?.let { "komga.metadataUpdate.seriesThumbnails" },
+            config.komga.metadataUpdate.seriesTitle?.let { "komga.metadataUpdate.seriesTitle" },
+            config.komga.metadataUpdate.titleType?.let { "komga.metadataUpdate.titleType" },
+            config.komga.metadataUpdate.readingDirectionValue?.let { "komga.metadataUpdate.readingDirectionValue" },
+            config.komga.metadataUpdate.languageValue?.let { "komga.metadataUpdate.languageValue" },
+            config.komga.metadataUpdate.orderBooks?.let { "komga.metadataUpdate.orderBooks" },
+            config.komga.metadataUpdate.modes?.let { "komga.metadataUpdate.modes" },
+
+            config.kavita.metadataUpdate.bookThumbnails?.let { "kavita.metadataUpdate.bookThumbnails" },
+            config.kavita.metadataUpdate.seriesThumbnails?.let { "kavita.metadataUpdate.seriesThumbnails" },
+            config.kavita.metadataUpdate.seriesTitle?.let { "kavita.metadataUpdate.seriesTitle" },
+            config.kavita.metadataUpdate.titleType?.let { "kavita.metadataUpdate.titleType" },
+            config.kavita.metadataUpdate.readingDirectionValue?.let { "kavita.metadataUpdate.readingDirectionValue" },
+            config.kavita.metadataUpdate.languageValue?.let { "kavita.metadataUpdate.languageValue" },
+            config.kavita.metadataUpdate.orderBooks?.let { "kavita.metadataUpdate.orderBooks" },
+            config.kavita.metadataUpdate.modes?.let { "kavita.metadataUpdate.modes" },
         )
         if (deprecatedOptions.isNotEmpty()) {
             logger.warn {
