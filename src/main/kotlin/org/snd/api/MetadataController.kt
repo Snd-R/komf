@@ -9,6 +9,7 @@ import io.javalin.http.ContentType.APPLICATION_JSON
 import io.javalin.http.Context
 import io.javalin.http.HttpStatus.ACCEPTED
 import io.javalin.http.HttpStatus.BAD_REQUEST
+import io.javalin.http.HttpStatus.CONFLICT
 import io.javalin.http.HttpStatus.NO_CONTENT
 import io.javalin.http.HttpStatus.OK
 import org.snd.api.dto.IdentifySeriesRequest
@@ -22,6 +23,7 @@ import org.snd.metadata.model.SeriesSearchResult
 import org.snd.module.MediaServerModule.MetadataServiceProvider
 import org.snd.module.MediaServerModule.MetadataUpdateServiceProvider
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Semaphore
 
 class MetadataController(
     private val metadataServiceProvider: MetadataServiceProvider,
@@ -31,6 +33,8 @@ class MetadataController(
     private val moshi: Moshi,
     private val serverType: MediaServer,
 ) {
+
+    private val libraryScanSemaphore = Semaphore(1)
 
     fun register() {
         path("/") {
@@ -111,16 +115,19 @@ class MetadataController(
 
     private fun matchLibrary(ctx: Context): Context {
         val libraryId = MediaServerLibraryId(ctx.pathParam("id"))
-
-        taskHandler.submit {
-            try {
-                metadataServiceProvider.serviceFor(libraryId.id).matchLibraryMetadata(libraryId)
-            } catch (e: Exception) {
-                e.printStackTrace()
+        return if (libraryScanSemaphore.tryAcquire()) {
+            taskHandler.submit {
+                try {
+                    metadataServiceProvider.serviceFor(libraryId.id).matchLibraryMetadata(libraryId)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    libraryScanSemaphore.release()
+                }
             }
-        }
 
-        return ctx.status(ACCEPTED)
+            ctx.status(ACCEPTED)
+        } else ctx.status(CONFLICT)
     }
 
     private fun resetLibrarySeries(ctx: Context): Context {
