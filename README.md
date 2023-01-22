@@ -131,9 +131,9 @@ server:
 logLevel: INFO #or env:KOMF_LOG_LEVEL
 ```
 
-## Providers config for a library
+## Metadata update config for a library
 
-You can configure a set of metadata update option that will only be used with specified library. If no options are specified for a library
+You can configure a set of metadata update options that will only be used with specified library. If no options are specified for a library
 then default options will be used. kavita or komga library ids are used as library identifiers
 
 ```yaml
@@ -157,7 +157,7 @@ komga_or_kavita:
         seriesCovers: true
 ```
 
-## Metadata update config for a library
+## Providers config for a library
 
 You can configure a set of metadata providers that will only be used with specified library. If no providers are specified for a library
 then default providers will be used. kavita or komga library ids are used as library identifiers
