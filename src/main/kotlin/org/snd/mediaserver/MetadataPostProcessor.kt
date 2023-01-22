@@ -22,9 +22,15 @@ class MetadataPostProcessor(
         val metadata = if (series == null && shouldCreateMetadata()) SeriesMetadata()
         else series ?: return null
 
+        val seriesTitle = if (config.seriesTitle) seriesTitle(metadata.titles) ?: metadata.title else null
+
+        val altTitles = if (config.alternativeSeriesTitles)
+            metadata.titles.filter { it.type != seriesTitle?.type }
+        else emptyList()
+
         return metadata.copy(
-            title = if (config.seriesTitle) seriesTitle(metadata.titles) ?: metadata.title else null,
-            titles = if (config.alternativeSeriesTitles) metadata.titles else emptyList(),
+            title = seriesTitle,
+            titles = altTitles,
             readingDirection = config.readingDirectionValue ?: metadata.readingDirection,
             language = config.languageValue ?: metadata.language,
         )
