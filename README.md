@@ -140,11 +140,11 @@ then default options will be used. kavita or komga library ids are used as libra
 komga_or_kavita:
   metadataUpdate:
     default:
-      aggregateMetadata: false
+      aggregate: false
     library:
       09PERX1TW8GEK:
         updateModes: [ API ]
-        aggregateMetadata: false
+        aggregate: false
         bookCovers: false
         seriesCovers: false
         postProcessing:
