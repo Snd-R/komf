@@ -8,7 +8,6 @@ import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.BookRange
 import org.snd.metadata.model.Image
-import org.snd.metadata.model.MediaServerWebLink
 import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
@@ -21,6 +20,7 @@ import org.snd.metadata.model.SeriesTitle
 import org.snd.metadata.model.TitleType
 import org.snd.metadata.model.TitleType.NATIVE
 import org.snd.metadata.model.TitleType.ROMAJI
+import org.snd.metadata.model.WebLink
 import org.snd.metadata.providers.nautiljon.model.Series
 import org.snd.metadata.providers.nautiljon.model.Volume
 import java.net.URLEncoder
@@ -79,7 +79,7 @@ class NautiljonSeriesMetadataMapper(
             ageRating = series.recommendedAge,
             releaseDate = ReleaseDate(series.startYear?.value, null, null),
             links = listOf(
-                MediaServerWebLink(
+                WebLink(
                     "Nautiljon",
                     nautiljonBaseUrl + "mangas/${URLEncoder.encode(series.id.id, "UTF-8")}.html"
                 )
@@ -111,7 +111,7 @@ class NautiljonSeriesMetadataMapper(
             releaseDate = if (seriesMetadataConfig.useOriginalPublisher) volume.originalReleaseDate else volume.frenchReleaseDate,
             authors = authors,
             links = listOf(
-                MediaServerWebLink(
+                WebLink(
                     "Nautiljon",
                     nautiljonBaseUrl +
                             "mangas/${URLEncoder.encode(volume.seriesId.id, "UTF-8")}/" +

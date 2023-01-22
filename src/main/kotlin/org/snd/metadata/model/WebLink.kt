@@ -1,6 +1,6 @@
 package org.snd.metadata.model
 
-data class MediaServerWebLink(
+data class WebLink(
     val label: String,
     val url: String,
 )

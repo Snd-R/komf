@@ -5,7 +5,6 @@ import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
 import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.Image
-import org.snd.metadata.model.MediaServerWebLink
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.ReleaseDate
@@ -15,6 +14,7 @@ import org.snd.metadata.model.SeriesTitle
 import org.snd.metadata.model.TitleType.LOCALIZED
 import org.snd.metadata.model.TitleType.NATIVE
 import org.snd.metadata.model.TitleType.ROMAJI
+import org.snd.metadata.model.WebLink
 import org.snd.metadata.model.toReleaseDate
 import org.snd.metadata.providers.mal.model.Series
 import java.time.LocalDate
@@ -87,7 +87,7 @@ class MalMetadataMapper(
             thumbnail = thumbnail,
             tags = emptyList(),
             releaseDate = releaseDate,
-            links = listOf(MediaServerWebLink("MyAnimeList", mangaBaseUrl + series.id))
+            links = listOf(WebLink("MyAnimeList", mangaBaseUrl + series.id))
         )
 
         return MetadataConfigApplier.apply(

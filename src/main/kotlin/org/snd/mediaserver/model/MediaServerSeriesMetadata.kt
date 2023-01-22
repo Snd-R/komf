@@ -1,8 +1,8 @@
 package org.snd.mediaserver.model
 
-import org.snd.metadata.model.MediaServerWebLink
 import org.snd.metadata.model.ReadingDirection
 import org.snd.metadata.model.SeriesStatus
+import org.snd.metadata.model.WebLink
 
 data class MediaServerSeriesMetadata(
     val status: SeriesStatus,
@@ -20,7 +20,7 @@ data class MediaServerSeriesMetadata(
     val totalBookCount: Int?,
     val authors: Collection<MediaServerAuthor>,
     val releaseYear: Int?,
-    val links: Collection<MediaServerWebLink>,
+    val links: Collection<WebLink>,
 
     val statusLock: Boolean,
     val titleLock: Boolean,

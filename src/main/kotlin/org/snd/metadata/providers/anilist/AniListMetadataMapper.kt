@@ -7,7 +7,6 @@ import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
 import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.Image
-import org.snd.metadata.model.MediaServerWebLink
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
@@ -19,6 +18,7 @@ import org.snd.metadata.model.SeriesTitle
 import org.snd.metadata.model.TitleType.LOCALIZED
 import org.snd.metadata.model.TitleType.NATIVE
 import org.snd.metadata.model.TitleType.ROMAJI
+import org.snd.metadata.model.WebLink
 import org.snd.type.MediaStatus
 
 class AniListMetadataMapper(
@@ -102,7 +102,7 @@ class AniListMetadataMapper(
                 month = series.startDate?.month,
                 day = series.startDate?.day,
             ),
-            links = listOf(MediaServerWebLink("AniList", mangaLinkBaseUrl + series.id))
+            links = listOf(WebLink("AniList", mangaLinkBaseUrl + series.id))
         )
         return MetadataConfigApplier.apply(
             ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), metadata = metadata),

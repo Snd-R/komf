@@ -1,6 +1,6 @@
 package org.snd.mediaserver.model
 
-import org.snd.metadata.model.MediaServerWebLink
+import org.snd.metadata.model.WebLink
 import java.time.LocalDate
 
 
@@ -13,7 +13,7 @@ data class MediaServerBookMetadataUpdate(
     val authors: List<MediaServerAuthor>? = null,
     val tags: Collection<String>? = null,
     val isbn: String? = null,
-    val links: Collection<MediaServerWebLink>? = null,
+    val links: Collection<WebLink>? = null,
 
     val titleLock: Boolean? = null,
     val summaryLock: Boolean? = null,

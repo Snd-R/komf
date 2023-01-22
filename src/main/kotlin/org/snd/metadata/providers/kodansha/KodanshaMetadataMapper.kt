@@ -6,7 +6,6 @@ import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.BookRange
 import org.snd.metadata.model.Image
-import org.snd.metadata.model.MediaServerWebLink
 import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
@@ -16,6 +15,7 @@ import org.snd.metadata.model.SeriesMetadata
 import org.snd.metadata.model.SeriesStatus
 import org.snd.metadata.model.SeriesTitle
 import org.snd.metadata.model.TitleType
+import org.snd.metadata.model.WebLink
 import org.snd.metadata.providers.kodansha.model.KodanshaBook
 import org.snd.metadata.providers.kodansha.model.KodanshaSeries
 import org.snd.metadata.providers.kodansha.model.Status.COMPLETE
@@ -45,7 +45,7 @@ class KodanshaMetadataMapper(
             totalBookCount = series.books.size,
             thumbnail = thumbnail,
             links = listOf(
-                MediaServerWebLink(
+                WebLink(
                     "Kodansha",
                     kodanshaBaseUrl + "series/${URLEncoder.encode(series.id.id, "UTF-8")}"
                 )
@@ -77,7 +77,7 @@ class KodanshaMetadataMapper(
             tags = book.tags.toSet(),
             isbn = book.eisbn ?: book.isbn,
             thumbnail = thumbnail,
-            links = listOf(MediaServerWebLink("Kodansha", kodanshaBaseUrl + "volume/${book.id}"))
+            links = listOf(WebLink("Kodansha", kodanshaBaseUrl + "volume/${book.id}"))
         )
 
         val providerMetadata = ProviderBookMetadata(

@@ -7,7 +7,6 @@ import org.snd.metadata.model.Author
 import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Image
-import org.snd.metadata.model.MediaServerWebLink
 import org.snd.metadata.model.ProviderBookId
 import org.snd.metadata.model.ProviderBookMetadata
 import org.snd.metadata.model.ProviderSeriesId
@@ -19,6 +18,7 @@ import org.snd.metadata.model.SeriesTitle
 import org.snd.metadata.model.TitleType.LOCALIZED
 import org.snd.metadata.model.TitleType.NATIVE
 import org.snd.metadata.model.TitleType.ROMAJI
+import org.snd.metadata.model.WebLink
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
@@ -63,7 +63,7 @@ class BookWalkerMapper(
                 day = book.availableSince?.dayOfMonth,
             ),
             links = listOf(
-                MediaServerWebLink(
+                WebLink(
                     "BookWalker",
                     bookWalkerBaseUrl + "series/${URLEncoder.encode(seriesId.id, "UTF-8")}"
                 )
@@ -98,7 +98,7 @@ class BookWalkerMapper(
             endChapter = null,
             thumbnail = thumbnail,
             links = listOf(
-                MediaServerWebLink(
+                WebLink(
                     "BookWalker",
                     bookWalkerBaseUrl + URLEncoder.encode(book.id.id, "UTF-8")
                 )

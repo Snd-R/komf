@@ -12,7 +12,7 @@ data class BookMetadata(
     val authors: List<Author> = emptyList(),
     val tags: Set<String> = emptySet(),
     val isbn: String? = null,
-    val links: List<MediaServerWebLink> = emptyList(),
+    val links: List<WebLink> = emptyList(),
     val chapters: Collection<Chapter> = emptyList(),
 
     val startChapter: Int? = null,
