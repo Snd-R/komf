@@ -153,7 +153,7 @@ komga_or_kavita:
           alternativeSeriesTitles: false
           languageValue:
       123:
-        aggregateMetadata: true
+        aggregate: true
         seriesCovers: true
 ```
 
