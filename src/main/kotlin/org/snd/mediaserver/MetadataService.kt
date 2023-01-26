@@ -32,7 +32,6 @@ class MetadataService(
     private val executor: ExecutorService,
     private val metadataUpdateService: MetadataUpdateService,
     private val seriesMatchRepository: SeriesMatchRepository,
-    private val postProcessor: MetadataPostProcessor,
 ) {
     fun availableProviders(libraryId: MediaServerLibraryId) = metadataProviders.providers(libraryId.id)
 
@@ -71,7 +70,7 @@ class MetadataService(
             )
         } else SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
 
-        metadataUpdateService.updateMetadata(series, postProcessor.process(metadata))
+        metadataUpdateService.updateMetadata(series, metadata)
         seriesMatchRepository.save(
             SeriesMatch(
                 seriesId = series.id,
@@ -138,7 +137,7 @@ class MetadataService(
             } else metadata
         }
 
-        metadataUpdateService.updateMetadata(series, postProcessor.process(metadata))
+        metadataUpdateService.updateMetadata(series, metadata)
         logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
     }
 
@@ -203,7 +202,7 @@ class MetadataService(
         logger.info { "launching metadata aggregation using ${providers.map { it.providerName() }}" }
 
         val searchTitles = listOf(series.metadata.title.ifBlank { series.name }) +
-                (metadata.seriesMetadata?.titles?.map { it.name } ?: emptySet())
+                (metadata.seriesMetadata.titles.map { it.name })
 
         return providers.map { provider ->
             CompletableFuture.supplyAsync({
@@ -241,9 +240,7 @@ class MetadataService(
         originalMetadata: SeriesAndBookMetadata,
         newMetadata: SeriesAndBookMetadata
     ): SeriesAndBookMetadata {
-        val mergedSeries = if (originalMetadata.seriesMetadata != null && newMetadata.seriesMetadata != null) {
-            MetadataMerger.mergeSeriesMetadata(originalMetadata.seriesMetadata, newMetadata.seriesMetadata)
-        } else originalMetadata.seriesMetadata ?: newMetadata.seriesMetadata
+        val mergedSeries = MetadataMerger.mergeSeriesMetadata(originalMetadata.seriesMetadata, newMetadata.seriesMetadata)
 
         val books = originalMetadata.bookMetadata.keys.associateBy { it.id }
         val mergedBooks = MetadataMerger.mergeBookMetadata(

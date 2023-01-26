@@ -256,8 +256,6 @@ class MediaServerModule(
         mediaServerClient: MediaServerClient,
         seriesMatchRepository: SeriesMatchRepository,
     ): MetadataService {
-        val postProcessor = MetadataPostProcessor(config.postProcessing)
-
         return MetadataService(
             mediaServerClient = mediaServerClient,
             metadataProviders = metadataModule.metadataProviders,
@@ -265,7 +263,6 @@ class MediaServerModule(
             executor = metadataAggregationExecutor,
             metadataUpdateService = metadataUpdateService,
             seriesMatchRepository = seriesMatchRepository,
-            postProcessor = postProcessor
         )
     }
 
@@ -275,11 +272,14 @@ class MediaServerModule(
         seriesThumbnailsRepository: SeriesThumbnailsRepository,
         bookThumbnailsRepository: BookThumbnailsRepository,
     ): MetadataUpdateService {
+        val postProcessor = MetadataPostProcessor(config.postProcessing)
+
         return MetadataUpdateService(
             mediaServerClient = mediaServerClient,
             seriesThumbnailsRepository = seriesThumbnailsRepository,
             bookThumbnailsRepository = bookThumbnailsRepository,
             metadataUpdateMapper = updateMapper,
+            postProcessor = postProcessor,
             comicInfoWriter = metadataModule.comicInfoWriter,
 
             updateModes = config.updateModes,

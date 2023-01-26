@@ -25,6 +25,7 @@ class MetadataUpdateService(
     private val seriesThumbnailsRepository: SeriesThumbnailsRepository,
     private val bookThumbnailsRepository: BookThumbnailsRepository,
     private val metadataUpdateMapper: MetadataUpdateMapper,
+    private val postProcessor: MetadataPostProcessor,
     private val comicInfoWriter: ComicInfoWriter,
 
     private val updateModes: Set<UpdateMode>,
@@ -34,8 +35,9 @@ class MetadataUpdateService(
     private val requireMetadataRefresh = setOf(COMIC_INFO)
 
     fun updateMetadata(series: MediaServerSeries, metadata: SeriesAndBookMetadata) {
-        if (metadata.seriesMetadata != null) updateSeriesMetadata(series, metadata.seriesMetadata)
-        updateBookMetadata(metadata.bookMetadata, metadata.seriesMetadata)
+        val processedMetadata = postProcessor.process(metadata)
+        updateSeriesMetadata(series, metadata.seriesMetadata)
+        updateBookMetadata(unprocessedMetadata = metadata, processedMetadata = processedMetadata)
 
         if (updateModes.any { it in requireMetadataRefresh })
             mediaServerClient.refreshMetadata(series.id)
@@ -68,17 +70,23 @@ class MetadataUpdateService(
         }
     }
 
-    private fun updateBookMetadata(bookMetadata: Map<MediaServerBook, BookMetadata?>, seriesMetadata: SeriesMetadata?) {
-        val bookIdToWriteSeriesMetadata = bookToWriteSeriesMetadata(bookMetadata)
-        bookMetadata.forEach { (book, metadata) ->
-            updateBookMetadata(book, metadata, seriesMetadata, book.id == bookIdToWriteSeriesMetadata)
+    private fun updateBookMetadata(unprocessedMetadata: SeriesAndBookMetadata, processedMetadata: SeriesAndBookMetadata) {
+        val bookIdToWriteSeriesMetadata = bookToWriteSeriesMetadata(unprocessedMetadata.bookMetadata)
+
+        processedMetadata.bookMetadata.forEach { (book, metadata) ->
+            updateBookMetadata(
+                book,
+                metadata,
+                processedMetadata.seriesMetadata,
+                book.id == bookIdToWriteSeriesMetadata
+            )
         }
     }
 
     private fun updateBookMetadata(
         book: MediaServerBook,
         metadata: BookMetadata?,
-        seriesMeta: SeriesMetadata?,
+        seriesMeta: SeriesMetadata,
         writeSeriesMetadata: Boolean
     ) {
         updateModes.forEach { mode ->
@@ -89,8 +97,8 @@ class MetadataUpdateService(
 
                 COMIC_INFO -> {
                     if (book.deleted.not()) {
-                        if (writeSeriesMetadata) seriesMeta?.let {
-                            val comicInfo = metadataUpdateMapper.toSeriesComicInfo(it)
+                        if (writeSeriesMetadata) seriesMeta.let {
+                            val comicInfo = metadataUpdateMapper.toSeriesComicInfo(it, metadata)
                             comicInfoWriter.writeMetadata(Path.of(book.url), comicInfo)
                         }
                         else metadataUpdateMapper.toComicInfo(metadata, seriesMeta)
@@ -167,7 +175,6 @@ class MetadataUpdateService(
         resetSeriesMetadata(series)
     }
 
-
     private fun resetSeriesMetadata(series: MediaServerSeries) {
         mediaServerClient.resetSeriesMetadata(series.id, series.name)
 
@@ -195,7 +202,6 @@ class MetadataUpdateService(
                 .filter { (_, number) -> number.toInt() == 1 }
                 .map { (book, _) -> book.id }
                 .firstOrNull() ?: books.firstOrNull()?.id
-
         } else null
     }
 }

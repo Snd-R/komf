@@ -18,21 +18,18 @@ class MetadataPostProcessor(
         return SeriesAndBookMetadata(seriesMetadata, bookMetadata)
     }
 
-    private fun postProcessSeries(series: SeriesMetadata?): SeriesMetadata? {
-        val metadata = if (series == null && shouldCreateMetadata()) SeriesMetadata()
-        else series ?: return null
-
-        val seriesTitle = if (config.seriesTitle) seriesTitle(metadata.titles) ?: metadata.title else null
+    private fun postProcessSeries(series: SeriesMetadata): SeriesMetadata {
+        val seriesTitle = if (config.seriesTitle) seriesTitle(series.titles) ?: series.title else null
 
         val altTitles = if (config.alternativeSeriesTitles)
-            metadata.titles.filter { it.type != seriesTitle?.type }
+            series.titles.filter { it.type != seriesTitle?.type }
         else emptyList()
 
-        return metadata.copy(
+        return series.copy(
             title = seriesTitle,
             titles = altTitles,
-            readingDirection = config.readingDirectionValue ?: metadata.readingDirection,
-            language = config.languageValue ?: metadata.language,
+            readingDirection = config.readingDirectionValue ?: series.readingDirection,
+            language = config.languageValue ?: series.language,
         )
     }
 
@@ -52,8 +49,6 @@ class MetadataPostProcessor(
             numberSort = range?.start ?: metadata.numberSort
         )
     }
-
-    private fun shouldCreateMetadata() = config.languageValue != null || config.readingDirectionValue != null
 
     private fun seriesTitle(titles: Collection<SeriesTitle>): SeriesTitle? {
         val knownTitles = titles.filter { it.type != null }
