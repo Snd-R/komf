@@ -13,6 +13,7 @@ import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.providers.viz.model.VizBookId
 import org.snd.metadata.providers.viz.model.toSeriesSearchResult
+import org.snd.metadata.providers.viz.model.toVizSeriesBook
 
 class VizMetadataProvider(
     private val client: VizClient,
@@ -25,7 +26,9 @@ class VizMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = client.getBook(VizBookId(seriesId.id))
-        val books = client.getAllBooks(series.allBooksId)
+        val books = series.allBooksId
+            ?.let { client.getAllBooks(it) }
+            ?: listOf(series.toVizSeriesBook())
         val thumbnail = getThumbnail(series.coverUrl)
 
         return metadataMapper.toSeriesMetadata(series, books, thumbnail)
@@ -53,7 +56,9 @@ class VizMetadataProvider(
             .firstOrNull { nameMatcher.matches(seriesName, it.seriesName) }
             ?.let {
                 val firstBook = client.getBook(it.id)
-                val books = client.getAllBooks(firstBook.allBooksId)
+                val books = firstBook.allBooksId
+                    ?.let { id -> client.getAllBooks(id) }
+                    ?: listOf(firstBook.toVizSeriesBook())
                 val thumbnail = getThumbnail(firstBook.coverUrl)
                 metadataMapper.toSeriesMetadata(firstBook, books, thumbnail)
             }

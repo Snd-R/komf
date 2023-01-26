@@ -18,5 +18,14 @@ data class VizBook(
     val authorStory: String?,
     val authorArt: String?,
 
-    val allBooksId: VizAllBooksId,
+    val allBooksId: VizAllBooksId?,
+)
+
+fun VizBook.toVizSeriesBook() = VizSeriesBook(
+    id = id,
+    name = name,
+    seriesName = seriesName,
+    number = number,
+    imageUrl = null,
+    final = false //TODO
 )

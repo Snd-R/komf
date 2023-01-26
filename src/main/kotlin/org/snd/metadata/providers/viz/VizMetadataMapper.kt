@@ -52,7 +52,9 @@ class VizMetadataMapper(
             authors = getAuthors(book),
             thumbnail = thumbnail,
             releaseDate = book.releaseDate?.toReleaseDate(),
-            links = listOf(WebLink("Viz", vizBaseUrl + URLEncoder.encode(book.allBooksId.id, "UTF-8")))
+            links = book.allBooksId
+                ?.let { listOf(WebLink("Viz", vizBaseUrl + URLEncoder.encode(book.allBooksId.id, "UTF-8"))) }
+                ?: emptyList()
         )
 
         val providerMetadata = ProviderSeriesMetadata(

@@ -4,7 +4,10 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.snd.metadata.BookNameParser
-import org.snd.metadata.providers.viz.model.AgeRating.*
+import org.snd.metadata.providers.viz.model.AgeRating.ALL_AGES
+import org.snd.metadata.providers.viz.model.AgeRating.MATURE
+import org.snd.metadata.providers.viz.model.AgeRating.TEEN
+import org.snd.metadata.providers.viz.model.AgeRating.TEEN_PLUS
 import org.snd.metadata.providers.viz.model.VizAllBooksId
 import org.snd.metadata.providers.viz.model.VizBook
 import org.snd.metadata.providers.viz.model.VizBookId
@@ -87,7 +90,7 @@ class VizParser {
             ageRating = ageRating,
             authorStory = parseAuthor(authors, writerRoles),
             authorArt = parseAuthor(authors, artistRoles),
-            allBooksId = VizAllBooksId(parseLinkToAllBooks(titleElement))
+            allBooksId = parseLinkToAllBooks(titleElement)?.let { VizAllBooksId(it) }
         )
     }
 
@@ -119,10 +122,10 @@ class VizParser {
             }
     }
 
-    private fun parseLinkToAllBooks(titleElement: Element): String {
+    private fun parseLinkToAllBooks(titleElement: Element): String? {
         val titleLink = titleElement.getElementsByTag("a").first()
         val prefixLink = titleElement.previousElementSibling()?.let { if (it.tagName() != "a") null else it }
-        val link = (titleLink ?: prefixLink) ?: throw IllegalStateException("can't find link to all books")
+        val link = (titleLink ?: prefixLink) ?: return null
 
         return link
             .attr("href")
