@@ -102,10 +102,11 @@ class MetadataUpdateMapper {
         )
     }
 
-    fun toSeriesComicInfo(seriesMetadata: SeriesMetadata): ComicInfo {
+    fun toSeriesComicInfo(seriesMetadata: SeriesMetadata, bookMetadata: BookMetadata?): ComicInfo {
         val authors = seriesMetadata.authors
         return ComicInfo(
             series = seriesMetadata.title?.name,
+            number = bookMetadata?.number?.toString(),
             count = seriesMetadata.totalBookCount,
             summary = seriesMetadata.summary,
             year = seriesMetadata.releaseDate?.year,
