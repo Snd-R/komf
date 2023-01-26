@@ -26,7 +26,7 @@ class MangaUpdatesMetadataMapper(
             Status.ONGOING -> SeriesStatus.ONGOING
             Status.CANCELLED -> SeriesStatus.ABANDONED
             Status.HIATUS -> SeriesStatus.HIATUS
-            else -> SeriesStatus.ONGOING
+            else -> null
         }
 
         val artistRoles = listOf(

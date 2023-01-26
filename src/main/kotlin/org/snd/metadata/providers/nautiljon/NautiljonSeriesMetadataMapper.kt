@@ -43,9 +43,8 @@ class NautiljonSeriesMetadataMapper(
             "En attente" -> SeriesStatus.ONGOING
             "Abandonné" -> SeriesStatus.ABANDONED
             "Terminé" -> SeriesStatus.ENDED
-            else -> SeriesStatus.ONGOING
+            else -> null
         }
-
 
         val authors = series.authorsStory.map { Author(it, AuthorRole.WRITER) } +
                 series.authorsArt.flatMap { artist -> artistRoles.map { role -> Author(artist, role) } }

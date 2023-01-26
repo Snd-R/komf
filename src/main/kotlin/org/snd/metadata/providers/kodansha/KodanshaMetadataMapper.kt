@@ -33,7 +33,7 @@ class KodanshaMetadataMapper(
             ONGOING -> SeriesStatus.ONGOING
             COMPLETED -> SeriesStatus.ENDED
             COMPLETE -> SeriesStatus.ENDED
-            else -> SeriesStatus.ONGOING
+            else -> null
         }
         val metadata = SeriesMetadata(
             status = status,
