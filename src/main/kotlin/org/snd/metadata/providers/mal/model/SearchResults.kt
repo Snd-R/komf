@@ -2,6 +2,7 @@ package org.snd.metadata.providers.mal.model
 
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.providers.mal.model.Series.MalMediaType
 
 data class SearchResults(
     val results: List<SearchResult>,
@@ -12,7 +13,7 @@ data class SearchResult(
     val id: Int,
     val title: String,
     val alternativeTitles: AlternativeTitles,
-    val mediaType: String,
+    val mediaType: MalMediaType,
     val mainPicture: Picture?,
 )
 

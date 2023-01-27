@@ -245,7 +245,7 @@ class MetadataModule(
         val malMetadataMapper = MalMetadataMapper(config.seriesMetadata)
         val malSimilarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return MalMetadataProvider(client, malMetadataMapper, malSimilarityMatcher)
+        return MalMetadataProvider(client, malMetadataMapper, malSimilarityMatcher, config.mediaType)
     }
 
     private fun createMangaUpdatesMetadataProvider(
@@ -257,7 +257,7 @@ class MetadataModule(
         val mangaUpdatesMetadataMapper = MangaUpdatesMetadataMapper(config.seriesMetadata)
         val mangaUpdatesSimilarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return MangaUpdatesMetadataProvider(client, mangaUpdatesMetadataMapper, mangaUpdatesSimilarityMatcher)
+        return MangaUpdatesMetadataProvider(client, mangaUpdatesMetadataMapper, mangaUpdatesSimilarityMatcher, config.mediaType)
     }
 
     private fun createNautiljonMetadataProvider(config: ProviderConfig, client: NautiljonClient): NautiljonMetadataProvider? {
@@ -277,7 +277,7 @@ class MetadataModule(
         val metadataMapper = AniListMetadataMapper(config.seriesMetadata)
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return AniListMetadataProvider(client, metadataMapper, similarityMatcher)
+        return AniListMetadataProvider(client, metadataMapper, similarityMatcher, config.mediaType)
     }
 
     private fun createYenPressMetadataProvider(config: ProviderConfig, client: YenPressClient): YenPressMetadataProvider? {

@@ -6,6 +6,7 @@ import org.snd.metadata.providers.mal.model.AlternativeTitles
 import org.snd.metadata.providers.mal.model.Picture
 import org.snd.metadata.providers.mal.model.SearchResult
 import org.snd.metadata.providers.mal.model.SearchResults
+import org.snd.metadata.providers.mal.model.Series
 
 
 class SearchResultsJsonAdapter {
@@ -23,7 +24,7 @@ class SearchResultsJsonAdapter {
                     id = json.id,
                     title = json.title,
                     alternativeTitles = altTitles,
-                    mediaType = json.media_type,
+                    mediaType = Series.MalMediaType.valueOf(json.media_type.uppercase()),
                     mainPicture = json.main_picture?.let { pictureFromJson(it) },
                 )
             }

@@ -19,6 +19,7 @@ import org.snd.SearchQuery
 import org.snd.fragment.AniListManga
 import org.snd.infra.HttpException
 import org.snd.metadata.model.Image
+import org.snd.type.MediaFormat
 import java.io.IOException
 
 class AniListClient(
@@ -37,9 +38,15 @@ class AniListClient(
         .subscriptionNetworkTransport(HttpNetworkTransport.Builder().serverUrl("https://graphql.anilist.co").build())
         .build()
 
-    fun search(name: String, pageSize: Int = 10): List<SearchQuery.Medium> {
+    fun search(name: String, formats: List<MediaFormat>, pageSize: Int = 10): List<SearchQuery.Medium> {
         return runBlocking {
-            apolloClient.query(SearchQuery(search = name, pageSize))
+            apolloClient.query(
+                SearchQuery(
+                    search = name,
+                    perPage = pageSize,
+                    formats = formats
+                )
+            )
                 .toFlow()
                 .retry(retry)
                 .rateLimiter(rateLimit)

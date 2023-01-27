@@ -12,6 +12,7 @@ import org.snd.infra.MEDIA_TYPE_JSON
 import org.snd.metadata.model.Image
 import org.snd.metadata.providers.mangaupdates.model.SearchResultPage
 import org.snd.metadata.providers.mangaupdates.model.Series
+import org.snd.metadata.providers.mangaupdates.model.SeriesType
 
 class MangaUpdatesClient(
     private val client: HttpClient,
@@ -19,12 +20,18 @@ class MangaUpdatesClient(
 ) {
     private val baseUrl: HttpUrl = "https://api.mangaupdates.com/v1".toHttpUrl()
 
-    fun searchSeries(name: String, page: Int = 1, perPage: Int = 5): SearchResultPage {
+    fun searchSeries(
+        name: String,
+        types: Collection<SeriesType>,
+        page: Int = 1,
+        perPage: Int = 5,
+    ): SearchResultPage {
         val payload = moshi.adapter<Map<String, *>>().toJson(
             mapOf(
                 "search" to name,
                 "page" to page,
-                "perpage" to perPage
+                "perpage" to perPage,
+                "types" to types.map { it.value }
             )
         )
         val request = Request.Builder().url(

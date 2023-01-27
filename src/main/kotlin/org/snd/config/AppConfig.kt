@@ -8,6 +8,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import org.snd.mediaserver.UpdateMode
 import org.snd.mediaserver.UpdateMode.API
+import org.snd.metadata.MediaType
+import org.snd.metadata.MediaType.MANGA
 import org.snd.metadata.NameMatchingMode
 import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
 import org.snd.metadata.model.ReadingDirection
@@ -160,6 +162,7 @@ data class ProviderConfig(
     @EncodeDefault(NEVER) val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
     @EncodeDefault(NEVER) val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
     @EncodeDefault(NEVER) val nameMatchingMode: NameMatchingMode? = null,
+    @EncodeDefault(NEVER) val mediaType: MediaType = MANGA,
 )
 
 @Serializable

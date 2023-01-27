@@ -27,7 +27,7 @@ class SeriesJsonAdapter {
             nsfw = json.nsfw?.let { NSFW.valueOf(it.uppercase()) },
             startDate = json.start_date,
             endDate = json.end_date,
-            mediaType = Series.MediaType.valueOf(json.media_type.uppercase()),
+            mediaType = Series.MalMediaType.valueOf(json.media_type.uppercase()),
             numVolumes = json.num_volumes,
             numChapters = json.num_chapters,
             mean = json.mean,

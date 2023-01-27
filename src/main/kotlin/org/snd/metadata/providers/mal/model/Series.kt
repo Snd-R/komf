@@ -19,7 +19,7 @@ data class Series(
     val startDate: String? = null,
     val endDate: String? = null,
 
-    val mediaType: MediaType,
+    val mediaType: MalMediaType,
     val numVolumes: Int,
     val numChapters: Int,
 
@@ -32,7 +32,7 @@ data class Series(
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime,
 ) {
-    enum class MediaType {
+    enum class MalMediaType {
         UNKNOWN,
         MANGA,
         NOVEL,
