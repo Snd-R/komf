@@ -36,7 +36,9 @@ class MangaUpdatesSeriesJsonAdapter {
                     votesMinus = it.votes_minus
                 )
             } ?: emptyList(),
-            authors = json.authors?.map { Author(id = it.author_id, name = unescapeHtml4(it.name), type = unescapeHtml4(it.type)) } ?: emptyList(),
+            authors = json.authors
+                ?.map { Author(id = it.author_id, name = unescapeHtml4(it.name), type = unescapeHtml4(it.type)) }
+                ?: emptyList(),
             year = json.year?.let { year ->
                 year.replace("-[0-9]+$".toRegex(), "")
                     .toIntOrNull()?.let { Year.of(it) }
@@ -65,10 +67,14 @@ class MangaUpdatesSeriesJsonAdapter {
 
     private fun status(status: String?): Status? {
         return status?.let {
-            "\\(.*\\)".toRegex().find(status)?.value?.removeSurrounding("(", ")")?.let {
-                runCatching { Status.valueOf(it.uppercase()) }
-                    .getOrNull()
-            }
+            val groups = "\\((.*?)\\)".toRegex().findAll(status)
+                .mapNotNull { it.groups[1]?.value }
+                .toList()
+
+            if (groups.isNotEmpty() && groups.all { it.contains(groups[0]) })
+                runCatching { Status.valueOf(groups[0].uppercase()) }.getOrNull()
+            else null
+
         }
     }
 
