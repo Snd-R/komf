@@ -1,6 +1,7 @@
 package org.snd.metadata.providers.bookwalker
 
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import org.snd.metadata.MediaType
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Image
@@ -13,6 +14,8 @@ import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
+import org.snd.metadata.providers.bookwalker.model.BookWalkerCategory.LIGHT_NOVELS
+import org.snd.metadata.providers.bookwalker.model.BookWalkerCategory.MANGA
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSearchResult
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
@@ -22,7 +25,10 @@ class BookWalkerMetadataProvider(
     private val client: BookWalkerClient,
     private val metadataMapper: BookWalkerMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    mediaType: MediaType,
 ) : MetadataProvider {
+    private val category = if (mediaType == MediaType.MANGA) MANGA else LIGHT_NOVELS
+
     override fun providerName(): Provider = BOOK_WALKER
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
@@ -40,14 +46,14 @@ class BookWalkerMetadataProvider(
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val searchResults = client.searchSeries(seriesName.take(100)).take(limit)
+        val searchResults = client.searchSeries(seriesName.take(100), category).take(limit)
         return searchResults.mapNotNull {
             getSeriesId(it)?.let { seriesId -> it.toSeriesSearchResult(seriesId) }
         }
     }
 
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
-        val searchResults = client.searchSeries(seriesName.take(100))
+        val searchResults = client.searchSeries(seriesName.take(100), category)
 
         return searchResults
             .firstOrNull { nameMatcher.matches(seriesName, it.seriesName) }

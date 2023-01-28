@@ -9,6 +9,7 @@ import org.snd.metadata.model.Image
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookListPage
+import org.snd.metadata.providers.bookwalker.model.BookWalkerCategory
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSearchResult
 import org.snd.metadata.providers.bookwalker.model.BookWalkerSeriesId
 
@@ -20,11 +21,11 @@ class BookWalkerClient(
     private val baseUrl = bookWalkerBaseUrl.toHttpUrl()
     private val parser = BookWalkerParser()
 
-    fun searchSeries(name: String): Collection<BookWalkerSearchResult> {
+    fun searchSeries(name: String, category: BookWalkerCategory): Collection<BookWalkerSearchResult> {
         val request = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments("search/")
                 .addQueryParameter("word", name)
-                .addQueryParameter("qcat", "2")
+                .addQueryParameter("qcat", category.number.toString())
                 .addQueryParameter("np", "0")
                 .build()
         ).build()

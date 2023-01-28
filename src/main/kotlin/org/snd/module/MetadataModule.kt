@@ -316,7 +316,7 @@ class MetadataModule(
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
 
-        return BookWalkerMetadataProvider(client, bookWalkerMapper, similarityMatcher)
+        return BookWalkerMetadataProvider(client, bookWalkerMapper, similarityMatcher, config.mediaType)
     }
 
     class MetadataProviders(

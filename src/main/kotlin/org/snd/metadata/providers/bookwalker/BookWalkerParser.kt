@@ -122,7 +122,7 @@ class BookWalkerParser {
     }
 
     private fun parseSeriesName(name: String): String {
-        return name.replace("( \\(?Manga\\)?)+$".toRegex(), "")
+        return name.replace("\\(?(Manga|Light Novels)\\)?$".toRegex(), "")
     }
 
     private fun getSearchResultThumbnail(result: Element): String? {
