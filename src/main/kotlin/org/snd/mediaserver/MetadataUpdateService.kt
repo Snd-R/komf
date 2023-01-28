@@ -36,7 +36,7 @@ class MetadataUpdateService(
 
     fun updateMetadata(series: MediaServerSeries, metadata: SeriesAndBookMetadata) {
         val processedMetadata = postProcessor.process(metadata)
-        updateSeriesMetadata(series, metadata.seriesMetadata)
+        updateSeriesMetadata(series, processedMetadata.seriesMetadata)
         updateBookMetadata(unprocessedMetadata = metadata, processedMetadata = processedMetadata)
 
         if (updateModes.any { it in requireMetadataRefresh })
