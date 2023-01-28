@@ -167,8 +167,14 @@ class MetadataModule(
     }
 
     private fun createAnilistClient(): AniListClient {
+        val okHttpClient = okHttpClient.newBuilder()
+            .addInterceptor(HttpLoggingInterceptor { message ->
+                KotlinLogging.logger {}.debug { message }
+            }.setLevel(HttpLoggingInterceptor.Level.BASIC))
+            .build()
+
         return AniListClient(
-            okHttpClient = okHttpClient.newBuilder().build(),
+            okHttpClient = okHttpClient,
             name = "AniList",
             rateLimiterConfig = RateLimiterConfig.custom()
                 .limitRefreshPeriod(Duration.ofSeconds(5))

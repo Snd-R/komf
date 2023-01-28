@@ -132,7 +132,7 @@ class MetadataUpdateService(
             mediaServerClient.uploadBookThumbnail(
                 bookId = bookId,
                 thumbnail = thumbnail,
-                selected = thumbnails.all { it.type == "GENERATED" || it.id == existingMatch?.thumbnailId }
+                selected = true
             )
         }
 
@@ -153,7 +153,7 @@ class MetadataUpdateService(
             mediaServerClient.uploadSeriesThumbnail(
                 seriesId = seriesId,
                 thumbnail = thumbnail,
-                selected = thumbnails.isEmpty()
+                selected = true
             )
         }
 
