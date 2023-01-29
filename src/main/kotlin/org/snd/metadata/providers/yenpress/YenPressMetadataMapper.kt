@@ -72,7 +72,7 @@ class YenPressMetadataMapper(
             startChapter = null,
             endChapter = null,
             thumbnail = thumbnail,
-            links = listOf(WebLink("YenPress", yenPressBaseUrl + book.id))
+            links = listOf(WebLink("YenPress", yenPressBaseUrl + book.id.id))
         )
 
         val providerMetadata = ProviderBookMetadata(

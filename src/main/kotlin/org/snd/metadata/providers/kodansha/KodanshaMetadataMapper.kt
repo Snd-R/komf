@@ -77,7 +77,7 @@ class KodanshaMetadataMapper(
             tags = book.tags.toSet(),
             isbn = book.eisbn ?: book.isbn,
             thumbnail = thumbnail,
-            links = listOf(WebLink("Kodansha", kodanshaBaseUrl + "volume/${book.id}"))
+            links = listOf(WebLink("Kodansha", kodanshaBaseUrl + "volume/${book.id.id}"))
         )
 
         val providerMetadata = ProviderBookMetadata(
