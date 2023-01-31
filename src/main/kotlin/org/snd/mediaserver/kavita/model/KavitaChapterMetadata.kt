@@ -1,9 +1,9 @@
 package org.snd.mediaserver.kavita.model
 
 import com.squareup.moshi.JsonClass
+import org.snd.mediaserver.model.DefaultAuthorRoles
 import org.snd.mediaserver.model.MediaServerAuthor
 import org.snd.mediaserver.model.MediaServerBookMetadata
-import org.snd.metadata.model.AuthorRole
 
 @JsonClass(generateAdapter = true)
 data class KavitaChapterMetadata(
@@ -35,14 +35,14 @@ data class KavitaChapterMetadata(
 )
 
 fun KavitaChapterMetadata.mediaServerBookMetadata(chapter: KavitaChapter): MediaServerBookMetadata {
-    val authors = writers.map { MediaServerAuthor(it.name, AuthorRole.WRITER.name) } +
-            coverArtists.map { MediaServerAuthor(it.name, AuthorRole.COVER.name) } +
-            pencillers.map { MediaServerAuthor(it.name, AuthorRole.PENCILLER.name) } +
-            letterers.map { MediaServerAuthor(it.name, AuthorRole.LETTERER.name) } +
-            inkers.map { MediaServerAuthor(it.name, AuthorRole.INKER.name) } +
-            colorists.map { MediaServerAuthor(it.name, AuthorRole.COLORIST.name) } +
-            editors.map { MediaServerAuthor(it.name, AuthorRole.EDITOR.name) } +
-            translators.map { MediaServerAuthor(it.name, AuthorRole.TRANSLATOR.name) }
+    val authors = writers.map { MediaServerAuthor(it.name, DefaultAuthorRoles.WRITER.name) } +
+            coverArtists.map { MediaServerAuthor(it.name, DefaultAuthorRoles.COVER.name) } +
+            pencillers.map { MediaServerAuthor(it.name, DefaultAuthorRoles.PENCILLER.name) } +
+            letterers.map { MediaServerAuthor(it.name, DefaultAuthorRoles.LETTERER.name) } +
+            inkers.map { MediaServerAuthor(it.name, DefaultAuthorRoles.INKER.name) } +
+            colorists.map { MediaServerAuthor(it.name, DefaultAuthorRoles.COLORIST.name) } +
+            editors.map { MediaServerAuthor(it.name, DefaultAuthorRoles.EDITOR.name) } +
+            translators.map { MediaServerAuthor(it.name, DefaultAuthorRoles.TRANSLATOR.name) }
 
     return MediaServerBookMetadata(
         title = title,

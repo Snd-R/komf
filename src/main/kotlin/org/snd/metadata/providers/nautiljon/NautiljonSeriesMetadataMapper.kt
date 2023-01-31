@@ -4,7 +4,6 @@ import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
-import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.BookRange
 import org.snd.metadata.model.Image
@@ -28,14 +27,9 @@ import java.net.URLEncoder
 class NautiljonSeriesMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
     private val bookMetadataConfig: BookMetadataConfig,
+    private val authorRoles: Collection<String>,
+    private val artistRoles: Collection<String>,
 ) {
-    private val artistRoles = listOf(
-        AuthorRole.PENCILLER,
-        AuthorRole.INKER,
-        AuthorRole.COLORIST,
-        AuthorRole.LETTERER,
-        AuthorRole.COVER
-    )
 
     fun toSeriesMetadata(series: Series, thumbnail: Image? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
@@ -46,8 +40,11 @@ class NautiljonSeriesMetadataMapper(
             else -> null
         }
 
-        val authors = series.authorsStory.map { Author(it, AuthorRole.WRITER) } +
-                series.authorsArt.flatMap { artist -> artistRoles.map { role -> Author(artist, role) } }
+        val authors = series.authorsStory.flatMap { author ->
+            authorRoles.map { role -> Author(author, role) }
+        } + series.authorsArt.flatMap { artist ->
+            artistRoles.map { role -> Author(artist, role) }
+        }
 
         val tags = series.themes + listOfNotNull(
             seriesMetadataConfig.originalPublisherTagName
@@ -101,8 +98,11 @@ class NautiljonSeriesMetadataMapper(
     }
 
     fun toBookMetadata(volume: Volume, thumbnail: Image? = null): ProviderBookMetadata {
-        val authors = volume.authorsStory.map { Author(it, AuthorRole.WRITER) } +
-                volume.authorsArt.flatMap { artist -> artistRoles.map { role -> Author(artist, role) } }
+        val authors = volume.authorsStory.flatMap { author ->
+            authorRoles.map { role -> Author(author, role) }
+        } + volume.authorsArt.flatMap { artist ->
+            artistRoles.map { role -> Author(artist, role) }
+        }
 
         val metadata = BookMetadata(
             summary = volume.description,

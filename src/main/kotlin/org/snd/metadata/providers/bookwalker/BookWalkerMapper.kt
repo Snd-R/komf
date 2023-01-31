@@ -4,7 +4,6 @@ import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
-import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.ProviderBookId
@@ -27,14 +26,9 @@ import java.net.URLEncoder
 class BookWalkerMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
     private val bookMetadataConfig: BookMetadataConfig,
+    private val authorRoles: Collection<String>,
+    private val artistRoles: Collection<String>,
 ) {
-    private val artistRoles = listOf(
-        AuthorRole.PENCILLER,
-        AuthorRole.INKER,
-        AuthorRole.COLORIST,
-        AuthorRole.LETTERER,
-        AuthorRole.COVER
-    )
 
     fun toSeriesMetadata(
         seriesId: BookWalkerSeriesId,
@@ -114,7 +108,7 @@ class BookWalkerMapper(
 
     private fun getAuthors(book: BookWalkerBook): List<Author> {
         val artists = book.artists.flatMap { name -> artistRoles.map { role -> Author(name, role) } }
-        val authors = book.authors.map { name -> Author(name, AuthorRole.WRITER) }
+        val authors = book.authors.flatMap { name -> authorRoles.map { role -> Author(name, role) } }
         return artists + authors
     }
 }

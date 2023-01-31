@@ -1,10 +1,17 @@
 package org.snd.mediaserver.kavita.model
 
 import com.squareup.moshi.JsonClass
+import org.snd.mediaserver.model.DefaultAuthorRoles
+import org.snd.mediaserver.model.DefaultAuthorRoles.COLORIST
+import org.snd.mediaserver.model.DefaultAuthorRoles.COVER
+import org.snd.mediaserver.model.DefaultAuthorRoles.EDITOR
+import org.snd.mediaserver.model.DefaultAuthorRoles.INKER
+import org.snd.mediaserver.model.DefaultAuthorRoles.LETTERER
+import org.snd.mediaserver.model.DefaultAuthorRoles.PENCILLER
+import org.snd.mediaserver.model.DefaultAuthorRoles.TRANSLATOR
 import org.snd.mediaserver.model.MediaServerAlternativeTitle
 import org.snd.mediaserver.model.MediaServerAuthor
 import org.snd.mediaserver.model.MediaServerSeriesMetadata
-import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.SeriesStatus
 
 @JsonClass(generateAdapter = true)
@@ -91,14 +98,14 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         KavitaPublicationStatus.CANCELLED -> SeriesStatus.ABANDONED
         KavitaPublicationStatus.ENDED -> SeriesStatus.ENDED
     }
-    val authors = writers.map { MediaServerAuthor(it.name, AuthorRole.WRITER.name) } +
-            coverArtists.map { MediaServerAuthor(it.name, AuthorRole.COVER.name) } +
-            pencillers.map { MediaServerAuthor(it.name, AuthorRole.PENCILLER.name) } +
-            letterers.map { MediaServerAuthor(it.name, AuthorRole.LETTERER.name) } +
-            inkers.map { MediaServerAuthor(it.name, AuthorRole.INKER.name) } +
-            colorists.map { MediaServerAuthor(it.name, AuthorRole.COLORIST.name) } +
-            editors.map { MediaServerAuthor(it.name, AuthorRole.EDITOR.name) } +
-            translators.map { MediaServerAuthor(it.name, AuthorRole.TRANSLATOR.name) }
+    val authors = writers.map { MediaServerAuthor(it.name, DefaultAuthorRoles.WRITER.name) } +
+            coverArtists.map { MediaServerAuthor(it.name, COVER.name) } +
+            pencillers.map { MediaServerAuthor(it.name, PENCILLER.name) } +
+            letterers.map { MediaServerAuthor(it.name, LETTERER.name) } +
+            inkers.map { MediaServerAuthor(it.name, INKER.name) } +
+            colorists.map { MediaServerAuthor(it.name, COLORIST.name) } +
+            editors.map { MediaServerAuthor(it.name, EDITOR.name) } +
+            translators.map { MediaServerAuthor(it.name, TRANSLATOR.name) }
 
     val authorsLock = sequenceOf(
         writersLocked,

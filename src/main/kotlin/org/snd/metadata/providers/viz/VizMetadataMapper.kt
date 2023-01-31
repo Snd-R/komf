@@ -4,12 +4,6 @@ import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
-import org.snd.metadata.model.AuthorRole.COLORIST
-import org.snd.metadata.model.AuthorRole.COVER
-import org.snd.metadata.model.AuthorRole.INKER
-import org.snd.metadata.model.AuthorRole.LETTERER
-import org.snd.metadata.model.AuthorRole.PENCILLER
-import org.snd.metadata.model.AuthorRole.WRITER
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.ProviderBookId
@@ -30,14 +24,9 @@ import java.net.URLEncoder
 class VizMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
     private val bookMetadataConfig: BookMetadataConfig,
+    private val authorRoles: Collection<String>,
+    private val artistRoles: Collection<String>,
 ) {
-    private val artistRoles = listOf(
-        PENCILLER,
-        INKER,
-        COLORIST,
-        LETTERER,
-        COVER
-    )
 
     fun toSeriesMetadata(book: VizBook, allBooks: Collection<VizSeriesBook>, thumbnail: Image? = null): ProviderSeriesMetadata {
         val metadata = SeriesMetadata(
@@ -99,7 +88,9 @@ class VizMetadataMapper(
         val authorsArt = book.authorArt?.let { name ->
             artistRoles.map { role -> Author(name, role) }
         } ?: emptyList()
-        val authorStory = book.authorStory?.let { name -> Author(name, WRITER) }
-        return authorStory?.let { authorsArt + it } ?: authorsArt
+        val authorStory = book.authorStory?.let { name ->
+            authorRoles.map { role -> Author(name, role) }
+        } ?: emptyList()
+        return authorsArt + authorStory
     }
 }

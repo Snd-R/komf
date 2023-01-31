@@ -3,7 +3,6 @@ package org.snd.metadata.providers.mangaupdates
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
-import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
@@ -17,7 +16,9 @@ import org.snd.metadata.providers.mangaupdates.model.Series
 import org.snd.metadata.providers.mangaupdates.model.Status
 
 class MangaUpdatesMetadataMapper(
-    private val metadataConfig: SeriesMetadataConfig
+    private val metadataConfig: SeriesMetadataConfig,
+    private val authorRoles: Collection<String>,
+    private val artistRoles: Collection<String>,
 ) {
 
     fun toSeriesMetadata(series: Series, thumbnail: Image? = null): ProviderSeriesMetadata {
@@ -29,17 +30,9 @@ class MangaUpdatesMetadataMapper(
             else -> null
         }
 
-        val artistRoles = listOf(
-            AuthorRole.PENCILLER,
-            AuthorRole.INKER,
-            AuthorRole.COLORIST,
-            AuthorRole.LETTERER,
-            AuthorRole.COVER
-        )
-
         val authors = series.authors.flatMap {
             when (it.type) {
-                "Author" -> listOf(Author(it.name, AuthorRole.WRITER))
+                "Author" -> authorRoles.map { role -> Author(it.name, role) }
                 else -> artistRoles.map { role -> Author(it.name, role) }
             }
         }

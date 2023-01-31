@@ -2,5 +2,5 @@ package org.snd.metadata.model
 
 data class Author(
     val name: String,
-    val role: AuthorRole
+    val role: String
 )

@@ -248,7 +248,11 @@ class MetadataModule(
     ): MalMetadataProvider? {
         if (config.enabled.not()) return null
 
-        val malMetadataMapper = MalMetadataMapper(config.seriesMetadata)
+        val malMetadataMapper = MalMetadataMapper(
+            metadataConfig = config.seriesMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
         val malSimilarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
         return MalMetadataProvider(client, malMetadataMapper, malSimilarityMatcher, config.mediaType)
@@ -260,7 +264,11 @@ class MetadataModule(
     ): MangaUpdatesMetadataProvider? {
         if (config.enabled.not()) return null
 
-        val mangaUpdatesMetadataMapper = MangaUpdatesMetadataMapper(config.seriesMetadata)
+        val mangaUpdatesMetadataMapper = MangaUpdatesMetadataMapper(
+            metadataConfig = config.seriesMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
         val mangaUpdatesSimilarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
         return MangaUpdatesMetadataProvider(client, mangaUpdatesMetadataMapper, mangaUpdatesSimilarityMatcher, config.mediaType)
@@ -269,8 +277,10 @@ class MetadataModule(
     private fun createNautiljonMetadataProvider(config: ProviderConfig, client: NautiljonClient): NautiljonMetadataProvider? {
         if (config.enabled.not()) return null
         val seriesMetadataMapper = NautiljonSeriesMetadataMapper(
-            config.seriesMetadata,
-            config.bookMetadata,
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
         )
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
@@ -280,7 +290,11 @@ class MetadataModule(
     private fun createAnilistMetadataProvider(config: ProviderConfig, client: AniListClient): AniListMetadataProvider? {
         if (config.enabled.not()) return null
 
-        val metadataMapper = AniListMetadataMapper(config.seriesMetadata)
+        val metadataMapper = AniListMetadataMapper(
+            metadataConfig = config.seriesMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
         return AniListMetadataProvider(client, metadataMapper, similarityMatcher, config.mediaType)
@@ -308,7 +322,12 @@ class MetadataModule(
     private fun createVizMetadataProvider(config: ProviderConfig, client: VizClient): VizMetadataProvider? {
         if (config.enabled.not()) return null
 
-        val metadataMapper = VizMetadataMapper(config.seriesMetadata, config.bookMetadata)
+        val metadataMapper = VizMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
 
@@ -318,7 +337,12 @@ class MetadataModule(
     private fun createBookWalkerMetadataProvider(config: ProviderConfig, client: BookWalkerClient): BookWalkerMetadataProvider? {
         if (config.enabled.not()) return null
 
-        val bookWalkerMapper = BookWalkerMapper(config.seriesMetadata, config.bookMetadata)
+        val bookWalkerMapper = BookWalkerMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
 

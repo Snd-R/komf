@@ -3,7 +3,6 @@ package org.snd.metadata.providers.mal
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
-import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.ProviderSeriesMetadata
@@ -21,6 +20,8 @@ import java.time.LocalDate
 
 class MalMetadataMapper(
     private val metadataConfig: SeriesMetadataConfig,
+    private val authorRoles: Collection<String>,
+    private val artistRoles: Collection<String>,
 ) {
     private val mangaBaseUrl = "https://myanimelist.net/manga/"
 
@@ -32,31 +33,23 @@ class MalMetadataMapper(
             Series.Status.ON_HIATUS -> SeriesStatus.HIATUS
             Series.Status.DISCONTINUED -> SeriesStatus.ABANDONED
         }
-        val artistRoles = listOf(
-            AuthorRole.PENCILLER,
-            AuthorRole.INKER,
-            AuthorRole.COLORIST,
-            AuthorRole.LETTERER,
-            AuthorRole.COVER
-        )
 
         val authors = series.authors.flatMap { author ->
             when (author.role) {
                 "Art" -> {
-                    artistRoles.map { role -> Author("${author.firstName} ${author.lastName}".trim(), role) }
+                    artistRoles.map { role -> Author("${author.firstName} ${author.lastName}", role) }
                 }
 
                 "Story" -> {
-                    listOf(Author("${author.firstName} ${author.lastName}".trim(), AuthorRole.WRITER))
+                    authorRoles.map { role -> Author("${author.firstName} ${author.lastName}", role) }
                 }
 
                 "Story & Art" -> {
                     artistRoles.map { role ->
-                        Author(
-                            "${author.firstName} ${author.lastName}".trim(),
-                            role
-                        )
-                    } + Author("${author.firstName} ${author.lastName}".trim(), AuthorRole.WRITER)
+                        Author("${author.firstName} ${author.lastName}", role)
+                    } + authorRoles.map { role ->
+                        Author("${author.firstName} ${author.lastName}", role)
+                    }
                 }
 
                 else -> emptyList()

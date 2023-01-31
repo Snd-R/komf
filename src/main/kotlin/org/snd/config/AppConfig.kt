@@ -163,6 +163,9 @@ data class ProviderConfig(
     @EncodeDefault(NEVER) val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
     @EncodeDefault(NEVER) val nameMatchingMode: NameMatchingMode? = null,
     @EncodeDefault(NEVER) val mediaType: MediaType = MANGA,
+
+    @EncodeDefault(NEVER) val authorRoles: Collection<String> = listOf("Writer"),
+    @EncodeDefault(NEVER) val artistRoles: Collection<String> = listOf("Penciller", "Inker", "Colorist", "Letterer", "Cover"),
 )
 
 @Serializable

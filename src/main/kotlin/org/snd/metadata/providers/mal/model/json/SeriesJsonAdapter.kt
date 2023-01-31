@@ -63,8 +63,8 @@ class SeriesJsonAdapter {
     private fun authorFromJson(json: AuthorJson): Author {
         return Author(
             id = json.node.id,
-            firstName = json.node.first_name,
-            lastName = json.node.last_name,
+            firstName = json.node.first_name.trim(),
+            lastName = json.node.last_name.trim(),
             role = json.role
         )
     }
