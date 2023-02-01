@@ -31,7 +31,7 @@ class MangaUpdatesClient(
                 "search" to name,
                 "page" to page,
                 "perpage" to perPage,
-                "types" to types.map { it.value }
+                "type" to types.map { it.value }
             )
         )
         val request = Request.Builder().url(

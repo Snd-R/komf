@@ -66,7 +66,7 @@ class MangaUpdatesMetadataProvider(
         val searchResults = client.searchSeries(seriesName.take(400), seriesTypes).results
 
         return searchResults
-            .firstOrNull { nameMatcher.matches(seriesName, it.title) }
+            .firstOrNull { nameMatcher.matches(seriesName, it.title.removeSuffix(" (Novel)")) }
             ?.let {
                 val series = client.getSeries(it.id)
                 val thumbnail = client.getThumbnail(series)

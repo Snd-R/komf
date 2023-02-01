@@ -20,7 +20,7 @@ class MangaUpdatesSeriesJsonAdapter {
     fun fromJson(json: SeriesJson): Series {
         return Series(
             id = json.series_id,
-            title = unescapeHtml4(json.title),
+            title = unescapeHtml4(json.title).removeSuffix(" (Novel)"),
             description = json.description?.let { parseDescription(it) },
             type = type(json.type),
             associatedNames = json.associated.map { unescapeHtml4(it.title) },
