@@ -1,22 +1,22 @@
 package org.snd.metadata
 
-import org.apache.commons.text.similarity.JaroWinklerSimilarity
+import org.apache.commons.text.similarity.LevenshteinDistance
 import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
 import org.snd.metadata.NameMatchingMode.EXACT
 
 class NameSimilarityMatcher private constructor(
     mode: NameMatchingMode
 ) {
-    private val similarity = JaroWinklerSimilarity()
-    private val similarityThreshold = if (mode == EXACT) 1.0 else 0.9
+    private val levenshteinDistance = LevenshteinDistance.getDefaultInstance()
+    private val distanceThreshold = if (mode == EXACT) 0 else 3
 
     fun matches(name: String, namesToMatch: Collection<String>): Boolean {
         return namesToMatch.map { matches(name, it) }.any { it }
     }
 
     fun matches(name: String, nameToMatch: String): Boolean {
-        val similarity = similarity.apply(name.uppercase(), nameToMatch.uppercase())
-        return similarity >= similarityThreshold
+        val distance = levenshteinDistance.apply(name.uppercase(), nameToMatch.uppercase())
+        return distance <= distanceThreshold
     }
 
     companion object {
@@ -29,6 +29,5 @@ class NameSimilarityMatcher private constructor(
                 CLOSEST_MATCH -> CLOSEST_MATCH_MATCHER
             }
         }
-
     }
 }
