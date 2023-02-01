@@ -1,6 +1,6 @@
-package org.snd.mediaserver.model
+package org.snd.metadata.model
 
-enum class DefaultAuthorRoles {
+enum class AuthorRole {
     WRITER,
     PENCILLER,
     INKER,

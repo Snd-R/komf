@@ -1,13 +1,5 @@
 package org.snd.mediaserver
 
-import org.snd.mediaserver.model.DefaultAuthorRoles.COLORIST
-import org.snd.mediaserver.model.DefaultAuthorRoles.COVER
-import org.snd.mediaserver.model.DefaultAuthorRoles.EDITOR
-import org.snd.mediaserver.model.DefaultAuthorRoles.INKER
-import org.snd.mediaserver.model.DefaultAuthorRoles.LETTERER
-import org.snd.mediaserver.model.DefaultAuthorRoles.PENCILLER
-import org.snd.mediaserver.model.DefaultAuthorRoles.TRANSLATOR
-import org.snd.mediaserver.model.DefaultAuthorRoles.WRITER
 import org.snd.mediaserver.model.MediaServerAuthor
 import org.snd.mediaserver.model.MediaServerBook
 import org.snd.mediaserver.model.MediaServerBookMetadataUpdate
@@ -15,6 +7,14 @@ import org.snd.mediaserver.model.MediaServerSeriesMetadata
 import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
 import org.snd.metadata.comicinfo.model.AgeRating
 import org.snd.metadata.comicinfo.model.ComicInfo
+import org.snd.metadata.model.AuthorRole.COLORIST
+import org.snd.metadata.model.AuthorRole.COVER
+import org.snd.metadata.model.AuthorRole.EDITOR
+import org.snd.metadata.model.AuthorRole.INKER
+import org.snd.metadata.model.AuthorRole.LETTERER
+import org.snd.metadata.model.AuthorRole.PENCILLER
+import org.snd.metadata.model.AuthorRole.TRANSLATOR
+import org.snd.metadata.model.AuthorRole.WRITER
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.SeriesMetadata
 
@@ -27,7 +27,7 @@ class MetadataUpdateMapper {
     ): MediaServerBookMetadataUpdate {
         return with(book.metadata) {
             val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors } ?: seriesMetadata?.authors?.ifEmpty { null })
-                ?.map { author -> MediaServerAuthor(author.name, author.role) }
+                ?.map { author -> MediaServerAuthor(author.name, author.role.name) }
 
             MediaServerBookMetadataUpdate(
                 summary = getIfNotLockedOrEmpty(bookMetadata?.summary, summaryLock),
@@ -44,7 +44,7 @@ class MetadataUpdateMapper {
 
     fun toSeriesMetadataUpdate(patch: SeriesMetadata, metadata: MediaServerSeriesMetadata): MediaServerSeriesMetadataUpdate =
         with(metadata) {
-            val authors = (patch.authors.map { MediaServerAuthor(it.name, it.role) }.ifEmpty { null })
+            val authors = (patch.authors.map { MediaServerAuthor(it.name, it.role.name) }.ifEmpty { null })
 
             MediaServerSeriesMetadataUpdate(
                 status = getIfNotLockedOrEmpty(patch.status, statusLock),
@@ -78,29 +78,21 @@ class MetadataUpdateMapper {
             year = bookMetadata?.releaseDate?.year,
             month = bookMetadata?.releaseDate?.monthValue,
             day = bookMetadata?.releaseDate?.dayOfMonth,
-            writer = authors
-                ?.filter { it.role.equals(WRITER.name, true) }
+            writer = authors?.filter { it.role == WRITER }
                 ?.joinToString(",") { it.name },
-            penciller = authors
-                ?.filter { it.role.equals(PENCILLER.name, true) }
+            penciller = authors?.filter { it.role == PENCILLER }
                 ?.joinToString(",") { it.name },
-            inker = authors
-                ?.filter { it.role.equals(INKER.name, true) }
+            inker = authors?.filter { it.role == INKER }
                 ?.joinToString(",") { it.name },
-            colorist = authors
-                ?.filter { it.role.equals(COLORIST.name, true) }
+            colorist = authors?.filter { it.role == COLORIST }
                 ?.joinToString(",") { it.name },
-            letterer = authors
-                ?.filter { it.role.equals(LETTERER.name, true) }
+            letterer = authors?.filter { it.role == LETTERER }
                 ?.joinToString(",") { it.name },
-            coverArtist = authors
-                ?.filter { it.role.equals(COVER.name, true) }
+            coverArtist = authors?.filter { it.role == COVER }
                 ?.joinToString(",") { it.name },
-            editor = authors
-                ?.filter { it.role.equals(EDITOR.name, true) }
+            editor = authors?.filter { it.role == EDITOR }
                 ?.joinToString(",") { it.name },
-            translator = authors
-                ?.filter { it.role.equals(TRANSLATOR.name, true) }
+            translator = authors?.filter { it.role == TRANSLATOR }
                 ?.joinToString(",") { it.name },
             publisher = seriesMetadata?.publisher,
             genre = seriesMetadata?.genres?.joinToString(","),
@@ -128,29 +120,21 @@ class MetadataUpdateMapper {
             year = seriesMetadata.releaseDate?.year,
             month = seriesMetadata.releaseDate?.month,
             day = seriesMetadata.releaseDate?.day,
-            writer = authors
-                .filter { it.role.equals(WRITER.name, true) }
+            writer = authors.filter { it.role == WRITER }
                 .joinToString(",") { it.name },
-            penciller = authors
-                .filter { it.role.equals(PENCILLER.name, true) }
+            penciller = authors.filter { it.role == PENCILLER }
                 .joinToString(",") { it.name },
-            inker = authors
-                .filter { it.role.equals(INKER.name, true) }
+            inker = authors.filter { it.role == INKER }
                 .joinToString(",") { it.name },
-            colorist = authors
-                .filter { it.role.equals(COLORIST.name, true) }
+            colorist = authors.filter { it.role == COLORIST }
                 .joinToString(",") { it.name },
-            letterer = authors
-                .filter { it.role.equals(LETTERER.name, true) }
+            letterer = authors.filter { it.role == LETTERER }
                 .joinToString(",") { it.name },
-            coverArtist = authors
-                .filter { it.role.equals(COVER.name, true) }
+            coverArtist = authors.filter { it.role == COVER }
                 .joinToString(",") { it.name },
-            editor = authors
-                .filter { it.role.equals(EDITOR.name, true) }
+            editor = authors.filter { it.role == EDITOR }
                 .joinToString(",") { it.name },
-            translator = authors
-                .filter { it.role.equals(TRANSLATOR.name, true) }
+            translator = authors.filter { it.role == TRANSLATOR }
                 .joinToString(",") { it.name },
             publisher = seriesMetadata.publisher,
             genre = seriesMetadata.genres.joinToString(","),

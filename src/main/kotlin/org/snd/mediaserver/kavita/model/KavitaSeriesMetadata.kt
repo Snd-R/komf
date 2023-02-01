@@ -1,17 +1,17 @@
 package org.snd.mediaserver.kavita.model
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.DefaultAuthorRoles
-import org.snd.mediaserver.model.DefaultAuthorRoles.COLORIST
-import org.snd.mediaserver.model.DefaultAuthorRoles.COVER
-import org.snd.mediaserver.model.DefaultAuthorRoles.EDITOR
-import org.snd.mediaserver.model.DefaultAuthorRoles.INKER
-import org.snd.mediaserver.model.DefaultAuthorRoles.LETTERER
-import org.snd.mediaserver.model.DefaultAuthorRoles.PENCILLER
-import org.snd.mediaserver.model.DefaultAuthorRoles.TRANSLATOR
 import org.snd.mediaserver.model.MediaServerAlternativeTitle
 import org.snd.mediaserver.model.MediaServerAuthor
 import org.snd.mediaserver.model.MediaServerSeriesMetadata
+import org.snd.metadata.model.AuthorRole
+import org.snd.metadata.model.AuthorRole.COLORIST
+import org.snd.metadata.model.AuthorRole.COVER
+import org.snd.metadata.model.AuthorRole.EDITOR
+import org.snd.metadata.model.AuthorRole.INKER
+import org.snd.metadata.model.AuthorRole.LETTERER
+import org.snd.metadata.model.AuthorRole.PENCILLER
+import org.snd.metadata.model.AuthorRole.TRANSLATOR
 import org.snd.metadata.model.SeriesStatus
 
 @JsonClass(generateAdapter = true)
@@ -98,7 +98,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         KavitaPublicationStatus.CANCELLED -> SeriesStatus.ABANDONED
         KavitaPublicationStatus.ENDED -> SeriesStatus.ENDED
     }
-    val authors = writers.map { MediaServerAuthor(it.name, DefaultAuthorRoles.WRITER.name) } +
+    val authors = writers.map { MediaServerAuthor(it.name, AuthorRole.WRITER.name) } +
             coverArtists.map { MediaServerAuthor(it.name, COVER.name) } +
             pencillers.map { MediaServerAuthor(it.name, PENCILLER.name) } +
             letterers.map { MediaServerAuthor(it.name, LETTERER.name) } +

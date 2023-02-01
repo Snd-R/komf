@@ -4,6 +4,7 @@ import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
+import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.ProviderBookId
@@ -26,8 +27,8 @@ import java.net.URLEncoder
 class BookWalkerMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
     private val bookMetadataConfig: BookMetadataConfig,
-    private val authorRoles: Collection<String>,
-    private val artistRoles: Collection<String>,
+    private val authorRoles: Collection<AuthorRole>,
+    private val artistRoles: Collection<AuthorRole>,
 ) {
 
     fun toSeriesMetadata(

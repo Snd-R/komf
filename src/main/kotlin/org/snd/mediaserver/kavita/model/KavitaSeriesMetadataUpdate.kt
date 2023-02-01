@@ -12,8 +12,8 @@ import org.snd.mediaserver.kavita.model.KavitaPersonRole.PUBLISHER
 import org.snd.mediaserver.kavita.model.KavitaPersonRole.TRANSLATOR
 import org.snd.mediaserver.kavita.model.KavitaPersonRole.WRITER
 import org.snd.mediaserver.kavita.model.KavitaPublicationStatus.ONGOING
-import org.snd.mediaserver.model.DefaultAuthorRoles
 import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
+import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.SeriesStatus
 
 @JsonClass(generateAdapter = true)
@@ -54,34 +54,34 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
         genres = genres?.map { KavitaGenre(id = 0, title = it) }?.toSet() ?: oldMeta.genres,
         tags = tags?.map { KavitaTag(id = 0, title = it) }?.toSet() ?: oldMeta.tags,
         writers = authors
-            ?.get(DefaultAuthorRoles.WRITER.name.lowercase())
+            ?.get(AuthorRole.WRITER.name.lowercase())
             ?.map { KavitaAuthor(id = 0, name = it.name, role = WRITER) }?.toSet()
             ?.ifEmpty { oldMeta.writers } ?: oldMeta.writers,
         coverArtists = authors
-            ?.get(DefaultAuthorRoles.COVER.name.lowercase())
+            ?.get(AuthorRole.COVER.name.lowercase())
             ?.map { KavitaAuthor(id = 0, name = it.name, role = COVER_ARTIST) }?.toSet()
             ?.ifEmpty { oldMeta.coverArtists } ?: oldMeta.coverArtists,
         pencillers = authors
-            ?.get(DefaultAuthorRoles.PENCILLER.name.lowercase())
+            ?.get(AuthorRole.PENCILLER.name.lowercase())
             ?.map { KavitaAuthor(id = 0, name = it.name, role = PENCILLER) }?.toSet()
             ?.ifEmpty { oldMeta.pencillers } ?: oldMeta.pencillers,
         inkers = authors
-            ?.get(DefaultAuthorRoles.INKER.name.lowercase())
+            ?.get(AuthorRole.INKER.name.lowercase())
             ?.map { KavitaAuthor(id = 0, name = it.name, role = INKER) }?.toSet()
             ?.ifEmpty { oldMeta.inkers } ?: oldMeta.inkers,
         colorists = authors
-            ?.get(DefaultAuthorRoles.COLORIST.name.lowercase())
+            ?.get(AuthorRole.COLORIST.name.lowercase())
             ?.map { KavitaAuthor(id = 0, name = it.name, role = COLORIST) }?.toSet()
             ?.ifEmpty { oldMeta.colorists } ?: oldMeta.colorists,
         letterers = authors
-            ?.get(DefaultAuthorRoles.LETTERER.name.lowercase())
+            ?.get(AuthorRole.LETTERER.name.lowercase())
             ?.map { KavitaAuthor(id = 0, name = it.name, role = LETTERER) }?.toSet()
             ?.ifEmpty { oldMeta.letterers } ?: oldMeta.letterers,
         editors = authors
-            ?.get(DefaultAuthorRoles.EDITOR.name.lowercase())
+            ?.get(AuthorRole.EDITOR.name.lowercase())
             ?.map { KavitaAuthor(id = 0, name = it.name, role = EDITOR) }?.toSet() ?: oldMeta.editors,
         translators = authors
-            ?.get(DefaultAuthorRoles.TRANSLATOR.name.lowercase())
+            ?.get(AuthorRole.TRANSLATOR.name.lowercase())
             ?.map { KavitaAuthor(id = 0, name = it.name, role = TRANSLATOR) }?.toSet() ?: oldMeta.translators,
         ageRating = ageRating ?: oldMeta.ageRating,
         language = language ?: oldMeta.language,

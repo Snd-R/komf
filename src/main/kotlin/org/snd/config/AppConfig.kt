@@ -12,6 +12,13 @@ import org.snd.metadata.MediaType
 import org.snd.metadata.MediaType.MANGA
 import org.snd.metadata.NameMatchingMode
 import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
+import org.snd.metadata.model.AuthorRole
+import org.snd.metadata.model.AuthorRole.COLORIST
+import org.snd.metadata.model.AuthorRole.COVER
+import org.snd.metadata.model.AuthorRole.INKER
+import org.snd.metadata.model.AuthorRole.LETTERER
+import org.snd.metadata.model.AuthorRole.PENCILLER
+import org.snd.metadata.model.AuthorRole.WRITER
 import org.snd.metadata.model.ReadingDirection
 import org.snd.metadata.model.TitleType
 
@@ -164,8 +171,12 @@ data class ProviderConfig(
     @EncodeDefault(NEVER) val nameMatchingMode: NameMatchingMode? = null,
     @EncodeDefault(NEVER) val mediaType: MediaType = MANGA,
 
-    @EncodeDefault(NEVER) val authorRoles: Collection<String> = listOf("Writer"),
-    @EncodeDefault(NEVER) val artistRoles: Collection<String> = listOf("Penciller", "Inker", "Colorist", "Letterer", "Cover"),
+    @EncodeDefault(NEVER) val authorRoles: Collection<AuthorRole> = listOf(WRITER),
+    @EncodeDefault(NEVER) val artistRoles: Collection<AuthorRole> = listOf(
+        PENCILLER, INKER,
+        COLORIST, LETTERER,
+        COVER
+    ),
 )
 
 @Serializable

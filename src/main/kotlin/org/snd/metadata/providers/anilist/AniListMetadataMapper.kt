@@ -5,6 +5,7 @@ import org.snd.config.SeriesMetadataConfig
 import org.snd.fragment.AniListManga
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Author
+import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.ProviderSeriesId
@@ -22,8 +23,8 @@ import org.snd.type.MediaStatus
 
 class AniListMetadataMapper(
     private val metadataConfig: SeriesMetadataConfig,
-    private val authorRoles: Collection<String>,
-    private val artistRoles: Collection<String>,
+    private val authorRoles: Collection<AuthorRole>,
+    private val artistRoles: Collection<AuthorRole>,
 ) {
     private val mangaLinkBaseUrl = "https://anilist.co/manga/"
     private val allowedRoles = listOf("Story & Art", "Story", "Original Story", "Art", "Illustration")
