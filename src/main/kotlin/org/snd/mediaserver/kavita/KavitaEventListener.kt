@@ -6,6 +6,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import mu.KotlinLogging
+import org.snd.infra.HttpException
 import org.snd.mediaserver.NotificationService
 import org.snd.mediaserver.kavita.model.KavitaChapter
 import org.snd.mediaserver.kavita.model.KavitaVolume
@@ -109,7 +110,7 @@ class KavitaEventListener(
     private fun processEvents(volumeIds: Collection<Int>) {
         val now = clock.instant()
 
-        val volumes: List<KavitaVolume> = volumeIds.map { kavitaClient.getVolume(KavitaVolumeId(it)) }
+        val volumes = getVolumes(volumeIds)
         val newVolumes: Map<KavitaVolume, Collection<KavitaChapter>> = getNew(volumes)
         val seriesToChaptersMap = newVolumes.keys
             .groupBy { it.seriesId() }
@@ -143,6 +144,19 @@ class KavitaEventListener(
             if (newChapters.isEmpty()) null
             else volume to newChapters
         }.toMap()
+    }
+
+    private fun getVolumes(volumeIds: Collection<Int>): List<KavitaVolume> {
+        return volumeIds.mapNotNull {
+            try {
+                kavitaClient.getVolume(KavitaVolumeId(it))
+            } catch (exception: HttpException) {
+                if (exception.body?.contains("\"message\":\"Sequence contains no elements.\"") == true
+                    || exception.code == 404
+                ) null
+                else throw exception
+            }
+        }
     }
 
     private fun registerInvocations(hubConnection: HubConnection) {
