@@ -145,7 +145,7 @@ class MetadataService(
         val searchTitles = listOfNotNull(
             seriesTitle,
             removeParentheses(seriesTitle).let { if (it == seriesTitle) null else it }
-        )
+        ).plus(series.metadata.alternativeTitles.map { it.title })
 
         logger.info { "attempting to match series \"${seriesTitle}\" ${series.id}" }
 
@@ -235,12 +235,14 @@ class MetadataService(
         logger.info { "launching metadata aggregation using ${providers.map { it.providerName() }}" }
 
         val seriesTitle = series.metadata.title.ifBlank { series.name }
-        val searchTitles = listOfNotNull(
+        val searchTitles = setOfNotNull(
             seriesTitle,
             removeParentheses(seriesTitle)
                 .let { if (it == seriesTitle) null else it }
-        ).plus(metadata.seriesMetadata.titles.map { it.name }
-            .filter { StringUtils.isAsciiPrintable(it) })
+        )
+            .plus(series.metadata.alternativeTitles.map { it.title })
+            .plus(metadata.seriesMetadata.titles.map { it.name }
+                .filter { StringUtils.isAsciiPrintable(it) })
 
         return providers.map { provider ->
             supplyAsync({
