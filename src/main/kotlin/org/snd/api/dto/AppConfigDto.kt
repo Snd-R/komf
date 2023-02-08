@@ -2,6 +2,7 @@ package org.snd.api.dto
 
 import com.squareup.moshi.JsonClass
 import org.snd.mediaserver.UpdateMode
+import org.snd.metadata.MediaType
 import org.snd.metadata.NameMatchingMode
 import org.snd.metadata.model.ReadingDirection
 import org.snd.metadata.model.TitleType
@@ -100,6 +101,7 @@ data class ProviderConfigDto(
     val nameMatchingMode: NameMatchingMode?,
     val priority: Int,
     val enabled: Boolean,
+    val mediaType: MediaType,
     val seriesMetadata: SeriesMetadataConfigDto,
     val bookMetadata: BookMetadataConfigDto,
 )

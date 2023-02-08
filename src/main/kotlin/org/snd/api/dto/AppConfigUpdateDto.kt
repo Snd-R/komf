@@ -2,6 +2,7 @@ package org.snd.api.dto
 
 import com.squareup.moshi.JsonClass
 import org.snd.mediaserver.UpdateMode
+import org.snd.metadata.MediaType
 import org.snd.metadata.NameMatchingMode
 import org.snd.metadata.model.ReadingDirection
 import org.snd.metadata.model.TitleType
@@ -117,6 +118,7 @@ class ProviderConfigUpdateDto {
     var enabled: Boolean? = null
     var seriesMetadata: SeriesMetadataConfigUpdateDto? = null
     var bookMetadata: BookMetadataConfigUpdateDto? = null
+    var mediaType: MediaType? = null
 }
 
 @JsonClass(generateAdapter = true)

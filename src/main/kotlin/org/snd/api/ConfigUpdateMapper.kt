@@ -174,8 +174,9 @@ class ConfigUpdateMapper {
             nameMatchingMode = config.nameMatchingMode,
             priority = config.priority,
             enabled = config.enabled,
+            mediaType = config.mediaType,
             seriesMetadata = toDto(config.seriesMetadata),
-            bookMetadata = toDto(config.bookMetadata)
+            bookMetadata = toDto(config.bookMetadata),
         )
     }
 
@@ -280,6 +281,7 @@ class ConfigUpdateMapper {
         return config.copy(
             priority = patch.priority ?: config.priority,
             enabled = patch.enabled ?: config.enabled,
+            mediaType = patch.mediaType ?: config.mediaType,
             seriesMetadata = patch.seriesMetadata
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
