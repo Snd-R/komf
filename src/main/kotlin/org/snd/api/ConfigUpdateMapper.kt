@@ -175,6 +175,8 @@ class ConfigUpdateMapper {
             priority = config.priority,
             enabled = config.enabled,
             mediaType = config.mediaType,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
             seriesMetadata = toDto(config.seriesMetadata),
             bookMetadata = toDto(config.bookMetadata),
         )
@@ -282,6 +284,8 @@ class ConfigUpdateMapper {
             priority = patch.priority ?: config.priority,
             enabled = patch.enabled ?: config.enabled,
             mediaType = patch.mediaType ?: config.mediaType,
+            authorRoles = patch.authorRoles ?: config.authorRoles,
+            artistRoles = patch.artistRoles ?: config.artistRoles,
             seriesMetadata = patch.seriesMetadata
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,

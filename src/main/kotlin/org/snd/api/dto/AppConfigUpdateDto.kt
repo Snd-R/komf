@@ -4,6 +4,7 @@ import com.squareup.moshi.JsonClass
 import org.snd.mediaserver.UpdateMode
 import org.snd.metadata.MediaType
 import org.snd.metadata.NameMatchingMode
+import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.ReadingDirection
 import org.snd.metadata.model.TitleType
 import kotlin.properties.Delegates
@@ -116,9 +117,11 @@ class ProviderConfigUpdateDto {
 
     var priority: Int? = null
     var enabled: Boolean? = null
+    var mediaType: MediaType? = null
+    var authorRoles: Collection<AuthorRole>? = null
+    var artistRoles: Collection<AuthorRole>? = null
     var seriesMetadata: SeriesMetadataConfigUpdateDto? = null
     var bookMetadata: BookMetadataConfigUpdateDto? = null
-    var mediaType: MediaType? = null
 }
 
 @JsonClass(generateAdapter = true)
