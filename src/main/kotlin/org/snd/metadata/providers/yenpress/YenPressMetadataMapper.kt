@@ -27,14 +27,12 @@ class YenPressMetadataMapper(
             status = null,
             titles = listOf(
                 SeriesTitle(
-                    book.name
-                        .replace(", Vol. [0-9]+".toRegex(), "")
-                        .removeSuffix(" (manga)"),
+                    bookTitle(book.name),
                     LOCALIZED
                 )
             ),
             summary = book.description,
-            publisher = book.publisher,
+            publisher = book.imprint,
             genres = book.genres,
             tags = emptyList(),
             authors = emptyList(),
@@ -82,3 +80,8 @@ class YenPressMetadataMapper(
         return MetadataConfigApplier.apply(providerMetadata, bookMetadataConfig)
     }
 }
+
+fun bookTitle(name: String) = name
+    .replace("(\\(light novel\\))|(\\(manga\\))".toRegex(), "")
+    .replace(", Vol. [0-9]+".toRegex(), "")
+    .trim()

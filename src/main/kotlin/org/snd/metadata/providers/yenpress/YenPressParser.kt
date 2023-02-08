@@ -23,7 +23,6 @@ class YenPressParser {
 
     private fun parseSearchResult(result: Element): YenPressSearchResult? {
         val title = result.getElementsByClass("series-title").first()!!.text()
-        if (title.contains("(light novel)")) return null
 
         val bookNumber = BookNameParser.getVolumes(title)
         if (bookNumber?.start?.toInt() != 1) return null
@@ -61,6 +60,10 @@ class YenPressParser {
             ?.firstOrNull { element -> element.child(0).text() == "On Sale Date:" }
             ?.child(1)?.text()
             ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MM/dd/yyyy")) }
+        val imprint = bookDetails?.child(1)?.getElementsByTag("li")
+            ?.firstOrNull { element -> element.child(0).text() == "Imprint:" }
+            ?.child(1)?.text()
+            ?: "Yen Press"
 
         val seriesBooks = document.getElementById("isbn-grid-0")
             ?.getElementsByClass("book-wrapper")
@@ -79,6 +82,7 @@ class YenPressParser {
             imageUrl = coverImage,
             genres = genres ?: emptyList(),
             isbn = isbn,
+            imprint = imprint,
             seriesBooks = seriesBooks
         )
     }

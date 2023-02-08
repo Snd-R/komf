@@ -1,5 +1,8 @@
 package org.snd.metadata.providers.yenpress
 
+import org.snd.metadata.MediaType
+import org.snd.metadata.MediaType.MANGA
+import org.snd.metadata.MediaType.NOVEL
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Provider
@@ -16,6 +19,7 @@ class YenPressMetadataProvider(
     private val client: YenPressClient,
     private val metadataMapper: YenPressMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val mediaType: MediaType,
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
@@ -45,7 +49,13 @@ class YenPressMetadataProvider(
         val searchResults = client.searchSeries(seriesName.take(400))
 
         return searchResults
-            .firstOrNull { nameMatcher.matches(seriesName, it.title) }
+            .filter {
+                when (mediaType) {
+                    MANGA -> !it.title.contains("(light novel)")
+                    NOVEL -> !it.title.contains("(manga)")
+                }
+            }
+            .firstOrNull { nameMatcher.matches(seriesName, bookTitle(it.title)) }
             ?.let {
                 val book = client.getBook(it.id)
                 val thumbnail = client.getBookThumbnail(book)

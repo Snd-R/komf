@@ -7,13 +7,13 @@ data class YenPressBook(
     val id: YenPressBookId,
     val name: String,
     val number: BookRange?,
-    val publisher: String = "Yen Press",
     val releaseDate: LocalDate?,
     val description: String?,
     val imageUrl: String?,
     val genres: Collection<String>,
     val isbn: String?,
-    val seriesBooks: Collection<YenPressSeriesBook>
+    val seriesBooks: Collection<YenPressSeriesBook>,
+    val imprint: String,
 )
 
 data class YenPressSeriesBook(

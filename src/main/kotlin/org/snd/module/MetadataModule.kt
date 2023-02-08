@@ -306,7 +306,7 @@ class MetadataModule(
         val metadataMapper = YenPressMetadataMapper(config.seriesMetadata, config.bookMetadata)
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return YenPressMetadataProvider(client, metadataMapper, similarityMatcher)
+        return YenPressMetadataProvider(client, metadataMapper, similarityMatcher, config.mediaType)
     }
 
     private fun createKodanshaMetadataProvider(config: ProviderConfig, client: KodanshaClient): KodanshaMetadataProvider? {
