@@ -117,15 +117,7 @@ class MetadataService(
             val bookMetadata = getBookMetadata(seriesId, seriesMetadata, matchProvider, existingMatch.edition)
             matchProvider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
         } else {
-            logger.info { "attempting to match series \"${seriesTitle}\" ${series.id}" }
-            metadataProviders.providers(series.libraryId.id).asSequence()
-                .mapNotNull { provider -> provider.matchSeriesMetadata(seriesTitle)?.let { provider to it } }
-                .map { (provider, seriesMetadata) ->
-                    logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()?.name}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
-                    val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, null)
-                    provider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
-                }
-                .firstOrNull()
+            matchSeries(series)
         }
 
         if (matchResult == null) {
@@ -146,6 +138,40 @@ class MetadataService(
 
         metadataUpdateService.updateMetadata(series, metadata)
         logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
+    }
+
+    private fun matchSeries(series: MediaServerSeries): Pair<MetadataProvider, SeriesAndBookMetadata>? {
+        val seriesTitle = series.metadata.title.ifBlank { series.name }
+        val searchTitles = listOfNotNull(
+            seriesTitle,
+            removeParentheses(seriesTitle).let { if (it == seriesTitle) null else it }
+        )
+
+        logger.info { "attempting to match series \"${seriesTitle}\" ${series.id}" }
+
+        return metadataProviders.providers(series.libraryId.id).asSequence()
+            .mapNotNull { provider ->
+                matchSeries(series, searchTitles, provider, null)
+                    ?.let { provider to it }
+            }
+            .firstOrNull()
+    }
+
+    private fun matchSeries(
+        series: MediaServerSeries,
+        searchTitles: Collection<String>,
+        provider: MetadataProvider,
+        bookEdition: String?
+    ): SeriesAndBookMetadata? {
+        return searchTitles.asSequence()
+            .onEach { logger.info { "searching \"$it\" using ${provider.providerName()}" } }
+            .mapNotNull { provider.matchSeriesMetadata(it) }
+            .map { seriesMetadata ->
+                logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()?.name}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
+                val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, bookEdition)
+                SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
+            }
+            .firstOrNull()
     }
 
     private fun getBookMetadata(
@@ -208,12 +234,17 @@ class MetadataService(
         if (providers.isEmpty()) return metadata
         logger.info { "launching metadata aggregation using ${providers.map { it.providerName() }}" }
 
-        val searchTitles = listOf(series.metadata.title.ifBlank { series.name }) +
-                (metadata.seriesMetadata.titles.map { it.name })
+        val seriesTitle = series.metadata.title.ifBlank { series.name }
+        val searchTitles = listOfNotNull(
+            seriesTitle,
+            removeParentheses(seriesTitle)
+                .let { if (it == seriesTitle) null else it }
+        ).plus(metadata.seriesMetadata.titles.map { it.name }
+            .filter { StringUtils.isAsciiPrintable(it) })
 
         return providers.map { provider ->
             supplyAsync({
-                getAggregationMetadata(
+                matchSeries(
                     series,
                     searchTitles,
                     provider,
@@ -223,24 +254,6 @@ class MetadataService(
         }
             .mapNotNull { it.join() }
             .fold(metadata) { oldMetadata, newMetadata -> mergeMetadata(oldMetadata, newMetadata) }
-    }
-
-    private fun getAggregationMetadata(
-        series: MediaServerSeries,
-        searchTitles: Collection<String>,
-        provider: MetadataProvider,
-        bookEdition: String?
-    ): SeriesAndBookMetadata? {
-        return searchTitles.asSequence()
-            .filter { StringUtils.isAsciiPrintable(it) }
-            .onEach { logger.info { "searching \"$it\" using ${provider.providerName()}" } }
-            .mapNotNull { provider.matchSeriesMetadata(it) }
-            .map { seriesMetadata ->
-                logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()?.name}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
-                val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, bookEdition)
-                SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
-            }
-            .firstOrNull()
     }
 
     private fun mergeMetadata(
@@ -256,5 +269,9 @@ class MetadataService(
         ).map { (bookId, metadata) -> books[bookId]!! to metadata }.toMap()
 
         return SeriesAndBookMetadata(mergedSeries, mergedBooks)
+    }
+
+    private fun removeParentheses(name: String): String {
+        return name.replace("[(\\[{]([^)\\]}]+)[)\\]}]".toRegex(), "").trim()
     }
 }
