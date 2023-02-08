@@ -42,7 +42,7 @@ class BookWalkerParser {
         val document = Jsoup.parse(book)
         val synopsis = document.getElementsByClass("synopsis-text").first()?.wholeText()?.trim()?.replace("\n\n", "\n")
         val image = document.getElementsByClass("book-img").first()?.firstElementChild()?.firstElementChild()?.attr("src")
-        val name = document.getElementsByClass("detail-book-title").first()!!.child(0).textNodes().first().text()
+        val name = document.getElementsByClass("detail-book-title").first()!!.child(0).textNodes().first().text().trim()
         val productDetail = document.getElementsByClass("product-detail").first()!!.child(0)
         val seriesTitleElement = productDetail.children()
             .firstOrNull() { it.child(0).text() == "Series Title" }
@@ -122,7 +122,7 @@ class BookWalkerParser {
     }
 
     private fun parseSeriesName(name: String): String {
-        return name.replace("\\(?(Manga|Light Novels)\\)?$".toRegex(), "")
+        return name.replace("\\(?(Manga|Light Novels)\\)?$".toRegex(), "").trim()
     }
 
     private fun getSearchResultThumbnail(result: Element): String? {
