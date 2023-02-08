@@ -107,6 +107,17 @@ metadataProviders:
       priority: 10
       enabled: true
       mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
+
+      # roles mapping can be applied the same way to any other provider
+      # available role names: WRITER, PENCILLER, INKER, COLORIST, LETTERER, COVER, EDITOR, TRANSLATOR
+      authorRoles: # roles that will be mapped to author role
+        - "WRITER"
+      artistRoles: # roles that will be mapped to artist role
+        - "PENCILLER"
+        - "INKER"
+        - "COLORIST"
+        - "LETTERER"
+        - "COVER"
     mal:
       priority: 20
       enabled: false
