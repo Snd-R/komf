@@ -20,7 +20,7 @@ import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesBook
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.module.MetadataModule.MetadataProviders
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletableFuture.supplyAsync
 import java.util.concurrent.ExecutorService
 
 private val logger = KotlinLogging.logger {}
@@ -39,12 +39,19 @@ class MetadataService(
 
     fun searchSeriesMetadata(seriesName: String, libraryId: MediaServerLibraryId): Collection<SeriesSearchResult> {
         val providers = metadataProviders.providers(libraryId.id)
-        return providers.flatMap { it.searchSeries(seriesName) }
+
+        return providers
+            .map { supplyAsync({ it.searchSeries(seriesName) }, executor) }
+            .map { it.join() }
+            .flatten()
     }
 
     fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
         val providers = metadataProviders.defaultProviders()
-        return providers.flatMap { it.searchSeries(seriesName) }
+        return providers
+            .map { supplyAsync({ it.searchSeries(seriesName) }, executor) }
+            .map { it.join() }
+            .flatten()
     }
 
     fun setSeriesMetadata(
@@ -205,7 +212,7 @@ class MetadataService(
                 (metadata.seriesMetadata.titles.map { it.name })
 
         return providers.map { provider ->
-            CompletableFuture.supplyAsync({
+            supplyAsync({
                 getAggregationMetadata(
                     series,
                     searchTitles,

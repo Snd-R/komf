@@ -48,7 +48,7 @@ class MediaServerModule(
 ) : AutoCloseable {
     private val metadataAggregationExecutor = Executors.newFixedThreadPool(
         4,
-        BasicThreadFactory.Builder().namingPattern("komf-meta-aggregator-%d").build()
+        BasicThreadFactory.Builder().namingPattern("komf-meta-service-%d").build()
     )
     private val eventListenerExecutor = Executors.newSingleThreadExecutor(
         BasicThreadFactory.Builder().namingPattern("komf-event-listener-%d").build()
