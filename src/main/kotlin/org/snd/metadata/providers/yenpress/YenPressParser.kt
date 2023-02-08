@@ -29,7 +29,7 @@ class YenPressParser {
         if (bookNumber?.start?.toInt() != 1) return null
 
         val cover = result.getElementsByClass("search-cover").first()!!.child(0)
-        val coverImage = cover.child(0).attr("src").removeSuffix("?auto=format&w=298")
+        val coverImage = cover.child(0).attr("src")
         val id = cover.attr("href")
 
         return YenPressSearchResult(
