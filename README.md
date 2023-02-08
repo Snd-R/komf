@@ -91,6 +91,7 @@ kavita:
         seriesTitle: false #update series title
         titleType: LOCALIZED # Can be "LOCALIZED" "ROMAJI" or "NATIVE". Sets Localized Name api field and series comicinfo field. 
         alternativeSeriesTitles: false # use other title types as alternative title option
+        orderBooks: false # will order books using parsed volume or chapter number. works only with COMIC_INFO
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
@@ -105,18 +106,22 @@ metadataProviders:
     mangaUpdates:
       priority: 10
       enabled: true
+      mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
     mal:
       priority: 20
       enabled: false
+      mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
     nautiljon:
       priority: 30
       enabled: false
     aniList:
       priority: 40
       enabled: false
+      mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
     yenPress:
       priority: 50
       enabled: false
+      mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA.
     kodansha:
       priority: 60
       enabled: false
@@ -126,6 +131,7 @@ metadataProviders:
     bookWalker:
       priority: 80
       enabled: false
+      mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA.
 server:
   port: 8085 #or env:KOMF_SERVER_PORT
 logLevel: INFO #or env:KOMF_LOG_LEVEL
