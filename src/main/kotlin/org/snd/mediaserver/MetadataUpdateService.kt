@@ -1,5 +1,6 @@
 package org.snd.mediaserver
 
+import mu.KotlinLogging
 import org.snd.mediaserver.UpdateMode.API
 import org.snd.mediaserver.UpdateMode.COMIC_INFO
 import org.snd.mediaserver.model.MediaServerBook
@@ -19,6 +20,8 @@ import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.SeriesMetadata
 import java.nio.file.Path
+
+private val logger = KotlinLogging.logger {}
 
 class MetadataUpdateService(
     private val mediaServerClient: MediaServerClient,
@@ -47,6 +50,7 @@ class MetadataUpdateService(
         updateModes.forEach {
             when (it) {
                 API -> {
+                    logger.info { "updating series ${series.name}" }
                     val metadataUpdate = metadataUpdateMapper.toSeriesMetadataUpdate(metadata, series.metadata)
                     mediaServerClient.updateSeriesMetadata(series.id, metadataUpdate)
                 }
@@ -89,6 +93,7 @@ class MetadataUpdateService(
         seriesMeta: SeriesMetadata,
         writeSeriesMetadata: Boolean
     ) {
+        logger.info { "updating book ${book.name}" }
         updateModes.forEach { mode ->
             when (mode) {
                 API -> metadataUpdateMapper.toBookMetadataUpdate(metadata, seriesMeta, book)
