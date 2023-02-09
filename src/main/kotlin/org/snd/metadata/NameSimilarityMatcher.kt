@@ -5,18 +5,25 @@ import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
 import org.snd.metadata.NameMatchingMode.EXACT
 
 class NameSimilarityMatcher private constructor(
-    mode: NameMatchingMode
+    private val mode: NameMatchingMode
 ) {
     private val levenshteinDistance = LevenshteinDistance.getDefaultInstance()
-    private val distanceThreshold = if (mode == EXACT) 0 else 3
 
     fun matches(name: String, namesToMatch: Collection<String>): Boolean {
         return namesToMatch.map { matches(name, it) }.any { it }
     }
 
     fun matches(name: String, nameToMatch: String): Boolean {
-        val distance = levenshteinDistance.apply(name.uppercase(), nameToMatch.uppercase())
-        return distance <= distanceThreshold
+        return if (mode == EXACT || name.length in 1..3) name == nameToMatch
+        else {
+            val distance = levenshteinDistance.apply(name.uppercase(), nameToMatch.uppercase())
+            val distanceThreshold = when (name.length) {
+                in 4..6 -> 1
+                in 7..9 -> 2
+                else -> 3
+            }
+            return distance <= distanceThreshold
+        }
     }
 
     companion object {
