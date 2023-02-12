@@ -22,7 +22,10 @@ class MetadataPostProcessor(
         val seriesTitle = if (config.seriesTitle) seriesTitle(series.titles) ?: series.title else null
 
         val altTitles = if (config.alternativeSeriesTitles)
-            series.titles.filter { it != seriesTitle && it.language in config.alternativeSeriesTitleLanguages }
+            series.titles.filter {
+                it != seriesTitle &&
+                        (it.language == null || it.language in config.alternativeSeriesTitleLanguages)
+            }
         else emptyList()
 
         return series.copy(
