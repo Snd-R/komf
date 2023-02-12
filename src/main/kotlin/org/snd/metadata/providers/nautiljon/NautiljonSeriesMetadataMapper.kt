@@ -54,10 +54,10 @@ class NautiljonSeriesMetadataMapper(
                 ?.let { tag -> series.frenchPublisher?.let { publisher -> "$tag: $publisher" } }
         )
         val titles = listOfNotNull(
-            SeriesTitle(series.title, TitleType.LOCALIZED),
-            series.romajiTitle?.let { SeriesTitle(it, ROMAJI) },
-            series.japaneseTitle?.let { SeriesTitle(it, NATIVE) },
-        ) + series.alternativeTitles.map { SeriesTitle(it, null) }
+            SeriesTitle(series.title, TitleType.LOCALIZED, null),
+            series.romajiTitle?.let { SeriesTitle(it, ROMAJI, "") },
+            series.japaneseTitle?.let { SeriesTitle(it, NATIVE, "ja") },
+        ) + series.alternativeTitles.map { SeriesTitle(it, null, null) }
 
 
         val metadata = SeriesMetadata(

@@ -3,6 +3,7 @@ package org.snd.mediaserver.komga.model.dto
 import com.squareup.moshi.JsonClass
 import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
 import org.snd.metadata.model.SeriesStatus.ONGOING
+import org.snd.metadata.model.TitleType
 
 @JsonClass(generateAdapter = true)
 data class KomgaSeriesMetadataUpdate(
@@ -67,9 +68,14 @@ fun MediaServerSeriesMetadataUpdate.metadataUpdateRequest() = KomgaSeriesMetadat
     status = status?.name,
     title = title?.name,
     titleSort = titleSort?.name,
-    alternateTitles = alternativeTitles?.mapNotNull { (name, type) ->
-        type?.let { KomgaAlternativeTitle(it.label, name) }
-    }?.distinctBy { it.label },
+    alternateTitles = alternativeTitles?.mapNotNull { (name, type, language) ->
+        when (type) {
+            TitleType.ROMAJI -> KomgaAlternativeTitle(type.label, name)
+            TitleType.NATIVE -> KomgaAlternativeTitle(type.label, name)
+            TitleType.LOCALIZED -> KomgaAlternativeTitle((language ?: type.label), name)
+            null -> null
+        }
+    }?.distinctBy { it.title },
     summary = summary,
     publisher = publisher,
     readingDirection = readingDirection?.name,

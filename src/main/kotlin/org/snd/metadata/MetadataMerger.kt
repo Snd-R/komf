@@ -24,7 +24,7 @@ object MetadataMerger {
             totalBookCount = originalSeriesMetadata.totalBookCount ?: newSeriesMetadata.totalBookCount,
             authors = originalSeriesMetadata.authors.ifEmpty { newSeriesMetadata.authors },
             thumbnail = originalSeriesMetadata.thumbnail ?: newSeriesMetadata.thumbnail,
-            links = originalSeriesMetadata.links + newSeriesMetadata.links,
+            links = (originalSeriesMetadata.links + newSeriesMetadata.links).distinctBy { it.label },
         )
     }
 

@@ -1,6 +1,6 @@
 package org.snd.metadata.model
 
-data class Image(val image: ByteArray) {
+data class Image(val image: ByteArray, val url: String? = null) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

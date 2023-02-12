@@ -48,7 +48,7 @@ class MangaUpdatesMetadataMapper(
         val tags = series.categories.sortedByDescending { it.votes }.take(15)
             .map { it.name } + listOfNotNull(originalPublisherTag, englishPublisherTag)
 
-        val titles = listOf(SeriesTitle(series.title, ROMAJI)) + series.associatedNames.map { SeriesTitle(it, null) }
+        val titles = listOf(SeriesTitle(series.title, ROMAJI, "ja-ro")) + series.associatedNames.map { SeriesTitle(it, null, null) }
 
         val metadata = SeriesMetadata(
             status = status,

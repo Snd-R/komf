@@ -28,7 +28,8 @@ class YenPressMetadataMapper(
             titles = listOf(
                 SeriesTitle(
                     bookTitle(book.name),
-                    LOCALIZED
+                    LOCALIZED,
+                    "en"
                 )
             ),
             summary = book.description,

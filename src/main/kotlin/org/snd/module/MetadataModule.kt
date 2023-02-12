@@ -29,6 +29,9 @@ import org.snd.metadata.providers.mal.MalClient
 import org.snd.metadata.providers.mal.MalClientInterceptor
 import org.snd.metadata.providers.mal.MalMetadataMapper
 import org.snd.metadata.providers.mal.MalMetadataProvider
+import org.snd.metadata.providers.mangadex.MangaDexClient
+import org.snd.metadata.providers.mangadex.MangaDexMetadataMapper
+import org.snd.metadata.providers.mangadex.MangaDexMetadataProvider
 import org.snd.metadata.providers.mangaupdates.MangaUpdatesClient
 import org.snd.metadata.providers.mangaupdates.MangaUpdatesMetadataMapper
 import org.snd.metadata.providers.mangaupdates.MangaUpdatesMetadataProvider
@@ -60,6 +63,7 @@ class MetadataModule(
     private val kodanshaClient = createKodanshaClient()
     private val vizClient = createVizClient()
     private val bookWalkerClient = createBookWalkerClient()
+    private val mangaDexClient = createMangaDexClient()
 
     val metadataProviders = createMetadataProviders(config)
 
@@ -89,6 +93,8 @@ class MetadataModule(
         vizPriority = config.viz.priority,
         bookwalker = createBookWalkerMetadataProvider(config.bookWalker, bookWalkerClient),
         bookwalkerPriority = config.bookWalker.priority,
+        mangaDex = createMangaDexMetadataProvider(config.mangaDex, mangaDexClient),
+        mangaDexPriority = config.mangaDex.priority,
     )
 
     private fun createComicInfoWriter() = ComicInfoWriter()
@@ -241,6 +247,18 @@ class MetadataModule(
         )
     }
 
+    private fun createMangaDexClient(): MangaDexClient {
+        val httpClient = createHttpClient(
+            name = "MangaDex",
+            rateLimitConfig = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(5))
+                .limitForPeriod(5)
+                .timeoutDuration(Duration.ofSeconds(5))
+                .build()
+        )
+
+        return MangaDexClient(httpClient, jsonModule.moshi)
+    }
 
     private fun createMalMetadataProvider(
         config: ProviderConfig,
@@ -349,6 +367,23 @@ class MetadataModule(
         return BookWalkerMetadataProvider(client, bookWalkerMapper, similarityMatcher, config.mediaType)
     }
 
+    private fun createMangaDexMetadataProvider(
+        config: ProviderConfig,
+        client: MangaDexClient,
+    ): MangaDexMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val mangaDexMetadataMapper = MangaDexMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
+        val mangaDexSimilarityMatcher: NameSimilarityMatcher =
+            config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+        return MangaDexMetadataProvider(client, mangaDexMetadataMapper, mangaDexSimilarityMatcher)
+    }
+
     class MetadataProviders(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
@@ -386,7 +421,10 @@ class MetadataModule(
         private val vizPriority: Int,
 
         private val bookwalker: BookWalkerMetadataProvider?,
-        private val bookwalkerPriority: Int
+        private val bookwalkerPriority: Int,
+
+        private val mangaDex: MangaDexMetadataProvider?,
+        private val mangaDexPriority: Int
     ) {
 
         val providers = listOfNotNull(
@@ -397,7 +435,8 @@ class MetadataModule(
             yenPress?.let { it to yenPressPriority },
             kodansha?.let { it to kodanshaPriority },
             viz?.let { it to vizPriority },
-            bookwalker?.let { it to bookwalkerPriority }
+            bookwalker?.let { it to bookwalkerPriority },
+            mangaDex?.let { it to mangaDexPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -413,6 +452,7 @@ class MetadataModule(
                 Provider.KODANSHA -> kodansha
                 Provider.VIZ -> viz
                 Provider.BOOK_WALKER -> bookwalker
+                Provider.MANGADEX -> mangaDex
             }
         }
     }

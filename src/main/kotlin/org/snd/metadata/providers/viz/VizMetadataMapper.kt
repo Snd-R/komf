@@ -32,7 +32,7 @@ class VizMetadataMapper(
     fun toSeriesMetadata(book: VizBook, allBooks: Collection<VizSeriesBook>, thumbnail: Image? = null): ProviderSeriesMetadata {
         val metadata = SeriesMetadata(
             status = if (allBooks.any { it.final }) ENDED else null,
-            titles = listOf(SeriesTitle(book.seriesName, LOCALIZED)),
+            titles = listOf(SeriesTitle(book.seriesName, LOCALIZED, "en")),
             summary = book.description,
             publisher = book.publisher,
             ageRating = book.ageRating?.age,

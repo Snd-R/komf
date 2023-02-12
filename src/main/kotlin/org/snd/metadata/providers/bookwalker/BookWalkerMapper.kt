@@ -38,9 +38,9 @@ class BookWalkerMapper(
         thumbnail: Image? = null
     ): ProviderSeriesMetadata {
         val titles = listOfNotNull(
-            book.seriesTitle?.let { SeriesTitle(it, LOCALIZED) },
-            book.romajiTitle?.let { SeriesTitle(it, ROMAJI) },
-            book.japaneseTitle?.let { SeriesTitle(it, NATIVE) }
+            book.seriesTitle?.let { SeriesTitle(it, LOCALIZED, "en") },
+            book.romajiTitle?.let { SeriesTitle(it, ROMAJI, "ja-ro") },
+            book.japaneseTitle?.let { SeriesTitle(it, NATIVE, "ja") }
         )
 
         val metadata = SeriesMetadata(

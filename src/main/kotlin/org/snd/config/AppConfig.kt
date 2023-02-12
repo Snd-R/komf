@@ -100,6 +100,7 @@ data class MetadataPostProcessingConfig(
     val seriesTitle: Boolean = false,
     val titleType: TitleType = TitleType.LOCALIZED,
     val alternativeSeriesTitles: Boolean = false,
+    val alternativeSeriesTitleLanguages: List<String> = listOf("en", "ja", "ja-ro"),
     val orderBooks: Boolean = false,
     @EncodeDefault(NEVER) val readingDirectionValue: ReadingDirection? = null,
     @EncodeDefault(NEVER) val languageValue: String? = null,
@@ -158,6 +159,7 @@ data class ProvidersConfig(
     @EncodeDefault(NEVER) val kodansha: ProviderConfig = ProviderConfig(),
     @EncodeDefault(NEVER) val viz: ProviderConfig = ProviderConfig(),
     @EncodeDefault(NEVER) val bookWalker: ProviderConfig = ProviderConfig(),
+    @EncodeDefault(NEVER) val mangaDex: ProviderConfig = ProviderConfig(),
 )
 
 @Serializable

@@ -37,7 +37,7 @@ class KodanshaMetadataMapper(
         }
         val metadata = SeriesMetadata(
             status = status,
-            titles = listOf(SeriesTitle(series.title, TitleType.LOCALIZED)),
+            titles = listOf(SeriesTitle(series.title, TitleType.LOCALIZED, "en")),
             summary = series.summary,
             publisher = series.publisher,
             ageRating = series.ageRating,
