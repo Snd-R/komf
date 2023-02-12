@@ -42,7 +42,7 @@ class KodanshaMetadataMapper(
             publisher = series.publisher,
             ageRating = series.ageRating,
             tags = series.tags,
-            totalBookCount = series.books.size,
+            totalBookCount = if (series.books.isEmpty()) null else series.books.size,
             thumbnail = thumbnail,
             links = listOf(
                 WebLink(

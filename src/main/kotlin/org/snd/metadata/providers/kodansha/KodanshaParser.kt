@@ -157,11 +157,10 @@ class KodanshaParser {
                 KodanshaSeriesBook(
                     id = book.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/")
                         .let { KodanshaBookId(URLDecoder.decode(it, "UTF-8")) },
-                    number = book.child(0).child(0).child(1).text().removePrefix("Volume ").trim().toIntOrNull(),
+                    number = "(\\d+)(?!.*\\d)".toRegex().find(book.child(0).text())?.value?.toIntOrNull(),
                 )
             }
-        return if (books?.size == 30) null
-        else books
+        return books
     }
 
     private fun parseSeriesBooksFromDiscovery(document: Document): Collection<KodanshaSeriesBook>? {
@@ -176,15 +175,16 @@ class KodanshaParser {
                     number = number
                 )
             }
-        return if (books?.size == 4) return null
-        else books
+        return books
     }
 
     private fun parseSeriesBooksFromBookListPage(document: Document): Collection<KodanshaSeriesBook> {
         return document.getElementsByClass("filters__results").first()!!.child(0)
             .children()
             .map { it.child(0).child(1) }
-            .map {
+            .mapNotNull {
+                if (it.childrenSize() == 0 || it.child(0).tagName() != "a") return@mapNotNull null
+
                 val (_, number) = parseBookTitleAndNumber(it.text())
                 val id = it.child(0).attr("href").removeSurrounding("$baseUrl/volume/", "/")
                 KodanshaSeriesBook(
@@ -197,6 +197,8 @@ class KodanshaParser {
     private fun parseBookTitleAndNumber(name: String): Pair<String, Int?> {
         val volumeNumber = "(, [Vv]olume (?<volumeNumber>[0-9]+))".toRegex().find(name)
             ?.groups?.get("volumeNumber")?.value?.toIntOrNull()
+            ?: "(\\d+)(?!.*\\d)".toRegex().find(name)?.value?.toIntOrNull()
+
         val title = name.replace(" (manga)", "")
 
         return title to volumeNumber

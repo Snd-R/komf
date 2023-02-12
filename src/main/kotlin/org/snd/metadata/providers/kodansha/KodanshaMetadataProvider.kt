@@ -3,8 +3,18 @@ package org.snd.metadata.providers.kodansha
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
-import org.snd.metadata.model.*
-import org.snd.metadata.providers.kodansha.model.*
+import org.snd.metadata.model.Image
+import org.snd.metadata.model.Provider
+import org.snd.metadata.model.ProviderBookId
+import org.snd.metadata.model.ProviderBookMetadata
+import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.ProviderSeriesMetadata
+import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.providers.kodansha.model.KodanshaBookId
+import org.snd.metadata.providers.kodansha.model.KodanshaSeries
+import org.snd.metadata.providers.kodansha.model.KodanshaSeriesBook
+import org.snd.metadata.providers.kodansha.model.KodanshaSeriesId
+import org.snd.metadata.providers.kodansha.model.toSeriesSearchResult
 
 class KodanshaMetadataProvider(
     private val client: KodanshaClient,
@@ -49,9 +59,11 @@ class KodanshaMetadataProvider(
 
     private fun getSeries(seriesId: KodanshaSeriesId): KodanshaSeries {
         val series = client.getSeries(seriesId)
-        return if (series.books.isEmpty()) {
+
+        return if (series.books.size == 4 || series.books.size == 30) {
             val allBooks = getAllBooks(series)
-            series.copy(books = allBooks)
+            if (allBooks.size > series.books.size) series.copy(books = allBooks)
+            else series
         } else series
     }
 
