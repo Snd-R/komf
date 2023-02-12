@@ -35,7 +35,7 @@ class MetadataService(
 ) {
     fun availableProviders(libraryId: MediaServerLibraryId) = metadataProviders.providers(libraryId.id)
 
-    fun availableProviders() = metadataProviders.defaultProviders()
+    fun availableProviders() = metadataProviders.defaultProvidersList()
 
     fun searchSeriesMetadata(seriesName: String, libraryId: MediaServerLibraryId): Collection<SeriesSearchResult> {
         val providers = metadataProviders.providers(libraryId.id)
@@ -47,7 +47,7 @@ class MetadataService(
     }
 
     fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
-        val providers = metadataProviders.defaultProviders()
+        val providers = metadataProviders.defaultProvidersList()
         return providers
             .map { supplyAsync({ it.searchSeries(seriesName) }, executor) }
             .map { it.join() }

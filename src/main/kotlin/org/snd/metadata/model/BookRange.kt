@@ -1,7 +1,9 @@
 package org.snd.metadata.model
 
+import com.squareup.moshi.JsonClass
 import kotlin.math.floor
 
+@JsonClass(generateAdapter = true)
 data class BookRange(
     val start: Double,
     val end: Double

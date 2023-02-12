@@ -388,7 +388,9 @@ class MetadataModule(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
     ) {
-        fun defaultProviders() = defaultProviders.providers
+        fun defaultProvidersList() = defaultProviders.providers
+
+        fun defaultProviders() = defaultProviders
 
         fun providers(libraryId: String): Collection<MetadataProvider> {
             return libraryProviders[libraryId]?.providers ?: defaultProviders.providers

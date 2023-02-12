@@ -1,6 +1,13 @@
 package org.snd.metadata.model
 
-data class Image(val image: ByteArray, val url: String? = null) {
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
+data class Image(
+    @Json(ignore = true)
+    val image: ByteArray = byteArrayOf()
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

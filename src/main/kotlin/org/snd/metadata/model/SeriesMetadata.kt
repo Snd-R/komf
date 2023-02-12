@@ -1,7 +1,9 @@
 package org.snd.metadata.model
 
+import com.squareup.moshi.JsonClass
 import java.time.LocalDate
 
+@JsonClass(generateAdapter = true)
 data class SeriesMetadata(
     val status: SeriesStatus? = null,
     val title: SeriesTitle? = null,
@@ -22,6 +24,7 @@ data class SeriesMetadata(
     val thumbnail: Image? = null,
 )
 
+@JsonClass(generateAdapter = true)
 data class ReleaseDate(
     val year: Int?,
     val month: Int?,

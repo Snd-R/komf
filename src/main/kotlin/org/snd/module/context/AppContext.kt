@@ -1,4 +1,4 @@
-package org.snd.module
+package org.snd.module.context
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Level.DEBUG
@@ -9,6 +9,7 @@ import org.slf4j.Logger.ROOT_LOGGER_NAME
 import org.slf4j.LoggerFactory.getLogger
 import org.snd.config.AppConfig
 import org.snd.config.ConfigLoader
+import org.snd.module.AppModule
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 

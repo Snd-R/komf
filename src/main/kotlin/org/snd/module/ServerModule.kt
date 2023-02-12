@@ -14,6 +14,7 @@ import org.snd.config.ConfigWriter
 import org.snd.config.ServerConfig
 import org.snd.mediaserver.model.MediaServer.KAVITA
 import org.snd.mediaserver.model.MediaServer.KOMGA
+import org.snd.module.context.AppContext
 import java.util.concurrent.Executors
 
 class ServerModule(

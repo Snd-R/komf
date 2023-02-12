@@ -1,4 +1,4 @@
-package org.snd.module
+package org.snd.module.context
 
 import ch.qos.logback.classic.Level.DEBUG
 import ch.qos.logback.classic.Level.ERROR
@@ -9,21 +9,22 @@ import org.slf4j.LoggerFactory.getLogger
 import org.snd.config.AppConfig
 import org.snd.config.ConfigLoader
 import org.snd.mediaserver.model.MediaServer
+import org.snd.module.CliAppModule
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
 
-class CliContext(
+class CliAppContext(
     configPath: Path? = null,
     mediaServer: MediaServer,
     verbose: Boolean = false
 ) {
-    val cliModule: CliModule
+    val cliAppModule: CliAppModule
     private val configLoader = ConfigLoader()
 
     init {
         setLogLevel(verbose)
         val config = loadConfig(configPath)
-        cliModule = CliModule(config, mediaServer)
+        cliAppModule = CliAppModule(config, mediaServer)
     }
 
     private fun loadConfig(path: Path?): AppConfig {

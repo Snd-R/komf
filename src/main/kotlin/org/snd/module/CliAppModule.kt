@@ -7,7 +7,7 @@ import org.snd.mediaserver.model.MediaServer.KAVITA
 import org.snd.mediaserver.model.MediaServer.KOMGA
 import java.time.Clock
 
-class CliModule(
+class CliAppModule(
     appConfig: AppConfig,
     serverType: MediaServer = KOMGA,
 ) {

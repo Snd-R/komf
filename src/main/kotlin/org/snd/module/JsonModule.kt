@@ -9,6 +9,8 @@ import org.snd.mediaserver.kavita.model.KavitaAgeRatingAdapter
 import org.snd.mediaserver.kavita.model.KavitaPersonRoleAdapter
 import org.snd.mediaserver.kavita.model.KavitaPublicationStatusAdapter
 import org.snd.mediaserver.komga.model.dto.KomgaReadingDirectionAdapter
+import org.snd.metadata.model.ProviderBookIdJsonAdapter
+import org.snd.metadata.model.ProviderSeriesIdJsonAdapter
 import org.snd.metadata.providers.mal.model.json.SearchResultsJsonAdapter
 import org.snd.metadata.providers.mal.model.json.SeriesJsonAdapter
 import org.snd.metadata.providers.mangadex.model.json.MangaDexCoverArtJsonAdapter
@@ -32,5 +34,7 @@ class JsonModule {
         .add(KavitaPersonRoleAdapter())
         .add(MangaDexMangaJsonAdapter())
         .add(MangaDexCoverArtJsonAdapter())
+        .add(ProviderSeriesIdJsonAdapter())
+        .add(ProviderBookIdJsonAdapter())
         .build()
 }

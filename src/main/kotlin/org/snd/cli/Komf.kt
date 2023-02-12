@@ -10,8 +10,8 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import org.snd.mediaserver.model.MediaServer
 import org.snd.mediaserver.model.MediaServer.KOMGA
-import org.snd.module.AppContext
-import org.snd.module.CliContext
+import org.snd.module.context.AppContext
+import org.snd.module.context.CliAppContext
 import java.nio.file.Path
 
 
@@ -29,13 +29,14 @@ class Komf : CliktCommand(invokeWithoutSubcommand = true) {
             appContext.verbose = verbose
             appContext.init()
         } else {
-            val cliContext = CliContext(
-                configDir ?: configFileArgument ?: configFile,
-                mediaServer,
-                verbose
-            )
-            currentContext.findOrSetObject { cliContext }
+            when (currentContext.invokedSubcommand) {
+                is Metadata -> {}
+                else -> {
+                    val configPath = configDir ?: configFileArgument ?: configFile
+                    currentContext.findOrSetObject { CliAppContext(configPath, mediaServer, verbose) }
+                }
+            }
         }
-    }
 
+    }
 }

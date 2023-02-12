@@ -14,7 +14,7 @@ import io.javalin.http.HttpStatus.UNPROCESSABLE_CONTENT
 import org.snd.api.dto.AppConfigDto
 import org.snd.api.dto.AppConfigUpdateDto
 import org.snd.config.ConfigWriter
-import org.snd.module.AppContext
+import org.snd.module.context.AppContext
 
 class ConfigController(
     private val appContext: AppContext,

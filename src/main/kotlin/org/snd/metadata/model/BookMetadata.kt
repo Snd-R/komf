@@ -1,8 +1,10 @@
 package org.snd.metadata.model
 
+import com.squareup.moshi.JsonClass
 import java.time.LocalDate
 
 
+@JsonClass(generateAdapter = true)
 data class BookMetadata(
     val title: String? = null,
     val summary: String? = null,
@@ -21,6 +23,7 @@ data class BookMetadata(
     val thumbnail: Image? = null,
 )
 
+@JsonClass(generateAdapter = true)
 data class Chapter(
     val name: String?,
     val number: Int

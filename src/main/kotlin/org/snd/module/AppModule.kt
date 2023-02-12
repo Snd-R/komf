@@ -2,6 +2,7 @@ package org.snd.module
 
 import okhttp3.OkHttpClient
 import org.snd.config.AppConfig
+import org.snd.module.context.AppContext
 import java.time.Clock
 
 class AppModule(
