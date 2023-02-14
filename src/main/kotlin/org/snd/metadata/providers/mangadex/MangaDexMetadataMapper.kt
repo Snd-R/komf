@@ -51,8 +51,9 @@ class MangaDexMetadataMapper(
 
         val tags = manga.attributes.tags.filter { it.attributes.group == "theme" }
             .mapNotNull { it.attributes.name["en"] ?: it.attributes.name.values.firstOrNull() }
-        val genres = manga.attributes.tags.filter { it.attributes.group == "genre" }
-            .mapNotNull { it.attributes.name["en"] ?: it.attributes.name.values.firstOrNull() }
+        val genres = listOfNotNull(manga.attributes.publicationDemographic?.name?.lowercase()) +
+                manga.attributes.tags.filter { it.attributes.group == "genre" }
+                    .mapNotNull { it.attributes.name["en"] ?: it.attributes.name.values.firstOrNull() }
 
         val originalLang = manga.attributes.originalLanguage
         val titles = manga.attributes.altTitles
