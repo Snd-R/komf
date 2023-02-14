@@ -1,22 +1,22 @@
 package org.snd.mediaserver
 
-import org.snd.mediaserver.model.MediaServerAuthor
-import org.snd.mediaserver.model.MediaServerBook
-import org.snd.mediaserver.model.MediaServerBookMetadataUpdate
-import org.snd.mediaserver.model.MediaServerSeriesMetadata
-import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
+import org.snd.mediaserver.model.mediaserver.MediaServerAuthor
+import org.snd.mediaserver.model.mediaserver.MediaServerBook
+import org.snd.mediaserver.model.mediaserver.MediaServerBookMetadataUpdate
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesMetadata
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesMetadataUpdate
 import org.snd.metadata.comicinfo.model.AgeRating
 import org.snd.metadata.comicinfo.model.ComicInfo
-import org.snd.metadata.model.AuthorRole.COLORIST
-import org.snd.metadata.model.AuthorRole.COVER
-import org.snd.metadata.model.AuthorRole.EDITOR
-import org.snd.metadata.model.AuthorRole.INKER
-import org.snd.metadata.model.AuthorRole.LETTERER
-import org.snd.metadata.model.AuthorRole.PENCILLER
-import org.snd.metadata.model.AuthorRole.TRANSLATOR
-import org.snd.metadata.model.AuthorRole.WRITER
-import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.metadata.AuthorRole.COLORIST
+import org.snd.metadata.model.metadata.AuthorRole.COVER
+import org.snd.metadata.model.metadata.AuthorRole.EDITOR
+import org.snd.metadata.model.metadata.AuthorRole.INKER
+import org.snd.metadata.model.metadata.AuthorRole.LETTERER
+import org.snd.metadata.model.metadata.AuthorRole.PENCILLER
+import org.snd.metadata.model.metadata.AuthorRole.TRANSLATOR
+import org.snd.metadata.model.metadata.AuthorRole.WRITER
+import org.snd.metadata.model.metadata.BookMetadata
+import org.snd.metadata.model.metadata.SeriesMetadata
 
 class MetadataUpdateMapper {
 

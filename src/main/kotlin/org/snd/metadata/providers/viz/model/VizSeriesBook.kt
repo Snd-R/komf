@@ -1,8 +1,8 @@
 package org.snd.metadata.providers.viz.model
 
-import org.snd.metadata.model.BookRange
 import org.snd.metadata.model.Provider.VIZ
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.model.metadata.BookRange
 
 data class VizSeriesBook(
     val id: VizBookId,

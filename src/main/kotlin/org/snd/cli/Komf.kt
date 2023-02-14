@@ -8,8 +8,8 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import org.snd.mediaserver.model.MediaServer
-import org.snd.mediaserver.model.MediaServer.KOMGA
+import org.snd.mediaserver.model.mediaserver.MediaServer
+import org.snd.mediaserver.model.mediaserver.MediaServer.KOMGA
 import org.snd.module.context.AppContext
 import org.snd.module.context.CliAppContext
 import java.nio.file.Path

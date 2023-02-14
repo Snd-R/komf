@@ -3,8 +3,8 @@ package org.snd.metadata.providers.bookwalker
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
-import org.snd.infra.HttpClient
-import org.snd.infra.HttpException
+import org.snd.common.exceptions.HttpException
+import org.snd.common.http.HttpClient
 import org.snd.metadata.model.Image
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId

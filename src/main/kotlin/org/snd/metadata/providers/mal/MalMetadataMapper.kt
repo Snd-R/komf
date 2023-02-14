@@ -2,20 +2,20 @@ package org.snd.metadata.providers.mal
 
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
-import org.snd.metadata.model.Author
-import org.snd.metadata.model.AuthorRole
 import org.snd.metadata.model.Image
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.ReleaseDate
-import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.SeriesStatus
-import org.snd.metadata.model.SeriesTitle
-import org.snd.metadata.model.TitleType.LOCALIZED
-import org.snd.metadata.model.TitleType.NATIVE
-import org.snd.metadata.model.TitleType.ROMAJI
-import org.snd.metadata.model.WebLink
-import org.snd.metadata.model.toReleaseDate
+import org.snd.metadata.model.metadata.Author
+import org.snd.metadata.model.metadata.AuthorRole
+import org.snd.metadata.model.metadata.ProviderSeriesId
+import org.snd.metadata.model.metadata.ProviderSeriesMetadata
+import org.snd.metadata.model.metadata.ReleaseDate
+import org.snd.metadata.model.metadata.SeriesMetadata
+import org.snd.metadata.model.metadata.SeriesStatus
+import org.snd.metadata.model.metadata.SeriesTitle
+import org.snd.metadata.model.metadata.TitleType.LOCALIZED
+import org.snd.metadata.model.metadata.TitleType.NATIVE
+import org.snd.metadata.model.metadata.TitleType.ROMAJI
+import org.snd.metadata.model.metadata.WebLink
+import org.snd.metadata.model.metadata.toReleaseDate
 import org.snd.metadata.providers.mal.model.Series
 import java.time.LocalDate
 

@@ -6,8 +6,8 @@ import okhttp3.HttpUrl
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_BYTE_ARRAY
-import org.snd.infra.HttpClient
-import org.snd.infra.MEDIA_TYPE_JSON
+import org.snd.common.http.HttpClient
+import org.snd.common.http.MEDIA_TYPE_JSON
 import org.snd.mediaserver.kavita.model.KavitaAuthenticateResponse
 
 class KavitaAuthClient(

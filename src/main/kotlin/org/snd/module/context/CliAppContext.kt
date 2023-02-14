@@ -8,7 +8,7 @@ import org.slf4j.Logger.ROOT_LOGGER_NAME
 import org.slf4j.LoggerFactory.getLogger
 import org.snd.config.AppConfig
 import org.snd.config.ConfigLoader
-import org.snd.mediaserver.model.MediaServer
+import org.snd.mediaserver.model.mediaserver.MediaServer
 import org.snd.module.CliAppModule
 import java.nio.file.Path
 import kotlin.io.path.isDirectory

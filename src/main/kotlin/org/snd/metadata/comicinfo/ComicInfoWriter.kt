@@ -10,7 +10,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.io.IOUtils
-import org.snd.infra.ValidationException
+import org.snd.common.exceptions.ValidationException
 import org.snd.metadata.MetadataMerger.mergeComicInfoMetadata
 import org.snd.metadata.comicinfo.model.ComicInfo
 import java.nio.charset.StandardCharsets.UTF_8

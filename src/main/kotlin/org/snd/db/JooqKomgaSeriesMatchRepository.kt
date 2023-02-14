@@ -5,12 +5,12 @@ import org.snd.jooq.Tables.SERIES_MATCH
 import org.snd.jooq.tables.records.SeriesMatchRecord
 import org.snd.mediaserver.model.MatchType
 import org.snd.mediaserver.model.MatchType.MANUAL
-import org.snd.mediaserver.model.MediaServer.KOMGA
-import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.mediaserver.repository.SeriesMatch
+import org.snd.mediaserver.model.SeriesMatch
+import org.snd.mediaserver.model.mediaserver.MediaServer.KOMGA
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.metadata.model.Provider
-import org.snd.metadata.model.ProviderSeriesId
+import org.snd.metadata.model.metadata.ProviderSeriesId
 
 class JooqKomgaSeriesMatchRepository(
     private val dsl: DSLContext,

@@ -14,12 +14,12 @@ import io.javalin.http.HttpStatus.NO_CONTENT
 import io.javalin.http.HttpStatus.OK
 import org.snd.api.dto.IdentifySeriesRequest
 import org.snd.mediaserver.MediaServerClient
-import org.snd.mediaserver.model.MediaServer
-import org.snd.mediaserver.model.MediaServerLibraryId
-import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServer
+import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import org.snd.metadata.model.Provider
-import org.snd.metadata.model.ProviderSeriesId
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.module.MediaServerModule.MetadataServiceProvider
 import org.snd.module.MediaServerModule.MetadataUpdateServiceProvider
 import java.util.concurrent.ExecutorService

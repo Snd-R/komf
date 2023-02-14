@@ -16,8 +16,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.snd.MediaQuery
 import org.snd.SearchQuery
+import org.snd.common.exceptions.HttpException
 import org.snd.fragment.AniListManga
-import org.snd.infra.HttpException
 import org.snd.metadata.model.Image
 import org.snd.type.MediaFormat
 import java.io.IOException

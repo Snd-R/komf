@@ -1,6 +1,6 @@
 package org.snd.metadata
 
-import org.snd.metadata.model.BookRange
+import org.snd.metadata.model.metadata.BookRange
 
 object BookNameParser {
     private val volumeRegexes = listOf(

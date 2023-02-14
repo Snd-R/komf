@@ -1,8 +1,9 @@
 package org.snd.metadata
 
 import org.apache.commons.text.similarity.LevenshteinDistance
-import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
-import org.snd.metadata.NameMatchingMode.EXACT
+import org.snd.metadata.model.NameMatchingMode
+import org.snd.metadata.model.NameMatchingMode.CLOSEST_MATCH
+import org.snd.metadata.model.NameMatchingMode.EXACT
 
 class NameSimilarityMatcher private constructor(
     private val mode: NameMatchingMode

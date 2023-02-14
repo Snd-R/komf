@@ -3,7 +3,7 @@ package org.snd.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
-import org.snd.mediaserver.model.MediaServerLibraryId
+import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
 import org.snd.module.context.CliAppContext
 import kotlin.system.exitProcess
 

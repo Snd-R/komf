@@ -1,13 +1,13 @@
 package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerAuthor
-import org.snd.mediaserver.model.MediaServerBook
-import org.snd.mediaserver.model.MediaServerBookId
-import org.snd.mediaserver.model.MediaServerBookMetadata
-import org.snd.mediaserver.model.MediaServerLibraryId
-import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.metadata.model.WebLink
+import org.snd.mediaserver.model.mediaserver.MediaServerAuthor
+import org.snd.mediaserver.model.mediaserver.MediaServerBook
+import org.snd.mediaserver.model.mediaserver.MediaServerBookId
+import org.snd.mediaserver.model.mediaserver.MediaServerBookMetadata
+import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
+import org.snd.metadata.model.metadata.WebLink
 import java.time.LocalDate
 import java.time.ZonedDateTime
 

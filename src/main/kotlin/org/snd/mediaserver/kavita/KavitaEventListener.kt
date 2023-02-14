@@ -6,7 +6,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import mu.KotlinLogging
-import org.snd.infra.HttpException
+import org.snd.common.exceptions.HttpException
 import org.snd.mediaserver.NotificationService
 import org.snd.mediaserver.kavita.model.KavitaChapter
 import org.snd.mediaserver.kavita.model.KavitaVolume
@@ -14,8 +14,8 @@ import org.snd.mediaserver.kavita.model.KavitaVolumeId
 import org.snd.mediaserver.kavita.model.events.CoverUpdateEvent
 import org.snd.mediaserver.kavita.model.events.NotificationProgressEvent
 import org.snd.mediaserver.kavita.model.events.SeriesRemovedEvent
-import org.snd.mediaserver.model.MediaServerBookId
-import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerBookId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.module.MediaServerModule.MetadataServiceProvider
 import java.time.Clock

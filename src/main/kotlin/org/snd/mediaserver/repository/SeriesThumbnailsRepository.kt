@@ -1,6 +1,7 @@
 package org.snd.mediaserver.repository
 
-import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.SeriesThumbnail
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 
 interface SeriesThumbnailsRepository {
 

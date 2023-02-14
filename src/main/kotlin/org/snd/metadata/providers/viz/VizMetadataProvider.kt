@@ -6,11 +6,11 @@ import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.VIZ
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.model.metadata.ProviderBookId
+import org.snd.metadata.model.metadata.ProviderBookMetadata
+import org.snd.metadata.model.metadata.ProviderSeriesId
+import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.providers.viz.model.VizBookId
 import org.snd.metadata.providers.viz.model.toSeriesSearchResult
 import org.snd.metadata.providers.viz.model.toVizSeriesBook

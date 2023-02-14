@@ -1,6 +1,6 @@
 package org.snd.metadata.providers.viz.model
 
-import org.snd.metadata.model.BookRange
+import org.snd.metadata.model.metadata.BookRange
 import java.time.LocalDate
 
 data class VizBook(

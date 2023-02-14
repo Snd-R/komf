@@ -1,17 +1,17 @@
 package org.snd.metadata.providers.bookwalker
 
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import org.snd.metadata.MediaType
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Image
+import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.BOOK_WALKER
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.model.metadata.ProviderBookId
+import org.snd.metadata.model.metadata.ProviderBookMetadata
+import org.snd.metadata.model.metadata.ProviderSeriesId
+import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
 import org.snd.metadata.providers.bookwalker.model.BookWalkerCategory.LIGHT_NOVELS

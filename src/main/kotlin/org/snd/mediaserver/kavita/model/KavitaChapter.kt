@@ -1,9 +1,9 @@
 package org.snd.mediaserver.kavita.model
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerBook
-import org.snd.mediaserver.model.MediaServerBookId
-import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerBook
+import org.snd.mediaserver.model.mediaserver.MediaServerBookId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import java.nio.file.Path
 import java.time.LocalDateTime
 

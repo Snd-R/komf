@@ -3,11 +3,11 @@ package org.snd.metadata.providers.mangadex
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Provider.MANGADEX
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.model.metadata.ProviderBookId
+import org.snd.metadata.model.metadata.ProviderBookMetadata
+import org.snd.metadata.model.metadata.ProviderSeriesId
+import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.providers.mangadex.model.MangaDexCoverArt
 import org.snd.metadata.providers.mangadex.model.MangaDexMangaId
 import org.snd.metadata.providers.mangadex.model.toSeriesSearchResult

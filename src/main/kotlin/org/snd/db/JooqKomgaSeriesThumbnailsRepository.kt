@@ -3,10 +3,10 @@ package org.snd.db
 import org.jooq.DSLContext
 import org.snd.jooq.Tables.SERIES_THUMBNAILS
 import org.snd.jooq.tables.records.SeriesThumbnailsRecord
-import org.snd.mediaserver.model.MediaServer.KOMGA
-import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.mediaserver.model.MediaServerThumbnailId
-import org.snd.mediaserver.repository.SeriesThumbnail
+import org.snd.mediaserver.model.SeriesThumbnail
+import org.snd.mediaserver.model.mediaserver.MediaServer.KOMGA
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerThumbnailId
 import org.snd.mediaserver.repository.SeriesThumbnailsRepository
 
 class JooqKomgaSeriesThumbnailsRepository(

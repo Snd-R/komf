@@ -5,8 +5,8 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
-import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.metadata.model.ProviderSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
+import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.module.context.CliAppContext
 import kotlin.system.exitProcess
 

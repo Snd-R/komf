@@ -5,8 +5,8 @@ import com.squareup.moshi.adapter
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.snd.infra.HttpClient
-import org.snd.infra.MEDIA_TYPE_JSON
+import org.snd.common.http.HttpClient
+import org.snd.common.http.MEDIA_TYPE_JSON
 import org.snd.noifications.discord.model.Webhook
 import org.snd.noifications.discord.model.WebhookExecuteRequest
 

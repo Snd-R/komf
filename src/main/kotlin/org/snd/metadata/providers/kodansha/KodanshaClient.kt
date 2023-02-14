@@ -3,7 +3,7 @@ package org.snd.metadata.providers.kodansha
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
-import org.snd.infra.HttpClient
+import org.snd.common.http.HttpClient
 import org.snd.metadata.model.Image
 import org.snd.metadata.providers.kodansha.model.KodanshaBook
 import org.snd.metadata.providers.kodansha.model.KodanshaBookId

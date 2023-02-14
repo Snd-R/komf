@@ -14,8 +14,8 @@ import org.snd.mediaserver.NotificationService
 import org.snd.mediaserver.komga.model.event.BookEvent
 import org.snd.mediaserver.komga.model.event.SeriesEvent
 import org.snd.mediaserver.komga.model.event.TaskQueueStatusEvent
-import org.snd.mediaserver.model.MediaServerBookId
-import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerBookId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import org.snd.mediaserver.repository.BookThumbnailsRepository
 import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.mediaserver.repository.SeriesThumbnailsRepository

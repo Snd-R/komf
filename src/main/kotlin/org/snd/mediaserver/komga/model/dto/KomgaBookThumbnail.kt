@@ -1,9 +1,9 @@
 package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerBookId
-import org.snd.mediaserver.model.MediaServerBookThumbnail
-import org.snd.mediaserver.model.MediaServerThumbnailId
+import org.snd.mediaserver.model.mediaserver.MediaServerBookId
+import org.snd.mediaserver.model.mediaserver.MediaServerBookThumbnail
+import org.snd.mediaserver.model.mediaserver.MediaServerThumbnailId
 
 @JsonClass(generateAdapter = true)
 data class KomgaBookThumbnail(

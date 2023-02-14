@@ -1,9 +1,9 @@
 package org.snd.metadata
 
-import org.snd.mediaserver.model.MediaServerBookId
+import org.snd.mediaserver.model.mediaserver.MediaServerBookId
 import org.snd.metadata.comicinfo.model.ComicInfo
-import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.metadata.BookMetadata
+import org.snd.metadata.model.metadata.SeriesMetadata
 
 object MetadataMerger {
     fun mergeSeriesMetadata(

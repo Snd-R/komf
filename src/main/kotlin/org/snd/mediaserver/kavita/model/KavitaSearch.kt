@@ -1,9 +1,9 @@
 package org.snd.mediaserver.kavita.model
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerLibraryId
-import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.mediaserver.model.MediaServerSeriesSearch
+import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesSearch
 
 @JsonClass(generateAdapter = true)
 data class KavitaSearch(

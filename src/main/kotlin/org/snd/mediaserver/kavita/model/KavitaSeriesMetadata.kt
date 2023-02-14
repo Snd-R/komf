@@ -1,18 +1,18 @@
 package org.snd.mediaserver.kavita.model
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerAlternativeTitle
-import org.snd.mediaserver.model.MediaServerAuthor
-import org.snd.mediaserver.model.MediaServerSeriesMetadata
-import org.snd.metadata.model.AuthorRole
-import org.snd.metadata.model.AuthorRole.COLORIST
-import org.snd.metadata.model.AuthorRole.COVER
-import org.snd.metadata.model.AuthorRole.EDITOR
-import org.snd.metadata.model.AuthorRole.INKER
-import org.snd.metadata.model.AuthorRole.LETTERER
-import org.snd.metadata.model.AuthorRole.PENCILLER
-import org.snd.metadata.model.AuthorRole.TRANSLATOR
-import org.snd.metadata.model.SeriesStatus
+import org.snd.mediaserver.model.mediaserver.MediaServerAlternativeTitle
+import org.snd.mediaserver.model.mediaserver.MediaServerAuthor
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesMetadata
+import org.snd.metadata.model.metadata.AuthorRole
+import org.snd.metadata.model.metadata.AuthorRole.COLORIST
+import org.snd.metadata.model.metadata.AuthorRole.COVER
+import org.snd.metadata.model.metadata.AuthorRole.EDITOR
+import org.snd.metadata.model.metadata.AuthorRole.INKER
+import org.snd.metadata.model.metadata.AuthorRole.LETTERER
+import org.snd.metadata.model.metadata.AuthorRole.PENCILLER
+import org.snd.metadata.model.metadata.AuthorRole.TRANSLATOR
+import org.snd.metadata.model.metadata.SeriesStatus
 
 @JsonClass(generateAdapter = true)
 data class KavitaSeriesMetadata(

@@ -4,7 +4,7 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Request
-import org.snd.infra.HttpClient
+import org.snd.common.http.HttpClient
 import org.snd.metadata.model.Image
 import org.snd.metadata.providers.yenpress.model.YenPressBook
 import org.snd.metadata.providers.yenpress.model.YenPressBookId

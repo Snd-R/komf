@@ -1,24 +1,25 @@
 package org.snd.mediaserver
 
 import mu.KotlinLogging
-import org.snd.mediaserver.UpdateMode.API
-import org.snd.mediaserver.UpdateMode.COMIC_INFO
-import org.snd.mediaserver.model.MediaServerBook
-import org.snd.mediaserver.model.MediaServerBookId
-import org.snd.mediaserver.model.MediaServerLibraryId
-import org.snd.mediaserver.model.MediaServerSeries
-import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.mediaserver.model.MediaServerThumbnailId
+import org.snd.mediaserver.model.BookThumbnail
 import org.snd.mediaserver.model.SeriesAndBookMetadata
-import org.snd.mediaserver.repository.BookThumbnail
+import org.snd.mediaserver.model.SeriesThumbnail
+import org.snd.mediaserver.model.UpdateMode
+import org.snd.mediaserver.model.UpdateMode.API
+import org.snd.mediaserver.model.UpdateMode.COMIC_INFO
+import org.snd.mediaserver.model.mediaserver.MediaServerBook
+import org.snd.mediaserver.model.mediaserver.MediaServerBookId
+import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeries
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerThumbnailId
 import org.snd.mediaserver.repository.BookThumbnailsRepository
-import org.snd.mediaserver.repository.SeriesThumbnail
 import org.snd.mediaserver.repository.SeriesThumbnailsRepository
 import org.snd.metadata.BookNameParser
 import org.snd.metadata.comicinfo.ComicInfoWriter
-import org.snd.metadata.model.BookMetadata
 import org.snd.metadata.model.Image
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.metadata.model.metadata.BookMetadata
+import org.snd.metadata.model.metadata.SeriesMetadata
 import java.nio.file.Path
 
 private val logger = KotlinLogging.logger {}

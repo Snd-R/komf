@@ -1,9 +1,9 @@
 package org.snd.mediaserver.kavita.model
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerLibraryId
-import org.snd.mediaserver.model.MediaServerSeries
-import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeries
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)

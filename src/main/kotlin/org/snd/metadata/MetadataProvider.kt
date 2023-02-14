@@ -1,11 +1,11 @@
 package org.snd.metadata
 
 import org.snd.metadata.model.Provider
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.model.metadata.ProviderBookId
+import org.snd.metadata.model.metadata.ProviderBookMetadata
+import org.snd.metadata.model.metadata.ProviderSeriesId
+import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 
 interface MetadataProvider {
     fun providerName(): Provider

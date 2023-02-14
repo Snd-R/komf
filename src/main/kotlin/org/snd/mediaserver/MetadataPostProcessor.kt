@@ -1,12 +1,12 @@
 package org.snd.mediaserver
 
 import org.snd.config.MetadataPostProcessingConfig
-import org.snd.mediaserver.model.MediaServerBook
 import org.snd.mediaserver.model.SeriesAndBookMetadata
+import org.snd.mediaserver.model.mediaserver.MediaServerBook
 import org.snd.metadata.BookNameParser
-import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.SeriesTitle
+import org.snd.metadata.model.metadata.BookMetadata
+import org.snd.metadata.model.metadata.SeriesMetadata
+import org.snd.metadata.model.metadata.SeriesTitle
 
 class MetadataPostProcessor(
     private val config: MetadataPostProcessingConfig

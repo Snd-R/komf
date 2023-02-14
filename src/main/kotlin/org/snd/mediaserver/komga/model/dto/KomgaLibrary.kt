@@ -1,8 +1,8 @@
 package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerLibrary
-import org.snd.mediaserver.model.MediaServerLibraryId
+import org.snd.mediaserver.model.mediaserver.MediaServerLibrary
+import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
 
 @JsonClass(generateAdapter = true)
 data class KomgaLibrary(

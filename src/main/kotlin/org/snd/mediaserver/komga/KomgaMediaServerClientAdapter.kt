@@ -16,18 +16,18 @@ import org.snd.mediaserver.komga.model.dto.mediaServerSeriesSearch
 import org.snd.mediaserver.komga.model.dto.mediaServerSeriesThumbnail
 import org.snd.mediaserver.komga.model.dto.metadataResetRequest
 import org.snd.mediaserver.komga.model.dto.metadataUpdateRequest
-import org.snd.mediaserver.model.MediaServerBook
-import org.snd.mediaserver.model.MediaServerBookId
-import org.snd.mediaserver.model.MediaServerBookMetadataUpdate
-import org.snd.mediaserver.model.MediaServerBookThumbnail
-import org.snd.mediaserver.model.MediaServerLibrary
-import org.snd.mediaserver.model.MediaServerLibraryId
-import org.snd.mediaserver.model.MediaServerSeries
-import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
-import org.snd.mediaserver.model.MediaServerSeriesSearch
-import org.snd.mediaserver.model.MediaServerSeriesThumbnail
-import org.snd.mediaserver.model.MediaServerThumbnailId
+import org.snd.mediaserver.model.mediaserver.MediaServerBook
+import org.snd.mediaserver.model.mediaserver.MediaServerBookId
+import org.snd.mediaserver.model.mediaserver.MediaServerBookMetadataUpdate
+import org.snd.mediaserver.model.mediaserver.MediaServerBookThumbnail
+import org.snd.mediaserver.model.mediaserver.MediaServerLibrary
+import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeries
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesMetadataUpdate
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesSearch
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesThumbnail
+import org.snd.mediaserver.model.mediaserver.MediaServerThumbnailId
 import org.snd.metadata.model.Image
 
 class KomgaMediaServerClientAdapter(private val komgaClient: KomgaClient) : MediaServerClient {

@@ -6,7 +6,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.snd.infra.HttpClient
+import org.snd.common.http.HttpClient
 import org.snd.noifications.imgur.model.ImgurCredits
 import org.snd.noifications.imgur.model.ImgurImage
 import org.snd.noifications.imgur.model.ImgurResponse

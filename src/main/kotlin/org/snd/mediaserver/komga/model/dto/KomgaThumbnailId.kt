@@ -1,6 +1,6 @@
 package org.snd.mediaserver.komga.model.dto
 
-import org.snd.mediaserver.model.MediaServerThumbnailId
+import org.snd.mediaserver.model.mediaserver.MediaServerThumbnailId
 
 @JvmInline
 value class KomgaThumbnailId(val id: String)

@@ -1,9 +1,9 @@
 package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
-import org.snd.metadata.model.SeriesStatus.ONGOING
-import org.snd.metadata.model.TitleType
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesMetadataUpdate
+import org.snd.metadata.model.metadata.SeriesStatus.ONGOING
+import org.snd.metadata.model.metadata.TitleType
 
 @JsonClass(generateAdapter = true)
 data class KomgaSeriesMetadataUpdate(

@@ -1,7 +1,7 @@
 package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerBookMetadataUpdate
+import org.snd.mediaserver.model.mediaserver.MediaServerBookMetadataUpdate
 import java.time.LocalDate
 
 

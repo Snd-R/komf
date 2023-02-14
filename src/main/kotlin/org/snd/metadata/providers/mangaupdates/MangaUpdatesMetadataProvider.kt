@@ -1,14 +1,14 @@
 package org.snd.metadata.providers.mangaupdates
 
-import org.snd.metadata.MediaType
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.Provider.MANGA_UPDATES
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.model.metadata.ProviderBookId
+import org.snd.metadata.model.metadata.ProviderBookMetadata
+import org.snd.metadata.model.metadata.ProviderSeriesId
+import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.providers.mangaupdates.model.SeriesType.ARTBOOK
 import org.snd.metadata.providers.mangaupdates.model.SeriesType.DOUJINSHI
 import org.snd.metadata.providers.mangaupdates.model.SeriesType.FILIPINO

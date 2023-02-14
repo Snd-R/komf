@@ -1,7 +1,7 @@
 package org.snd.mediaserver
 
-import org.snd.mediaserver.model.MediaServerBookId
-import org.snd.mediaserver.model.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerBookId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import org.snd.noifications.discord.DiscordWebhookService
 import org.snd.noifications.discord.model.Book
 import org.snd.noifications.discord.model.Library

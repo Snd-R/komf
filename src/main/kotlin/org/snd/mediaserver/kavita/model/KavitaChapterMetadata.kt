@@ -1,9 +1,9 @@
 package org.snd.mediaserver.kavita.model
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerAuthor
-import org.snd.mediaserver.model.MediaServerBookMetadata
-import org.snd.metadata.model.AuthorRole
+import org.snd.mediaserver.model.mediaserver.MediaServerAuthor
+import org.snd.mediaserver.model.mediaserver.MediaServerBookMetadata
+import org.snd.metadata.model.metadata.AuthorRole
 
 @JsonClass(generateAdapter = true)
 data class KavitaChapterMetadata(

@@ -1,15 +1,15 @@
 package org.snd.mediaserver.komga.model.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.model.MediaServerAlternativeTitle
-import org.snd.mediaserver.model.MediaServerLibraryId
-import org.snd.mediaserver.model.MediaServerSeries
-import org.snd.mediaserver.model.MediaServerSeriesId
-import org.snd.mediaserver.model.MediaServerSeriesMetadata
-import org.snd.mediaserver.model.MediaServerSeriesSearch
-import org.snd.metadata.model.ReadingDirection.valueOf
-import org.snd.metadata.model.SeriesStatus
-import org.snd.metadata.model.WebLink
+import org.snd.mediaserver.model.mediaserver.MediaServerAlternativeTitle
+import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeries
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesMetadata
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesSearch
+import org.snd.metadata.model.metadata.ReadingDirection.valueOf
+import org.snd.metadata.model.metadata.SeriesStatus
+import org.snd.metadata.model.metadata.WebLink
 
 @JsonClass(generateAdapter = true)
 data class KomgaSeries(

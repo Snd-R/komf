@@ -2,11 +2,11 @@ package org.snd.metadata
 
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
-import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesMetadata
-import org.snd.metadata.model.SeriesMetadata
-import org.snd.metadata.model.SeriesTitle
+import org.snd.metadata.model.metadata.BookMetadata
+import org.snd.metadata.model.metadata.ProviderBookMetadata
+import org.snd.metadata.model.metadata.ProviderSeriesMetadata
+import org.snd.metadata.model.metadata.SeriesMetadata
+import org.snd.metadata.model.metadata.SeriesTitle
 
 object MetadataConfigApplier {
 

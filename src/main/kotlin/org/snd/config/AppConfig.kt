@@ -6,21 +6,21 @@ import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.EncodeDefault.Mode.NEVER
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import org.snd.mediaserver.UpdateMode
-import org.snd.mediaserver.UpdateMode.API
-import org.snd.metadata.MediaType
-import org.snd.metadata.MediaType.MANGA
-import org.snd.metadata.NameMatchingMode
-import org.snd.metadata.NameMatchingMode.CLOSEST_MATCH
-import org.snd.metadata.model.AuthorRole
-import org.snd.metadata.model.AuthorRole.COLORIST
-import org.snd.metadata.model.AuthorRole.COVER
-import org.snd.metadata.model.AuthorRole.INKER
-import org.snd.metadata.model.AuthorRole.LETTERER
-import org.snd.metadata.model.AuthorRole.PENCILLER
-import org.snd.metadata.model.AuthorRole.WRITER
-import org.snd.metadata.model.ReadingDirection
-import org.snd.metadata.model.TitleType
+import org.snd.mediaserver.model.UpdateMode
+import org.snd.mediaserver.model.UpdateMode.API
+import org.snd.metadata.model.MediaType
+import org.snd.metadata.model.MediaType.MANGA
+import org.snd.metadata.model.NameMatchingMode
+import org.snd.metadata.model.NameMatchingMode.CLOSEST_MATCH
+import org.snd.metadata.model.metadata.AuthorRole
+import org.snd.metadata.model.metadata.AuthorRole.COLORIST
+import org.snd.metadata.model.metadata.AuthorRole.COVER
+import org.snd.metadata.model.metadata.AuthorRole.INKER
+import org.snd.metadata.model.metadata.AuthorRole.LETTERER
+import org.snd.metadata.model.metadata.AuthorRole.PENCILLER
+import org.snd.metadata.model.metadata.AuthorRole.WRITER
+import org.snd.metadata.model.metadata.ReadingDirection
+import org.snd.metadata.model.metadata.TitleType
 
 @Serializable
 data class AppConfig(

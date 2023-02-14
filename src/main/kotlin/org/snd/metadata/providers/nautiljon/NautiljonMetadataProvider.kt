@@ -4,11 +4,11 @@ import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.NAUTILJON
-import org.snd.metadata.model.ProviderBookId
-import org.snd.metadata.model.ProviderBookMetadata
-import org.snd.metadata.model.ProviderSeriesId
-import org.snd.metadata.model.ProviderSeriesMetadata
 import org.snd.metadata.model.SeriesSearchResult
+import org.snd.metadata.model.metadata.ProviderBookId
+import org.snd.metadata.model.metadata.ProviderBookMetadata
+import org.snd.metadata.model.metadata.ProviderSeriesId
+import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.providers.nautiljon.model.SeriesId
 import org.snd.metadata.providers.nautiljon.model.VolumeId
 import org.snd.metadata.providers.nautiljon.model.toSeriesSearchResult

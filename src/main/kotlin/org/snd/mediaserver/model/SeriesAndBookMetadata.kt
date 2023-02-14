@@ -1,7 +1,8 @@
 package org.snd.mediaserver.model
 
-import org.snd.metadata.model.BookMetadata
-import org.snd.metadata.model.SeriesMetadata
+import org.snd.mediaserver.model.mediaserver.MediaServerBook
+import org.snd.metadata.model.metadata.BookMetadata
+import org.snd.metadata.model.metadata.SeriesMetadata
 
 data class SeriesAndBookMetadata(
     val seriesMetadata: SeriesMetadata,

@@ -12,9 +12,9 @@ import org.snd.mediaserver.kavita.model.KavitaPersonRole.PUBLISHER
 import org.snd.mediaserver.kavita.model.KavitaPersonRole.TRANSLATOR
 import org.snd.mediaserver.kavita.model.KavitaPersonRole.WRITER
 import org.snd.mediaserver.kavita.model.KavitaPublicationStatus.ONGOING
-import org.snd.mediaserver.model.MediaServerSeriesMetadataUpdate
-import org.snd.metadata.model.AuthorRole
-import org.snd.metadata.model.SeriesStatus
+import org.snd.mediaserver.model.mediaserver.MediaServerSeriesMetadataUpdate
+import org.snd.metadata.model.metadata.AuthorRole
+import org.snd.metadata.model.metadata.SeriesStatus
 
 @JsonClass(generateAdapter = true)
 data class KavitaSeriesMetadataUpdate(

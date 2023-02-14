@@ -2,9 +2,9 @@ package org.snd.module
 
 import okhttp3.OkHttpClient
 import org.snd.config.AppConfig
-import org.snd.mediaserver.model.MediaServer
-import org.snd.mediaserver.model.MediaServer.KAVITA
-import org.snd.mediaserver.model.MediaServer.KOMGA
+import org.snd.mediaserver.model.mediaserver.MediaServer
+import org.snd.mediaserver.model.mediaserver.MediaServer.KAVITA
+import org.snd.mediaserver.model.mediaserver.MediaServer.KOMGA
 import java.time.Clock
 
 class CliAppModule(

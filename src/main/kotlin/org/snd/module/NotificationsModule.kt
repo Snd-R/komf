@@ -7,9 +7,9 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import org.snd.common.exceptions.HttpException
+import org.snd.common.http.HttpClient
 import org.snd.config.DiscordConfig
-import org.snd.infra.HttpClient
-import org.snd.infra.HttpException
 import org.snd.noifications.discord.DiscordWebhookService
 import org.snd.noifications.discord.client.DiscordClient
 import org.snd.noifications.imgur.ClientIdAuthInterceptor

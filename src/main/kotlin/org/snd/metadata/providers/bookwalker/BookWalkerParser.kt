@@ -4,7 +4,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.snd.metadata.BookNameParser
-import org.snd.metadata.model.BookRange
+import org.snd.metadata.model.metadata.BookRange
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookId
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBookListPage

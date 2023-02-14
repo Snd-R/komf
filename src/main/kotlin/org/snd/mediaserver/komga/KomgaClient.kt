@@ -7,8 +7,8 @@ import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
-import org.snd.infra.HttpClient
-import org.snd.infra.MEDIA_TYPE_JSON
+import org.snd.common.http.HttpClient
+import org.snd.common.http.MEDIA_TYPE_JSON
 import org.snd.mediaserver.komga.model.dto.KomgaBook
 import org.snd.mediaserver.komga.model.dto.KomgaBookId
 import org.snd.mediaserver.komga.model.dto.KomgaBookMetadataUpdate

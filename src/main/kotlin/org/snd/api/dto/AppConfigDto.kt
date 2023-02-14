@@ -1,12 +1,12 @@
 package org.snd.api.dto
 
 import com.squareup.moshi.JsonClass
-import org.snd.mediaserver.UpdateMode
-import org.snd.metadata.MediaType
-import org.snd.metadata.NameMatchingMode
-import org.snd.metadata.model.AuthorRole
-import org.snd.metadata.model.ReadingDirection
-import org.snd.metadata.model.TitleType
+import org.snd.mediaserver.model.UpdateMode
+import org.snd.metadata.model.MediaType
+import org.snd.metadata.model.NameMatchingMode
+import org.snd.metadata.model.metadata.AuthorRole
+import org.snd.metadata.model.metadata.ReadingDirection
+import org.snd.metadata.model.metadata.TitleType
 
 @JsonClass(generateAdapter = true)
 data class AppConfigDto(
