@@ -48,7 +48,7 @@ class AniListMetadataMapper(
                         artistRoles.map { role -> Author(authorName, role) } + authorRoles.map { role -> Author(authorName, role) }
                     }
 
-                    "Story" -> {
+                    "Story", "Original Story" -> {
                         authorRoles.map { role -> Author(authorName, role) }
                     }
 
