@@ -25,7 +25,7 @@ class MetadataPostProcessor(
             series.titles.filter {
                 it != seriesTitle &&
                         (it.language == null || it.language in config.alternativeSeriesTitleLanguages)
-            }
+            }.sortedBy { it.language }
         else emptyList()
 
         return series.copy(
@@ -54,7 +54,9 @@ class MetadataPostProcessor(
     }
 
     private fun seriesTitle(titles: Collection<SeriesTitle>): SeriesTitle? {
-        val knownTitles = titles.filter { it.type != null }
-        return (knownTitles.find { it.type == config.titleType } ?: knownTitles.firstOrNull())
+        val knownTitles = titles.filter {
+            it.type != null && (it.language == null || it.language == config.seriesTitleLanguage)
+        }
+        return (knownTitles.find { it.type == config.titleType })
     }
 }

@@ -98,6 +98,7 @@ data class MetadataProcessingConfig(
 @Serializable
 data class MetadataPostProcessingConfig(
     val seriesTitle: Boolean = false,
+    val seriesTitleLanguage: String = "en",
     val titleType: TitleType = TitleType.LOCALIZED,
     val alternativeSeriesTitles: Boolean = false,
     val alternativeSeriesTitleLanguages: List<String> = listOf("en", "ja", "ja-ro"),
