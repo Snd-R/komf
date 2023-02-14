@@ -55,7 +55,7 @@ class NautiljonSeriesMetadataMapper(
         )
         val titles = listOfNotNull(
             SeriesTitle(series.title, TitleType.LOCALIZED, null),
-            series.romajiTitle?.let { SeriesTitle(it, ROMAJI, "") },
+            series.romajiTitle?.let { SeriesTitle(it, ROMAJI, "ja-ro") },
             series.japaneseTitle?.let { SeriesTitle(it, NATIVE, "ja") },
         ) + series.alternativeTitles.map { SeriesTitle(it, null, null) }
 
