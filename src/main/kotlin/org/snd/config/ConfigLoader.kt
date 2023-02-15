@@ -2,6 +2,7 @@ package org.snd.config
 
 import com.charleskorn.kaml.Yaml
 import mu.KotlinLogging
+import org.snd.metadata.model.metadata.TitleType
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isReadable
@@ -90,50 +91,14 @@ class ConfigLoader {
         val viz = config.metadataProviders.viz
         val bookWalker = config.metadataProviders.bookWalker
 
-
-        val komgaMetadataUpdate = config.komga.metadataUpdate
-        val kavitaMetadataUpdate = config.kavita.metadataUpdate
-
         warnAboutDeprecatedOptions(config)
 
         return config.copy(
             komga = config.komga.copy(
-                metadataUpdate = komgaMetadataUpdate.copy(
-                    default = config.komga.metadataUpdate.default.copy(
-                        aggregate = config.komga.aggregateMetadata ?: komgaMetadataUpdate.default.aggregate,
-                        bookCovers = komgaMetadataUpdate.bookThumbnails ?: komgaMetadataUpdate.default.bookCovers,
-                        seriesCovers = komgaMetadataUpdate.seriesThumbnails ?: komgaMetadataUpdate.default.seriesCovers,
-                        updateModes = komgaMetadataUpdate.modes ?: komgaMetadataUpdate.default.updateModes,
-                        postProcessing = komgaMetadataUpdate.default.postProcessing.copy(
-                            seriesTitle = komgaMetadataUpdate.seriesTitle ?: komgaMetadataUpdate.default.postProcessing.seriesTitle,
-                            titleType = komgaMetadataUpdate.titleType ?: komgaMetadataUpdate.default.postProcessing.titleType,
-                            orderBooks = komgaMetadataUpdate.orderBooks ?: komgaMetadataUpdate.default.postProcessing.orderBooks,
-                            readingDirectionValue = komgaMetadataUpdate.readingDirectionValue
-                                ?: komgaMetadataUpdate.default.postProcessing.readingDirectionValue,
-                            languageValue = komgaMetadataUpdate.languageValue
-                                ?: komgaMetadataUpdate.default.postProcessing.languageValue
-                        )
-                    )
-                )
+                metadataUpdate = overrideDeprecatedOptions(config.komga.metadataUpdate, config.komga.aggregateMetadata),
             ),
             kavita = config.kavita.copy(
-                metadataUpdate = kavitaMetadataUpdate.copy(
-                    default = config.kavita.metadataUpdate.default.copy(
-                        bookCovers = kavitaMetadataUpdate.bookThumbnails ?: kavitaMetadataUpdate.default.bookCovers,
-                        aggregate = config.kavita.aggregateMetadata ?: kavitaMetadataUpdate.default.aggregate,
-                        seriesCovers = kavitaMetadataUpdate.seriesThumbnails ?: kavitaMetadataUpdate.default.seriesCovers,
-                        updateModes = kavitaMetadataUpdate.modes ?: kavitaMetadataUpdate.default.updateModes,
-                        postProcessing = kavitaMetadataUpdate.default.postProcessing.copy(
-                            seriesTitle = kavitaMetadataUpdate.seriesTitle ?: kavitaMetadataUpdate.default.postProcessing.seriesTitle,
-                            titleType = kavitaMetadataUpdate.titleType ?: kavitaMetadataUpdate.default.postProcessing.titleType,
-                            orderBooks = kavitaMetadataUpdate.orderBooks ?: kavitaMetadataUpdate.default.postProcessing.orderBooks,
-                            readingDirectionValue = kavitaMetadataUpdate.readingDirectionValue
-                                ?: kavitaMetadataUpdate.default.postProcessing.readingDirectionValue,
-                            languageValue = kavitaMetadataUpdate.languageValue
-                                ?: kavitaMetadataUpdate.default.postProcessing.languageValue
-                        )
-                    )
-                )
+                metadataUpdate = overrideDeprecatedOptions(config.kavita.metadataUpdate, config.kavita.aggregateMetadata)
             ),
             metadataProviders = config.metadataProviders.copy(
                 malClientId = mal?.clientId ?: config.metadataProviders.malClientId,
@@ -148,6 +113,44 @@ class ConfigLoader {
                     bookWalker = bookWalker ?: defaultProviders.bookWalker,
                 )
             ),
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun overrideDeprecatedOptions(config: MetadataUpdateConfig, aggregate: Boolean?): MetadataUpdateConfig {
+        return config.copy(
+            default = config.default.copy(
+                aggregate = aggregate ?: config.default.aggregate,
+                bookCovers = config.bookThumbnails ?: config.default.bookCovers,
+                seriesCovers = config.seriesThumbnails ?: config.default.seriesCovers,
+                updateModes = config.modes ?: config.default.updateModes,
+                postProcessing = config.default.postProcessing.copy(
+                    seriesTitle = config.seriesTitle ?: config.default.postProcessing.seriesTitle,
+                    seriesTitleLanguage = when (config.default.postProcessing.titleType) {
+                        TitleType.ROMAJI -> "ja-ro"
+                        TitleType.LOCALIZED -> "en"
+                        TitleType.NATIVE -> "ja"
+                        null -> null
+                    } ?: config.default.postProcessing.seriesTitleLanguage,
+                    orderBooks = config.orderBooks ?: config.default.postProcessing.orderBooks,
+                    readingDirectionValue = config.readingDirectionValue
+                        ?: config.default.postProcessing.readingDirectionValue,
+                    languageValue = config.languageValue
+                        ?: config.default.postProcessing.languageValue,
+                )
+            ),
+            library = config.library.map { (libraryId, libraryConfig) ->
+                libraryId to libraryConfig.copy(
+                    postProcessing = libraryConfig.postProcessing.copy(
+                        seriesTitleLanguage = when (libraryConfig.postProcessing.titleType) {
+                            TitleType.ROMAJI -> "ja-ro"
+                            TitleType.LOCALIZED -> "en"
+                            TitleType.NATIVE -> "ja"
+                            null -> null
+                        } ?: libraryConfig.postProcessing.seriesTitleLanguage
+                    )
+                )
+            }.toMap()
         )
     }
 
@@ -171,6 +174,11 @@ class ConfigLoader {
             config.komga.metadataUpdate.languageValue?.let { "komga.metadataUpdate.languageValue" },
             config.komga.metadataUpdate.orderBooks?.let { "komga.metadataUpdate.orderBooks" },
             config.komga.metadataUpdate.modes?.let { "komga.metadataUpdate.modes" },
+            config.komga.metadataUpdate.default.postProcessing.titleType?.let { "komga.metadataUpdate.default.postProcessing.titleType" },
+            config.komga.metadataUpdate.library.mapNotNull { (libraryId, libraryConfig) ->
+                if (libraryConfig.postProcessing.titleType != null) "komga.metadataUpdate.library.$libraryId.postProcessing.titleType"
+                else null
+            }.joinToString().ifEmpty { null },
 
             config.kavita.metadataUpdate.bookThumbnails?.let { "kavita.metadataUpdate.bookThumbnails" },
             config.kavita.metadataUpdate.seriesThumbnails?.let { "kavita.metadataUpdate.seriesThumbnails" },
@@ -180,6 +188,11 @@ class ConfigLoader {
             config.kavita.metadataUpdate.languageValue?.let { "kavita.metadataUpdate.languageValue" },
             config.kavita.metadataUpdate.orderBooks?.let { "kavita.metadataUpdate.orderBooks" },
             config.kavita.metadataUpdate.modes?.let { "kavita.metadataUpdate.modes" },
+            config.kavita.metadataUpdate.default.postProcessing.titleType?.let { "kavita.metadataUpdate.default.postProcessing.titleType" },
+            config.kavita.metadataUpdate.library.mapNotNull { (libraryId, libraryConfig) ->
+                if (libraryConfig.postProcessing.titleType != null) "kavita.metadataUpdate.library.$libraryId.postProcessing.titleType"
+                else null
+            }.joinToString().ifEmpty { null },
         )
         if (deprecatedOptions.isNotEmpty()) {
             logger.warn {

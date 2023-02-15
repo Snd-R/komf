@@ -99,7 +99,8 @@ data class MetadataProcessingConfig(
 data class MetadataPostProcessingConfig(
     val seriesTitle: Boolean = false,
     val seriesTitleLanguage: String = "en",
-    val titleType: TitleType = TitleType.LOCALIZED,
+    @Deprecated("replaced with seriesTitleLanguage")
+    @EncodeDefault(NEVER) val titleType: TitleType? = null,
     val alternativeSeriesTitles: Boolean = false,
     val alternativeSeriesTitleLanguages: List<String> = listOf("en", "ja", "ja-ro"),
     val orderBooks: Boolean = false,

@@ -63,6 +63,9 @@ class MetadataPostProcessingConfigUpdateDto {
     fun isSet(prop: String) = isSet.getOrDefault(prop, false)
 
     var seriesTitle: Boolean? = null
+    var seriesTitleLanguage: String? = null
+
+    @Deprecated("replaced with seriesTitleLanguage")
     var titleType: TitleType? = null
     var orderBooks: Boolean? = null
     var alternativeSeriesTitles: Boolean? = null

@@ -54,9 +54,6 @@ class MetadataPostProcessor(
     }
 
     private fun seriesTitle(titles: Collection<SeriesTitle>): SeriesTitle? {
-        val knownTitles = titles.filter {
-            it.type != null && (it.language == null || it.language == config.seriesTitleLanguage)
-        }
-        return (knownTitles.find { it.type == config.titleType })
+        return titles.find { it.language == config.seriesTitleLanguage }
     }
 }

@@ -36,29 +36,11 @@ class ConfigWriter(
     private fun removeDeprecatedOptions(config: AppConfig): AppConfig {
         return config.copy(
             komga = config.komga.copy(
-                metadataUpdate = config.komga.metadataUpdate.copy(
-                    bookThumbnails = null,
-                    seriesThumbnails = null,
-                    seriesTitle = null,
-                    titleType = null,
-                    readingDirectionValue = null,
-                    languageValue = null,
-                    orderBooks = null,
-                    modes = null
-                ),
+                metadataUpdate = removeDeprecatedOptions(config.komga.metadataUpdate),
                 aggregateMetadata = null
             ),
             kavita = config.kavita.copy(
-                metadataUpdate = config.kavita.metadataUpdate.copy(
-                    bookThumbnails = null,
-                    seriesThumbnails = null,
-                    seriesTitle = null,
-                    titleType = null,
-                    readingDirectionValue = null,
-                    languageValue = null,
-                    orderBooks = null,
-                    modes = null
-                ),
+                metadataUpdate = removeDeprecatedOptions(config.kavita.metadataUpdate),
                 aggregateMetadata = null
             ),
             metadataProviders = config.metadataProviders.copy(
@@ -72,6 +54,30 @@ class ConfigWriter(
                 bookWalker = null
             )
         )
+    }
 
+    private fun removeDeprecatedOptions(config: MetadataUpdateConfig): MetadataUpdateConfig {
+        return config.copy(
+            bookThumbnails = null,
+            seriesThumbnails = null,
+            seriesTitle = null,
+            titleType = null,
+            readingDirectionValue = null,
+            languageValue = null,
+            orderBooks = null,
+            modes = null,
+            default = config.default.copy(
+                postProcessing = config.default.postProcessing.copy(
+                    titleType = null
+                )
+            ),
+            library = config.library.map { (libraryId, libraryConfig) ->
+                libraryId to libraryConfig.copy(
+                    postProcessing = libraryConfig.postProcessing.copy(
+                        titleType = null
+                    )
+                )
+            }.toMap()
+        )
     }
 }

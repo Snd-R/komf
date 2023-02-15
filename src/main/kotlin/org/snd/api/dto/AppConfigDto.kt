@@ -57,6 +57,8 @@ data class MetadataProcessingConfigDto(
 @JsonClass(generateAdapter = true)
 data class MetadataPostProcessingConfigDto(
     val seriesTitle: Boolean,
+    val seriesTitleLanguage: String,
+    @Deprecated("replaced with seriesTitleLanguage")
     val titleType: TitleType,
     val alternativeSeriesTitles: Boolean?,
     val orderBooks: Boolean,

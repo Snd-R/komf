@@ -42,6 +42,7 @@ import org.snd.config.NotificationConfig
 import org.snd.config.ProviderConfig
 import org.snd.config.ProvidersConfig
 import org.snd.config.SeriesMetadataConfig
+import org.snd.metadata.model.metadata.TitleType
 
 class ConfigUpdateMapper {
     private val maskedPlaceholder = "********"
@@ -117,7 +118,13 @@ class ConfigUpdateMapper {
     private fun toDto(config: MetadataPostProcessingConfig): MetadataPostProcessingConfigDto {
         return MetadataPostProcessingConfigDto(
             seriesTitle = config.seriesTitle,
-            titleType = config.titleType,
+            seriesTitleLanguage = config.seriesTitleLanguage,
+            //TODO remove titleType in future
+            titleType = config.titleType ?: when (config.seriesTitleLanguage) {
+                "ja" -> TitleType.NATIVE
+                "ja-ro" -> TitleType.ROMAJI
+                else -> TitleType.LOCALIZED
+            },
             alternativeSeriesTitles = config.alternativeSeriesTitles,
             orderBooks = config.orderBooks,
             readingDirectionValue = config.readingDirectionValue,
@@ -428,7 +435,13 @@ class ConfigUpdateMapper {
     ): MetadataPostProcessingConfig {
         return config.copy(
             seriesTitle = patch.seriesTitle ?: config.seriesTitle,
-            titleType = patch.titleType ?: config.titleType,
+            //TODO remove titleType in future
+            seriesTitleLanguage = patch.seriesTitleLanguage ?: when (patch.titleType) {
+                TitleType.ROMAJI -> "ja-ro"
+                TitleType.LOCALIZED -> "en"
+                TitleType.NATIVE -> "ja"
+                null -> null
+            } ?: config.seriesTitleLanguage,
             alternativeSeriesTitles = patch.alternativeSeriesTitles ?: config.alternativeSeriesTitles,
             orderBooks = patch.orderBooks ?: config.orderBooks,
             readingDirectionValue = if (patch.isSet("readingDirectionValue")) patch.readingDirectionValue
