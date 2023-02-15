@@ -23,6 +23,8 @@ class VizMetadataProvider(
     private val client: VizClient,
     private val metadataMapper: VizMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val fetchSeriesCovers: Boolean,
+    private val fetchBookCovers: Boolean,
 ) : MetadataProvider {
     override fun providerName(): Provider {
         return VIZ
@@ -33,14 +35,14 @@ class VizMetadataProvider(
         val books = series.allBooksId
             ?.let { client.getAllBooks(it) }
             ?: listOf(series.toVizSeriesBook())
-        val thumbnail = getThumbnail(series.coverUrl)
+        val thumbnail = if (fetchSeriesCovers) getThumbnail(series.coverUrl) else null
 
         return metadataMapper.toSeriesMetadata(series, books, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = getBook(VizBookId(bookId.id))
-        val thumbnail = getThumbnail(bookMetadata.coverUrl)
+        val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.coverUrl) else null
 
         return metadataMapper.toBookMetadata(bookMetadata, thumbnail)
     }
@@ -63,7 +65,7 @@ class VizMetadataProvider(
                 val books = firstBook.allBooksId
                     ?.let { id -> client.getAllBooks(id) }
                     ?: listOf(firstBook.toVizSeriesBook())
-                val thumbnail = getThumbnail(firstBook.coverUrl)
+                val thumbnail = if (fetchSeriesCovers) getThumbnail(firstBook.coverUrl) else null
                 metadataMapper.toSeriesMetadata(firstBook, books, thumbnail)
             }
     }

@@ -20,6 +20,8 @@ class KodanshaMetadataProvider(
     private val client: KodanshaClient,
     private val metadataMapper: KodanshaMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val fetchSeriesCovers: Boolean,
+    private val fetchBookCovers: Boolean,
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
@@ -28,13 +30,13 @@ class KodanshaMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = getSeries(KodanshaSeriesId(seriesId.id))
-        val thumbnail = getThumbnail(series.coverUrl)
+        val thumbnail = if (fetchSeriesCovers) getThumbnail(series.coverUrl) else null
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(KodanshaBookId(bookId.id))
-        val thumbnail = getThumbnail(bookMetadata.coverUrl)
+        val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.coverUrl) else null
 
         return metadataMapper.toBookMetadata(bookMetadata, thumbnail)
     }
@@ -50,7 +52,7 @@ class KodanshaMetadataProvider(
         return searchResults.firstOrNull { nameMatcher.matches(seriesName, it.title) }
             ?.let {
                 val series = getSeries(it.seriesId)
-                val thumbnail = getThumbnail(series.coverUrl)
+                val thumbnail = if (fetchSeriesCovers) getThumbnail(series.coverUrl) else null
                 metadataMapper.toSeriesMetadata(series, thumbnail)
             }
     }

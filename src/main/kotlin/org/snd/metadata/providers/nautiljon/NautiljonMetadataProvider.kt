@@ -17,6 +17,8 @@ class NautiljonMetadataProvider(
     private val client: NautiljonClient,
     private val metadataMapper: NautiljonSeriesMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val fetchSeriesCovers: Boolean,
+    private val fetchBookCovers: Boolean,
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
@@ -25,14 +27,14 @@ class NautiljonMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = client.getSeries(SeriesId(seriesId.id))
-        val thumbnail = client.getSeriesThumbnail(series)
+        val thumbnail = if (fetchSeriesCovers) client.getSeriesThumbnail(series) else null
 
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(SeriesId(seriesId.id), VolumeId(bookId.id))
-        val thumbnail = client.getVolumeThumbnail(bookMetadata)
+        val thumbnail = if (fetchBookCovers) client.getVolumeThumbnail(bookMetadata) else null
 
         return metadataMapper.toBookMetadata(bookMetadata, thumbnail)
     }
@@ -49,7 +51,7 @@ class NautiljonMetadataProvider(
 
         return match?.let {
             val series = client.getSeries(it.id)
-            val thumbnail = client.getSeriesThumbnail(series)
+            val thumbnail = if (fetchSeriesCovers) client.getSeriesThumbnail(series) else null
             metadataMapper.toSeriesMetadata(series, thumbnail)
         }
     }

@@ -29,6 +29,7 @@ class MalMetadataProvider(
     private val malClient: MalClient,
     private val metadataMapper: MalMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val fetchSeriesCovers: Boolean,
     mediaType: MediaType,
 ) : MetadataProvider {
     private val seriesTypes = if (mediaType == MediaType.MANGA) mangaMediaTypes else novelMediaTypes
@@ -37,7 +38,7 @@ class MalMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = malClient.getSeries(seriesId.id.toInt())
-        val thumbnail = malClient.getThumbnail(series)
+        val thumbnail = if (fetchSeriesCovers) malClient.getThumbnail(series) else null
 
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
@@ -74,7 +75,7 @@ class MalMetadataProvider(
 
         return match?.let {
             val series = malClient.getSeries(it.id)
-            val thumbnail = malClient.getThumbnail(series)
+            val thumbnail = if (fetchSeriesCovers) malClient.getThumbnail(series) else null
             metadataMapper.toSeriesMetadata(series, thumbnail)
         }
     }

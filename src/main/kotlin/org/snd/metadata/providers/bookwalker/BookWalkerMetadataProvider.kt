@@ -25,6 +25,8 @@ class BookWalkerMetadataProvider(
     private val client: BookWalkerClient,
     private val metadataMapper: BookWalkerMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val fetchSeriesCovers: Boolean,
+    private val fetchBookCovers: Boolean,
     mediaType: MediaType,
 ) : MetadataProvider {
     private val category = if (mediaType == MediaType.MANGA) MANGA else LIGHT_NOVELS
@@ -34,13 +36,13 @@ class BookWalkerMetadataProvider(
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val books = getAllBooks(BookWalkerSeriesId(seriesId.id))
         val firstBook = getFirstBook(books)
-        val thumbnail = getThumbnail(firstBook.imageUrl)
+        val thumbnail = if (fetchSeriesCovers) getThumbnail(firstBook.imageUrl) else null
         return metadataMapper.toSeriesMetadata(BookWalkerSeriesId(seriesId.id), firstBook, books, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(BookWalkerBookId(bookId.id))
-        val thumbnail = getThumbnail(bookMetadata.imageUrl)
+        val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.imageUrl) else null
 
         return metadataMapper.toBookMetadata(bookMetadata, thumbnail)
     }
@@ -61,7 +63,7 @@ class BookWalkerMetadataProvider(
                 getSeriesId(it)?.let { seriesId ->
                     val books = getAllBooks(seriesId)
                     val firstBook = getFirstBook(books)
-                    val thumbnail = getThumbnail(firstBook.imageUrl)
+                    val thumbnail = if (fetchSeriesCovers) getThumbnail(firstBook.imageUrl) else null
                     metadataMapper.toSeriesMetadata(seriesId, firstBook, books, thumbnail)
                 }
             }

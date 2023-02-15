@@ -20,6 +20,8 @@ class YenPressMetadataProvider(
     private val metadataMapper: YenPressMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
     private val mediaType: MediaType,
+    private val fetchSeriesCovers: Boolean,
+    private val fetchBookCovers: Boolean,
 ) : MetadataProvider {
 
     override fun providerName(): Provider {
@@ -28,14 +30,14 @@ class YenPressMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = client.getBook(YenPressBookId(seriesId.id))
-        val thumbnail = client.getBookThumbnail(series)
+        val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(series) else null
 
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(YenPressBookId(bookId.id))
-        val thumbnail = client.getBookThumbnail(bookMetadata)
+        val thumbnail = if (fetchBookCovers) client.getBookThumbnail(bookMetadata) else null
 
         return metadataMapper.toBookMetadata(bookMetadata, thumbnail)
     }
@@ -58,7 +60,7 @@ class YenPressMetadataProvider(
             .firstOrNull { nameMatcher.matches(seriesName, bookTitle(it.title)) }
             ?.let {
                 val book = client.getBook(it.id)
-                val thumbnail = client.getBookThumbnail(book)
+                val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(book) else null
                 metadataMapper.toSeriesMetadata(book, thumbnail)
             }
     }

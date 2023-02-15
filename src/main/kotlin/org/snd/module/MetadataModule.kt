@@ -276,7 +276,13 @@ class MetadataModule(
         )
         val malSimilarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return MalMetadataProvider(client, malMetadataMapper, malSimilarityMatcher, config.mediaType)
+        return MalMetadataProvider(
+            client,
+            malMetadataMapper,
+            malSimilarityMatcher,
+            config.seriesMetadata.thumbnail,
+            config.mediaType,
+        )
     }
 
     private fun createMangaUpdatesMetadataProvider(
@@ -292,7 +298,13 @@ class MetadataModule(
         )
         val mangaUpdatesSimilarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return MangaUpdatesMetadataProvider(client, mangaUpdatesMetadataMapper, mangaUpdatesSimilarityMatcher, config.mediaType)
+        return MangaUpdatesMetadataProvider(
+            client,
+            mangaUpdatesMetadataMapper,
+            mangaUpdatesSimilarityMatcher,
+            config.seriesMetadata.thumbnail,
+            config.mediaType
+        )
     }
 
     private fun createNautiljonMetadataProvider(config: ProviderConfig, client: NautiljonClient): NautiljonMetadataProvider? {
@@ -305,7 +317,13 @@ class MetadataModule(
         )
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return NautiljonMetadataProvider(client, seriesMetadataMapper, similarityMatcher)
+        return NautiljonMetadataProvider(
+            client,
+            seriesMetadataMapper,
+            similarityMatcher,
+            config.seriesMetadata.thumbnail,
+            config.bookMetadata.thumbnail,
+        )
     }
 
     private fun createAnilistMetadataProvider(config: ProviderConfig, client: AniListClient): AniListMetadataProvider? {
@@ -318,7 +336,13 @@ class MetadataModule(
         )
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return AniListMetadataProvider(client, metadataMapper, similarityMatcher, config.mediaType)
+        return AniListMetadataProvider(
+            client,
+            metadataMapper,
+            similarityMatcher,
+            config.seriesMetadata.thumbnail,
+            config.mediaType
+        )
     }
 
     private fun createYenPressMetadataProvider(config: ProviderConfig, client: YenPressClient): YenPressMetadataProvider? {
@@ -327,7 +351,14 @@ class MetadataModule(
         val metadataMapper = YenPressMetadataMapper(config.seriesMetadata, config.bookMetadata)
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return YenPressMetadataProvider(client, metadataMapper, similarityMatcher, config.mediaType)
+        return YenPressMetadataProvider(
+            client,
+            metadataMapper,
+            similarityMatcher,
+            config.mediaType,
+            config.seriesMetadata.thumbnail,
+            config.bookMetadata.thumbnail,
+        )
     }
 
     private fun createKodanshaMetadataProvider(config: ProviderConfig, client: KodanshaClient): KodanshaMetadataProvider? {
@@ -337,7 +368,13 @@ class MetadataModule(
         val similarityMatcher =
             config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
 
-        return KodanshaMetadataProvider(client, metadataMapper, similarityMatcher)
+        return KodanshaMetadataProvider(
+            client,
+            metadataMapper,
+            similarityMatcher,
+            config.seriesMetadata.thumbnail,
+            config.bookMetadata.thumbnail,
+        )
     }
 
     private fun createVizMetadataProvider(config: ProviderConfig, client: VizClient): VizMetadataProvider? {
@@ -352,7 +389,13 @@ class MetadataModule(
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
 
-        return VizMetadataProvider(client, metadataMapper, similarityMatcher)
+        return VizMetadataProvider(
+            client,
+            metadataMapper,
+            similarityMatcher,
+            config.seriesMetadata.thumbnail,
+            config.bookMetadata.thumbnail,
+        )
     }
 
     private fun createBookWalkerMetadataProvider(config: ProviderConfig, client: BookWalkerClient): BookWalkerMetadataProvider? {
@@ -367,7 +410,14 @@ class MetadataModule(
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
 
-        return BookWalkerMetadataProvider(client, bookWalkerMapper, similarityMatcher, config.mediaType)
+        return BookWalkerMetadataProvider(
+            client,
+            bookWalkerMapper,
+            similarityMatcher,
+            config.seriesMetadata.thumbnail,
+            config.bookMetadata.thumbnail,
+            config.mediaType
+        )
     }
 
     private fun createMangaDexMetadataProvider(
@@ -384,7 +434,13 @@ class MetadataModule(
         )
         val mangaDexSimilarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
-        return MangaDexMetadataProvider(client, mangaDexMetadataMapper, mangaDexSimilarityMatcher)
+        return MangaDexMetadataProvider(
+            client,
+            mangaDexMetadataMapper,
+            mangaDexSimilarityMatcher,
+            config.seriesMetadata.thumbnail,
+            config.bookMetadata.thumbnail
+        )
     }
 
     class MetadataProviders(

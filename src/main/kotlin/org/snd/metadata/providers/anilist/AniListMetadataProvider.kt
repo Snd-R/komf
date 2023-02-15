@@ -21,6 +21,7 @@ class AniListMetadataProvider(
     private val client: AniListClient,
     private val metadataMapper: AniListMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val fetchSeriesCovers: Boolean,
     mediaType: MediaType,
 ) : MetadataProvider {
     private val seriesFormats = if (mediaType == MediaType.MANGA) mangaMediaFormats else novelMediaFormats
@@ -29,7 +30,7 @@ class AniListMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = client.getMedia(seriesId.id.toInt())
-        val thumbnail = client.getThumbnail(series.aniListManga)
+        val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series.aniListManga) else null
         return metadataMapper.toSeriesMetadata(series.aniListManga, thumbnail)
     }
 
@@ -58,7 +59,7 @@ class AniListMetadataProvider(
         }
 
         return match?.let {
-            val thumbnail = client.getThumbnail(it.aniListManga)
+            val thumbnail = if (fetchSeriesCovers) client.getThumbnail(it.aniListManga) else null
             metadataMapper.toSeriesMetadata(it.aniListManga, thumbnail)
         }
     }

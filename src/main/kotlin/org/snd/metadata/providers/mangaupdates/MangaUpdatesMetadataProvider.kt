@@ -37,6 +37,7 @@ class MangaUpdatesMetadataProvider(
     private val client: MangaUpdatesClient,
     private val metadataMapper: MangaUpdatesMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val fetchSeriesCovers: Boolean,
     mediaType: MediaType,
 ) : MetadataProvider {
 
@@ -46,7 +47,7 @@ class MangaUpdatesMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = client.getSeries(seriesId.id.toLong())
-        val thumbnail = client.getThumbnail(series)
+        val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
 
@@ -69,7 +70,7 @@ class MangaUpdatesMetadataProvider(
             .firstOrNull { nameMatcher.matches(seriesName, it.title.removeSuffix(" (Novel)")) }
             ?.let {
                 val series = client.getSeries(it.id)
-                val thumbnail = client.getThumbnail(series)
+                val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
                 metadataMapper.toSeriesMetadata(series, thumbnail)
             }
     }

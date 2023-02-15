@@ -118,7 +118,7 @@ class MangaDexMetadataMapper(
         )
     }
 
-    fun toBookMetadata(filename: String, cover: Image): ProviderBookMetadata {
+    fun toBookMetadata(filename: String, cover: Image?): ProviderBookMetadata {
         val metadata = BookMetadata(thumbnail = cover)
 
         val providerMetadata = ProviderBookMetadata(

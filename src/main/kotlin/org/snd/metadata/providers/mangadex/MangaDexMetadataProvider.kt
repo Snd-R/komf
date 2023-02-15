@@ -16,18 +16,20 @@ class MangaDexMetadataProvider(
     private val client: MangaDexClient,
     private val metadataMapper: MangaDexMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val fetchSeriesCovers: Boolean,
+    private val fetchBookCovers: Boolean,
 ) : MetadataProvider {
 
     override fun providerName() = MANGADEX
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = client.getSeries(MangaDexMangaId(seriesId.id))
-        val cover = client.getCover(series.id, series.coverArt.fileName)
+        val cover = if (fetchSeriesCovers) client.getCover(series.id, series.coverArt.fileName) else null
         return metadataMapper.toSeriesMetadata(series, getAllCovers(series.id), cover)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
-        val cover = client.getCover(MangaDexMangaId(seriesId.id), bookId.id)
+        val cover = if (fetchBookCovers) client.getCover(MangaDexMangaId(seriesId.id), bookId.id) else null
         return metadataMapper.toBookMetadata(bookId.id, cover)
     }
 
@@ -47,7 +49,7 @@ class MangaDexMetadataProvider(
             }
             ?.let {
                 val series = client.getSeries(it.id)
-                val cover = client.getCover(series.id, series.coverArt.fileName)
+                val cover = if (fetchSeriesCovers) client.getCover(series.id, series.coverArt.fileName) else null
                 metadataMapper.toSeriesMetadata(series, getAllCovers(series.id), cover)
             }
     }
