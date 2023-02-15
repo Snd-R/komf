@@ -67,10 +67,10 @@ class NautiljonParser {
         val (numberOfVolumes, status) = parseNumberOfVolumesAndStatus(dataEntries)
 
         val originalTitles = parseOriginalTitles(dataEntries)
-        val (romajiTitle, japaneseTitle) = if (originalTitles.size == 2) {
-            originalTitles[0] to originalTitles[1]
-        } else {
-            null to null
+        val (romajiTitle, japaneseTitle) = when (originalTitles.size) {
+            2 -> originalTitles[0] to originalTitles[1]
+            1 -> null to originalTitles[0]
+            else -> null to null
         }
 
         return Series(
