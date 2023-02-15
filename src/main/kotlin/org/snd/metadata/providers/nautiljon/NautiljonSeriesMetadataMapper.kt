@@ -17,7 +17,6 @@ import org.snd.metadata.model.metadata.SeriesBook
 import org.snd.metadata.model.metadata.SeriesMetadata
 import org.snd.metadata.model.metadata.SeriesStatus
 import org.snd.metadata.model.metadata.SeriesTitle
-import org.snd.metadata.model.metadata.TitleType
 import org.snd.metadata.model.metadata.TitleType.NATIVE
 import org.snd.metadata.model.metadata.TitleType.ROMAJI
 import org.snd.metadata.model.metadata.WebLink
@@ -54,7 +53,7 @@ class NautiljonSeriesMetadataMapper(
                 ?.let { tag -> series.frenchPublisher?.let { publisher -> "$tag: $publisher" } }
         )
         val titles = listOfNotNull(
-            SeriesTitle(series.title, TitleType.LOCALIZED, null),
+            SeriesTitle(series.title, null, null),
             series.romajiTitle?.let { SeriesTitle(it, ROMAJI, "ja-ro") },
             series.japaneseTitle?.let { SeriesTitle(it, NATIVE, "ja") },
         ) + series.alternativeTitles.map { SeriesTitle(it, null, null) }
