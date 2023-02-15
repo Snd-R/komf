@@ -44,7 +44,7 @@ class VizMetadataProvider(
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
         if (isInvalidName(seriesName)) return emptyList()
 
-        val searchResults = client.searchSeries(removeParentheses(seriesName.take(100))).take(limit)
+        val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(100))).take(limit)
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
@@ -68,7 +68,9 @@ class VizMetadataProvider(
 
     private fun isInvalidName(name: String) = name.contains("^[0-9]+--".toRegex())
 
-    private fun removeParentheses(name: String): String {
-        return name.replace("[(]([^)]+)[)]".toRegex(), "").trim()
+    private fun sanitizeSearchInput(name: String): String {
+        return name
+            .replace("[(]([^)]+)[)]".toRegex(), "")
+            .trim()
     }
 }

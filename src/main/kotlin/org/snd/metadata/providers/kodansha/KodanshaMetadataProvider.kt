@@ -40,7 +40,7 @@ class KodanshaMetadataProvider(
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val searchResults = client.searchSeries(removeParentheses(seriesName.take(400))).take(limit)
+        val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(400))).take(limit)
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
@@ -74,7 +74,10 @@ class KodanshaMetadataProvider(
         }.flatMap { it.books }.toList()
     }
 
-    private fun removeParentheses(name: String): String {
-        return name.replace("[(]([^)]+)[)]".toRegex(), "").trim()
+    private fun sanitizeSearchInput(name: String): String {
+        return name
+            .replace("[(]([^)]+)[)]".toRegex(), "")
+            .replace("...", "")
+            .trim()
     }
 }
