@@ -64,6 +64,7 @@ class VizParser {
             ?.removePrefix("Release ")
             ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MMMM d, yyyy", ENGLISH)) }
         val isbn = details.getElementsByClass("o_isbn13").firstOrNull()?.text()?.removePrefix("ISBN-13 ")
+        val eisbn = details.getElementsByClass("o_eisbn13").firstOrNull()?.text()?.removePrefix("eISBN-13 ")
         val ageRating = details.child(1)
             .children()
             .firstOrNull { it.text().startsWith("Age Rating") }
@@ -86,7 +87,7 @@ class VizParser {
             description = summary,
             coverUrl = cover,
             genres = genres,
-            isbn = isbn,
+            isbn = isbn ?: eisbn,
             ageRating = ageRating,
             authorStory = parseAuthor(authors, writerRoles),
             authorArt = parseAuthor(authors, artistRoles),

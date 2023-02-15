@@ -9,6 +9,7 @@ import org.snd.metadata.model.Image
 import org.snd.metadata.providers.viz.model.VizAllBooksId
 import org.snd.metadata.providers.viz.model.VizBook
 import org.snd.metadata.providers.viz.model.VizBookId
+import org.snd.metadata.providers.viz.model.VizBookReleaseType
 import org.snd.metadata.providers.viz.model.VizSeriesBook
 
 const val vizBaseUrl = "https://www.viz.com/"
@@ -40,12 +41,12 @@ class VizClient(
         return parser.parseSeriesAllBooks(client.execute(request))
     }
 
-    fun getBook(bookId: VizBookId): VizBook {
+    fun getBook(bookId: VizBookId, type: VizBookReleaseType): VizBook {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
-                    .addPathSegments("/read/manga/")
-                    .addPathSegments(bookId.id).build()
+                    .addPathSegments("/read/manga/${bookId.id}/${type.name.lowercase()}")
+                    .build()
             )
             .build()
 

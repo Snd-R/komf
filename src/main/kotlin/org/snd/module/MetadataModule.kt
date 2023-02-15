@@ -225,7 +225,10 @@ class MetadataModule(
                     .limitForPeriod(3)
                     .timeoutDuration(Duration.ofSeconds(5))
                     .build(),
-                retryConfig = RetryConfig.custom<Any>().intervalFunction { 5000 }.build()
+                retryConfig = RetryConfig.custom<Any>()
+                    .ignoreExceptions(HttpException.NotFound::class.java)
+                    .intervalFunction { 5000 }
+                    .build()
             )
         )
     }

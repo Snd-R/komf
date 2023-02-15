@@ -1,6 +1,7 @@
 package org.snd.metadata.providers.viz
 
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import org.snd.common.exceptions.HttpException
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Image
@@ -11,7 +12,10 @@ import org.snd.metadata.model.metadata.ProviderBookId
 import org.snd.metadata.model.metadata.ProviderBookMetadata
 import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.metadata.model.metadata.ProviderSeriesMetadata
+import org.snd.metadata.providers.viz.model.VizBook
 import org.snd.metadata.providers.viz.model.VizBookId
+import org.snd.metadata.providers.viz.model.VizBookReleaseType.DIGITAL
+import org.snd.metadata.providers.viz.model.VizBookReleaseType.PAPERBACK
 import org.snd.metadata.providers.viz.model.toSeriesSearchResult
 import org.snd.metadata.providers.viz.model.toVizSeriesBook
 
@@ -25,7 +29,7 @@ class VizMetadataProvider(
     }
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val series = client.getBook(VizBookId(seriesId.id))
+        val series = getBook(VizBookId(seriesId.id))
         val books = series.allBooksId
             ?.let { client.getAllBooks(it) }
             ?: listOf(series.toVizSeriesBook())
@@ -35,7 +39,7 @@ class VizMetadataProvider(
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
-        val bookMetadata = client.getBook(VizBookId(bookId.id))
+        val bookMetadata = getBook(VizBookId(bookId.id))
         val thumbnail = getThumbnail(bookMetadata.coverUrl)
 
         return metadataMapper.toBookMetadata(bookMetadata, thumbnail)
@@ -55,13 +59,21 @@ class VizMetadataProvider(
         return searchResults
             .firstOrNull { nameMatcher.matches(seriesName, it.seriesName) }
             ?.let {
-                val firstBook = client.getBook(it.id)
+                val firstBook = getBook(it.id)
                 val books = firstBook.allBooksId
                     ?.let { id -> client.getAllBooks(id) }
                     ?: listOf(firstBook.toVizSeriesBook())
                 val thumbnail = getThumbnail(firstBook.coverUrl)
                 metadataMapper.toSeriesMetadata(firstBook, books, thumbnail)
             }
+    }
+
+    private fun getBook(id: VizBookId): VizBook {
+        return try {
+            client.getBook(id, DIGITAL)
+        } catch (e: HttpException.NotFound) {
+            client.getBook(id, PAPERBACK)
+        }
     }
 
     private fun getThumbnail(url: String?): Image? = url?.toHttpUrl()?.let { client.getThumbnail(it) }
