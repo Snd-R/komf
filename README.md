@@ -66,8 +66,12 @@ komga:
       seriesCovers: false # update series thumbnails
       postProcessing:
         seriesTitle: false # update series title
-        titleType: LOCALIZED # "LOCALIZED" "ROMAJI" or "NATIVE"
+        seriesTitleLanguage: "en" # series title update language
         alternativeSeriesTitles: false # use other title types as alternative title option
+        alternativeSeriesTitleLanguages: # alternative title languages
+          - "en"
+          - "ja"
+          - "ja-ro"
         orderBooks: false # will order books using parsed volume or chapter number
         readingDirectionValue: # override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
@@ -89,8 +93,12 @@ kavita:
       seriesCovers: false #update series thumbnails
       postProcessing:
         seriesTitle: false #update series title
-        titleType: LOCALIZED # Can be "LOCALIZED" "ROMAJI" or "NATIVE". Sets Localized Name api field and series comicinfo field. 
+        seriesTitleLanguage: "en" # series title update language
         alternativeSeriesTitles: false # use other title types as alternative title option
+        alternativeSeriesTitleLanguages: # alternative title languages
+          - "en"
+          - "ja"
+          - "ja-ro"
         orderBooks: false # will order books using parsed volume or chapter number. works only with COMIC_INFO
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 discord:
@@ -143,6 +151,9 @@ metadataProviders:
       priority: 80
       enabled: false
       mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA.
+    mangaDex:
+      priority: 90
+      enabled: false
 server:
   port: 8085 #or env:KOMF_SERVER_PORT
 logLevel: INFO #or env:KOMF_LOG_LEVEL
