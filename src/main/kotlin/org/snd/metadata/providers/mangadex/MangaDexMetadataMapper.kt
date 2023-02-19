@@ -98,21 +98,22 @@ class MangaDexMetadataMapper(
             links = links
         )
 
-        val coversByLocale = covers.groupBy { it.locale }
+        // TODO configurable language
+        val books = covers.groupBy { it.volume }.values
+            .map { byVolume ->
+                byVolume.groupBy { it.locale }
+                    .mapValues { (_, value) -> value.firstOrNull() }
+            }
+            .mapNotNull { byLocale ->
+                (byLocale["en"] ?: byLocale["jp"] ?: byLocale.values.firstOrNull())
+                    ?.let { coverArtToBook(it) }
+            }
+
         return MetadataConfigApplier.apply(
             ProviderSeriesMetadata(
                 id = ProviderSeriesId(manga.id.id),
                 metadata = metadata,
-                // TODO configurable language
-                books = (coversByLocale["en"] ?: coversByLocale["ja"] ?: coversByLocale.values.firstOrNull())?.map { coverArt ->
-                    SeriesBook(
-                        id = ProviderBookId(coverArt.fileName),
-                        number = coverArt.volume?.toDoubleOrNull()?.let { BookRange(it, it) },
-                        name = coverArt.volume,
-                        type = null,
-                        edition = null
-                    )
-                } ?: emptyList()
+                books = books
             ),
             seriesMetadataConfig
         )
@@ -127,5 +128,15 @@ class MangaDexMetadataMapper(
         )
 
         return MetadataConfigApplier.apply(providerMetadata, bookMetadataConfig)
+    }
+
+    private fun coverArtToBook(coverArt: MangaDexCoverArt): SeriesBook {
+        return SeriesBook(
+            id = ProviderBookId(coverArt.fileName),
+            number = coverArt.volume?.toDoubleOrNull()?.let { BookRange(it, it) },
+            name = coverArt.volume,
+            type = null,
+            edition = null
+        )
     }
 }
