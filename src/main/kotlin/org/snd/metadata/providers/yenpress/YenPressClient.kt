@@ -19,10 +19,9 @@ class YenPressClient(
     private val parser = YenPressParser()
 
     fun searchSeries(name: String): Collection<YenPressSearchResult> {
-        val searchQuery = "$name, Vol. 1"
         val request = Request.Builder().url(
-            baseUrl.newBuilder().addPathSegments("search-list")
-                .addQueryParameter("keyword", searchQuery)
+            baseUrl.newBuilder().addPathSegments("series-search/")
+                .addQueryParameter("series", name)
                 .build()
         ).build()
 

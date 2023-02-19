@@ -17,19 +17,24 @@ class YenPressParser {
 
     fun parseSearchResults(results: String): Collection<YenPressSearchResult> {
         val document = Jsoup.parse(results)
-        return document.getElementsByClass("search-results")
-            .mapNotNull { parseSearchResult(it) }
+        return document.getElementById("yen-press-0")
+            ?.children()
+            ?.mapNotNull { parseSearchResult(it) }
+            ?: emptyList()
     }
 
     private fun parseSearchResult(result: Element): YenPressSearchResult? {
-        val title = result.getElementsByClass("series-title").first()!!.text()
+        val bookDetailsElement = result.getElementsByClass("book-detail").firstOrNull() ?: return null
+        val title = bookDetailsElement.child(0).text()
 
         val bookNumber = BookNameParser.getVolumes(title)
         if (bookNumber?.start?.toInt() != 1) return null
 
-        val cover = result.getElementsByClass("search-cover").first()!!.child(0)
-        val coverImage = cover.child(0).attr("src")
-        val id = cover.attr("href")
+        val bookLinksElements = bookDetailsElement.getElementsByTag("a")
+        val id = bookLinksElements.firstOrNull { it.text() == "Digital download" }?.attr("href")
+            ?: bookLinksElements.firstOrNull { it.text() == "Paperback" }?.attr("href")
+            ?: return null
+        val coverImage = result.getElementsByTag("img").firstOrNull()?.attr("src")
 
         return YenPressSearchResult(
             id = YenPressBookId(URLDecoder.decode(id, "UTF-8")),
