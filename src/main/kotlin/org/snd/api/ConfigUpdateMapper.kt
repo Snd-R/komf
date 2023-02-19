@@ -126,6 +126,7 @@ class ConfigUpdateMapper {
                 else -> TitleType.LOCALIZED
             },
             alternativeSeriesTitles = config.alternativeSeriesTitles,
+            alternativeSeriesTitleLanguages = config.alternativeSeriesTitleLanguages,
             orderBooks = config.orderBooks,
             readingDirectionValue = config.readingDirectionValue,
             languageValue = config.languageValue
@@ -173,6 +174,7 @@ class ConfigUpdateMapper {
             kodansha = toDto(config.kodansha),
             viz = toDto(config.viz),
             bookWalker = toDto(config.bookWalker),
+            mangaDex = toDto(config.mangaDex),
         )
     }
 
@@ -278,6 +280,7 @@ class ConfigUpdateMapper {
             kodansha = patch.kodansha?.let { providerConfig(config.kodansha, it) } ?: config.kodansha,
             viz = patch.viz?.let { providerConfig(config.viz, it) } ?: config.viz,
             bookWalker = patch.bookWalker?.let { providerConfig(config.bookWalker, it) } ?: config.bookWalker,
+            mangaDex = patch.mangaDex?.let { providerConfig(config.mangaDex, it) } ?: config.mangaDex,
         )
     }
 
@@ -443,6 +446,7 @@ class ConfigUpdateMapper {
                 null -> null
             } ?: config.seriesTitleLanguage,
             alternativeSeriesTitles = patch.alternativeSeriesTitles ?: config.alternativeSeriesTitles,
+            alternativeSeriesTitleLanguages = patch.alternativeSeriesTitleLanguages ?: config.alternativeSeriesTitleLanguages,
             orderBooks = patch.orderBooks ?: config.orderBooks,
             readingDirectionValue = if (patch.isSet("readingDirectionValue")) patch.readingDirectionValue
             else config.readingDirectionValue,

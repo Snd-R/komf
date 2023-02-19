@@ -69,6 +69,7 @@ class MetadataPostProcessingConfigUpdateDto {
     var titleType: TitleType? = null
     var orderBooks: Boolean? = null
     var alternativeSeriesTitles: Boolean? = null
+    var alternativeSeriesTitleLanguages: List<String>? = null
 
     var readingDirectionValue: ReadingDirection? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
     var languageValue: String? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
@@ -109,6 +110,7 @@ data class ProvidersConfigUpdateDto(
     val kodansha: ProviderConfigUpdateDto? = null,
     val viz: ProviderConfigUpdateDto? = null,
     val bookWalker: ProviderConfigUpdateDto? = null,
+    val mangaDex: ProviderConfigUpdateDto? = null,
 )
 
 @JsonClass(generateAdapter = true)

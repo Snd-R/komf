@@ -61,6 +61,7 @@ data class MetadataPostProcessingConfigDto(
     @Deprecated("replaced with seriesTitleLanguage")
     val titleType: TitleType,
     val alternativeSeriesTitles: Boolean?,
+    val alternativeSeriesTitleLanguages: List<String>,
     val orderBooks: Boolean,
     val readingDirectionValue: ReadingDirection?,
     val languageValue: String?,
@@ -97,6 +98,7 @@ data class ProvidersConfigDto(
     val kodansha: ProviderConfigDto,
     val viz: ProviderConfigDto,
     val bookWalker: ProviderConfigDto,
+    val mangaDex: ProviderConfigDto,
 )
 
 @JsonClass(generateAdapter = true)
