@@ -55,7 +55,7 @@ class BookWalkerMetadataProvider(
     }
 
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
-        val searchResults = client.searchSeries(seriesName.take(100), category)
+        val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(100)), category)
 
         return searchResults
             .firstOrNull { nameMatcher.matches(seriesName, it.seriesName) }

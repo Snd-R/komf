@@ -47,7 +47,7 @@ class KodanshaMetadataProvider(
     }
 
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
-        val searchResults = client.searchSeries(seriesName.take(400))
+        val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(400)))
 
         return searchResults.firstOrNull { nameMatcher.matches(seriesName, it.title) }
             ?.let {

@@ -56,7 +56,7 @@ class VizMetadataProvider(
 
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
         if (isInvalidName(seriesName)) return null
-        val searchResults = client.searchSeries(seriesName.take(100))
+        val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(100)))
 
         return searchResults
             .firstOrNull { nameMatcher.matches(seriesName, it.seriesName) }
