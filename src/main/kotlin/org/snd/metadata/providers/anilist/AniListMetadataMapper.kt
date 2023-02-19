@@ -27,7 +27,7 @@ class AniListMetadataMapper(
     private val artistRoles: Collection<AuthorRole>,
 ) {
     private val mangaLinkBaseUrl = "https://anilist.co/manga/"
-    private val allowedRoles = listOf("Story & Art", "Story", "Original Story", "Art", "Illustration")
+    private val allowedRoles = listOf("Story & Art", "Story", "Original Story", "Original Creator", "Art", "Illustration")
 
     fun toSeriesMetadata(series: AniListManga, thumbnail: Image? = null): ProviderSeriesMetadata {
         val status = when (series.status) {
@@ -48,7 +48,7 @@ class AniListMetadataMapper(
                         artistRoles.map { role -> Author(authorName, role) } + authorRoles.map { role -> Author(authorName, role) }
                     }
 
-                    "Story", "Original Story" -> {
+                    "Story", "Original Story", "Original Creator" -> {
                         authorRoles.map { role -> Author(authorName, role) }
                     }
 
