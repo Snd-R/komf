@@ -6,14 +6,17 @@ import mu.KotlinLogging
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.apache.commons.lang3.SystemUtils
 import org.snd.common.exceptions.HttpException
 import org.snd.common.http.HttpClient
+import org.snd.config.CalibreConfig
 import org.snd.config.MetadataProvidersConfig
 import org.snd.config.ProviderConfig
 import org.snd.config.ProvidersConfig
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.comicinfo.ComicInfoWriter
+import org.snd.metadata.epub.CalibreEpubMetadataWriter
 import org.snd.metadata.model.NameMatchingMode
 import org.snd.metadata.model.Provider
 import org.snd.metadata.providers.anilist.AniListClient
@@ -44,18 +47,22 @@ import org.snd.metadata.providers.viz.VizMetadataProvider
 import org.snd.metadata.providers.yenpress.YenPressClient
 import org.snd.metadata.providers.yenpress.YenPressMetadataMapper
 import org.snd.metadata.providers.yenpress.YenPressMetadataProvider
+import java.lang.ProcessBuilder.Redirect
+import java.nio.file.Path
 import java.time.Duration
 
 
 class MetadataModule(
-    config: MetadataProvidersConfig,
+    providersConfig: MetadataProvidersConfig,
+    calibreConfig: CalibreConfig,
     private val okHttpClient: OkHttpClient,
     private val jsonModule: JsonModule
 ) : AutoCloseable {
     val comicInfoWriter = createComicInfoWriter()
-    private val nameSimilarityMatcher = createNameSimilarityMatcher(config.nameMatchingMode)
+    val epubWriter = createEpubWriter(calibreConfig)
+    private val nameSimilarityMatcher = createNameSimilarityMatcher(providersConfig.nameMatchingMode)
 
-    private val malClient = createMalClient(config.malClientId)
+    private val malClient = createMalClient(providersConfig.malClientId)
     private val mangaUpdatesClient = createMangaUpdatesClient()
     private val nautiljonClient = createNautiljonClient()
     private val aniListClient = createAnilistClient()
@@ -65,7 +72,7 @@ class MetadataModule(
     private val bookWalkerClient = createBookWalkerClient()
     private val mangaDexClient = createMangaDexClient()
 
-    val metadataProviders = createMetadataProviders(config)
+    val metadataProviders = createMetadataProviders(providersConfig)
 
     private fun createMetadataProviders(config: MetadataProvidersConfig): MetadataProviders {
         val defaultProviders = createMetadataProviders(config.defaultProviders)
@@ -98,6 +105,26 @@ class MetadataModule(
     )
 
     private fun createComicInfoWriter() = ComicInfoWriter()
+    private fun createEpubWriter(config: CalibreConfig): CalibreEpubMetadataWriter {
+        val executablePath = when {
+            config.ebookMetaPath != null -> config.ebookMetaPath
+            SystemUtils.IS_OS_WINDOWS -> executeCommandAndReturnOutput("where", "ebook-meta.exe")
+            else -> executeCommandAndReturnOutput("which", "ebook-meta")
+
+        }?.let { Path.of(it.trim()) }
+
+        return CalibreEpubMetadataWriter(executablePath)
+    }
+
+    private fun executeCommandAndReturnOutput(vararg command: String) = runCatching {
+        val proc = ProcessBuilder(*command)
+            .redirectOutput(Redirect.PIPE)
+            .redirectError(Redirect.PIPE)
+            .start()
+        proc.waitFor()
+        proc.inputStream.bufferedReader().readText()
+    }.getOrNull()
+
     private fun createNameSimilarityMatcher(mode: NameMatchingMode) = NameSimilarityMatcher.getInstance(mode)
 
     private fun createHttpClient(

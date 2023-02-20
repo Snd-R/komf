@@ -7,6 +7,7 @@ import org.snd.mediaserver.model.SeriesThumbnail
 import org.snd.mediaserver.model.UpdateMode
 import org.snd.mediaserver.model.UpdateMode.API
 import org.snd.mediaserver.model.UpdateMode.COMIC_INFO
+import org.snd.mediaserver.model.UpdateMode.OPF
 import org.snd.mediaserver.model.mediaserver.MediaServerBook
 import org.snd.mediaserver.model.mediaserver.MediaServerBookId
 import org.snd.mediaserver.model.mediaserver.MediaServerLibraryId
@@ -17,6 +18,7 @@ import org.snd.mediaserver.repository.BookThumbnailsRepository
 import org.snd.mediaserver.repository.SeriesThumbnailsRepository
 import org.snd.metadata.BookNameParser
 import org.snd.metadata.comicinfo.ComicInfoWriter
+import org.snd.metadata.epub.CalibreEpubMetadataWriter
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.metadata.BookMetadata
 import org.snd.metadata.model.metadata.SeriesMetadata
@@ -31,12 +33,13 @@ class MetadataUpdateService(
     private val metadataUpdateMapper: MetadataUpdateMapper,
     private val postProcessor: MetadataPostProcessor,
     private val comicInfoWriter: ComicInfoWriter,
+    private val epubWriter: CalibreEpubMetadataWriter,
 
     private val updateModes: Set<UpdateMode>,
     private val uploadBookCovers: Boolean,
     private val uploadSeriesCovers: Boolean,
 ) {
-    private val requireMetadataRefresh = setOf(COMIC_INFO)
+    private val requireMetadataRefresh = setOf(COMIC_INFO, OPF)
 
     fun updateMetadata(series: MediaServerSeries, metadata: SeriesAndBookMetadata) {
         val processedMetadata = postProcessor.process(metadata)
@@ -44,7 +47,7 @@ class MetadataUpdateService(
         updateBookMetadata(unprocessedMetadata = metadata, processedMetadata = processedMetadata)
 
         if (updateModes.any { it in requireMetadataRefresh })
-            mediaServerClient.refreshMetadata(series.id)
+            mediaServerClient.refreshMetadata(series.libraryId, series.id)
     }
 
     private fun updateSeriesMetadata(series: MediaServerSeries, metadata: SeriesMetadata) {
@@ -56,7 +59,7 @@ class MetadataUpdateService(
                     mediaServerClient.updateSeriesMetadata(series.id, metadataUpdate)
                 }
 
-                COMIC_INFO -> {}
+                COMIC_INFO, OPF -> {}
             }
         }
 
@@ -109,6 +112,12 @@ class MetadataUpdateService(
                         }
                         else metadataUpdateMapper.toComicInfo(metadata, seriesMeta)
                             ?.let { comicInfoWriter.writeMetadata(Path.of(book.url), it) }
+                    }
+                }
+
+                OPF -> {
+                    if (book.deleted.not()) {
+                        epubWriter.writeMetadata(Path.of(book.url), seriesMeta, metadata)
                     }
                 }
             }

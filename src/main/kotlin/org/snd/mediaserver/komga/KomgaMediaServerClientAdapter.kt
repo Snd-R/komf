@@ -107,7 +107,7 @@ class KomgaMediaServerClientAdapter(private val komgaClient: KomgaClient) : Medi
         return komgaClient.uploadBookThumbnail(bookId.komgaBookId(), thumbnail, selected).mediaServerBookThumbnail()
     }
 
-    override fun refreshMetadata(seriesId: MediaServerSeriesId) {
+    override fun refreshMetadata(libraryId: MediaServerLibraryId, seriesId: MediaServerSeriesId) {
         komgaClient.analyzeSeries(seriesId.komgaSeriesId())
     }
 

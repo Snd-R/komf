@@ -5,6 +5,7 @@ import com.squareup.moshi.adapter
 import okhttp3.HttpUrl
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.internal.EMPTY_REQUEST
 import org.snd.common.http.HttpClient
 import org.snd.common.http.MEDIA_TYPE_JSON
 import org.snd.mediaserver.kavita.model.KavitaChapter
@@ -222,6 +223,20 @@ class KavitaClient(
                     .build()
             )
             .post(postBody.toRequestBody(MEDIA_TYPE_JSON))
+            .build()
+
+        client.execute(request)
+    }
+
+    fun scanLibrary(libraryId: KavitaLibraryId) {
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/library/scan")
+                    .addQueryParameter("libraryId", libraryId.id.toString())
+                    .build()
+            )
+            .post(EMPTY_REQUEST)
             .build()
 
         client.execute(request)

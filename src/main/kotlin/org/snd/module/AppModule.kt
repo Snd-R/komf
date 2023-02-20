@@ -21,7 +21,8 @@ class AppModule(
     )
 
     private val metadataModule = MetadataModule(
-        config = appConfig.metadataProviders,
+        providersConfig = appConfig.metadataProviders,
+        calibreConfig = appConfig.calibre,
         okHttpClient = okHttpClient,
         jsonModule = jsonModule
     )

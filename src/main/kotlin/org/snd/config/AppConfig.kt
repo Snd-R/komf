@@ -27,6 +27,7 @@ data class AppConfig(
     @EncodeDefault(NEVER) val komga: KomgaConfig = KomgaConfig(),
     @EncodeDefault(NEVER) val kavita: KavitaConfig = KavitaConfig(),
     @EncodeDefault(NEVER) val discord: DiscordConfig = DiscordConfig(),
+    @EncodeDefault(NEVER) val calibre: CalibreConfig = CalibreConfig(),
     @EncodeDefault(NEVER) val database: DatabaseConfig = DatabaseConfig(),
     val metadataProviders: MetadataProvidersConfig = MetadataProvidersConfig(),
     val server: ServerConfig = ServerConfig(),
@@ -189,6 +190,11 @@ data class DiscordConfig(
     val seriesCover: Boolean = false,
     val imgurClientId: String? = null,
     @EncodeDefault(NEVER) val templatesDirectory: String = "./",
+)
+
+@Serializable
+data class CalibreConfig(
+    val ebookMetaPath: String? = null,
 )
 
 @Serializable

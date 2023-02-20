@@ -45,6 +45,6 @@ interface MediaServerClient {
         selected: Boolean = false
     ): MediaServerBookThumbnail?
 
-    fun refreshMetadata(seriesId: MediaServerSeriesId)
+    fun refreshMetadata(libraryId: MediaServerLibraryId, seriesId: MediaServerSeriesId)
 
 }

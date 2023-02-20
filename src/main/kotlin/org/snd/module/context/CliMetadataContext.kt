@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
+import org.snd.config.CalibreConfig
 import org.snd.config.MetadataProvidersConfig
 import org.snd.module.JsonModule
 import org.snd.module.MetadataModule
@@ -18,7 +19,8 @@ class CliMetadataContext(
     init {
         setLogLevel()
         metadataModule = MetadataModule(
-            config = config,
+            providersConfig = config,
+            calibreConfig = CalibreConfig(),
             okHttpClient = okHttpClient,
             jsonModule = jsonModule
         )

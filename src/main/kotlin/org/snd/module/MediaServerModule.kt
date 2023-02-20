@@ -281,10 +281,11 @@ class MediaServerModule(
             metadataUpdateMapper = updateMapper,
             postProcessor = postProcessor,
             comicInfoWriter = metadataModule.comicInfoWriter,
+            epubWriter = metadataModule.epubWriter,
 
             updateModes = config.updateModes,
             uploadBookCovers = config.bookCovers,
-            uploadSeriesCovers = config.seriesCovers
+            uploadSeriesCovers = config.seriesCovers,
         )
     }
 

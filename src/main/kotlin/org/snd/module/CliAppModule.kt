@@ -17,7 +17,8 @@ class CliAppModule(
     private val repositoryModule = RepositoryModule(appConfig.database)
 
     private val metadataModule = MetadataModule(
-        config = appConfig.metadataProviders,
+        providersConfig = appConfig.metadataProviders,
+        calibreConfig = appConfig.calibre,
         okHttpClient = okHttpClient,
         jsonModule = jsonModule
     )
