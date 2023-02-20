@@ -87,7 +87,9 @@ kavita:
     default:
       # Update modes is the way komf will update metadata.
       # If you're using anything other than API then your existing files might be modified with embedded metadata
-      updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
+      # can use multiple options at once. available options are API, COMIC_INFO
+      # experimental OPF mode is available for epub books. This mode is using calibre system install to update metadata
+      updateModes: [ API ]
       aggregate: false # if enabled will search and aggregate metadata from all configured providers
       bookCovers: false #update book thumbnails
       seriesCovers: false #update series thumbnails
