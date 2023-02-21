@@ -33,11 +33,12 @@ class MangaDexMangaJsonAdapter {
 
     private fun authors(relationships: List<MangaDexRelationshipJson>, type: String): List<MangaDexAuthor> {
         return relationships.filter { it.type == type }
+            .filter { (it.attributes != null && it.attributes["name"] != null) }
             .map {
                 MangaDexAuthor(
                     id = it.id,
                     type = it.type,
-                    name = it.attributes!!["name"]!! as String
+                    name = it.attributes!!["name"] as String
                 )
             }
     }
