@@ -6,6 +6,7 @@ import java.time.Clock
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 import java.util.*
+import java.util.concurrent.locks.ReentrantLock
 import javax.crypto.spec.SecretKeySpec
 
 class KavitaTokenProvider(
@@ -20,17 +21,25 @@ class KavitaTokenProvider(
         else setSkipSignatureVerification()
     }.build()
 
+    @Volatile
     private var kavitaToken: KavitaAccessToken? = null
+    private val tokenLock = ReentrantLock()
 
-    @Synchronized
     fun getToken(): String {
         val token = kavitaToken
+        return if (token == null || isExpired(token)) updateAndGetToken().token
+        else token.token
+    }
 
-        return if (token == null) {
-            getFreshToken().also { kavitaToken = it }.token
-        } else if (clock.instant().isAfter(token.expiresAt.minus(1, DAYS))) {
-            getFreshToken().also { kavitaToken = it }.token
-        } else token.token
+    private fun updateAndGetToken(): KavitaAccessToken {
+        tokenLock.lock()
+        val lockedToken = kavitaToken
+        val freshToken = if (lockedToken == null || isExpired(lockedToken))
+            getFreshToken().also { kavitaToken = it }
+        else lockedToken
+        tokenLock.unlock()
+
+        return freshToken
     }
 
     private fun getFreshToken(): KavitaAccessToken {
@@ -38,5 +47,9 @@ class KavitaTokenProvider(
         val claims = jwtConsumer.processToClaims(jwt)
         val expirationDate = Instant.ofEpochMilli(claims.expirationTime.valueInMillis)
         return KavitaAccessToken(jwt, expirationDate)
+    }
+
+    private fun isExpired(token: KavitaAccessToken): Boolean {
+        return clock.instant().isAfter(token.expiresAt.minus(1, DAYS))
     }
 }
