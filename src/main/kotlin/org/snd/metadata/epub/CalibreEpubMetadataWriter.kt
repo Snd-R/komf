@@ -20,6 +20,7 @@ class CalibreEpubMetadataWriter(
             bookMetadata?.summary?.let { "--comments" to it },
             bookMetadata?.releaseDate?.let { "--date" to it.toString() },
             bookMetadata?.isbn?.let { "--isbn" to it },
+            bookMetadata?.number?.let { "--index" to it.start.toString() },
             seriesMetadata.publisher?.let { "--publisher" to it },
             seriesMetadata.title?.let { "--series" to it.name },
             seriesMetadata.genres.ifEmpty { null }?.let { "--tags" to it.joinToString(",") }
