@@ -31,29 +31,29 @@ dependencies {
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.14.0")
     implementation("com.apollographql.apollo3:apollo-runtime")
 
-    implementation("io.javalin:javalin:5.2.0")
+    implementation("io.javalin:javalin:5.3.2")
 
     implementation("io.github.resilience4j:resilience4j-ratelimiter:2.0.2")
     implementation("io.github.resilience4j:resilience4j-retry:2.0.2")
     implementation("io.github.resilience4j:resilience4j-kotlin:2.0.2")
 
-    implementation("org.flywaydb:flyway-core:9.10.2")
-    implementation("org.jooq:jooq:3.17.6")
-    implementation("org.xerial:sqlite-jdbc:3.40.0.0")
-    jooqGenerator("org.xerial:sqlite-jdbc:3.40.0.0")
+    implementation("org.flywaydb:flyway-core:9.15.0")
+    implementation("org.jooq:jooq:3.17.8")
+    implementation("org.xerial:sqlite-jdbc:3.40.1.0")
+    jooqGenerator("org.xerial:sqlite-jdbc:3.40.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
-    implementation("io.github.pdvrieze.xmlutil:core-jvm:0.84.3")
-    implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.84.3")
-    implementation("com.charleskorn.kaml:kaml:0.49.0")
-    implementation("com.github.ajalt.clikt:clikt:3.5.0")
+    implementation("io.github.pdvrieze.xmlutil:core-jvm:0.85.0")
+    implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.85.0")
+    implementation("com.charleskorn.kaml:kaml:0.51.0")
+    implementation("com.github.ajalt.clikt:clikt:3.5.1")
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.apache.commons:commons-compress:1.21")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.velocity:velocity-engine-core:2.3")
-    implementation("org.jsoup:jsoup:1.15.3")
+    implementation("org.jsoup:jsoup:1.15.4")
     implementation("com.microsoft.signalr:signalr:6.0.10")
-    implementation("org.bitbucket.b_c:jose4j:0.9.1")
+    implementation("org.bitbucket.b_c:jose4j:0.9.3")
 
 }
 
@@ -114,7 +114,7 @@ tasks.flywayMigrate {
 }
 
 jooq {
-    version.set("3.17.6")
+    version.set("3.17.8")
     configurations {
         create("main") {
             jooqConfiguration.apply {
