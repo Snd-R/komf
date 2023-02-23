@@ -45,18 +45,28 @@ class BookWalkerParser {
         val name = document.getElementsByClass("detail-book-title").first()!!.child(0).textNodes().first().text().trim()
         val productDetail = document.getElementsByClass("product-detail").first()!!.child(0)
         val seriesTitleElement = productDetail.children()
-            .firstOrNull() { it.child(0).text() == "Series Title" }
+            .firstOrNull { it.child(0).text() == "Series Title" }
             ?.child(1)
         val seriesTitle = seriesTitleElement?.text()?.let { parseSeriesName(it) }
         val seriesId = seriesTitleElement?.getElementsByTag("a")?.first()?.attr("href")?.let { parseSeriesId(it) }
         val japaneseTitles = productDetail.children().firstOrNull { it.child(0).text() == "Japanese Title" }
             ?.child(1)?.child(0)?.child(0)
-        val japaneseTitle = japaneseTitles?.textNodes()?.firstOrNull()?.text()?.removeSuffix(" (")
-        val romajiTitle = japaneseTitles?.getElementsByClass("product-detail-romaji")?.first()?.text()?.removeSuffix(")")
+        val japaneseTitle = japaneseTitles?.textNodes()?.firstOrNull()?.text()
+            ?.removeSuffix(" (")?.trim()
+            ?.let { replaceFullwidthChars(it) }
+        val romajiTitle = japaneseTitles?.getElementsByClass("product-detail-romaji")?.first()?.text()
+            ?.removeSuffix(")")?.trim()
+            ?.let { replaceFullwidthChars(it) }
+
         val authors = productDetail.children().firstOrNull { it.child(0).text() == "Author" || it.child(0).text() == "By (author)" }
-            ?.child(1)?.children()?.map { it.text() } ?: emptyList()
+            ?.child(1)?.children()
+            ?.map { it.text() }
+            ?.map { replaceFullwidthChars(it) } ?: emptyList()
+
         val artists = productDetail.children().firstOrNull { it.child(0).text() == "Artist" || it.child(0).text() == "By (artist)" }
-            ?.child(1)?.children()?.map { it.text() } ?: authors
+            ?.child(1)?.children()
+            ?.map { it.text() }
+            ?.map { replaceFullwidthChars(it) } ?: authors
         val publisher = productDetail.children().first { it.child(0).text() == "Publisher" }
             .child(1).text()
         val genres = productDetail.children().firstOrNull { it.child(0).text() == "Genre" }
@@ -141,5 +151,9 @@ class BookWalkerParser {
         return BookNameParser.getVolumes(name)
             ?: "(?i)(?<!chapter)\\s\\d+".toRegex().findAll(name).lastOrNull()?.value?.toDoubleOrNull()
                 ?.let { BookRange(it, it) }
+    }
+
+    private fun replaceFullwidthChars(string: String) = string.replace("[\uff01-\uff5e]".toRegex()) { match ->
+        Character.toString(match.value.codePointAt(0) - 0xfee0)
     }
 }
