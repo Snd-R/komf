@@ -1,5 +1,6 @@
 package org.snd.module
 
+import io.github.resilience4j.core.IntervalFunction
 import io.github.resilience4j.ratelimiter.RateLimiterConfig
 import io.github.resilience4j.retry.RetryConfig
 import mu.KotlinLogging
@@ -253,8 +254,9 @@ class MetadataModule(
                     .timeoutDuration(Duration.ofSeconds(5))
                     .build(),
                 retryConfig = RetryConfig.custom<Any>()
+                    .maxAttempts(3)
                     .ignoreExceptions(HttpException.NotFound::class.java)
-                    .intervalFunction { 5000 }
+                    .intervalFunction(IntervalFunction.ofExponentialBackoff(5000, 2.0))
                     .build()
             )
         )
