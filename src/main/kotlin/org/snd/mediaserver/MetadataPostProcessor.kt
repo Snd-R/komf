@@ -25,7 +25,7 @@ class MetadataPostProcessor(
             series.titles.filter {
                 it != seriesTitle &&
                         (it.language == null || it.language in config.alternativeSeriesTitleLanguages)
-            }.sortedBy { it.language }
+            }.sortedBy { it.language }.distinct()
         else emptyList()
 
         return series.copy(

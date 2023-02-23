@@ -234,15 +234,9 @@ class MetadataService(
         if (providers.isEmpty()) return metadata
         logger.info { "launching metadata aggregation using ${providers.map { it.providerName() }}" }
 
-        val seriesTitle = series.metadata.title.ifBlank { series.name }
-        val searchTitles = setOfNotNull(
-            seriesTitle,
-            removeParentheses(seriesTitle)
-                .let { if (it == seriesTitle) null else it }
-        )
-            .plus(series.metadata.alternativeTitles.map { it.title })
-            .plus(metadata.seriesMetadata.titles.map { it.name }
-                .filter { StringUtils.isAsciiPrintable(it) })
+        val searchTitles = metadata.seriesMetadata.titles
+            .map { it.name }
+            .filter { StringUtils.isAsciiPrintable(it) }
 
         return providers.map { provider ->
             supplyAsync({
