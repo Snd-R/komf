@@ -37,7 +37,8 @@ fragment aniListManga on Media {
             }
             role
         }
-    }
+    },
+    meanScore
 }
 
 query Search($search: String!, $perPage: Int!, $formats:[MediaFormat!]! ) @nonnull {

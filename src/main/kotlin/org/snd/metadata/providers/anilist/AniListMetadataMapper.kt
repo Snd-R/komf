@@ -96,7 +96,8 @@ class AniListMetadataMapper(
                 month = series.startDate?.month,
                 day = series.startDate?.day,
             ),
-            links = listOf(WebLink("AniList", mangaLinkBaseUrl + series.id))
+            links = listOf(WebLink("AniList", mangaLinkBaseUrl + series.id)),
+            score = series.meanScore?.let { it / 10.0 }
         )
         return MetadataConfigApplier.apply(
             ProviderSeriesMetadata(id = ProviderSeriesId(series.id.toString()), metadata = metadata),

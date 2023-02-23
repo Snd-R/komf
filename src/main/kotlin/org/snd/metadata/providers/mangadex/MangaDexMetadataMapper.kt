@@ -95,7 +95,7 @@ class MangaDexMetadataMapper(
             authors = authors,
             thumbnail = cover,
             releaseDate = ReleaseDate(manga.attributes.year, null, null),
-            links = links
+            links = links,
         )
 
         // TODO configurable language

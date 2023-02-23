@@ -27,12 +27,14 @@ class MetadataPostProcessor(
                         (it.language == null || it.language in config.alternativeSeriesTitleLanguages)
             }.sortedBy { it.language }.distinct()
         else emptyList()
+        val tags = if (config.scoreTag && series.score != null) series.tags.plus("score: ${series.score.toInt()}") else series.tags
 
         return series.copy(
             title = seriesTitle,
             titles = altTitles,
             readingDirection = config.readingDirectionValue ?: series.readingDirection,
             language = config.languageValue ?: series.language,
+            tags = tags,
         )
     }
 

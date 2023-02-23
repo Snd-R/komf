@@ -105,6 +105,7 @@ data class MetadataPostProcessingConfig(
     val alternativeSeriesTitles: Boolean = false,
     val alternativeSeriesTitleLanguages: List<String> = listOf("en", "ja", "ja-ro"),
     val orderBooks: Boolean = false,
+    val scoreTag: Boolean = false,
     @EncodeDefault(NEVER) val readingDirectionValue: ReadingDirection? = null,
     @EncodeDefault(NEVER) val languageValue: String? = null,
 )
@@ -220,6 +221,7 @@ data class SeriesMetadataConfig(
     @EncodeDefault(NEVER) val thumbnail: Boolean = true,
     @EncodeDefault(NEVER) val books: Boolean = true,
     @EncodeDefault(NEVER) val links: Boolean = true,
+    @EncodeDefault(NEVER) val score: Boolean = true,
 
     @EncodeDefault(NEVER) val useOriginalPublisher: Boolean = false,
     @EncodeDefault(NEVER) val originalPublisherTagName: String? = null,

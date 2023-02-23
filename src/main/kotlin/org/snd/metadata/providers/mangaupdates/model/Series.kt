@@ -16,7 +16,8 @@ data class Series(
     val authors: Collection<Author>,
     val year: Year?,
     val publishers: Collection<Publisher>,
-    val url: String
+    val url: String,
+    val bayesianRating: Double?
 )
 
 data class Category(

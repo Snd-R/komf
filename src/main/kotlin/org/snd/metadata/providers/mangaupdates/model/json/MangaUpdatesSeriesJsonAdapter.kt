@@ -51,7 +51,8 @@ class MangaUpdatesSeriesJsonAdapter {
                     notes = it.notes
                 )
             } ?: emptyList(),
-            url = json.url
+            url = json.url,
+            bayesianRating = json.bayesian_rating
         )
     }
 

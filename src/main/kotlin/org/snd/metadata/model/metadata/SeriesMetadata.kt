@@ -21,6 +21,7 @@ data class SeriesMetadata(
     val authors: List<Author> = emptyList(),
     val releaseDate: ReleaseDate? = null,
     val links: Collection<WebLink> = emptyList(),
+    val score: Double? = null,
 
     val thumbnail: Image? = null,
 )

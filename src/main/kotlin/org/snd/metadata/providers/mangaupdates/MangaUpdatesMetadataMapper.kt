@@ -63,7 +63,8 @@ class MangaUpdatesMetadataMapper(
             authors = authors,
             thumbnail = thumbnail,
             releaseDate = ReleaseDate(series.year?.value, null, null),
-            links = listOf(WebLink("MangaUpdates", series.url))
+            links = listOf(WebLink("MangaUpdates", series.url)),
+            score = series.bayesianRating
         )
 
         return MetadataConfigApplier.apply(

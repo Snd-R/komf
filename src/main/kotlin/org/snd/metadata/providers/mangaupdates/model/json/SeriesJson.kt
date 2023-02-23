@@ -16,7 +16,8 @@ data class SeriesJson(
     val status: String?,
     val authors: Collection<AuthorJson>?,
     val publishers: Collection<PublisherJson>?,
-    val url: String
+    val url: String,
+    val bayesian_rating: Double?
 )
 
 @JsonClass(generateAdapter = true)

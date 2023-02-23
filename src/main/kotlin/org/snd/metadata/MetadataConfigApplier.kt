@@ -30,7 +30,8 @@ object MetadataConfigApplier {
                     authors = getIfEnabled(metadata.authors, config.authors) ?: emptyList(),
                     releaseDate = getIfEnabled(metadata.releaseDate, config.releaseDate),
                     thumbnail = getIfEnabled(metadata.thumbnail, config.thumbnail),
-                    links = getIfEnabled(metadata.links, config.links) ?: emptyList()
+                    links = getIfEnabled(metadata.links, config.links) ?: emptyList(),
+                    score = getIfEnabled(metadata.score, config.score)
                 )
             )
         }

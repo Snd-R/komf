@@ -81,7 +81,8 @@ class MalMetadataMapper(
             thumbnail = thumbnail,
             tags = emptyList(),
             releaseDate = releaseDate,
-            links = listOf(WebLink("MyAnimeList", mangaBaseUrl + series.id))
+            links = listOf(WebLink("MyAnimeList", mangaBaseUrl + series.id)),
+            score = series.mean
         )
 
         return MetadataConfigApplier.apply(

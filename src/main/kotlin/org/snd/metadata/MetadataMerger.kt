@@ -25,6 +25,7 @@ object MetadataMerger {
             authors = originalSeriesMetadata.authors.ifEmpty { newSeriesMetadata.authors },
             thumbnail = originalSeriesMetadata.thumbnail ?: newSeriesMetadata.thumbnail,
             links = (originalSeriesMetadata.links + newSeriesMetadata.links).distinctBy { it.label },
+            score = originalSeriesMetadata.score ?: newSeriesMetadata.score,
         )
     }
 

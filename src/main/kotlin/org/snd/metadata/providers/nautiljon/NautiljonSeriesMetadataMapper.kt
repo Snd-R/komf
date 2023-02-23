@@ -79,7 +79,8 @@ class NautiljonSeriesMetadataMapper(
                     "Nautiljon",
                     nautiljonBaseUrl + "mangas/${URLEncoder.encode(series.id.id, "UTF-8")}.html"
                 )
-            )
+            ),
+            score = series.score
         )
         val providerMetadata = ProviderSeriesMetadata(
             id = ProviderSeriesId(series.id.id),
