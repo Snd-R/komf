@@ -2,7 +2,6 @@ package org.snd.noifications.discord.model
 
 import org.apache.velocity.VelocityContext
 import org.snd.metadata.model.Image
-import java.time.LocalDate
 
 data class WebhookMessage(
     val library: LibraryWebhookMessage,
@@ -57,7 +56,7 @@ data class BookMetadataWebhookMessage(
     val summary: String?,
     val number: String,
     val numberSort: String?,
-    val releaseDate: LocalDate?,
+    val releaseDate: String?,
     val authors: List<AuthorWebhookMessage>,
     val tags: List<String>,
     val isbn: String?,

@@ -97,7 +97,7 @@ class NotificationService(
         summary = metadata.summary,
         number = metadata.number,
         numberSort = metadata.numberSort,
-        releaseDate = metadata.releaseDate,
+        releaseDate = metadata.releaseDate?.toString(),
         authors = metadata.authors.map { AuthorWebhookMessage(it.name, it.role) },
         tags = metadata.tags.toList(),
         isbn = metadata.isbn,

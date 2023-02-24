@@ -1,7 +1,7 @@
 **$series.name**
 
-#if ($series.summary != "")
-    $series.summary
+#if ($series.metadata.summary != "")
+    $series.metadata.summary
 
 #end
 #if($books.size() == 1)
