@@ -17,6 +17,7 @@ import org.snd.metadata.model.metadata.AuthorRole.TRANSLATOR
 import org.snd.metadata.model.metadata.AuthorRole.WRITER
 import org.snd.metadata.model.metadata.BookMetadata
 import org.snd.metadata.model.metadata.SeriesMetadata
+import org.snd.metadata.model.metadata.TitleType
 
 class MetadataUpdateMapper {
 
@@ -106,7 +107,8 @@ class MetadataUpdateMapper {
                         ?: AgeRating.ADULTS_ONLY_18)
                         .value
                 },
-            languageISO = seriesMetadata?.language
+            languageISO = seriesMetadata?.language,
+            localizedTitle = seriesMetadata?.titles?.find { it.type == TitleType.LOCALIZED && it != seriesMetadata.title }?.name
         )
     }
 
@@ -148,7 +150,8 @@ class MetadataUpdateMapper {
                         ?: AgeRating.ADULTS_ONLY_18)
                         .value
                 },
-            languageISO = seriesMetadata.language
+            languageISO = seriesMetadata.language,
+            localizedTitle = seriesMetadata.titles.find { it.type == TitleType.LOCALIZED && it != seriesMetadata.title }?.name
         )
     }
 

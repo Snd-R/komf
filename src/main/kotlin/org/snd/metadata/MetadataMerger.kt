@@ -97,6 +97,7 @@ object MetadataMerger {
             seriesGroup = new.seriesGroup ?: old.seriesGroup,
             ageRating = new.ageRating ?: old.ageRating,
             rating = new.rating ?: old.rating,
+            localizedTitle = new.localizedTitle ?: old.localizedTitle,
             pages = new.pages ?: old.pages
         )
     }
