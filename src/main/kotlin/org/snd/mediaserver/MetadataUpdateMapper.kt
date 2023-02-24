@@ -107,7 +107,7 @@ class MetadataUpdateMapper {
                         .value
                 },
             languageISO = seriesMetadata?.language,
-            localizedTitle = seriesMetadata?.titles?.find { it.type != null }?.name
+            localizedSeries = seriesMetadata?.titles?.find { it.type != null }?.name
         )
     }
 
@@ -150,7 +150,7 @@ class MetadataUpdateMapper {
                         .value
                 },
             languageISO = seriesMetadata.language,
-            localizedTitle = seriesMetadata.titles.find { it.type != null }?.name
+            localizedSeries = seriesMetadata.titles.find { it.type != null }?.name
         )
     }
 
