@@ -296,7 +296,7 @@ discord:
   #    inline: true # if true sets multiple field blocks to the same row
   fieldTemplates:
   footerTemplate: # footer template filename
-  seriesCover: false # include series cover in message. Requires imgurClientId
+  seriesCover: false # include series cover in message
   colorCode: "1F8B4C" # hex color code for message sidebar
 
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
