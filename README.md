@@ -73,6 +73,7 @@ komga:
           - "ja"
           - "ja-ro"
         orderBooks: false # will order books using parsed volume or chapter number
+        scoreTag: false # adds score tag of format "score: 8" only uses integer part of rating. Can be used in search using query: tag:"score: 8" in komga
         readingDirectionValue: # override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 kavita:
@@ -97,17 +98,15 @@ kavita:
         seriesTitle: false #update series title
         seriesTitleLanguage: "en" # series title update language
         alternativeSeriesTitles: false # use other title types as alternative title option
-        alternativeSeriesTitleLanguages: # alternative title languages
-          - "en"
-          - "ja"
+        alternativeSeriesTitleLanguages: # alternative title language. Only first language is used. Use single value for consistency
           - "ja-ro"
         orderBooks: false # will order books using parsed volume or chapter number. works only with COMIC_INFO
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 discord:
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
+  descriptionTemplate: "discordWebhook.vm" # description template filename
   seriesCover: false # include series cover in message. Requires imgurClientId
-  imgurClientId: # client id for imgur image uploads
-  templatesDirectory: "./" #path to a directory with discordWebhook.vm template
+  templatesDirectory: "./" # path to a directory with templates
 database:
   file: ./database.sqlite #database file location.
 metadataProviders:
@@ -117,17 +116,9 @@ metadataProviders:
       priority: 10
       enabled: true
       mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
-
       # roles mapping can be applied the same way to any other provider
-      # available role names: WRITER, PENCILLER, INKER, COLORIST, LETTERER, COVER, EDITOR, TRANSLATOR
-      authorRoles: # roles that will be mapped to author role
-        - "WRITER"
-      artistRoles: # roles that will be mapped to artist role
-        - "PENCILLER"
-        - "INKER"
-        - "COLORIST"
-        - "LETTERER"
-        - "COVER"
+      authorRoles: [ "WRITER" ] # roles that will be mapped to author role
+      artistRoles: [ "PENCILLER","INKER","COLORIST","LETTERER","COVER" ] # roles that will be mapped to artist role
     mal:
       priority: 20
       enabled: false
@@ -230,71 +221,96 @@ available fields will be fetched. Example of default fields configuration
 
 ```yml
 metadataProviders:
-  mangaUpdates:
-    priority: 10
-    enabled: true
-    seriesMetadata:
-      status: true
-      title: true
-      titleSort: true
-      summary: true
-      publisher: true
-      readingDirection: true
-      ageRating: true
-      language: true
-      genres: true
-      tags: true
-      totalBookCount: true
-      authors: true
-      thumbnail: true
-      releaseDate: true
-      links: true
-      books: true
-      useOriginalPublisher: true # prefer original publisher and volume information if source has data about multiple providers. If false will use english or other available publisher
-      #TagName: if specified and if provider has data about publisher in that language then additional tag will be added using format ({TagName}: publisherName)
-      #e.g. originalPublisherTagName: "Original Publisher" will add tag "Original Publisher: Shueisha"
-      originalPublisherTagName:
-      englishPublisherTagName:
-      frenchPublisherTagName:
-    bookMetadata:
-      title: true
-      summary: true
-      number: true
-      numberSort: true
-      releaseDate: true
-      authors: true
-      tags: true
-      isbn: true
-      links: true
-      thumbnail: true
+  default:
+    mangaUpdates:
+      priority: 10
+      enabled: true
+      authorRoles: [ "WRITER" ]
+      artistRoles: [ "PENCILLER","INKER","COLORIST","LETTERER","COVER" ]
+      seriesMetadata:
+        status: true
+        title: true
+        titleSort: true
+        summary: true
+        publisher: true
+        readingDirection: true
+        ageRating: true
+        language: true
+        genres: true
+        tags: true
+        totalBookCount: true
+        authors: true
+        thumbnail: true
+        releaseDate: true
+        links: true
+        score: true
+        books: true
+        useOriginalPublisher: true # prefer original publisher and volume information if source has data about multiple providers. If false will use english or other available publisher
+        #TagName: if specified and if provider has data about publisher in that language then additional tag will be added using format ({TagName}: publisherName)
+        #e.g. originalPublisherTagName: "Original Publisher" will add tag "Original Publisher: Shueisha"
+        originalPublisherTagName:
+        englishPublisherTagName:
+        frenchPublisherTagName:
+      bookMetadata:
+        title: true
+        summary: true
+        number: true
+        numberSort: true
+        releaseDate: true
+        authors: true
+        tags: true
+        isbn: true
+        links: true
+        thumbnail: true
 ```
 
 If you want to disable particular field you just need to set the field value to false
 
 ```yml
 metadataProviders:
-  mangaUpdates:
-    priority: 10
-    enabled: true
-    seriesMetadata:
-      thumbnail: false
+  default:
+    mangaUpdates:
+      priority: 10
+      enabled: true
+      seriesMetadata:
+        thumbnail: false
 ```
 
 ## Discord notifications
 
 if any webhook urls are specified then after new book is added a call to webhooks will be triggered. You can change
-message format by providing your own template file called `discordWebhook.vm` and specifying directory path to this
-template in `templatesDirectory` under discord configuration. For docker deployments `discordWebhook.vm` should be
+message format by providing your own template files and specifying directory path in `templatesDirectory` under discord configuration. For
+docker deployments templates should be
 placed in mounted `/config` directory without specifying `templatesDirectory`
 
+```yaml
+# Example config
+discord:
+  title: # title string template
+  titleUrl: # title url string template
+  descriptionTemplate: "discordWebhook.vm" # description template filename
+  # list of field blocks.
+  #fieldTemplates:
+  #  - name: "field name" # string template
+  #    templateName: "field1.vm" # template filename
+  #    inline: true # if true sets multiple field blocks to the same row
+  fieldTemplates:
+  footerTemplate: # footer template filename
+  seriesCover: false # include series cover in message. Requires imgurClientId
+  colorCode: "1F8B4C" # hex color code for message sidebar
+
+  webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
+  templatesDirectory: "./" # path to a directory with templates
+```
+
 Templates are written using Apache Velocity ([link to docs](https://velocity.apache.org/engine/2.3/user-guide.html)).
-Example of a template:
 
 ```velocity
+## Example of the default description template
 **$series.name**
 
-#if ($series.summary != "")
-    $series.summary
+#if ($series.metadata.summary != "")
+    $series.metadata.summary
 
 #end
 #if($books.size() == 1)
@@ -307,8 +323,54 @@ Example of a template:
 #end
 ```
 
-Variables available in template: `library.(name)`, `series.(id, name, summary)`, `books.(id, name)`(list of book
-objects)
+```typescript
+// Variables available in templates:
+interface Webhook {
+    library: {
+        id: string,
+        name: string
+    },
+    series: {
+        id: string,
+        name: string,
+        bookCount?: number,
+        metadata: {
+            status: string,
+            title: string,
+            titleSort: string,
+            alternativeTitles: { label: string, title: string }[],
+            summary: string,
+            readingDirection?: string,
+            publisher?: string,
+            alternativePublishers: string[],
+            ageRating?: number,
+            language?: string,
+            genres: string[],
+            tags: string[],
+            totalBookCount?: number,
+            authors: { name: string, role: string }[],
+            releaseYear: number,
+            liks: { label: string, url: string }[],
+        }
+    },
+    books: {
+        id: string,
+        name: string,
+        number: int,
+        metadata: {
+            title: string,
+            summary: string,
+            number: string,
+            releaseDate: string,
+            authors: { name: string, role: string }
+            tags: string[],
+            isbn?: string,
+            links: { label: string, url: string }[]
+        }
+    }[],
+    mediaServer: string //can be `KOMGA` or `KAVITA`
+}
+```
 
 ## Command line options
 
