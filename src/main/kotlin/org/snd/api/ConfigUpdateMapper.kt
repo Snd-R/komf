@@ -134,10 +134,6 @@ class ConfigUpdateMapper {
     }
 
     private fun toDto(config: DiscordConfig): DiscordConfigDto {
-        val imgurClientId = config.imgurClientId?.let {
-            if (it.length < 15) maskedPlaceholder
-            else it.replace("(?<=.{4}).".toRegex(), "*")
-        }
         return DiscordConfigDto(
             webhooks = config.webhooks
                 ?.map {
@@ -147,7 +143,6 @@ class ConfigUpdateMapper {
                 ?.mapIndexed { index, value -> index to value }
                 ?.toMap(),
             seriesCover = config.seriesCover,
-            imgurClientId = imgurClientId,
         )
     }
 
@@ -465,7 +460,6 @@ class ConfigUpdateMapper {
 
         return config.copy(
             webhooks = newWebhooks?.values?.filterNotNull(),
-            imgurClientId = if (patch.isSet("imgurClientId")) patch.imgurClientId else config.imgurClientId,
             seriesCover = patch.seriesCover ?: config.seriesCover,
         )
     }

@@ -14,6 +14,7 @@ import org.snd.mediaserver.kavita.model.KavitaVolumeId
 import org.snd.mediaserver.kavita.model.events.CoverUpdateEvent
 import org.snd.mediaserver.kavita.model.events.NotificationProgressEvent
 import org.snd.mediaserver.kavita.model.events.SeriesRemovedEvent
+import org.snd.mediaserver.model.mediaserver.MediaServer.KAVITA
 import org.snd.mediaserver.model.mediaserver.MediaServerBookId
 import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import org.snd.mediaserver.repository.SeriesMatchRepository
@@ -128,10 +129,10 @@ class KavitaEventListener(
         }
 
         notificationService.executeFor(
-            seriesToChaptersMap
-                .map { (series, chapters) ->
-                    MediaServerSeriesId(series.id.toString()) to chapters.map { chapter -> MediaServerBookId(chapter.id.toString()) }
-                }.toMap()
+            seriesToChaptersMap.map { (series, chapters) ->
+                MediaServerSeriesId(series.id.toString()) to chapters.map { chapter -> MediaServerBookId(chapter.id.toString()) }
+            }.toMap(),
+            KAVITA
         )
 
         lastScan = now

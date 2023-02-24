@@ -12,8 +12,6 @@ import org.snd.common.http.HttpClient
 import org.snd.config.DiscordConfig
 import org.snd.noifications.discord.DiscordWebhookService
 import org.snd.noifications.discord.client.DiscordClient
-import org.snd.noifications.imgur.ClientIdAuthInterceptor
-import org.snd.noifications.imgur.ImgurClient
 import java.time.Duration
 import java.util.*
 
@@ -64,27 +62,18 @@ class NotificationsModule(
         moshi = jsonModule.moshi
     )
 
-    private val imgurClient = config.imgurClientId?.let { clientId ->
-        ImgurClient(
-            HttpClient(
-                client = okHttpClient.newBuilder()
-                    .addInterceptor(HttpLoggingInterceptor { message -> KotlinLogging.logger {}.debug { message } }
-                        .setLevel(HttpLoggingInterceptor.Level.BASIC))
-                    .addInterceptor(ClientIdAuthInterceptor(clientId))
-                    .build(),
-                name = "Imgur"
-            ),
-            moshi = jsonModule.moshi
-        )
-    }
-
     val discordWebhookService: DiscordWebhookService? = config.webhooks?.let {
         DiscordWebhookService(
-            config.webhooks,
-            discordClient,
-            config.seriesCover,
-            imgurClient,
-            templateEngine,
+            discordClient = discordClient,
+            webhooks = config.webhooks,
+            seriesCover = config.seriesCover,
+            title = config.title,
+            titleUrl = config.titleUrl,
+            descriptionTemplateName = config.descriptionTemplate,
+            fieldTemplateConfigs = config.fieldTemplates,
+            footerTemplateName = config.footerTemplate,
+            colorCode = config.colorCode,
+            velocityEngine = templateEngine
         )
     }
 }

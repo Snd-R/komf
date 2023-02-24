@@ -71,7 +71,6 @@ data class MetadataPostProcessingConfigDto(
 data class DiscordConfigDto(
     val webhooks: Map<Int, String>?,
     val seriesCover: Boolean,
-    val imgurClientId: String?,
 )
 
 @JsonClass(generateAdapter = true)

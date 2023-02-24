@@ -6,7 +6,8 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class Image(
     @Json(ignore = true)
-    val image: ByteArray = byteArrayOf()
+    val image: ByteArray = byteArrayOf(),
+    val mimeType: String? = null
 ) {
 
     override fun equals(other: Any?): Boolean {

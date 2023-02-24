@@ -14,6 +14,7 @@ import org.snd.mediaserver.NotificationService
 import org.snd.mediaserver.komga.model.event.BookEvent
 import org.snd.mediaserver.komga.model.event.SeriesEvent
 import org.snd.mediaserver.komga.model.event.TaskQueueStatusEvent
+import org.snd.mediaserver.model.mediaserver.MediaServer.KOMGA
 import org.snd.mediaserver.model.mediaserver.MediaServerBookId
 import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import org.snd.mediaserver.repository.BookThumbnailsRepository
@@ -130,7 +131,7 @@ class KomgaEventListener(
     private fun processEvents(libraryId: String, events: Map<MediaServerSeriesId, Collection<MediaServerBookId>>) {
         val metadataService = metadataServiceProvider.serviceFor(libraryId)
         events.keys.forEach { metadataService.matchSeriesMetadata(it) }
-        runCatching { notificationService.executeFor(events) }
+        runCatching { notificationService.executeFor(events, KOMGA) }
             .exceptionOrNull()?.let { logger.error(it) {} }
 
     }

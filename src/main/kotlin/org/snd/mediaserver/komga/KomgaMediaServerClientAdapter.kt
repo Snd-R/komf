@@ -44,7 +44,7 @@ class KomgaMediaServerClientAdapter(private val komgaClient: KomgaClient) : Medi
         }.flatMap { it.content }.map { it.mediaServerSeries() }
     }
 
-    override fun getSeriesThumbnail(seriesId: MediaServerSeriesId): ByteArray? {
+    override fun getSeriesThumbnail(seriesId: MediaServerSeriesId): Image? {
         return runCatching { komgaClient.getSeriesThumbnail(seriesId.komgaSeriesId()) }.getOrNull()
     }
 

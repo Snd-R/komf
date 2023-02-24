@@ -82,7 +82,6 @@ class DiscordConfigUpdateDto {
     fun isSet(prop: String) = isSet.getOrDefault(prop, false)
 
     var webhooks: Map<Int, String?>? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
-    var imgurClientId: String? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
     var seriesCover: Boolean? = null
 }
 

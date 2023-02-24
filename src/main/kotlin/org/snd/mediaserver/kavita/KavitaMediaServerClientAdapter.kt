@@ -49,7 +49,7 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
             }
     }
 
-    override fun getSeriesThumbnail(seriesId: MediaServerSeriesId): ByteArray? {
+    override fun getSeriesThumbnail(seriesId: MediaServerSeriesId): Image? {
         return runCatching { kavitaClient.getSeriesCover(seriesId.kavitaSeriesId()) }.getOrNull()
     }
 

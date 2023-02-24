@@ -55,12 +55,13 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
-    fun getSeriesThumbnail(seriesId: KomgaSeriesId): ByteArray {
+    fun getSeriesThumbnail(seriesId: KomgaSeriesId): Image {
         val request = Request.Builder()
             .url(baseUrl.newBuilder().addPathSegments("api/v1/series/${seriesId.id}/thumbnail").build())
             .build()
 
-        return client.executeWithByteResponse(request)
+        val response = client.executeWithResponse(request)
+        return Image(response.body ?: throw IllegalStateException(), response.headers["Content-Type"])
     }
 
     fun updateSeriesMetadata(

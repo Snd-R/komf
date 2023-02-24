@@ -3,10 +3,12 @@ package org.snd.noifications.discord.client
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.snd.common.http.HttpClient
 import org.snd.common.http.MEDIA_TYPE_JSON
+import org.snd.metadata.model.Image
 import org.snd.noifications.discord.model.Webhook
 import org.snd.noifications.discord.model.WebhookExecuteRequest
 
@@ -24,15 +26,25 @@ class DiscordClient(
         return parseJson(client.execute(request))
     }
 
-    fun executeWebhook(webhook: Webhook, webhookRequest: WebhookExecuteRequest) {
-        val postBody = toJson(webhookRequest)
+    fun executeWebhook(webhook: Webhook, webhookRequest: WebhookExecuteRequest, image: Image? = null) {
+        val jsonPayload = toJson(webhookRequest)
+        val body = if (image == null) {
+            jsonPayload.toRequestBody(MEDIA_TYPE_JSON)
+        } else {
+            val filename = "cover.${image.mimeType?.replace("image/", "") ?: "jpeg"}"
+            MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("cover", filename, image.image.toRequestBody())
+                .addFormDataPart("payload_json", jsonPayload)
+                .build()
+        }
+
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
                     .addPathSegments("webhooks/${webhook.id}/${webhook.token}")
                     .build()
             )
-            .post(postBody.toRequestBody(MEDIA_TYPE_JSON))
+            .post(body)
             .build()
 
         client.execute(request)

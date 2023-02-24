@@ -60,7 +60,7 @@ class KavitaClient(
         return KavitaPage(series, page)
     }
 
-    fun getSeriesCover(seriesId: KavitaSeriesId): ByteArray {
+    fun getSeriesCover(seriesId: KavitaSeriesId): Image {
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
@@ -70,7 +70,8 @@ class KavitaClient(
             )
             .build()
 
-        return client.executeWithByteResponse(request)
+        val response = client.executeWithResponse(request)
+        return Image(response.body ?: throw IllegalStateException(), response.headers["Content-Type"])
     }
 
     fun updateSeries(seriesUpdate: KavitaSeriesUpdate) {
