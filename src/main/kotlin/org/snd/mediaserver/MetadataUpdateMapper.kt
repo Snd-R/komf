@@ -17,7 +17,6 @@ import org.snd.metadata.model.metadata.AuthorRole.TRANSLATOR
 import org.snd.metadata.model.metadata.AuthorRole.WRITER
 import org.snd.metadata.model.metadata.BookMetadata
 import org.snd.metadata.model.metadata.SeriesMetadata
-import org.snd.metadata.model.metadata.TitleType
 
 class MetadataUpdateMapper {
 
@@ -108,7 +107,7 @@ class MetadataUpdateMapper {
                         .value
                 },
             languageISO = seriesMetadata?.language,
-            localizedTitle = seriesMetadata?.titles?.find { it.type == TitleType.LOCALIZED && it != seriesMetadata.title }?.name
+            localizedTitle = seriesMetadata?.titles?.find { it.type != null }?.name
         )
     }
 
@@ -151,7 +150,7 @@ class MetadataUpdateMapper {
                         .value
                 },
             languageISO = seriesMetadata.language,
-            localizedTitle = seriesMetadata.titles.find { it.type == TitleType.LOCALIZED && it != seriesMetadata.title }?.name
+            localizedTitle = seriesMetadata.titles.find { it.type != null }?.name
         )
     }
 
