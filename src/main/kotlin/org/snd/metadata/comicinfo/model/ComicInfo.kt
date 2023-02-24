@@ -168,6 +168,10 @@ data class ComicInfo(
     val rating: String? = null,
 
     @XmlElement(true)
+    @XmlSerialName("LocalizedTitle", "", "")
+    val localizedTitle: String? = null,
+
+    @XmlElement(true)
     @XmlSerialName("Pages", "", "")
     @XmlChildrenName("Page", "", "")
     val pages: Collection<Page>? = null
