@@ -42,20 +42,20 @@ class ConfigLoader {
     private fun overrideConfigDirAndEnvVars(config: AppConfig, configDirectory: String?): AppConfig {
         val databaseConfig = config.database
         val databaseFile = configDirectory?.let { "$it/database.sqlite" } ?: databaseConfig.file
-        val komgaConfig = config.komga
-        val komgaBaseUri = System.getenv("KOMF_KOMGA_BASE_URI") ?: komgaConfig.baseUri
-        val komgaUser = System.getenv("KOMF_KOMGA_USER") ?: komgaConfig.komgaUser
-        val komgaPassword = System.getenv("KOMF_KOMGA_PASSWORD") ?: komgaConfig.komgaPassword
         val discordTemplatesDirectory = configDirectory ?: config.discord.templatesDirectory
 
+        val komgaConfig = config.komga
+        val komgaBaseUri = System.getenv("KOMF_KOMGA_BASE_URI")?.ifBlank { null } ?: komgaConfig.baseUri
+        val komgaUser = System.getenv("KOMF_KOMGA_USER")?.ifBlank { null } ?: komgaConfig.komgaUser
+        val komgaPassword = System.getenv("KOMF_KOMGA_PASSWORD")?.ifBlank { null } ?: komgaConfig.komgaPassword
 
         val kavitaConfig = config.kavita
-        val kavitaBaseUri = System.getenv("KOMF_KAVITA_BASE_URI") ?: kavitaConfig.baseUri
-        val kavitaApiKey = System.getenv("KOMF_KAVITA_API_KEY") ?: kavitaConfig.apiKey
+        val kavitaBaseUri = System.getenv("KOMF_KAVITA_BASE_URI")?.ifBlank { null } ?: kavitaConfig.baseUri
+        val kavitaApiKey = System.getenv("KOMF_KAVITA_API_KEY")?.ifBlank { null } ?: kavitaConfig.apiKey
 
         val serverConfig = config.server
-        val serverPort = System.getenv("KOMF_SERVER_PORT")?.toInt() ?: serverConfig.port
-        val logLevel = System.getenv("KOMF_LOG_LEVEL") ?: config.logLevel
+        val serverPort = System.getenv("KOMF_SERVER_PORT")?.toIntOrNull() ?: serverConfig.port
+        val logLevel = System.getenv("KOMF_LOG_LEVEL")?.ifBlank { null } ?: config.logLevel
 
         return config.copy(
             komga = komgaConfig.copy(
