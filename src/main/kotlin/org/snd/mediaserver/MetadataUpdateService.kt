@@ -105,20 +105,20 @@ class MetadataUpdateService(
 
 
                 COMIC_INFO -> {
-                    if (book.deleted.not()) {
-                        if (writeSeriesMetadata) seriesMeta.let {
-                            val comicInfo = metadataUpdateMapper.toSeriesComicInfo(it, metadata)
-                            comicInfoWriter.writeMetadata(Path.of(book.url), comicInfo)
-                        }
+                    if (book.deleted) return@forEach
+
+                    val comicInfo =
+                        if (writeSeriesMetadata) metadataUpdateMapper.toSeriesComicInfo(seriesMeta, metadata)
                         else metadataUpdateMapper.toComicInfo(metadata, seriesMeta)
-                            ?.let { comicInfoWriter.writeMetadata(Path.of(book.url), it) }
-                    }
+
+                    comicInfo?.let { comicInfoWriter.writeMetadata(Path.of(book.url), it) }
                 }
 
                 OPF -> {
-                    if (book.deleted.not()) {
-                        epubWriter.writeMetadata(Path.of(book.url), seriesMeta, metadata)
-                    }
+                    if (book.deleted) return@forEach
+
+                    if (writeSeriesMetadata) epubWriter.writeSeriesMetadata(Path.of(book.url), seriesMeta, metadata)
+                    else epubWriter.writeMetadata(Path.of(book.url), seriesMeta, metadata)
                 }
             }
         }

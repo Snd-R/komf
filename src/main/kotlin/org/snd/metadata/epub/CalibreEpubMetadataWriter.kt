@@ -12,8 +12,6 @@ class CalibreEpubMetadataWriter(
     private val executablePath: Path?
 ) {
     fun writeMetadata(bookPath: Path, seriesMetadata: SeriesMetadata, bookMetadata: BookMetadata?) {
-        validate(bookPath)
-
         val arguments = listOfNotNull(
             (bookMetadata?.authors?.ifEmpty { null } ?: seriesMetadata.authors.ifEmpty { null })
                 ?.let { "--authors" to authors(it) },
@@ -26,10 +24,33 @@ class CalibreEpubMetadataWriter(
             seriesMetadata.genres.ifEmpty { null }?.let { "--tags" to it.joinToString(",") }
         ).flatMap { (k, v) -> listOf(k, v) }
 
+        writeMetadata(bookPath, arguments)
+    }
+
+    fun writeSeriesMetadata(bookPath: Path, seriesMetadata: SeriesMetadata, bookMetadata: BookMetadata?) {
+        val arguments = listOfNotNull(
+            (seriesMetadata.authors.ifEmpty { null } ?: bookMetadata?.authors?.ifEmpty { null })
+                ?.let { "--authors" to authors(it) },
+            seriesMetadata.summary?.let { "--comments" to it },
+            seriesMetadata.releaseDate?.let { "--date" to it.toString() },
+            bookMetadata?.isbn?.let { "--isbn" to it },
+            bookMetadata?.number?.let { "--index" to it.start.toString() },
+            seriesMetadata.publisher?.let { "--publisher" to it },
+            seriesMetadata.title?.let { "--series" to it.name },
+            seriesMetadata.genres.ifEmpty { null }?.let { "--tags" to it.joinToString(",") }
+        ).flatMap { (k, v) -> listOf(k, v) }
+
+        writeMetadata(bookPath, arguments)
+    }
+
+    private fun writeMetadata(bookPath: Path, arguments: List<String>) {
+        validate(bookPath)
         if (arguments.isEmpty()) return
 
         val process = ProcessBuilder(
-            executablePath?.toString() ?: "ebook-meta", bookPath.toString(), *arguments.toTypedArray()
+            executablePath?.toString() ?: "ebook-meta",
+            bookPath.toString(),
+            *arguments.toTypedArray()
         ).inheritIO().start()
 
         val exitCode = process.waitFor()
