@@ -23,6 +23,7 @@ import org.snd.metadata.model.Image
 import org.snd.metadata.model.metadata.BookMetadata
 import org.snd.metadata.model.metadata.SeriesMetadata
 import java.nio.file.Path
+import kotlin.math.floor
 
 private val logger = KotlinLogging.logger {}
 
@@ -208,15 +209,18 @@ class MetadataUpdateService(
     }
 
     private fun bookToWriteSeriesMetadata(bookMetadata: Map<MediaServerBook, BookMetadata?>): MediaServerBookId? {
-        return if (updateModes.any { it == COMIC_INFO }
-            && bookMetadata.all { it.value == null }) {
-            val books = bookMetadata.keys.sortedBy { it.name.lowercase() }
-            return books.asSequence()
-                .mapNotNull { book -> BookNameParser.getVolumes(book.name)?.let { book to it } }
-                .map { (book, number) -> book to number.start }
-                .filter { (_, number) -> number.toInt() == 1 }
-                .map { (book, _) -> book.id }
-                .firstOrNull() ?: books.firstOrNull()?.id
-        } else null
+        if (updateModes.none { it == COMIC_INFO || it == OPF }) return null
+
+        val books = bookMetadata.keys.sortedBy { it.name.lowercase() }
+        val firstBook = books.asSequence()
+            .mapNotNull { book -> BookNameParser.getVolumes(book.name)?.let { book to it } }
+            .map { (book, range) -> book to range.start }
+            .filter { (_, number) -> floor(number) == number && number.toInt() == 1 }
+            .map { (book, _) -> book }
+            .firstOrNull()
+
+        return firstBook?.id
+            ?: if (bookMetadata.any { it.value != null }) null
+            else books.firstOrNull()?.id
     }
 }
