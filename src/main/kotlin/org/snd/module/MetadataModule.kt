@@ -155,7 +155,7 @@ class MetadataModule(
             interceptors = listOf(MalClientInterceptor(clientId)),
             rateLimitConfig = RateLimiterConfig.custom()
                 .limitRefreshPeriod(Duration.ofSeconds(5))
-                .limitForPeriod(10)
+                .limitForPeriod(5)
                 .timeoutDuration(Duration.ofSeconds(5))
                 .build()
         )
