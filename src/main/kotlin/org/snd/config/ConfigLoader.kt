@@ -106,7 +106,17 @@ class ConfigLoader {
                     mangaUpdates = mangaUpdates ?: defaultProviders.mangaUpdates,
                     mal = mal ?: defaultProviders.mal,
                     nautiljon = nautiljon ?: defaultProviders.nautiljon,
-                    aniList = aniList ?: defaultProviders.aniList,
+                    aniList = aniList?.let {
+                        AniListConfig(
+                            priority = it.priority,
+                            enabled = it.enabled,
+                            seriesMetadata = it.seriesMetadata,
+                            nameMatchingMode = it.nameMatchingMode,
+                            mediaType = it.mediaType,
+                            authorRoles = it.authorRoles,
+                            artistRoles = it.artistRoles,
+                        )
+                    } ?: defaultProviders.aniList,
                     yenPress = yenPress ?: defaultProviders.yenPress,
                     kodansha = kodansha ?: defaultProviders.kodansha,
                     viz = viz ?: defaultProviders.viz,

@@ -104,7 +104,7 @@ data class ProvidersConfigUpdateDto(
     val mangaUpdates: ProviderConfigUpdateDto? = null,
     val mal: ProviderConfigUpdateDto? = null,
     val nautiljon: ProviderConfigUpdateDto? = null,
-    val aniList: ProviderConfigUpdateDto? = null,
+    val aniList: AniListConfigUpdateDto? = null,
     val yenPress: ProviderConfigUpdateDto? = null,
     val kodansha: ProviderConfigUpdateDto? = null,
     val viz: ProviderConfigUpdateDto? = null,
@@ -126,6 +126,23 @@ class ProviderConfigUpdateDto {
     var artistRoles: Collection<AuthorRole>? = null
     var seriesMetadata: SeriesMetadataConfigUpdateDto? = null
     var bookMetadata: BookMetadataConfigUpdateDto? = null
+}
+
+@JsonClass(generateAdapter = true)
+class AniListConfigUpdateDto {
+    @Transient
+    private val isSet = mutableMapOf<String, Boolean>()
+    fun isSet(prop: String) = isSet.getOrDefault(prop, false)
+    var nameMatchingMode: NameMatchingMode? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
+
+    var priority: Int? = null
+    var enabled: Boolean? = null
+    var mediaType: MediaType? = null
+    var authorRoles: Collection<AuthorRole>? = null
+    var artistRoles: Collection<AuthorRole>? = null
+    var tagsScoreThreshold: Int? = null
+    var tagsSizeLimit: Int? = null
+    var seriesMetadata: SeriesMetadataConfigUpdateDto? = null
 }
 
 @JsonClass(generateAdapter = true)

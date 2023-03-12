@@ -23,6 +23,8 @@ import org.snd.type.MediaStatus
 
 class AniListMetadataMapper(
     private val metadataConfig: SeriesMetadataConfig,
+    private val tagsScoreThreshold: Int,
+    private val tagsSizeLimit: Int,
     private val authorRoles: Collection<AuthorRole>,
     private val artistRoles: Collection<AuthorRole>,
 ) {
@@ -62,11 +64,11 @@ class AniListMetadataMapper(
                 }
             }
         val tags = series.tags?.asSequence()
-            ?.filterNotNull()
-            ?.mapNotNull { if (it.rank == null) null else it.name to it.rank }
-            ?.sortedByDescending { it.second }
-            ?.take(15)
-            ?.map { it.first }
+            ?.mapNotNull { tag -> tag?.rank?.let { tag.name to tag.rank } }
+            ?.filter { (_, rank) -> rank >= tagsScoreThreshold }
+            ?.sortedByDescending { (_, rank) -> rank }
+            ?.take(tagsSizeLimit)
+            ?.map { (name, _) -> name }
             ?.toList()
             ?: emptyList()
 

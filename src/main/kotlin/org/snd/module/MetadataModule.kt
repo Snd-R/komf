@@ -10,6 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.commons.lang3.SystemUtils
 import org.snd.common.exceptions.HttpException
 import org.snd.common.http.HttpClient
+import org.snd.config.AniListConfig
 import org.snd.config.CalibreConfig
 import org.snd.config.MetadataProvidersConfig
 import org.snd.config.ProviderConfig
@@ -355,13 +356,15 @@ class MetadataModule(
         )
     }
 
-    private fun createAnilistMetadataProvider(config: ProviderConfig, client: AniListClient): AniListMetadataProvider? {
+    private fun createAnilistMetadataProvider(config: AniListConfig, client: AniListClient): AniListMetadataProvider? {
         if (config.enabled.not()) return null
 
         val metadataMapper = AniListMetadataMapper(
             metadataConfig = config.seriesMetadata,
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
+            tagsSizeLimit = config.tagsSizeLimit,
+            tagsScoreThreshold = config.tagsScoreThreshold
         )
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher

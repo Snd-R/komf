@@ -92,7 +92,7 @@ data class ProvidersConfigDto(
     val mangaUpdates: ProviderConfigDto,
     val mal: ProviderConfigDto,
     val nautiljon: ProviderConfigDto,
-    val aniList: ProviderConfigDto,
+    val aniList: AniListConfigDto,
     val yenPress: ProviderConfigDto,
     val kodansha: ProviderConfigDto,
     val viz: ProviderConfigDto,
@@ -109,6 +109,22 @@ data class ProviderConfigDto(
     val authorRoles: Collection<AuthorRole>,
     val artistRoles: Collection<AuthorRole>,
     val seriesMetadata: SeriesMetadataConfigDto,
+    val bookMetadata: BookMetadataConfigDto,
+)
+
+@JsonClass(generateAdapter = true)
+data class AniListConfigDto(
+    val nameMatchingMode: NameMatchingMode?,
+    val priority: Int,
+    val enabled: Boolean,
+    val mediaType: MediaType,
+    val authorRoles: Collection<AuthorRole>,
+    val artistRoles: Collection<AuthorRole>,
+    val tagsScoreThreshold: Int,
+    val tagsSizeLimit: Int,
+    val seriesMetadata: SeriesMetadataConfigDto,
+
+    @Deprecated("added for backwards compatibility")
     val bookMetadata: BookMetadataConfigDto,
 )
 

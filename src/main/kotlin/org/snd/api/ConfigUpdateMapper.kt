@@ -1,5 +1,7 @@
 package org.snd.api
 
+import org.snd.api.dto.AniListConfigDto
+import org.snd.api.dto.AniListConfigUpdateDto
 import org.snd.api.dto.AppConfigDto
 import org.snd.api.dto.AppConfigUpdateDto
 import org.snd.api.dto.BookMetadataConfigDto
@@ -28,6 +30,7 @@ import org.snd.api.dto.ProvidersConfigDto
 import org.snd.api.dto.ProvidersConfigUpdateDto
 import org.snd.api.dto.SeriesMetadataConfigDto
 import org.snd.api.dto.SeriesMetadataConfigUpdateDto
+import org.snd.config.AniListConfig
 import org.snd.config.AppConfig
 import org.snd.config.BookMetadataConfig
 import org.snd.config.DiscordConfig
@@ -186,6 +189,33 @@ class ConfigUpdateMapper {
         )
     }
 
+    private fun toDto(config: AniListConfig): AniListConfigDto {
+        return AniListConfigDto(
+            nameMatchingMode = config.nameMatchingMode,
+            priority = config.priority,
+            enabled = config.enabled,
+            mediaType = config.mediaType,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+            seriesMetadata = toDto(config.seriesMetadata),
+            //TODO remove
+            bookMetadata = BookMetadataConfigDto(
+                title = true,
+                summary = true,
+                number = true,
+                numberSort = true,
+                releaseDate = true,
+                authors = true,
+                tags = true,
+                isbn = true,
+                links = true,
+                thumbnail = true
+            ),
+            tagsScoreThreshold = config.tagsScoreThreshold,
+            tagsSizeLimit = config.tagsSizeLimit
+        )
+    }
+
     private fun toDto(config: SeriesMetadataConfig): SeriesMetadataConfigDto {
         return SeriesMetadataConfigDto(
             status = config.status,
@@ -270,7 +300,7 @@ class ConfigUpdateMapper {
             mangaUpdates = patch.mangaUpdates?.let { providerConfig(config.mangaUpdates, it) } ?: config.mangaUpdates,
             mal = patch.mal?.let { providerConfig(config.mal, it) } ?: config.mal,
             nautiljon = patch.nautiljon?.let { providerConfig(config.nautiljon, it) } ?: config.nautiljon,
-            aniList = patch.aniList?.let { providerConfig(config.aniList, it) } ?: config.aniList,
+            aniList = patch.aniList?.let { aniListProviderConfig(config.aniList, it) } ?: config.aniList,
             yenPress = patch.yenPress?.let { providerConfig(config.yenPress, it) } ?: config.yenPress,
             kodansha = patch.kodansha?.let { providerConfig(config.kodansha, it) } ?: config.kodansha,
             viz = patch.viz?.let { providerConfig(config.viz, it) } ?: config.viz,
@@ -297,6 +327,22 @@ class ConfigUpdateMapper {
             bookMetadata = patch.bookMetadata
                 ?.let { bookMetadataConfig(config.bookMetadata, it) }
                 ?: config.bookMetadata,
+            nameMatchingMode = if (patch.isSet("nameMatchingMode")) patch.nameMatchingMode else config.nameMatchingMode
+        )
+    }
+
+    private fun aniListProviderConfig(config: AniListConfig, patch: AniListConfigUpdateDto): AniListConfig {
+        return config.copy(
+            priority = patch.priority ?: config.priority,
+            enabled = patch.enabled ?: config.enabled,
+            mediaType = patch.mediaType ?: config.mediaType,
+            authorRoles = patch.authorRoles ?: config.authorRoles,
+            artistRoles = patch.artistRoles ?: config.artistRoles,
+            tagsScoreThreshold = patch.tagsScoreThreshold ?: config.tagsScoreThreshold,
+            tagsSizeLimit = patch.tagsSizeLimit ?: config.tagsSizeLimit,
+            seriesMetadata = patch.seriesMetadata
+                ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
+                ?: config.seriesMetadata,
             nameMatchingMode = if (patch.isSet("nameMatchingMode")) patch.nameMatchingMode else config.nameMatchingMode
         )
     }

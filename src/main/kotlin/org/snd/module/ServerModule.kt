@@ -1,6 +1,7 @@
 package org.snd.module
 
 import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import io.javalin.Javalin
 import io.javalin.util.ConcurrencyUtil
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
@@ -28,7 +29,7 @@ class ServerModule(
             .namingPattern("komf-api-task-handler-%d").build()
     )
 
-    private val configWriter = ConfigWriter(Yaml.default)
+    private val configWriter = ConfigWriter(Yaml(configuration = YamlConfiguration(encodeDefaults = false)))
     private val configMapper = ConfigUpdateMapper()
 
     private val jetty = Server(ConcurrencyUtil.jettyThreadPool("JettyServerThreadPool", 1, 20))
