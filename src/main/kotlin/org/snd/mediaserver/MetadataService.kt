@@ -11,6 +11,7 @@ import org.snd.mediaserver.model.mediaserver.MediaServerSeries
 import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.metadata.BookNameParser
+import org.snd.metadata.MetadataMerger
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.SeriesSearchResult
@@ -28,7 +29,6 @@ class MetadataService(
     private val mediaServerClient: MediaServerClient,
     private val metadataProviders: MetadataProviders,
     private val aggregateMetadata: Boolean,
-    private val metadataMerger: MetadataMerger,
     private val executor: ExecutorService,
     private val metadataUpdateService: MetadataUpdateService,
     private val seriesMatchRepository: SeriesMatchRepository,
@@ -256,10 +256,10 @@ class MetadataService(
         originalMetadata: SeriesAndBookMetadata,
         newMetadata: SeriesAndBookMetadata
     ): SeriesAndBookMetadata {
-        val mergedSeries = metadataMerger.mergeSeriesMetadata(originalMetadata.seriesMetadata, newMetadata.seriesMetadata)
+        val mergedSeries = MetadataMerger.mergeSeriesMetadata(originalMetadata.seriesMetadata, newMetadata.seriesMetadata)
 
         val books = originalMetadata.bookMetadata.keys.associateBy { it.id }
-        val mergedBooks = metadataMerger.mergeBookMetadata(
+        val mergedBooks = MetadataMerger.mergeBookMetadata(
             originalMetadata.bookMetadata.map { it.key.id to it.value }.toMap(),
             newMetadata.bookMetadata.map { it.key.id to it.value }.toMap()
         ).map { (bookId, metadata) -> books[bookId]!! to metadata }.toMap()
