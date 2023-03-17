@@ -72,6 +72,8 @@ data class MetadataUpdateConfig(
 @Serializable
 data class MetadataProcessingConfig(
     val aggregate: Boolean = false,
+    val mergeTags: Boolean = false,
+    val mergeGenres: Boolean = false,
 
     val bookCovers: Boolean = false,
     val seriesCovers: Boolean = false,
