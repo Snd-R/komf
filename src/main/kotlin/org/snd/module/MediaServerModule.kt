@@ -15,6 +15,7 @@ import org.snd.config.KomgaConfig
 import org.snd.config.MetadataProcessingConfig
 import org.snd.config.MetadataUpdateConfig
 import org.snd.mediaserver.MediaServerClient
+import org.snd.mediaserver.MetadataMerger
 import org.snd.mediaserver.MetadataPostProcessor
 import org.snd.mediaserver.MetadataService
 import org.snd.mediaserver.MetadataUpdateMapper
@@ -263,6 +264,7 @@ class MediaServerModule(
             executor = metadataAggregationExecutor,
             metadataUpdateService = metadataUpdateService,
             seriesMatchRepository = seriesMatchRepository,
+            metadataMerger = MetadataMerger(mergeTags = config.mergeTags, mergeGenres = config.mergeGenres)
         )
     }
 
