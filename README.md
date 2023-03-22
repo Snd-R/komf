@@ -62,6 +62,8 @@ komga:
       # If you're using anything other than API then your existing files might be modified with embedded metadata
       updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
       aggregate: false # if enabled will search and aggregate metadata from all configured providers
+      mergeTags: false # if true and aggregate is enabled will merge tags from all providers
+      mergeGenres: false # if true and aggregate is enabled will merge genres from all providers
       bookCovers: false # update book thumbnails
       seriesCovers: false # update series thumbnails
       postProcessing:
@@ -92,6 +94,8 @@ kavita:
       # experimental OPF mode is available for epub books. This mode is using calibre system install to update metadata
       updateModes: [ API ]
       aggregate: false # if enabled will search and aggregate metadata from all configured providers
+      mergeTags: false # if true and aggregate is enabled will merge tags from all providers
+      mergeGenres: false # if true and aggregate is enabled will merge genres from all providers
       bookCovers: false #update book thumbnails
       seriesCovers: false #update series thumbnails
       postProcessing:
@@ -130,6 +134,8 @@ metadataProviders:
       priority: 40
       enabled: false
       mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
+      tagsScoreThreshold: 60 # tags with this score or higher will be included
+      tagsSizeLimit: 15 # amount of tags that will be included
     yenPress:
       priority: 50
       enabled: false
