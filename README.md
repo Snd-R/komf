@@ -339,7 +339,7 @@ interface Webhook {
     series: {
         id: string,
         name: string,
-        bookCount?: number,
+        bookCount: number,
         metadata: {
             status: string,
             title: string,
