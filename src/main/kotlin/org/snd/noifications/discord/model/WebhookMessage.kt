@@ -21,7 +21,7 @@ data class SeriesWebhookMessage(
     val name: String,
     @Deprecated("use metadata.summary instead")
     val summary: String,
-    val bookCount: Int?,
+    val bookCount: Int,
     val metadata: SeriesMetadataWebhookMessage
 )
 

@@ -39,12 +39,12 @@ class KavitaSeries(
     fun libraryId() = KavitaLibraryId(libraryId)
 }
 
-fun KavitaSeries.mediaServerSeries(metadata: KavitaSeriesMetadata): MediaServerSeries {
+fun KavitaSeries.mediaServerSeries(metadata: KavitaSeriesMetadata, details: KavitaSeriesDetails): MediaServerSeries {
     return MediaServerSeries(
         id = MediaServerSeriesId(id.toString()),
         libraryId = MediaServerLibraryId(libraryId.toString()),
         name = originalName,
-        booksCount = null,
+        booksCount = details.totalCount,
         metadata = metadata.mediaServerSeriesMetadata(this),
         url = folderPath,
         deleted = false,

@@ -131,7 +131,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         language = language,
         genres = genres.map { it.title },
         tags = tags.map { it.title },
-        totalBookCount = null,
+        totalBookCount = if (totalCount == 0) null else totalCount,
         authors = authors,
         releaseYear = releaseYear,
         links = emptyList(),

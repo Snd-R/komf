@@ -29,9 +29,11 @@ import org.snd.metadata.model.Image
 class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : MediaServerClient {
 
     override fun getSeries(seriesId: MediaServerSeriesId): MediaServerSeries {
-        val series = kavitaClient.getSeries(seriesId.kavitaSeriesId())
-        val metadata = kavitaClient.getSeriesMetadata(seriesId.kavitaSeriesId())
-        return series.mediaServerSeries(metadata)
+        val kavitaSeriesId = seriesId.kavitaSeriesId()
+        val series = kavitaClient.getSeries(kavitaSeriesId)
+        val metadata = kavitaClient.getSeriesMetadata(kavitaSeriesId)
+        val details = kavitaClient.getSeriesDetails(kavitaSeriesId)
+        return series.mediaServerSeries(metadata, details)
     }
 
     override fun getSeries(libraryId: MediaServerLibraryId): Sequence<MediaServerSeries> {
@@ -44,7 +46,8 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
             .flatMap { it.content }
             .map {
                 val metadata = kavitaClient.getSeriesMetadata(it.seriesId())
-                it.mediaServerSeries(metadata)
+                val details = kavitaClient.getSeriesDetails(it.seriesId())
+                it.mediaServerSeries(metadata, details)
             }
     }
 

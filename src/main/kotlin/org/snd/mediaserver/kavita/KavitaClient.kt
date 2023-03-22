@@ -17,6 +17,7 @@ import org.snd.mediaserver.kavita.model.KavitaLibraryId
 import org.snd.mediaserver.kavita.model.KavitaPage
 import org.snd.mediaserver.kavita.model.KavitaSearch
 import org.snd.mediaserver.kavita.model.KavitaSeries
+import org.snd.mediaserver.kavita.model.KavitaSeriesDetails
 import org.snd.mediaserver.kavita.model.KavitaSeriesId
 import org.snd.mediaserver.kavita.model.KavitaSeriesMetadata
 import org.snd.mediaserver.kavita.model.KavitaSeriesMetadataUpdate
@@ -108,6 +109,19 @@ class KavitaClient(
             .url(
                 baseUrl.newBuilder()
                     .addPathSegments("api/series/metadata")
+                    .addQueryParameter("seriesId", seriesId.id.toString())
+                    .build()
+            )
+            .build()
+
+        return parseJson(client.execute(request))
+    }
+
+    fun getSeriesDetails(seriesId: KavitaSeriesId): KavitaSeriesDetails {
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/series/series-detail")
                     .addQueryParameter("seriesId", seriesId.id.toString())
                     .build()
             )
