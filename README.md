@@ -4,6 +4,11 @@
 
 Komga and Kavita Metadata Fetcher is a tool that fetches metadata and thumbnails for your digital comic book library. It can automatically pick up added series and update their metadata and thumbnail. You can also manually search and identify series, or match the entire library or a series. Additionally, you can install the [Komf userscript](https://github.com/Snd-R/komf-userscript) to add Komf integration directly to Komga and Kavita UI, allowing you to launch manual or automatic metadata identification.
 
+## Features
+- automatically pick up added series and update their metadata and thumbnail
+- manually search and identify series (http endpoints or cli commands)
+- match entire library or a series (http endpoints or cli commands)
+
 ## Building
 
 To build the application, follow these steps:
@@ -43,10 +48,17 @@ services:
       - KOMF_KAVITA_API_KEY=16707507-d05d-4696-b126-c3976ae14ffb
       - KOMF_LOG_LEVEL=INFO
     volumes:
-      - /path/to/config:/config
+      - /path/to/config:/config #path to directory with application.yml and database file
     restart: unless-stopped
 ```
 ## Example `application.yml` Config
+
+### Important
+- Update modes is the way komf will update metadata.
+- If you're using anything other than API then your existing files might be modified with embedded metadata
+- Can use multiple options at once. available options are API, COMIC_INFO
+- Experimental OPF mode is available for epub books. This mode is using calibre system install to update metadate
+   
 
 ```yml
 komga:
@@ -105,7 +117,7 @@ kavita:
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 
 discord:
-  webhooks: # list of discord webhook urls. Will call these webhooks after series or books were added
+  webhooks: ['insert webhooks links seperated by (,)'] # list of discord webhook urls. Will call these webhooks after series or books were added
   descriptionTemplate: "discordWebhook.vm" # description template filename
   seriesCover: false # include series cover in message. Requires imgurClientId
   templatesDirectory: "./" # path to a directory with templates
