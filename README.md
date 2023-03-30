@@ -51,6 +51,25 @@ services:
       - /path/to/config:/config #path to directory with application.yml and database file
     restart: unless-stopped
 ```
+
+### Running with Docker Create
+
+```
+docker create \
+  --name komf \
+  -p 8085:8085 \
+  -u 1000:1000 \
+  -e KOMF_KOMGA_BASE_URI=http://komga:8080 \
+  -e KOMF_KOMGA_USER=admin@example.org \
+  -e KOMF_KOMGA_PASSWORD=admin \
+  -e KOMF_KAVITA_BASE_URI=http://kavita:5000 \
+  -e KOMF_KAVITA_API_KEY=16707507-d05d-4696-b126-c3976ae14ffb \
+  -e KOMF_LOG_LEVEL=INFO \
+  -v /path/to/config:/config \
+  --restart unless-stopped \
+  sndxr/komf:latest
+```
+
 ## Example `application.yml` Config
 
 ### Important
