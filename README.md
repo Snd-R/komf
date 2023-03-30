@@ -1,27 +1,35 @@
-# Komga and Kavita metadata fetcher
+# Komga and Kavita Metadata Fetcher
+
+## Overview
+
+Komga and Kavita Metadata Fetcher is a tool that fetches metadata and thumbnails for your digital comic book library. It can automatically pick up added series and update their metadata and thumbnail. You can also manually search and identify series, or match the entire library or a series. Additionally, you can install the [Komf userscript](https://github.com/Snd-R/komf-userscript) to add Komf integration directly to Komga and Kavita UI, allowing you to launch manual or automatic metadata identification.
 
 ## Features
-
 - automatically pick up added series and update their metadata and thumbnail
 - manually search and identify series (http endpoints or cli commands)
 - match entire library or a series (http endpoints or cli commands)
 
-In addition, you can also install [userscript](https://github.com/Snd-R/komf-userscript) that adds komf integration
-directly to komga and kavita ui allowing you to launch manual or automatic metadata identification
+## Building
 
-## Build
+To build the application, follow these steps:
 
-1. `./gradlew clean shadowjar` (output is in /build/libs)
+1. Run `./gradlew clean shadowjar`.
+2. The output will be in `/build/libs`.
 
-## Run
+## Running
 
-### Jar
+To run the application, you can either use the JAR file or Docker Compose.
 
-Requires Java 17 or higher
+### Running with JAR
 
-`java -jar komf-1.0-SNAPSHOT-all.jar <path to config>`
+To run the application using the JAR file, follow these steps:
 
-### Docker compose
+1. Ensure you have Java 17 or higher installed on your system.
+2. Run `java -jar komf-1.0-SNAPSHOT-all.jar <path to config>`.
+
+### Running with Docker Compose
+
+To run the application using Docker Compose, use the following YAML configuration:
 
 ```yml
 version: "3.7"
@@ -32,7 +40,7 @@ services:
     ports:
       - "8085:8085"
     user: "1000:1000"
-    environment: # optional env config
+    environment:
       - KOMF_KOMGA_BASE_URI=http://komga:8080
       - KOMF_KOMGA_USER=admin@example.org
       - KOMF_KOMGA_PASSWORD=admin
@@ -43,8 +51,14 @@ services:
       - /path/to/config:/config #path to directory with application.yml and database file
     restart: unless-stopped
 ```
+## Example `application.yml` Config
 
-## Example application.yml config
+### Important
+- Update modes is the way komf will update metadata.
+- If you're using anything other than API then your existing files might be modified with embedded metadata
+- Can use multiple options at once. available options are API, COMIC_INFO
+- Experimental OPF mode is available for epub books. This mode is using calibre system install to update metadate
+   
 
 ```yml
 komga:
@@ -58,8 +72,6 @@ komga:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
   metadataUpdate:
     default:
-      # Update modes is the way komf will update metadata.
-      # If you're using anything other than API then your existing files might be modified with embedded metadata
       updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
       aggregate: false # if enabled will search and aggregate metadata from all configured providers
       mergeTags: false # if true and aggregate is enabled will merge tags from all providers
@@ -78,6 +90,7 @@ komga:
         scoreTag: false # adds score tag of format "score: 8" only uses integer part of rating. Can be used in search using query: tag:"score: 8" in komga
         readingDirectionValue: # override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
+
 kavita:
   baseUri: "http://localhost:5000" #or env:KOMF_KAVITA_BASE_URI
   apiKey: "16707507-d05d-4696-b126-c3976ae14ffb" #or env:KOMF_KAVITA_API_KEY
@@ -88,11 +101,7 @@ kavita:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
   metadataUpdate:
     default:
-      # Update modes is the way komf will update metadata.
-      # If you're using anything other than API then your existing files might be modified with embedded metadata
-      # can use multiple options at once. available options are API, COMIC_INFO
-      # experimental OPF mode is available for epub books. This mode is using calibre system install to update metadata
-      updateModes: [ API ]
+      updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
       aggregate: false # if enabled will search and aggregate metadata from all configured providers
       mergeTags: false # if true and aggregate is enabled will merge tags from all providers
       mergeGenres: false # if true and aggregate is enabled will merge genres from all providers
@@ -106,21 +115,23 @@ kavita:
           - "ja-ro"
         orderBooks: false # will order books using parsed volume or chapter number. works only with COMIC_INFO
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
+
 discord:
-  webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
+  webhooks: ['insert webhooks links seperated by (,)'] # list of discord webhook urls. Will call these webhooks after series or books were added
   descriptionTemplate: "discordWebhook.vm" # description template filename
   seriesCover: false # include series cover in message. Requires imgurClientId
   templatesDirectory: "./" # path to a directory with templates
+
 database:
-  file: ./database.sqlite #database file location.
+  file: ./database.sqlite # database file location.
+
 metadataProviders:
-  malClientId: "" #required for mal provider. See https://myanimelist.net/forum/?topicid=1973077
+  malClientId: "" # required for mal provider. See https://myanimelist.net/forum/?topicid=1973077
   defaultProviders:
     mangaUpdates:
       priority: 10
       enabled: true
       mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
-      # roles mapping can be applied the same way to any other provider
       authorRoles: [ "WRITER" ] # roles that will be mapped to author role
       artistRoles: [ "PENCILLER","INKER","COLORIST","LETTERER","COVER" ] # roles that will be mapped to artist role
     mal:
@@ -153,9 +164,11 @@ metadataProviders:
     mangaDex:
       priority: 90
       enabled: false
+      
 server:
-  port: 8085 #or env:KOMF_SERVER_PORT
-logLevel: INFO #or env:KOMF_LOG_LEVEL
+  port: 8085 # or env:KOMF_SERVER_PORT
+
+logLevel: INFO # or env:KOMF_LOG_LEVEL
 ```
 
 ## Metadata update config for a library
@@ -309,6 +322,7 @@ discord:
   templatesDirectory: "./" # path to a directory with templates
 ```
 
+
 Templates are written using Apache Velocity ([link to docs](https://velocity.apache.org/engine/2.3/user-guide.html)).
 
 ```velocity
@@ -378,66 +392,54 @@ interface Webhook {
 }
 ```
 
+
 ## Command line options
 
 You can run komf as a daemon server or as a cli tool for one-off operation
 
 `java -jar komf.jar [OPTIONS]`
 
-### options:
+### Options
 
-`--config-dir` - config directory that will be used for all external files including config file. Config file must be
-named `application.yml`. This option overrides all other config path options
+Use the following options when running Komf:
 
-`--config-file` - path to config file
-
-`--verbose` - flag to enable debug messages
-
-`--media-server` - media server on which to execute subcommands. Available values are `komga` or `kavita`. Defaults to komga if not
-provided. Ignored in server mode
+- `--config-dir`: config directory that will be used for all external files including config file. Config file must be named `application.yml`. This option overrides all other config path options.
+- `--config-file`: path to config file.
+- `--verbose`: flag to enable debug messages.
+- `--media-server`: media server on which to execute subcommands. Available values are `komga` or `kavita`. Defaults to komga if not provided. Ignored in server mode.
 
 ### Commands
 
-subcommands will launch komf without starting server or event listener and will perform specified operation. Example of
-a command:
+Use the following subcommands to perform operations:
 
-`java -jar komf.jar --config-file=./application.yml series update 09PQAG2PDNW4V`
+- `komf series search NAME`: searches series in Komga by specified name.
+- `komf series update ID`: launches metadata auto identification for provided series ID.
+- `komf series identify ID`: manual identification that allows you to choose from the list of metadata provider search results.
+- `komf series reset ID`: resets all metadata for provided series ID.
+- `komf library update ID`: launches metadata auto identification for provided library ID.
+- `komf library reset ID`: resets all metadata for provided library ID.
 
-### series search
+## HTTP Endpoints
 
-`komf series search NAME` - searches series in komga by specified name
+Use Komga or Kavita in place of `{media-server}`.
 
-### series update
+### Providers
 
-`komf series update ID` - launches metadata auto identification for provided series id
+Use the following HTTP endpoints to get information about enabled metadata providers:
 
-### series identify
+- `GET /{media-server}/providers`: list of enabled metadata providers. Optional `libraryId` parameter can be used for library providers.
 
-`komf series identify ID` - manual identification that allows you to choose from the list of metadata provider search
-results
+### Search
 
-### series reset
+Use the following HTTP endpoint to search for metadata:
 
-`komf series reset ID` - resets all metadata for provided series id
+- `GET /{media-server}/search?name=...`: search results from enabled metadata providers. Optional `libraryId` parameter can be used for library providers.
 
-### library update
+### Identify
 
-`komf library update ID` - launches metadata auto identification for provided library id
+Use the following HTTP endpoint to set series metadata from specified provider:
 
-### library reset
-
-`komf library reset ID` - resets all metadata for provided library id
-
-## Http endpoints
-
-use komga or kavita in place of {media-server}
-
-`GET /{media-server}/providers` - list of enabled metadata providers. Optional `libraryId` parameter can be used for library providers
-
-`GET /{media-server}/search?name=...` - search results from enabled metadata providers. Optional `libraryId` parameter can be used for
-library providers
-
-`POST /{media-server}/identify` - set series metadata from specified provider
+- `POST /{media-server}/identify`:
 
 ```json
 {
@@ -446,12 +448,9 @@ library providers
   "provider": "MANGA_UPDATES",
   "providerSeriesId": "1"
 }
+
 ```
-
-`POST /{media-server}/match/library/{libraryId}/series/{seriesId}`try to match series
-
-`POST /{media-server}/match/library/{libraryId}` try to match series of a library
-
-`POST /{media-server}/reset/library/{libraryId}/series/{seriesId}` reset all metadata of a series
-
-`POST /{media-server}/reset/library/{libraryId}` reset metadata of all series in a library
+- `POST /{media-server}/match/library/{libraryId}/series/{seriesId}`: Attempts to match the specified series in the specified library.
+- `POST /{media-server}/match/library/{libraryId}`: Attempts to match all series in the specified library.
+- `POST /{media-server}/reset/library/{libraryId}/series/{seriesId}`: Resets all metadata for the specified series in the specified library.
+- `POST /{media-server}/reset/library/{libraryId}`: Resets all metadata for all series in the specified library.
