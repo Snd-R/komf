@@ -47,6 +47,8 @@ data class MetadataUpdateConfigDto(
 @JsonClass(generateAdapter = true)
 data class MetadataProcessingConfigDto(
     val aggregate: Boolean,
+    val mergeTags: Boolean,
+    val mergeGenres: Boolean,
     val bookCovers: Boolean,
     val seriesCovers: Boolean,
     val updateModes: Set<UpdateMode>,

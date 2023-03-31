@@ -111,6 +111,8 @@ class ConfigUpdateMapper {
     private fun toDto(config: MetadataProcessingConfig): MetadataProcessingConfigDto {
         return MetadataProcessingConfigDto(
             aggregate = config.aggregate,
+            mergeTags = config.mergeTags,
+            mergeGenres = config.mergeGenres,
             bookCovers = config.bookCovers,
             seriesCovers = config.seriesCovers,
             updateModes = config.updateModes,
@@ -464,6 +466,8 @@ class ConfigUpdateMapper {
     ): MetadataProcessingConfig {
         return config.copy(
             aggregate = patch.aggregate ?: config.aggregate,
+            mergeTags = patch.mergeTags ?: config.mergeTags,
+            mergeGenres = patch.mergeGenres ?: config.mergeGenres,
             bookCovers = patch.bookCovers ?: config.bookCovers,
             seriesCovers = patch.seriesCovers ?: config.seriesCovers,
             updateModes = patch.updateModes ?: config.updateModes,

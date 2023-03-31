@@ -51,6 +51,8 @@ data class MetadataUpdateConfigUpdateDto(
 data class MetadataProcessingConfigUpdateDto(
     val aggregate: Boolean? = null,
     val bookCovers: Boolean? = null,
+    val mergeTags: Boolean? = null,
+    val mergeGenres: Boolean? = null,
     val seriesCovers: Boolean? = null,
     val updateModes: Set<UpdateMode>? = null,
     val postProcessing: MetadataPostProcessingConfigUpdateDto? = null
