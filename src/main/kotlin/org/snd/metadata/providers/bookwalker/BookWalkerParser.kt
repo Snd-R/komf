@@ -122,12 +122,14 @@ class BookWalkerParser {
 
         return url.removePrefix("$baseUrl/series/")
             .replace("/.*/$".toRegex(), "")
+            .removeSuffix("/")
             .let { BookWalkerSeriesId(URLDecoder.decode(it, "UTF-8")) }
     }
 
     private fun parseBookId(url: String): BookWalkerBookId {
         return url.removePrefix("$baseUrl/")
             .replace("/.*/$".toRegex(), "")
+            .removeSuffix("/")
             .let { BookWalkerBookId(URLDecoder.decode(it, "UTF-8")) }
     }
 
