@@ -1,7 +1,6 @@
 package org.snd.mediaserver
 
 import mu.KotlinLogging
-import org.apache.commons.lang3.StringUtils
 import org.snd.mediaserver.model.MatchType.MANUAL
 import org.snd.mediaserver.model.SeriesAndBookMetadata
 import org.snd.mediaserver.model.SeriesMatch
@@ -236,7 +235,6 @@ class MetadataService(
 
         val searchTitles = metadata.seriesMetadata.titles
             .map { it.name }
-            .filter { StringUtils.isAsciiPrintable(it) }
 
         return providers.map { provider ->
             supplyAsync({
