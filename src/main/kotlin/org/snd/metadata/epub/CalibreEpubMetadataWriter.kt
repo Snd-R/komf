@@ -3,8 +3,10 @@ package org.snd.metadata.epub
 import org.snd.common.exceptions.ValidationException
 import org.snd.metadata.model.metadata.Author
 import org.snd.metadata.model.metadata.BookMetadata
+import org.snd.metadata.model.metadata.ReleaseDate
 import org.snd.metadata.model.metadata.SeriesMetadata
 import java.nio.file.Path
+import java.time.LocalDate
 import kotlin.io.path.extension
 import kotlin.io.path.isWritable
 
@@ -32,7 +34,8 @@ class CalibreEpubMetadataWriter(
             (seriesMetadata.authors.ifEmpty { null } ?: bookMetadata?.authors?.ifEmpty { null })
                 ?.let { "--authors" to authors(it) },
             seriesMetadata.summary?.let { "--comments" to it },
-            seriesMetadata.releaseDate?.let { "--date" to it.toString() },
+            (seriesMetadata.releaseDate?.let { parseSeriesReleaseDate(it) } ?: bookMetadata?.releaseDate)
+                ?.let { "--date" to it.toString() },
             bookMetadata?.isbn?.let { "--isbn" to it },
             bookMetadata?.number?.let { "--index" to it.start.toString() },
             seriesMetadata.publisher?.let { "--publisher" to it },
@@ -66,5 +69,12 @@ class CalibreEpubMetadataWriter(
         if (!path.isWritable()) {
             throw ValidationException("No write permission for file $path")
         }
+    }
+
+    private fun parseSeriesReleaseDate(releaseDate: ReleaseDate): LocalDate? {
+        if (releaseDate.day != null && releaseDate.month != null && releaseDate.year != null) {
+            return LocalDate.of(releaseDate.year, releaseDate.month, releaseDate.day)
+        }
+        return null
     }
 }
