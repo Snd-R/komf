@@ -24,7 +24,7 @@ fun Any.prettyPrint(indentLevel: Int = 0, indentWidth: Int = 4, maxLength: Int =
                 curIndentLevel--
                 buffer.appendLine().append(padding()).append(char)
                 // stringBuilder.appendLine().append(padding()).append(char)
-                stringBuilder.append(truncateString(buffer.toString(), maxLength, padding()))
+                stringBuilder.append(truncateString(buffer.toString(), maxLength))
                 buffer.setLength(0)
             }
 
@@ -47,13 +47,13 @@ fun Any.prettyPrint(indentLevel: Int = 0, indentWidth: Int = 4, maxLength: Int =
     return stringBuilder.toString()
 }
 
-fun truncateString(str: String, maxLength: Int, padding: String): String {
+fun truncateString(str: String, maxLength: Int): String {
     if (str.length <= maxLength) {
         return str
     }
     val firstHalfLength = maxLength / 2
     val lastHalfLength = maxLength - firstHalfLength
     return str.substring(0, firstHalfLength) +
-            "$padding ... \n" +
+            " ... " +
             str.substring(str.length - lastHalfLength)
 }
