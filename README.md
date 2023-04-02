@@ -69,6 +69,12 @@ docker create \
   --restart unless-stopped \
   sndxr/komf:latest
 ```
+- if you don't already have a komga or kavita network you'll need to network create a new one
+  - `docker network create my_network`
+- attach komf and media server to new network:
+  - `docker network connect my_network komga_or_kavita`
+  - `docker network connect my_network komf`
+- start the container `docker start komf`
 
 ## Example `application.yml` Config
 
