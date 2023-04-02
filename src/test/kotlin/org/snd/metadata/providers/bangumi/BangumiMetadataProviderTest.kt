@@ -45,7 +45,7 @@ class BangumiMetadataProviderTest {
     @Test
     fun getSeriesMetadata() {
         val seriesMetadata = provider.getSeriesMetadata(ProviderSeriesId(seriesId))
-        println(seriesMetadata)
+        println(seriesMetadata.prettyPrint())
     }
 
     @Test
@@ -58,7 +58,7 @@ class BangumiMetadataProviderTest {
     fun matchSeriesMetadata() {
         val matchResult = provider.matchSeriesMetadata(title)
         if (matchResult != null) {
-            println(matchResult)
+            println(matchResult.prettyPrint())
         }
     }
 }
