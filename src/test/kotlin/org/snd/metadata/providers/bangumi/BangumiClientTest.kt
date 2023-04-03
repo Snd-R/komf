@@ -73,5 +73,12 @@ class BangumiClientTest {
         val ratingAdapter = jsonModule.moshi.adapter<Rating>()
         val ratingJson = ratingAdapter.fromJson(ratingJsonString)
         println(ratingJson?.prettyPrint())
+
+        val altTitlesString = "[{\"v\":\"Full Metal Alchemist\"},{\"v\":\"鋼之練金術師\"},{\"v\":\"钢之炼金术士\"}]"
+        val altTitlesAdapter = jsonModule.moshi.adapter<List<Map<String, String>>>()
+        val altTitlesJson = altTitlesAdapter.fromJson(altTitlesString)
+        println(altTitlesString)
+        println(altTitlesJson?.prettyPrint())
+        println(altTitlesJson?.flatMap { map -> map.values }?.toList())
     }
 }

@@ -12,6 +12,7 @@ import org.snd.mediaserver.kavita.model.KavitaPublicationStatusAdapter
 import org.snd.mediaserver.komga.model.dto.KomgaReadingDirectionAdapter
 import org.snd.metadata.model.metadata.json.ProviderBookIdJsonAdapter
 import org.snd.metadata.model.metadata.json.ProviderSeriesIdJsonAdapter
+import org.snd.metadata.providers.bangumi.model.json.InfoValueAdapter
 import org.snd.metadata.providers.bangumi.model.json.SubjectTypeAdapter
 import org.snd.metadata.providers.mal.model.json.SearchResultsJsonAdapter
 import org.snd.metadata.providers.mal.model.json.SeriesJsonAdapter
@@ -40,5 +41,6 @@ class JsonModule {
         .add(ProviderSeriesIdJsonAdapter())
         .add(ProviderBookIdJsonAdapter())
         .add(SubjectTypeAdapter())
+        .add(InfoValueAdapter())
         .build()
 }

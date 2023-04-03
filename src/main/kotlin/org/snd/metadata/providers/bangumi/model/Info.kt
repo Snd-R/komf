@@ -5,5 +5,5 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class Info (
     val key: String,
-    val value: Any?
+    val value: InfoValue
 )
