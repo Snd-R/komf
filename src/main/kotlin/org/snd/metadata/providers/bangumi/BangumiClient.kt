@@ -26,13 +26,17 @@ class BangumiClient(
     // Bangumi uses "Subject" as the Series
     fun searchSeries(
         keyword: String,
-        subjectType: SubjectType,
+        subjectTypes: Collection<SubjectType>,
+        rating: Collection<String> = listOf(">0.0"), // Use min rating to improve result quality
+        rank: Collection<String> = listOf(">0"), // Use ranked items to improve result quality
     ): SearchSubjectsResponse {
         val payload = moshi.adapter<Map<String, *>>().toJson(
             mapOf(
                 "keyword" to keyword,
                 "filter" to mapOf(
-                    "type" to listOf(subjectType) // supports multiple, use one for now
+                    "type" to subjectTypes, // supports multiple, only use MANGA for now
+                    "rating" to rating,
+                    "rank" to rank,
                 )
             )
         )

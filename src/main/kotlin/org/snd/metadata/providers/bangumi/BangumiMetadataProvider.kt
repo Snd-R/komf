@@ -10,11 +10,12 @@ import org.snd.metadata.model.metadata.ProviderBookMetadata
 import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.providers.bangumi.model.SubjectType
-import org.snd.metadata.providers.mangaupdates.model.SeriesType
-import org.snd.type.MediaFormat
 
-private val mangaMediaFormats = listOf(MediaFormat.MANGA, MediaFormat.ONE_SHOT)
-private val novelMediaFormats = listOf(MediaFormat.NOVEL)
+// Manga and Novel are both considered book in Bangumi
+// For now, Novel just means "everything"
+// In the future, if there's other search support, Bangumi also have Anime, Music, etc.
+private val mangaMediaFormats = listOf(SubjectType.Book)
+private val allMediaFormats = listOf(SubjectType.Anime, SubjectType.Book, SubjectType.Music, SubjectType.Game, SubjectType.Real)
 
 class BangumiMetadataProvider(
     private val client: BangumiClient,
@@ -23,8 +24,7 @@ class BangumiMetadataProvider(
     private val fetchSeriesCovers: Boolean,
     mediaType: MediaType,
 ) : MetadataProvider {
-    private val seriesFormats = if (mediaType == MediaType.MANGA) mangaMediaFormats else novelMediaFormats
-    private val seriesTypes = listOf(SeriesType.MANGA)
+    private val seriesFormats = if (mediaType == MediaType.MANGA) mangaMediaFormats else allMediaFormats
 
     override fun providerName() = Provider.BANGUMI
 
@@ -39,20 +39,20 @@ class BangumiMetadataProvider(
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val searchResults = client.searchSeries(seriesName, SubjectType.Book)
+        val searchResultsData = client.searchSeries(seriesName, seriesFormats).data?.take(limit)
 
-        return searchResults.data?.map {
+        return searchResultsData?.map {
             SeriesSearchResult(
                 imageUrl = it.image,
                 provider = this.providerName(),
                 resultId = it.id.toString(),
-                title = it.name_cn,
+                title = it.name_cn.ifBlank { it.name },
             )
         } ?: listOf()
     }
 
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
-        val searchResults = client.searchSeries(seriesName, SubjectType.Book)
+        val searchResults = client.searchSeries(seriesName, seriesFormats)
         val match = searchResults.data?.firstOrNull {
             val titles = listOfNotNull(
                 it.name_cn,

@@ -54,7 +54,6 @@ class BangumiMetadataMapper(
         val tags = subject.tags.sortedByDescending { it.count }.take(15)
             .map { it.name }
 
-        // TODO: parse alternative titles from infobox
         val altTitles =
             subject.infobox?.find { it.key == "别名" }?.value?.list?.flatMap { it.values }
                 ?.map { title -> SeriesTitle(title, null, null) }
