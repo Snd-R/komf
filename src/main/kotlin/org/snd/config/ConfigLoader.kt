@@ -223,6 +223,7 @@ class ConfigLoader {
             config.metadataProviders.defaultProviders.viz.enabled.not() &&
             config.metadataProviders.defaultProviders.bookWalker.enabled.not() &&
             config.metadataProviders.defaultProviders.mangaDex.enabled.not() &&
+            config.metadataProviders.defaultProviders.bangumi.enabled.not() &&
             config.metadataProviders.libraryProviders.isEmpty()
         ) {
             logger.warn { "No metadata providers enabled. You will not be able to get new metadata" }

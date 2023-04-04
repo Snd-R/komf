@@ -173,6 +173,7 @@ class ConfigUpdateMapper {
             viz = toDto(config.viz),
             bookWalker = toDto(config.bookWalker),
             mangaDex = toDto(config.mangaDex),
+            bangumi = toDto(config.bangumi),
         )
     }
 
@@ -306,6 +307,7 @@ class ConfigUpdateMapper {
             viz = patch.viz?.let { providerConfig(config.viz, it) } ?: config.viz,
             bookWalker = patch.bookWalker?.let { providerConfig(config.bookWalker, it) } ?: config.bookWalker,
             mangaDex = patch.mangaDex?.let { providerConfig(config.mangaDex, it) } ?: config.mangaDex,
+            bangumi = patch.bangumi?.let { providerConfig(config.bangumi, it) } ?: config.bangumi,
         )
     }
 
