@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.commons.lang3.SystemUtils
 import org.snd.common.exceptions.HttpException
+import org.snd.common.exceptions.ValidationException
 import org.snd.common.http.HttpClient
 import org.snd.config.AniListConfig
 import org.snd.config.CalibreConfig
@@ -27,6 +28,10 @@ import org.snd.metadata.providers.anilist.AniListMetadataProvider
 import org.snd.metadata.providers.bookwalker.BookWalkerClient
 import org.snd.metadata.providers.bookwalker.BookWalkerMapper
 import org.snd.metadata.providers.bookwalker.BookWalkerMetadataProvider
+import org.snd.metadata.providers.comicvine.ComicVineApiKeyInterceptor
+import org.snd.metadata.providers.comicvine.ComicVineClient
+import org.snd.metadata.providers.comicvine.ComicVineMetadataMapper
+import org.snd.metadata.providers.comicvine.ComicVineMetadataProvider
 import org.snd.metadata.providers.kodansha.KodanshaClient
 import org.snd.metadata.providers.kodansha.KodanshaMetadataMapper
 import org.snd.metadata.providers.kodansha.KodanshaMetadataProvider
@@ -73,6 +78,7 @@ class MetadataModule(
     private val vizClient = createVizClient()
     private val bookWalkerClient = createBookWalkerClient()
     private val mangaDexClient = createMangaDexClient()
+    private val comicVineClient = providersConfig.comicVineApiKey?.let { createComicVineClient(it) }
 
     val metadataProviders = createMetadataProviders(providersConfig)
 
@@ -104,6 +110,8 @@ class MetadataModule(
         bookwalkerPriority = config.bookWalker.priority,
         mangaDex = createMangaDexMetadataProvider(config.mangaDex, mangaDexClient),
         mangaDexPriority = config.mangaDex.priority,
+        comicVine = createComicVineMetadataProvider(config.comicVine, comicVineClient),
+        comicVinePriority = config.comicVine.priority
     )
 
     private fun createComicInfoWriter() = ComicInfoWriter()
@@ -293,6 +301,20 @@ class MetadataModule(
         return MangaDexClient(httpClient, jsonModule.moshi)
     }
 
+    private fun createComicVineClient(apiKey: String): ComicVineClient {
+        val httpClient = createHttpClient(
+            name = "ComicVine",
+            interceptors = listOf(ComicVineApiKeyInterceptor(apiKey)),
+            rateLimitConfig = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(5))
+                .limitForPeriod(5)
+                .timeoutDuration(Duration.ofSeconds(5))
+                .build()
+        )
+
+        return ComicVineClient(httpClient, jsonModule.moshi)
+    }
+
     private fun createMalMetadataProvider(
         config: ProviderConfig,
         client: MalClient,
@@ -475,6 +497,27 @@ class MetadataModule(
         )
     }
 
+    private fun createComicVineMetadataProvider(
+        config: ProviderConfig,
+        client: ComicVineClient?,
+    ): ComicVineMetadataProvider? {
+        if (config.enabled.not()) return null
+        if (client == null) throw ValidationException("Api key is not configured for ComicVine provider")
+
+        val metadataMapper = ComicVineMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+        )
+        val similarityMatcher: NameSimilarityMatcher =
+            config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+
+        return ComicVineMetadataProvider(
+            client,
+            metadataMapper,
+            similarityMatcher,
+        )
+    }
+
     class MetadataProviders(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
@@ -517,7 +560,10 @@ class MetadataModule(
         private val bookwalkerPriority: Int,
 
         private val mangaDex: MangaDexMetadataProvider?,
-        private val mangaDexPriority: Int
+        private val mangaDexPriority: Int,
+
+        private val comicVine: ComicVineMetadataProvider?,
+        private val comicVinePriority: Int
     ) {
 
         val providers = listOfNotNull(
@@ -529,7 +575,8 @@ class MetadataModule(
             kodansha?.let { it to kodanshaPriority },
             viz?.let { it to vizPriority },
             bookwalker?.let { it to bookwalkerPriority },
-            mangaDex?.let { it to mangaDexPriority }
+            mangaDex?.let { it to mangaDexPriority },
+            comicVine?.let { it to comicVinePriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -546,6 +593,7 @@ class MetadataModule(
                 Provider.VIZ -> viz
                 Provider.BOOK_WALKER -> bookwalker
                 Provider.MANGADEX -> mangaDex
+                Provider.COMIC_VINE -> comicVine
             }
         }
     }

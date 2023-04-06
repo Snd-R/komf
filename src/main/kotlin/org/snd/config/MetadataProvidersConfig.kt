@@ -16,6 +16,7 @@ import org.snd.metadata.model.metadata.AuthorRole.WRITER
 @Serializable
 data class MetadataProvidersConfig(
     val malClientId: String = "",
+    val comicVineApiKey: String? = null,
     val nameMatchingMode: NameMatchingMode = CLOSEST_MATCH,
     val defaultProviders: ProvidersConfig = ProvidersConfig(),
     val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
@@ -56,6 +57,7 @@ data class ProvidersConfig(
     val viz: ProviderConfig = ProviderConfig(),
     val bookWalker: ProviderConfig = ProviderConfig(),
     val mangaDex: ProviderConfig = ProviderConfig(),
+    val comicVine: ProviderConfig = ProviderConfig(),
 )
 
 @Serializable

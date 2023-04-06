@@ -2,6 +2,7 @@ package org.snd.metadata.providers.yenpress
 
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.MediaType.MANGA
 import org.snd.metadata.model.MediaType.NOVEL
@@ -47,7 +48,8 @@ class YenPressMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
+        val seriesName = matchQuery.seriesName
         val searchResults = client.searchSeries(seriesName.take(400))
 
         return searchResults

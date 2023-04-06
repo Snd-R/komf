@@ -3,6 +3,7 @@ package org.snd.metadata.providers.mal
 import mu.KotlinLogging
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.Provider.MAL
 import org.snd.metadata.model.SeriesSearchResult
@@ -59,7 +60,8 @@ class MalMetadataProvider(
             .map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
+        val seriesName = matchQuery.seriesName
         if (seriesName.length < 3) {
             logger.warn { "$seriesName is less than 3 characters. Can't perform a search" }
             return null

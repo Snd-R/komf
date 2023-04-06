@@ -9,5 +9,6 @@ enum class Provider {
     KODANSHA,
     VIZ,
     BOOK_WALKER,
-    MANGADEX
+    MANGADEX,
+    COMIC_VINE
 }

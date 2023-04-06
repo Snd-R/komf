@@ -11,9 +11,11 @@ import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
 import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.metadata.BookNameParser
 import org.snd.metadata.MetadataProvider
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.metadata.BookMetadata
+import org.snd.metadata.model.metadata.BookRange
 import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.model.metadata.SeriesBook
@@ -164,7 +166,7 @@ class MetadataService(
     ): SeriesAndBookMetadata? {
         return searchTitles.asSequence()
             .onEach { logger.info { "searching \"$it\" using ${provider.providerName()}" } }
-            .mapNotNull { provider.matchSeriesMetadata(it) }
+            .mapNotNull { provider.matchSeriesMetadata(MatchQuery(it, null)) }
             .map { seriesMetadata ->
                 logger.info { "found match: \"${seriesMetadata.metadata.titles.firstOrNull()?.name}\" from ${provider.providerName()}  ${seriesMetadata.id}" }
                 val bookMetadata = getBookMetadata(series.id, seriesMetadata, provider, bookEdition)
@@ -203,7 +205,7 @@ class MetadataService(
         if (edition != null) {
             val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
             return books.associateWith { book ->
-                val volume = BookNameParser.getVolumes(book.name) ?: book.number..book.number
+                val volume = BookNameParser.getVolumes(book.name) ?: BookRange(book.number.toDouble(), book.number.toDouble())
                 editions[editionName]?.firstOrNull { it.number != null && volume == it.number }
             }
         }
@@ -214,7 +216,7 @@ class MetadataService(
         }
 
         return byEdition.map { (book, edition) ->
-            val volumes = BookNameParser.getVolumes(book.name)
+            val volumes = BookNameParser.getVolumes(book.name) ?: BookRange(book.number.toDouble(), book.number.toDouble())
             val matched = if (edition == null) {
                 noEditionBooks.firstOrNull { it.number != null && it.number == volumes }
             } else {

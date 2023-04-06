@@ -2,6 +2,7 @@ package org.snd.metadata.providers.mangadex
 
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.Provider.MANGADEX
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.metadata.ProviderBookId
@@ -39,7 +40,8 @@ class MangaDexMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
+        val seriesName = matchQuery.seriesName
         val searchResults = client.searchSeries(seriesName.take(400)).data
 
         return searchResults
