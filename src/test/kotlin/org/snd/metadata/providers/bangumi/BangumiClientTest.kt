@@ -26,7 +26,7 @@ class BangumiClientTest {
     @Test
     fun searchSeries() {
         val keyword = "钢之炼金术士"
-        val results = client.searchSeries(keyword, listOf(SubjectType.Book))
+        val results = client.searchSeries(keyword, listOf(SubjectType.BOOK))
         println(results.prettyPrint())
     }
 

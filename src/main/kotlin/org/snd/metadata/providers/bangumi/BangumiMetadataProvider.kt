@@ -14,8 +14,8 @@ import org.snd.metadata.providers.bangumi.model.SubjectType
 // Manga and Novel are both considered book in Bangumi
 // For now, Novel just means "everything"
 // In the future, if there's other search support, Bangumi also have Anime, Music, etc.
-private val mangaMediaFormats = listOf(SubjectType.Book)
-private val allMediaFormats = listOf(SubjectType.Anime, SubjectType.Book, SubjectType.Music, SubjectType.Game, SubjectType.Real)
+private val mangaMediaFormats = listOf(SubjectType.BOOK)
+private val allMediaFormats = listOf(SubjectType.ANIME, SubjectType.BOOK, SubjectType.MUSIC, SubjectType.GAME, SubjectType.REAL)
 
 class BangumiMetadataProvider(
     private val client: BangumiClient,
