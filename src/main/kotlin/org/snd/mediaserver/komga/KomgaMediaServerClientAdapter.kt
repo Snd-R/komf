@@ -67,6 +67,10 @@ class KomgaMediaServerClientAdapter(private val komgaClient: KomgaClient) : Medi
             .map { it.mediaServerBookThumbnail() }
     }
 
+    override fun getBookThumbnail(bookId: MediaServerBookId): Image? {
+        return runCatching { komgaClient.getBookThumbnail(bookId.komgaBookId()) }.getOrNull()
+    }
+
     override fun getLibrary(libraryId: MediaServerLibraryId): MediaServerLibrary {
         return komgaClient.getLibrary(libraryId.komgaLibraryId()).mediaServerLibrary()
     }

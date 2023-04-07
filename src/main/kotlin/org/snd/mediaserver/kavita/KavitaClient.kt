@@ -176,6 +176,20 @@ class KavitaClient(
 
     }
 
+    fun getChapterCover(chapterId: KavitaChapterId): Image {
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/image/chapter-cover")
+                    .addQueryParameter("seriesId", chapterId.id.toString())
+                    .build()
+            )
+            .build()
+
+        val response = client.executeWithResponse(request)
+        return Image(response.body ?: throw IllegalStateException(), response.headers["Content-Type"])
+    }
+
     fun uploadSeriesCover(seriesId: KavitaSeriesId, cover: Image) {
         val base64Image = Base64.getEncoder().encodeToString(cover.image)
         val postBody = toJson(KavitaCoverUploadRequest(id = seriesId.id, url = base64Image))

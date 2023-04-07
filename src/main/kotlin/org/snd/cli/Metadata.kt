@@ -109,7 +109,7 @@ class Metadata : CliktCommand() {
             val provider = provider(provider)
 
             try {
-                val matchResult = provider.matchSeriesMetadata(MatchQuery(title, null))
+                val matchResult = provider.matchSeriesMetadata(MatchQuery(title, null, null))
                 if (matchResult == null) {
                     echoError("No Match")
                     exitProcess(1)

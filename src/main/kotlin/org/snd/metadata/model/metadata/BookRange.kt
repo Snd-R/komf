@@ -8,6 +8,10 @@ data class BookRange(
     val start: Double,
     val end: Double
 ) {
+    constructor(start: Double) : this(start, start)
+
+    constructor(start: Int) : this(start.toDouble(), start.toDouble())
+
     override fun toString(): String {
         val start = if (floor(start) == start) start.toInt() else start
         val end = if (floor(end) == end) end.toInt() else end

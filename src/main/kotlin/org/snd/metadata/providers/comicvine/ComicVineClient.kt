@@ -6,6 +6,7 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import org.snd.common.http.HttpClient
+import org.snd.metadata.model.Image
 import org.snd.metadata.providers.comicvine.ComicVineClient.ComicVineTypeId.ISSUE
 import org.snd.metadata.providers.comicvine.ComicVineClient.ComicVineTypeId.VOLUME
 import org.snd.metadata.providers.comicvine.model.ComicVineIssue
@@ -51,6 +52,12 @@ class ComicVineClient(
         ).build()
 
         return parseJson(client.execute(request))
+    }
+
+    fun getCover(url: HttpUrl): Image {
+        val request = Request.Builder().url(url).build()
+        val bytes = client.executeWithByteResponse(request)
+        return Image(bytes)
     }
 
     private inline fun <reified T : Any> parseJson(json: String): T {

@@ -82,6 +82,10 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
         return emptyList()
     }
 
+    override fun getBookThumbnail(bookId: MediaServerBookId): Image? {
+        return runCatching { kavitaClient.getChapterCover(bookId.kavitaChapterId()) }.getOrNull()
+    }
+
     override fun getLibrary(libraryId: MediaServerLibraryId): MediaServerLibrary {
         return kavitaClient.getLibraries().first { it.libraryId() == libraryId.kavitaLibraryId() }
             .mediaServerLibrary()

@@ -1,6 +1,7 @@
 package org.snd.metadata.providers.comicvine
 
 import mu.KotlinLogging
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.helper.ValidationException
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
@@ -29,12 +30,14 @@ class ComicVineMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = handleResult(client.getVolume(seriesId.toComicVineVolumeId()))
-        return mapper.toSeriesMetadata(series)
+        val cover = series.image?.medium_url?.let { client.getCover(it.toHttpUrl()) }
+        return mapper.toSeriesMetadata(series, cover)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val issue = handleResult(client.getIssue(bookId.toComicVineIssueId()))
-        return mapper.toBookMetadata(issue)
+        val cover = issue.image?.medium_url?.let { client.getCover(it.toHttpUrl()) }
+        return mapper.toBookMetadata(issue, cover)
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
@@ -54,7 +57,7 @@ class ComicVineMetadataProvider(
             logger.info { "Multiple series matches: ${results.joinToString { "${it.name} (${it.id})" }}. Skipping" }
             return null
         }
-        return results.firstOrNull()?.let { mapper.toSeriesMetadata(it) }
+        return results.firstOrNull()?.let { mapper.toSeriesMetadata(it, null) }
     }
 
     private fun extractYear(seriesName: String): Int? {
@@ -66,7 +69,7 @@ class ComicVineMetadataProvider(
     }
 
     private fun resultMatchFilter(matchQuery: MatchQuery, result: ComicVineVolume): Boolean {
-        val startYear = extractYear(matchQuery.seriesName)
+        val startYear = matchQuery.startYear ?: extractYear(matchQuery.seriesName)
         val seriesName = removeParentheses(matchQuery.seriesName)
 
         val nameMatch = nameMatcher.matches(seriesName, result.name)

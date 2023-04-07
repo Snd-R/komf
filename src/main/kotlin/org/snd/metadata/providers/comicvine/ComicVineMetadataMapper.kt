@@ -7,6 +7,7 @@ import org.jsoup.nodes.TextNode
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
+import org.snd.metadata.model.Image
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.metadata.Author
@@ -40,19 +41,23 @@ class ComicVineMetadataMapper(
     fun toSeriesSearchResult(volume: ComicVineVolume): SeriesSearchResult {
         return SeriesSearchResult(
             imageUrl = volume.image?.medium_url,
-            title = "${volume.name} (${volume.start_year})",
+            title = seriesTitle(volume),
             provider = Provider.COMIC_VINE,
             resultId = volume.id.toString()
         )
     }
 
-    fun toSeriesMetadata(volume: ComicVineVolume): ProviderSeriesMetadata {
+    fun toSeriesMetadata(
+        volume: ComicVineVolume,
+        cover: Image?
+    ): ProviderSeriesMetadata {
         val metadata = SeriesMetadata(
-            titles = listOf(SeriesTitle(seriesTitle(volume), null, "en")),
+            titles = listOf(SeriesTitle(volume.name, null, null)),
             summary = volume.description?.let { parseDescription(it) },
             publisher = volume.publisher?.name,
             releaseDate = ReleaseDate(volume.start_year?.toIntOrNull(), null, null),
-            links = listOf(WebLink("ComicVine", volume.site_detail_url))
+            links = listOf(WebLink("ComicVine", volume.site_detail_url)),
+            thumbnail = cover
         )
         val providerMetadata = ProviderSeriesMetadata(
             id = ProviderSeriesId(volume.id.toString()),
@@ -71,7 +76,10 @@ class ComicVineMetadataMapper(
         return MetadataConfigApplier.apply(providerMetadata, seriesMetadataConfig)
     }
 
-    fun toBookMetadata(issue: ComicVineIssue): ProviderBookMetadata {
+    fun toBookMetadata(
+        issue: ComicVineIssue,
+        cover: Image?
+    ): ProviderBookMetadata {
         val metadata = BookMetadata(
             title = issue.name,
             summary = issue.description?.let { parseDescription(it) },
@@ -79,7 +87,8 @@ class ComicVineMetadataMapper(
             numberSort = issue.issue_number?.toDoubleOrNull(),
             releaseDate = (issue.store_date ?: issue.cover_date)?.let { LocalDate.parse(it) },
             authors = getAuthors(issue),
-            links = listOf(WebLink("ComicVine", issue.site_detail_url))
+            links = listOf(WebLink("ComicVine", issue.site_detail_url)),
+            thumbnail = cover
         )
 
         val providerMetadata = ProviderBookMetadata(
@@ -108,8 +117,10 @@ class ComicVineMetadataMapper(
     }
 
     private fun parseDescription(description: String): String {
-        val test = Jsoup.parse(description).child(0).child(1).children().joinToString("") { parseDescription(it) }.trim()
-        return test
+        return Jsoup.parse(description)
+            .child(0).child(1).children()
+            .joinToString("") { parseDescription(it) }
+            .trim()
     }
 
     private fun parseDescription(node: Node): String {
