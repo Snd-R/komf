@@ -1,5 +1,6 @@
 package org.snd.metadata.providers.bangumi.model
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
@@ -10,7 +11,7 @@ import com.squareup.moshi.JsonClass
  * @param image 封面
  * @param summary 条目描述
  * @param name 条目原名
- * @param name_cn 条目中文名
+ * @param nameCn 条目中文名
  * @param tags 
  * @param score 评分
  * @param rank 排名
@@ -37,7 +38,8 @@ data class SearchSubjectsResponseData (
     val name: String,
 
     /* 条目中文名 */
-    val name_cn: String,
+    @Json(name = "name_cn")
+    val nameCn: String,
 
     val tags: List<Tag>,
 

@@ -46,7 +46,7 @@ class BangumiMetadataProvider(
                 imageUrl = it.image,
                 provider = this.providerName(),
                 resultId = it.id.toString(),
-                title = it.name_cn.ifBlank { it.name },
+                title = it.nameCn.ifBlank { it.name },
             )
         } ?: listOf()
     }
@@ -55,7 +55,7 @@ class BangumiMetadataProvider(
         val searchResults = client.searchSeries(seriesName, seriesFormats)
         val match = searchResults.data?.firstOrNull {
             val titles = listOfNotNull(
-                it.name_cn,
+                it.nameCn,
                 it.name,
             )
 
