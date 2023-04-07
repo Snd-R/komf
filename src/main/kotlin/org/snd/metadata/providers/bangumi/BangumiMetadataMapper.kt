@@ -90,7 +90,7 @@ class BangumiMetadataMapper(
         ) + altTitles
 
         val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-        val releaseDate = LocalDate.parse(subject.date, formatter)
+        val releaseDate = if (!subject.date.isNullOrBlank()) LocalDate.parse(subject.date, formatter) else null
 
         val metadata = SeriesMetadata(
             status = status,
@@ -103,9 +103,9 @@ class BangumiMetadataMapper(
             thumbnail = thumbnail,
             totalBookCount = subject.volumes,
             releaseDate = ReleaseDate(
-                releaseDate.year,
-                releaseDate.monthValue,
-                releaseDate.dayOfMonth
+                releaseDate?.year,
+                releaseDate?.monthValue,
+                releaseDate?.dayOfMonth
             ),
             links = listOf(WebLink("Bangumi", subjectBaseUrl + subject.id)),
             score = subject.rating.score.toDouble()
