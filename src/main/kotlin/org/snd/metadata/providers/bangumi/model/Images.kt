@@ -7,7 +7,7 @@ data class Images (
 
     val large: String,
 
-    val common: String,
+    val common: String?,
 
     val medium: String,
 

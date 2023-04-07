@@ -9,11 +9,13 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.snd.common.http.HttpClient
 import org.snd.common.http.MEDIA_TYPE_JSON
+import org.snd.common.testUtils.prettyPrint
 import org.snd.metadata.model.Image
+import org.snd.metadata.providers.bangumi.model.RelatedPerson
 import org.snd.metadata.providers.bangumi.model.SearchSubjectByKeywordsResponse
+import org.snd.metadata.providers.bangumi.model.SearchSubjectsResponse
 import org.snd.metadata.providers.bangumi.model.Subject
 import org.snd.metadata.providers.bangumi.model.SubjectType
-import org.snd.metadata.providers.bangumi.model.SearchSubjectsResponse
 
 class BangumiClient(
     private val client: HttpClient,
@@ -87,7 +89,7 @@ class BangumiClient(
     }
 
     fun getThumbnail(subject: Subject): Image? {
-        return getThumbnail(subject.images.common)
+        return getThumbnail(subject.images.common ?: subject.images.medium)
     }
 
     fun getThumbnail(url: String): Image? {
@@ -96,5 +98,18 @@ class BangumiClient(
             val bytes = client.executeWithByteResponse(request)
             Image(bytes)
         }
+    }
+
+    fun getSubjectRelatedPersons(subjectId: Long): Collection<RelatedPerson> {
+        val seriesRequest = Request.Builder().url(
+            apiV0Url.newBuilder().addPathSegments("subjects/$subjectId/persons")
+                .build()
+        )
+            .header("User-Agent", userAgent)
+            .build()
+
+        val response = client.execute(seriesRequest)
+
+        return moshi.adapter<Collection<RelatedPerson>>().lenient().fromJson(response) ?: throw RuntimeException()
     }
 }

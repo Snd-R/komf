@@ -14,6 +14,7 @@ class BangumiClientTest {
 
     private lateinit var client: BangumiClient
     private val jsonModule = JsonModule()
+    private val subjectId: Long = 4923
 
     @BeforeEach
     fun setUp() {
@@ -31,7 +32,13 @@ class BangumiClientTest {
 
     @Test
     fun getSeries() {
-        val results = client.getSeries(6881)
+        val results = client.getSeries(subjectId)
+        println(results.prettyPrint())
+    }
+
+    @Test
+    fun getSubjectRelatedPersons() {
+        val results = client.getSubjectRelatedPersons(subjectId)
         println(results.prettyPrint())
     }
 
