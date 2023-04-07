@@ -1,6 +1,5 @@
 package org.snd.metadata.providers.bangumi.model
 import com.squareup.moshi.JsonClass
-import org.snd.metadata.providers.bangumi.model.SearchSubjectsResponseData
 
 /**
  * 用户信息
@@ -8,7 +7,7 @@ import org.snd.metadata.providers.bangumi.model.SearchSubjectsResponseData
  * @param total 搜索结果数量
  * @param limit 当前分页参数
  * @param offset 当前分页参数
- * @param `data` 
+ * @param data
  */
 
 @JsonClass(generateAdapter = true)
@@ -23,6 +22,6 @@ data class SearchSubjectsResponse (
     /* 当前分页参数 */
     val offset: Int? = null,
 
-    val `data`: List<SearchSubjectsResponseData>? = null
+    val data: List<SearchSubjectsResponseData>? = null
 
 )
