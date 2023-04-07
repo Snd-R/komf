@@ -47,10 +47,10 @@ class BangumiMetadataMapper(
         val publisher =
             subject.infobox?.find { it.key == "出版社" }?.value?.rawString
 
-        val author =
-            subject.infobox?.find { it.key == "作者" }?.value?.rawString?.let {
-                Author( it, AuthorRole.WRITER )
-            }
+        val originalAuthor = subject.infobox?.filter {
+            it.key in listOf("原作", "作者")
+        }?.maxByOrNull { it.key == "原作" }?.let { listOf(Author(it.value.rawString, AuthorRole.WRITER)) }
+            ?: listOf()
 
         val additionalAuthors = relatedPersons?.mapNotNull { person ->
             when (person.career.first()) {
@@ -59,7 +59,7 @@ class BangumiMetadataMapper(
             }
         } ?: listOf()
 
-        val authors = (listOf(author) + additionalAuthors).filterNotNull().flatMap {
+        val authors = (originalAuthor + additionalAuthors).flatMap {
             when (it.role) {
                 AuthorRole.WRITER -> authorRoles.map { role -> Author(it.name, role) }
                 else -> artistRoles.map { role -> Author(it.name, role) }
@@ -69,7 +69,9 @@ class BangumiMetadataMapper(
         val alternativePublishers = relatedPersons?.mapNotNull { person ->
             when (person.career.first()) {
                 PersonCareer.PRODUCER -> Publisher(
-                    person.id.toLong(), person.name, person.relation, person.type.toString())
+                    person.id.toLong(), person.name, person.relation, person.type.toString()
+                )
+
                 else -> null
             }
         } ?: listOf()
@@ -97,7 +99,7 @@ class BangumiMetadataMapper(
             tags = tags,
             authors = authors,
             publisher = publisher,
-            alternativePublishers = alternativePublishers.map{ it.name }.toSet(),
+            alternativePublishers = alternativePublishers.map { it.name }.toSet(),
             thumbnail = thumbnail,
             totalBookCount = subject.volumes,
             releaseDate = ReleaseDate(
