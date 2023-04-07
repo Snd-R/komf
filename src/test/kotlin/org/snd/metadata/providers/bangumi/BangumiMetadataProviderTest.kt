@@ -13,7 +13,7 @@ import org.snd.metadata.providers.MetadataProviderTest
 import org.snd.module.JsonModule
 import kotlin.test.assertEquals
 
-class BangumiMetadataProviderTest: MetadataProviderTest {
+class BangumiMetadataProviderTest : MetadataProviderTest {
 
     override val config = ProviderConfig()
     override val title = "钢之炼金术士"

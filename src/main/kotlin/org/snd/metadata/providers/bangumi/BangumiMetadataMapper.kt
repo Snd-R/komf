@@ -14,7 +14,10 @@ import org.snd.metadata.model.metadata.SeriesTitle
 import org.snd.metadata.model.metadata.TitleType.LOCALIZED
 import org.snd.metadata.model.metadata.TitleType.NATIVE
 import org.snd.metadata.model.metadata.WebLink
+import org.snd.metadata.providers.bangumi.model.PersonCareer
+import org.snd.metadata.providers.bangumi.model.RelatedPerson
 import org.snd.metadata.providers.bangumi.model.Subject
+import org.snd.metadata.providers.mangaupdates.model.Publisher
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -27,7 +30,8 @@ class BangumiMetadataMapper(
 
     fun toSeriesMetadata(
         subject: Subject,
-        thumbnail: Image? = null
+        thumbnail: Image? = null,
+        relatedPersons: Collection<RelatedPerson>? = null,
     ): ProviderSeriesMetadata {
         val endStatus = subject.infobox?.find { it.key == "结束" }
 
@@ -40,16 +44,35 @@ class BangumiMetadataMapper(
             SeriesStatus.ENDED
         }
 
-        // TODO: use API {subject_id}/persons to get full list of publishers
         val publisher =
             subject.infobox?.find { it.key == "出版社" }?.value?.rawString
 
-        // TODO: use API {subject_id}/persons to get full list of persons
         val author =
             subject.infobox?.find { it.key == "作者" }?.value?.rawString?.let {
                 Author( it, AuthorRole.WRITER )
             }
-        val authors = listOfNotNull(author)
+
+        val additionalAuthors = relatedPersons?.mapNotNull { person ->
+            when (person.career.first()) {
+                PersonCareer.MANGAKA -> Author(person.name, AuthorRole.WRITER)
+                else -> null
+            }
+        } ?: listOf()
+
+        val authors = (listOf(author) + additionalAuthors).filterNotNull().flatMap {
+            when (it.role) {
+                AuthorRole.WRITER -> authorRoles.map { role -> Author(it.name, role) }
+                else -> artistRoles.map { role -> Author(it.name, role) }
+            }
+        }.distinct()
+
+        val alternativePublishers = relatedPersons?.mapNotNull { person ->
+            when (person.career.first()) {
+                PersonCareer.PRODUCER -> Publisher(
+                    person.id.toLong(), person.name, person.relation, person.type.toString())
+                else -> null
+            }
+        } ?: listOf()
 
         val tags = subject.tags.sortedByDescending { it.count }.take(15)
             .map { it.name }
@@ -74,7 +97,7 @@ class BangumiMetadataMapper(
             tags = tags,
             authors = authors,
             publisher = publisher,
-//            alternativePublishers = altTitles.toSet(),
+            alternativePublishers = alternativePublishers.map{ it.name }.toSet(),
             thumbnail = thumbnail,
             totalBookCount = subject.volumes,
             releaseDate = ReleaseDate(

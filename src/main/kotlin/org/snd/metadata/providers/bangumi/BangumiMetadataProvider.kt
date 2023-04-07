@@ -22,6 +22,7 @@ class BangumiMetadataProvider(
     private val metadataMapper: BangumiMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
     private val fetchSeriesCovers: Boolean,
+    private val fetchAuthors: Boolean,
     mediaType: MediaType,
 ) : MetadataProvider {
     private val seriesFormats = if (mediaType == MediaType.MANGA) mangaMediaFormats else allMediaFormats
@@ -65,9 +66,12 @@ class BangumiMetadataProvider(
         return match?.let {
             val series = client.getSeries(it.id.toLong())
             val thumbnail = if (fetchSeriesCovers) client.getThumbnail(it.image) else null
+            val relatedPersons = if (fetchAuthors) client.getSubjectRelatedPersons(series.id.toLong()) else null
+
             metadataMapper.toSeriesMetadata(
                 series,
                 thumbnail,
+                relatedPersons,
             )
         }
     }

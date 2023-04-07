@@ -512,6 +512,7 @@ class MetadataModule(
             bangumiMetadataMapper,
             bangumiSimilarityMatcher,
             config.seriesMetadata.thumbnail,
+            config.seriesMetadata.authors, // fetch all authors
             config.mediaType,
         )
     }
