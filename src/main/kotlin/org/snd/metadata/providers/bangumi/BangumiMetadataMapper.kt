@@ -60,7 +60,7 @@ class BangumiMetadataMapper(
                 ?: listOf()
 
         val titles = listOf(
-            SeriesTitle(subject.name_cn, NATIVE, "zh"),
+            SeriesTitle(subject.nameCn, NATIVE, "zh"),
             SeriesTitle(subject.name, LOCALIZED, "ja"),
         ) + altTitles
 

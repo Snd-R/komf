@@ -1,5 +1,6 @@
 package org.snd.metadata.providers.bangumi.model
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
@@ -10,7 +11,8 @@ data class Subject (
 
     val name: String,
 
-    val name_cn: String,
+    @Json(name = "name_cn")
+    val nameCn: String,
 
     val summary: String,
 
@@ -30,7 +32,8 @@ data class Subject (
     val eps: Int,
 
     /* 数据库中的章节数量 */
-    val total_episodes: Int,
+    @Json(name = "total_episodes")
+    val totalEpisodes: Int,
 
     val rating: Rating,
 

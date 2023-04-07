@@ -9,7 +9,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.snd.common.http.HttpClient
 import org.snd.common.http.MEDIA_TYPE_JSON
-import org.snd.common.testUtils.prettyPrint
 import org.snd.metadata.model.Image
 import org.snd.metadata.providers.bangumi.model.RelatedPerson
 import org.snd.metadata.providers.bangumi.model.SearchSubjectByKeywordsResponse
