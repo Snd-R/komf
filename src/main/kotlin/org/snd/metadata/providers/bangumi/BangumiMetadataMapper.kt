@@ -45,7 +45,7 @@ class BangumiMetadataMapper(
         }
 
         val publisher =
-            subject.infobox?.find { it.key == "出版社" }?.value?.rawString
+            subject.infobox?.find { it.key == "出版社" }?.value?.rawString?.split(',', '，', '、')?.first()
 
         val originalAuthor = subject.infobox?.filter {
             it.key in listOf("原作", "作者")

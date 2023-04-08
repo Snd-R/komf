@@ -29,7 +29,7 @@ class BangumiClient(
         keyword: String,
         subjectTypes: Collection<SubjectType>,
         rating: Collection<String> = listOf(">0.0"), // Use min rating to improve result quality
-        rank: Collection<String> = listOf(">0"), // Use ranked items to improve result quality
+        rank: Collection<String> = listOf(">=0"), // Use ranked items to improve result quality
     ): SearchSubjectsResponse {
         val payload = moshi.adapter<Map<String, *>>().toJson(
             mapOf(
