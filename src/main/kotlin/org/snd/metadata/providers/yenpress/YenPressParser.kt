@@ -57,7 +57,8 @@ class YenPressParser {
         val seriesId = bookDetailsElement.getElementsByClass("social-share").first()!!
             .getElementsByClass("center-btn-page").first()!!
             .getElementsByClass("main-btn black").first()!!
-            .attr("href").removePrefix("/series/")
+            .attr("href")
+            .removeSurrounding("/series/", "?format=Digital")
 
         return YenPressBook(
             id = bookId,
