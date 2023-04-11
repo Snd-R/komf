@@ -10,6 +10,7 @@ import org.snd.metadata.providers.yenpress.model.YenPressMoreBooksResponse
 import org.snd.metadata.providers.yenpress.model.YenPressSeriesId
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 class YenPressParser {
     private val nextOrdRegex = "&next_ord=\\d+$".toRegex()
@@ -51,7 +52,7 @@ class YenPressParser {
         val pageCount = bookDetails["Page Count"]?.removeSuffix(" pages")?.toIntOrNull()
 
         val releaseDate = bookDetails["Release Date"]
-            ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MMM dd, yyyy")) }
+            ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)) }
 
         val seriesId = bookDetailsElement.getElementsByClass("social-share").first()!!
             .getElementsByClass("center-btn-page").first()!!
