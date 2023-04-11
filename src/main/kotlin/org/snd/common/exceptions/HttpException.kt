@@ -38,4 +38,12 @@ open class HttpException : RuntimeException {
         )
     }
 
+    class Unauthorized(headers: Map<String, String>, url: String, body: String?) : HttpException(401, headers, url, body) {
+        constructor(response: Response) : this(
+            response.headers.toMap(),
+            response.request.url.toString(),
+            response.body?.string()
+        )
+    }
+
 }
