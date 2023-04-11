@@ -6,7 +6,7 @@ import org.snd.metadata.providers.mal.model.Series.MalMediaType
 
 data class SearchResults(
     val results: List<SearchResult>,
-    val nextPage: String
+    val nextPage: String?
 )
 
 data class SearchResult(
