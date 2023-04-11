@@ -112,6 +112,7 @@ data class ProvidersConfigUpdateDto(
     val viz: ProviderConfigUpdateDto? = null,
     val bookWalker: ProviderConfigUpdateDto? = null,
     val mangaDex: ProviderConfigUpdateDto? = null,
+    val bangumi: ProviderConfigUpdateDto? = null,
 )
 
 @JsonClass(generateAdapter = true)

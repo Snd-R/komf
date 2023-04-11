@@ -55,6 +55,8 @@ dependencies {
     implementation("com.microsoft.signalr:signalr:6.0.10")
     implementation("org.bitbucket.b_c:jose4j:0.9.3")
 
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation(kotlin("test"))
 }
 
 tasks.withType<KotlinCompile>().configureEach {
@@ -151,4 +153,8 @@ apollo {
 tasks.wrapper {
     gradleVersion = "8.0.2"
     distributionType = Wrapper.DistributionType.ALL
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
