@@ -227,14 +227,15 @@ class MetadataModule(
 
     private fun createYenPressClient(): YenPressClient {
         return YenPressClient(
-            createHttpClient(
+            client = createHttpClient(
                 name = "YenPress",
                 rateLimitConfig = RateLimiterConfig.custom()
                     .limitRefreshPeriod(Duration.ofSeconds(5))
                     .limitForPeriod(5)
                     .timeoutDuration(Duration.ofSeconds(5))
                     .build()
-            )
+            ),
+            moshi = jsonModule.moshi
         )
     }
 
@@ -399,7 +400,12 @@ class MetadataModule(
     private fun createYenPressMetadataProvider(config: ProviderConfig, client: YenPressClient): YenPressMetadataProvider? {
         if (config.enabled.not()) return null
 
-        val metadataMapper = YenPressMetadataMapper(config.seriesMetadata, config.bookMetadata)
+        val metadataMapper = YenPressMetadataMapper(
+            config.seriesMetadata,
+            config.bookMetadata,
+            config.authorRoles,
+            config.artistRoles
+        )
         val similarityMatcher = config.nameMatchingMode
             ?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
         return YenPressMetadataProvider(

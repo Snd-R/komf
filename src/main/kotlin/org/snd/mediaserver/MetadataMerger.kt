@@ -25,9 +25,10 @@ class MetadataMerger(
             tags = mergeTags(originalSeriesMetadata.tags, newSeriesMetadata.tags),
             totalBookCount = originalSeriesMetadata.totalBookCount ?: newSeriesMetadata.totalBookCount,
             authors = originalSeriesMetadata.authors.ifEmpty { newSeriesMetadata.authors },
-            thumbnail = originalSeriesMetadata.thumbnail ?: newSeriesMetadata.thumbnail,
+            releaseDate = originalSeriesMetadata.releaseDate ?: newSeriesMetadata.releaseDate,
             links = (originalSeriesMetadata.links + newSeriesMetadata.links).distinctBy { it.label },
             score = originalSeriesMetadata.score ?: newSeriesMetadata.score,
+            thumbnail = originalSeriesMetadata.thumbnail ?: newSeriesMetadata.thumbnail,
         )
     }
 

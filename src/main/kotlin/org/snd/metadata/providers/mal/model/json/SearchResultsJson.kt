@@ -25,5 +25,5 @@ data class SearchResultJson(
 
 @JsonClass(generateAdapter = true)
 data class PagingJson(
-    val next: String
+    val next: String?
 )

@@ -1,102 +1,115 @@
 package org.snd.metadata.providers.yenpress
 
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
 import org.snd.metadata.BookNameParser
+import org.snd.metadata.providers.yenpress.model.YenPressAuthor
 import org.snd.metadata.providers.yenpress.model.YenPressBook
 import org.snd.metadata.providers.yenpress.model.YenPressBookId
-import org.snd.metadata.providers.yenpress.model.YenPressSearchResult
-import org.snd.metadata.providers.yenpress.model.YenPressSeriesBook
-import java.net.URLDecoder
+import org.snd.metadata.providers.yenpress.model.YenPressBookShort
+import org.snd.metadata.providers.yenpress.model.YenPressMoreBooksResponse
+import org.snd.metadata.providers.yenpress.model.YenPressSeriesId
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 class YenPressParser {
-    private val baseUrl = "https://yenpress.com"
+    private val nextOrdRegex = "&next_ord=(?<nextOrd>\\d+)$".toRegex()
+    private val searchKeyRegex = "\"search_key\":\"(?<searchKey>.*)\",".toRegex()
 
-    fun parseSearchResults(results: String): Collection<YenPressSearchResult> {
-        val document = Jsoup.parse(results)
-        return document.getElementById("yen-press-0")
-            ?.children()
-            ?.mapNotNull { parseSearchResult(it) }
-            ?: emptyList()
-    }
-
-    private fun parseSearchResult(result: Element): YenPressSearchResult? {
-        val bookDetailsElement = result.getElementsByClass("book-detail").firstOrNull() ?: return null
-        val title = bookDetailsElement.child(0).text()
-
-        val bookNumber = BookNameParser.getVolumes(title)
-        if (bookNumber?.start?.toInt() != 1) return null
-
-        val bookLinksElements = bookDetailsElement.getElementsByTag("a")
-        val id = bookLinksElements.firstOrNull { it.text() == "Digital download" }?.attr("href")
-            ?: bookLinksElements.firstOrNull { it.text() == "Paperback" }?.attr("href")
-            ?: return null
-        val coverImage = result.getElementsByTag("img").firstOrNull()?.attr("src")
-
-        return YenPressSearchResult(
-            id = YenPressBookId(URLDecoder.decode(id, "UTF-8")),
-            imageUrl = coverImage,
-            title = title
-        )
-    }
-
-    fun parseBook(book: String): YenPressBook {
+    fun parseBook(book: String, bookId: YenPressBookId): YenPressBook {
         val document = Jsoup.parse(book)
-        val coverStrip = document.getElementById("book-cover-strip")!!
-        val coverImage = coverStrip.getElementsByClass("book-cover").first()
-            ?.child(0)?.getElementsByTag("img")
-            ?.attr("src")
-            ?.let { if (it == "https://yenpress-us.imgix.net/missing-cover.jpg") null else it }
-            ?.removeSuffix("?auto=format&w=298")
-            ?.plus("?w=1000")
 
-        val title = document.getElementById("book-title")!!.text()
-        val description = document.getElementById("book-description-full")?.text()
-        val genres = document.getElementById("book-categories")?.textNodes()?.get(3)?.text()
-            ?.split("/")?.map { it.trim() }
-        val bookDetails = document.getElementById("book-details")
-        val isbn = bookDetails?.child(1)?.getElementsByTag("li")
-            ?.firstOrNull { element -> element.child(0).text() == "ISBN-13:" }
-            ?.child(1)?.text()
-        val releaseDate = bookDetails?.child(1)?.getElementsByTag("li")
-            ?.firstOrNull { element -> element.child(0).text() == "On Sale Date:" }
-            ?.child(1)?.text()
-            ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MM/dd/yyyy")) }
-        val imprint = bookDetails?.child(1)?.getElementsByTag("li")
-            ?.firstOrNull { element -> element.child(0).text() == "Imprint:" }
-            ?.child(1)?.text()
-            ?: "Yen Press"
-
-        val seriesBooks = document.getElementById("isbn-grid-0")
-            ?.getElementsByClass("book-wrapper")
-            ?.map { it.child(0).child(0) }
-            ?.map { it.attr("href") to it.attr("alt") }
-            ?.map { (id, name) ->
-                YenPressSeriesBook(id = YenPressBookId(id), number = BookNameParser.getVolumes(name), name = name)
+        val headingElement = document.getElementsByClass("heading-content").first()!!
+        val title = headingElement.getElementsByClass("heading").first()!!.text()
+        val authors = headingElement.getElementsByClass("story-details").first()
+            ?.children()?.textNodes()
+            ?.take(2)?.map { it.text() }
+            ?.chunked(2)?.map { (role, name) ->
+                YenPressAuthor(
+                    role = role.removeSuffix(":"),
+                    name = name
+                )
             } ?: emptyList()
 
+        val bookInfo = document.getElementsByClass("book-info").first()!!
+        val description = bookInfo.getElementsByClass("content-heading-txt").first()
+            ?.child(1)?.text()
+        val cover = bookInfo.getElementsByClass("series-cover").first()
+            ?.getElementsByTag("img")?.first()
+            ?.attr("data-src")
+
+        val bookDetailsElement = document.getElementsByClass("book-details").first()!!.children().last()!!
+        val genres = bookDetailsElement.getElementsByClass("txt-hold").first()?.children()?.last()
+            ?.children()?.map { it.text() }
+            ?: emptyList()
+
+        val bookDetails = bookDetailsElement.getElementsByClass("detail-info").first()
+            ?.getElementsByTag("div")?.toList()
+            ?.filter { div -> div.children().none { it.tagName() == "div" } }
+            ?.associate {
+                it.child(0).text() to it.child(1).text()
+            } ?: emptyMap()
+        val pageCount = bookDetails["Page Count"]?.removeSuffix(" pages")?.toIntOrNull()
+
+        val releaseDate = bookDetails["Release Date"]
+            ?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)) }
+
+        val seriesId = bookDetailsElement.getElementsByClass("social-share").first()!!
+            .getElementsByClass("center-btn-page").first()!!
+            .getElementsByClass("main-btn black").first()!!
+            .attr("href")
+            .removePrefix("/series/")
+            .removeSuffix("?format=Digital")
+
         return YenPressBook(
-            id = parseBookId(document),
+            id = bookId,
             name = title,
             number = BookNameParser.getVolumes(title),
-            releaseDate = releaseDate,
+            seriesId = YenPressSeriesId(seriesId),
+
+            authors = authors,
             description = description,
-            imageUrl = coverImage,
-            genres = genres ?: emptyList(),
-            isbn = isbn,
-            imprint = imprint,
-            seriesBooks = seriesBooks
+            genres = genres,
+            seriesName = bookDetails["Series"],
+            pageCount = pageCount,
+            releaseDate = releaseDate,
+            isbn = bookDetails["ISBN"],
+            ageRating = bookDetails["Age Rating"],
+            imprint = bookDetails["Imprint"],
+            imageUrl = cover,
         )
     }
 
-    private fun parseBookId(document: Document): YenPressBookId {
-        val id = document.getElementsByTag("meta").first { it.attr("property") == "og:url" }
-            .attr("content")
-            .removePrefix("$baseUrl/")
+    fun parseMoreBooksResponse(booksDocument: String): YenPressMoreBooksResponse {
+        val document = Jsoup.parse(booksDocument)
+        val books = document.getElementsByClass("inline_block")
+            .map {
+                val link = it.child(0)
+                val bookId = YenPressBookId(link.attr("href").removePrefix("/titles/"))
+                val name = link.child(1).text()
 
-        return YenPressBookId(URLDecoder.decode(id, "UTF-8"))
+                YenPressBookShort(
+                    id = bookId,
+                    number = BookNameParser.getVolumes(name),
+                    name = name,
+                )
+            }
+        val nextOrd = document.getElementsByClass("show-more")
+            .firstOrNull()
+            ?.attr("data-url")
+            ?.let { nextOrdRegex.find(it)?.groups?.get("nextOrd")?.value }
+            ?.toInt()
+
+        return YenPressMoreBooksResponse(
+            books = books,
+            nextOrd = nextOrd
+        )
+    }
+
+    fun parseSearchKey(search: String): String {
+        return Jsoup.parse(search).head()
+            .getElementsByTag("script")
+            .mapNotNull { searchKeyRegex.find(it.data()) }
+            .firstNotNullOf { it.groups["searchKey"]?.value }
     }
 }
