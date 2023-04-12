@@ -55,7 +55,7 @@ class YenPressMetadataMapper(
             links = listOf(
                 WebLink(
                     "YenPress",
-                    "$yenPressBaseUrl/series/" + URLEncoder.encode(book.seriesId.id, "UTF-8")
+                    "${yenPressBaseUrl}series/" + URLEncoder.encode(book.seriesId.id, "UTF-8")
                 )
             )
         )

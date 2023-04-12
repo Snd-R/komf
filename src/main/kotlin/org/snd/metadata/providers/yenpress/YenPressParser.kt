@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 class YenPressParser {
-    private val nextOrdRegex = "&next_ord=\\d+$".toRegex()
+    private val nextOrdRegex = "&next_ord=(?<nextOrd>\\d+)$".toRegex()
     private val searchKeyRegex = "\"search_key\":\"(?<searchKey>.*)\",".toRegex()
 
     fun parseBook(book: String, bookId: YenPressBookId): YenPressBook {
@@ -58,7 +58,8 @@ class YenPressParser {
             .getElementsByClass("center-btn-page").first()!!
             .getElementsByClass("main-btn black").first()!!
             .attr("href")
-            .removeSurrounding("/series/", "?format=Digital")
+            .removePrefix("/series/")
+            .removeSuffix("?format=Digital")
 
         return YenPressBook(
             id = bookId,
@@ -96,7 +97,7 @@ class YenPressParser {
         val nextOrd = document.getElementsByClass("show-more")
             .firstOrNull()
             ?.attr("data-url")
-            ?.let { nextOrdRegex.find(it)?.value }
+            ?.let { nextOrdRegex.find(it)?.groups?.get("nextOrd")?.value }
             ?.toInt()
 
         return YenPressMoreBooksResponse(
