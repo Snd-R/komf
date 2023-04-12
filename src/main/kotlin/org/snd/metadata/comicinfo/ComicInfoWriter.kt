@@ -15,6 +15,8 @@ import org.snd.common.exceptions.ValidationException
 import org.snd.metadata.comicinfo.model.ComicInfo
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
+import java.util.zip.Deflater.NO_COMPRESSION
+import java.util.zip.ZipEntry
 import kotlin.io.path.*
 
 
@@ -56,6 +58,7 @@ class ComicInfoWriter {
                 }
 
                 ZipArchiveOutputStream(tempFile).use { output ->
+                    output.setLevel(NO_COMPRESSION)
                     copyEntries(zip, output)
                     putComicInfoEntry(comicInfoToWrite, output)
                 }
@@ -82,13 +85,13 @@ class ComicInfoWriter {
             .filter { it.name != COMIC_INFO }
             .forEach { entry ->
                 output.putArchiveEntry(entry)
-                IOUtils.copyLarge(file.getInputStream(entry), output, ByteArray(8192))
+                IOUtils.copyLarge(file.getInputStream(entry), output, ByteArray(4096))
                 output.closeArchiveEntry()
             }
     }
 
     private fun putComicInfoEntry(comicInfo: ComicInfo, output: ZipArchiveOutputStream) {
-        output.putArchiveEntry(ZipArchiveEntry(COMIC_INFO))
+        output.putArchiveEntry(ZipArchiveEntry(COMIC_INFO).apply { method = ZipEntry.STORED })
         val comicInfoXml = xml.encodeToString(ComicInfo.serializer(), comicInfo)
         IOUtils.copy(comicInfoXml.byteInputStream(), output)
         output.closeArchiveEntry()
