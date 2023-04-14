@@ -15,6 +15,7 @@ import java.util.*
 class YenPressParser {
     private val nextOrdRegex = "&next_ord=(?<nextOrd>\\d+)$".toRegex()
     private val searchKeyRegex = "\"search_key\":\"(?<searchKey>.*)\",".toRegex()
+    private val authorRegex = "(?<role>.*):\\s(?<name>.*)".toRegex()
 
     fun parseBook(book: String, bookId: YenPressBookId): YenPressBook {
         val document = Jsoup.parse(book)
@@ -22,9 +23,16 @@ class YenPressParser {
         val headingElement = document.getElementsByClass("heading-content").first()!!
         val title = headingElement.getElementsByClass("heading").first()!!.text()
         val authors = headingElement.getElementsByClass("story-details").first()
-            ?.children()?.textNodes()
-            ?.take(2)?.map { it.text() }
-            ?.chunked(2)?.map { (role, name) ->
+            ?.children()
+            ?.map { authorRegex.find(it.text())?.groups }
+            ?.mapNotNull { regex ->
+                regex?.get("role")?.value
+                    ?.let { role ->
+                        regex["name"]?.value
+                            ?.let { name -> role to name }
+                    }
+            }
+            ?.map { (role, name) ->
                 YenPressAuthor(
                     role = role.removeSuffix(":"),
                     name = name
