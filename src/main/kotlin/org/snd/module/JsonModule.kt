@@ -1,7 +1,6 @@
 package org.snd.module
 
 import com.squareup.moshi.Moshi
-import org.snd.common.json.BigDecimalAdapter
 import org.snd.common.json.LocalDateAdapter
 import org.snd.common.json.LocalDateTimeAdapter
 import org.snd.common.json.UriAdapter
@@ -25,7 +24,6 @@ import org.snd.metadata.providers.yenpress.model.YenPressSearchResultJsonAdapter
 
 class JsonModule {
     val moshi: Moshi = Moshi.Builder()
-        .add(BigDecimalAdapter())
         .add(LocalDateAdapter())
         .add(ZonedDateTimeAdapter())
         .add(LocalDateTimeAdapter())

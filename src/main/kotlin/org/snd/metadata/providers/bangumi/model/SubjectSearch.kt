@@ -22,7 +22,7 @@ data class SubjectSearchData(
     @Json(name = "name_cn")
     val nameCn: String,
     val tags: List<SubjectTag>,
-    val score: java.math.BigDecimal,
+    val score: Double,
     val rank: Int,
     val type: SubjectType? = null
 )

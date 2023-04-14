@@ -106,7 +106,7 @@ data class SubjectRating(
     val rank: Int,
     val total: Int,
     val count: Map<Int, Int>,
-    val score: java.math.BigDecimal
+    val score: Double
 )
 
 @JsonClass(generateAdapter = true)
