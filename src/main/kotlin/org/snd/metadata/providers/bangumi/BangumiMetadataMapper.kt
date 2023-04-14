@@ -1,122 +1,151 @@
 package org.snd.metadata.providers.bangumi
 
+import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
 import org.snd.metadata.model.Image
 import org.snd.metadata.model.metadata.Author
 import org.snd.metadata.model.metadata.AuthorRole
+import org.snd.metadata.model.metadata.BookMetadata
+import org.snd.metadata.model.metadata.BookRange
+import org.snd.metadata.model.metadata.ProviderBookId
+import org.snd.metadata.model.metadata.ProviderBookMetadata
 import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.model.metadata.ReleaseDate
+import org.snd.metadata.model.metadata.SeriesBook
 import org.snd.metadata.model.metadata.SeriesMetadata
 import org.snd.metadata.model.metadata.SeriesStatus
 import org.snd.metadata.model.metadata.SeriesTitle
-import org.snd.metadata.model.metadata.TitleType.LOCALIZED
-import org.snd.metadata.model.metadata.TitleType.NATIVE
 import org.snd.metadata.model.metadata.WebLink
-import org.snd.metadata.providers.bangumi.model.PersonCareer
-import org.snd.metadata.providers.bangumi.model.RelatedPerson
 import org.snd.metadata.providers.bangumi.model.Subject
-import org.snd.metadata.providers.mangaupdates.model.Publisher
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import org.snd.metadata.providers.bangumi.model.SubjectAuthorRole.AUTHOR
+import org.snd.metadata.providers.bangumi.model.SubjectAuthorRole.CHARACTER_DESIGN
+import org.snd.metadata.providers.bangumi.model.SubjectAuthorRole.ILLUSTRATOR
+import org.snd.metadata.providers.bangumi.model.SubjectAuthorRole.ORIGINAL_CREATOR
+import org.snd.metadata.providers.bangumi.model.SubjectRelation
 
 class BangumiMetadataMapper(
-    private val metadataConfig: SeriesMetadataConfig,
+    private val seriesMetadataConfig: SeriesMetadataConfig,
+    private val bookMetadataConfig: BookMetadataConfig,
     private val authorRoles: Collection<AuthorRole>,
     private val artistRoles: Collection<AuthorRole>,
 ) {
     private val subjectBaseUrl = "https://bgm.tv/subject/"
+    private val bookNumberRegex = "\\(([^)]*)\\)[^(]*\$".toRegex()
 
     fun toSeriesMetadata(
         subject: Subject,
-        thumbnail: Image? = null,
-        relatedPersons: Collection<RelatedPerson>? = null,
+        bookRelations: Collection<SubjectRelation>,
+        thumbnail: Image?,
     ): ProviderSeriesMetadata {
-        val endStatus = subject.infobox?.find { it.key == "结束" }
-
         // Does not seem to have Abandon info
-        val status = if (endStatus == null) {
+        val status = if (subject.endDateRaw == null) {
             SeriesStatus.ONGOING
-        } else if (endStatus.value.toString().contains("休刊")) {
+        } else if (subject.endDateRaw.contains("休刊")) {
             SeriesStatus.HIATUS
         } else {
             SeriesStatus.ENDED
         }
 
-        val publisher =
-            subject.infobox?.find { it.key == "出版社" }?.value?.rawString?.split(',', '，', '、')?.first()
-
-        val originalAuthor = subject.infobox?.filter {
-            it.key in listOf("原作", "作者")
-        }?.maxByOrNull { it.key == "原作" }?.let { listOf(Author(it.value.rawString, AuthorRole.WRITER)) }
-            ?: listOf()
-
-        val additionalAuthors = relatedPersons?.mapNotNull { person ->
-            when (person.career.first()) {
-                PersonCareer.MANGAKA -> Author(person.name, AuthorRole.WRITER)
-                else -> null
-            }
-        } ?: listOf()
-
-        val authors = (originalAuthor + additionalAuthors).flatMap {
-            when (it.role) {
-                AuthorRole.WRITER -> authorRoles.map { role -> Author(it.name, role) }
-                else -> artistRoles.map { role -> Author(it.name, role) }
-            }
-        }.distinct()
-
-        val alternativePublishers = relatedPersons?.mapNotNull { person ->
-            when (person.career.first()) {
-                PersonCareer.PRODUCER -> Publisher(
-                    person.id.toLong(), person.name, person.relation, person.type.toString()
-                )
-
-                else -> null
-            }
-        } ?: listOf()
-
-        val tags = subject.tags.sortedByDescending { it.count }.take(15)
+        val tags = subject.tags.sortedByDescending { it.count }
+            .take(15)
+            .filter { it.count > 1 }
             .map { it.name }
 
-        val altTitles =
-            subject.infobox?.find { it.key == "别名" }?.value?.list?.flatMap { it.values }
-                ?.map { title -> SeriesTitle(title, null, null) }
-                ?: listOf()
+        val altTitles = subject.aliases
+            .map { if (it.language == "hk") it.value to "zh-hk" else it.value to it.language }
+            .map { (title, language) -> SeriesTitle(title, null, language) }
 
-        val titles = listOf(
-            SeriesTitle(subject.nameCn, NATIVE, "zh"),
-            SeriesTitle(subject.name, LOCALIZED, "ja"),
+        val titles = listOfNotNull(
+            SeriesTitle(subject.name, null, null),
+            subject.nameCn?.let { SeriesTitle(subject.nameCn, null, "zh") },
         ) + altTitles
-
-        val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-        val releaseDate = if (!subject.date.isNullOrBlank()) LocalDate.parse(subject.date, formatter) else null
 
         val metadata = SeriesMetadata(
             status = status,
             titles = titles,
             summary = subject.summary,
+            publisher = subject.publisher,
+            alternativePublishers = subject.otherPublishers.toSet(),
             tags = tags,
-            authors = authors,
-            publisher = publisher,
-            alternativePublishers = alternativePublishers.map { it.name }.toSet(),
-            thumbnail = thumbnail,
-            totalBookCount = subject.volumes,
+            authors = getAuthors(subject),
             releaseDate = ReleaseDate(
-                releaseDate?.year,
-                releaseDate?.monthValue,
-                releaseDate?.dayOfMonth
+                subject.date?.year,
+                subject.date?.monthValue,
+                subject.date?.dayOfMonth
             ),
             links = listOf(WebLink("Bangumi", subjectBaseUrl + subject.id)),
-            score = subject.rating.score.toDouble()
+            score = subject.rating.score.toDouble(),
+            thumbnail = thumbnail,
         )
+
+        val books = bookRelations.map {
+            SeriesBook(
+                id = ProviderBookId(it.id.toString()),
+                number = bookNumberRegex.find(it.name)?.groups?.last()?.value
+                    ?.let { number -> BookRange(number.toDouble(), number.toDouble()) },
+                name = it.name,
+                type = null,
+                edition = null
+            )
+        }
 
         return MetadataConfigApplier.apply(
             ProviderSeriesMetadata(
                 id = ProviderSeriesId(subject.id.toString()),
-                metadata = metadata
+                metadata = metadata,
+                books = books
             ),
-            metadataConfig
+            seriesMetadataConfig
         )
+    }
+
+    fun toBookMetadata(
+        book: Subject,
+        thumbnail: Image?
+    ): ProviderBookMetadata {
+        val tags = book.tags.asSequence()
+            .sortedByDescending { it.count }
+            .take(15)
+            .filter { it.count > 1 }
+            .map { it.name }.toSet()
+
+        val bookNumber = getBookNumber(book.name)
+        val metadata = BookMetadata(
+            title = book.name,
+            summary = book.summary,
+            number = bookNumber,
+            numberSort = bookNumber?.start,
+            releaseDate = book.date,
+            authors = getAuthors(book),
+            tags = tags,
+            isbn = book.isbn,
+            startChapter = null,
+            endChapter = null,
+            thumbnail = thumbnail,
+            links = listOf(WebLink("Bangumi", subjectBaseUrl + book.id)),
+        )
+
+        val providerMetadata = ProviderBookMetadata(
+            id = ProviderBookId(book.id.toString()),
+            metadata = metadata
+        )
+        return MetadataConfigApplier.apply(providerMetadata, bookMetadataConfig)
+    }
+
+    private fun getBookNumber(name: String): BookRange? {
+        return bookNumberRegex.find(name)?.groups?.last()?.value
+            ?.let { number -> BookRange(number.toDouble(), number.toDouble()) }
+    }
+
+    private fun getAuthors(subject: Subject): List<Author> {
+        return subject.authors.flatMap { subjectAuthor ->
+            when (subjectAuthor.role) {
+                AUTHOR -> (authorRoles + artistRoles).map { Author(name = subjectAuthor.name, role = it) }
+                ORIGINAL_CREATOR -> authorRoles.map { Author(name = subjectAuthor.name, role = it) }
+                ILLUSTRATOR, CHARACTER_DESIGN -> artistRoles.map { Author(name = subjectAuthor.name, role = it) }
+            }
+        }
     }
 }

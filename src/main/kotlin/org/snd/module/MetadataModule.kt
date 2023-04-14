@@ -27,6 +27,7 @@ import org.snd.metadata.providers.anilist.AniListMetadataProvider
 import org.snd.metadata.providers.bangumi.BangumiClient
 import org.snd.metadata.providers.bangumi.BangumiMetadataMapper
 import org.snd.metadata.providers.bangumi.BangumiMetadataProvider
+import org.snd.metadata.providers.bangumi.BangumiUserAgentInterceptor
 import org.snd.metadata.providers.bookwalker.BookWalkerClient
 import org.snd.metadata.providers.bookwalker.BookWalkerMapper
 import org.snd.metadata.providers.bookwalker.BookWalkerMetadataProvider
@@ -307,7 +308,8 @@ class MetadataModule(
                 .limitRefreshPeriod(Duration.ofSeconds(5))
                 .limitForPeriod(5)
                 .timeoutDuration(Duration.ofSeconds(5))
-                .build()
+                .build(),
+            interceptors = listOf(BangumiUserAgentInterceptor())
         )
 
         return BangumiClient(httpClient, jsonModule.moshi)
@@ -507,7 +509,8 @@ class MetadataModule(
         if (config.enabled.not()) return null
 
         val bangumiMetadataMapper = BangumiMetadataMapper(
-            metadataConfig = config.seriesMetadata,
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
         )
@@ -518,7 +521,6 @@ class MetadataModule(
             bangumiMetadataMapper,
             bangumiSimilarityMatcher,
             config.seriesMetadata.thumbnail,
-            config.seriesMetadata.authors, // fetch all authors
             config.mediaType,
         )
     }
@@ -581,7 +583,7 @@ class MetadataModule(
             viz?.let { it to vizPriority },
             bookwalker?.let { it to bookwalkerPriority },
             mangaDex?.let { it to mangaDexPriority },
-            bangumi?.let {it to bangumiPriority}
+            bangumi?.let { it to bangumiPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()

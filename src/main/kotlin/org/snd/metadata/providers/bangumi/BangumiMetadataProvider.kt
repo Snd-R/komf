@@ -9,70 +9,95 @@ import org.snd.metadata.model.metadata.ProviderBookId
 import org.snd.metadata.model.metadata.ProviderBookMetadata
 import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.metadata.model.metadata.ProviderSeriesMetadata
+import org.snd.metadata.providers.bangumi.model.SubjectSearchData
 import org.snd.metadata.providers.bangumi.model.SubjectType
 
 // Manga and Novel are both considered book in Bangumi
 // For now, Novel just means "everything"
 // In the future, if there's other search support, Bangumi also have Anime, Music, etc.
-private val mangaMediaFormats = listOf(SubjectType.BOOK)
-private val allMediaFormats = listOf(SubjectType.ANIME, SubjectType.BOOK, SubjectType.MUSIC, SubjectType.GAME, SubjectType.REAL)
-
 class BangumiMetadataProvider(
     private val client: BangumiClient,
     private val metadataMapper: BangumiMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
     private val fetchSeriesCovers: Boolean,
-    private val fetchAuthors: Boolean,
-    mediaType: MediaType,
+    private val mediaType: MediaType,
 ) : MetadataProvider {
-    private val seriesFormats = if (mediaType == MediaType.MANGA) mangaMediaFormats else allMediaFormats
 
     override fun providerName() = Provider.BANGUMI
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val series = client.getSeries(seriesId.id.toLong())
+        val series = client.getSubject(seriesId.id.toLong())
+        val bookRelations = client.getSubjectRelations(series.id)
+            .filter { it.type == SubjectType.BOOK }
+            .filter { it.relation == "单行本" }
+
         val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
-        return metadataMapper.toSeriesMetadata(series, thumbnail)
+        return metadataMapper.toSeriesMetadata(series, bookRelations, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
-        throw UnsupportedOperationException()
+        val book = client.getSubject(bookId.id.toLong())
+        val thumbnail = if (fetchSeriesCovers) client.getThumbnail(book) else null
+        return metadataMapper.toBookMetadata(book, thumbnail)
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val searchResultsData = client.searchSeries(seriesName, seriesFormats).data?.take(limit)
-
-        return searchResultsData?.map {
-            SeriesSearchResult(
-                imageUrl = it.image,
-                provider = this.providerName(),
-                resultId = it.id.toString(),
-                title = it.nameCn.ifBlank { it.name },
-            )
-        } ?: listOf()
+        return client.searchSeries(seriesName).data.asSequence()
+            .sortedWith(subjectRank())
+            .filter { it.tags.none { tag -> tag.name == "漫画单行本" } }
+            .take(limit)
+            .map {
+                SeriesSearchResult(
+                    imageUrl = it.image,
+                    provider = this.providerName(),
+                    resultId = it.id.toString(),
+                    title = it.nameCn.ifBlank { it.name },
+                )
+            }.toList()
     }
 
     override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
-        val searchResults = client.searchSeries(seriesName, seriesFormats)
-        val match = searchResults.data?.firstOrNull {
-            val titles = listOfNotNull(
-                it.nameCn,
-                it.name,
-            )
+        val searchResults = client.searchSeries(seriesName)
+        val matches = searchResults.data.asSequence()
+            .sortedWith(subjectRank())
+            .filter { it.tags.none { tag -> tag.name == "漫画单行本" } }
+            .filter {
+                val titles = listOfNotNull(it.nameCn, it.name)
+                nameMatcher.matches(seriesName, titles)
+            }.toList()
 
-            nameMatcher.matches(seriesName, titles)
-        }
+        val matchId = if (matches.size > 1) {
+            matches.asSequence()
+                .map { client.getSubject(it.id) }
+                .firstOrNull {
+                    when (this.mediaType) {
+                        MediaType.MANGA -> it.platform == "漫画"
+                        MediaType.NOVEL -> it.platform == "小说"
+                    }
+                }?.id
+        } else matches.firstOrNull()?.id
 
-        return match?.let {
-            val series = client.getSeries(it.id.toLong())
-            val thumbnail = if (fetchSeriesCovers) client.getThumbnail(it.image) else null
-            val relatedPersons = if (fetchAuthors) client.getSubjectRelatedPersons(series.id.toLong()) else null
+        return matchId?.let {
+            val series = client.getSubject(it)
+            val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
+            val bookRelations = client.getSubjectRelations(series.id)
+                .filter { book -> book.type == SubjectType.BOOK }
+                .filter { book -> book.relation == "单行本" }
 
             metadataMapper.toSeriesMetadata(
                 series,
+                bookRelations,
                 thumbnail,
-                relatedPersons,
             )
+        }
+    }
+
+    private fun subjectRank() = Comparator<SubjectSearchData> { a, b ->
+        when {
+            a.rank == b.rank -> 0
+            a.rank == 0 -> 1
+            b.rank == 0 -> -1
+            else -> compareValues(a.rank, b.rank)
         }
     }
 }
