@@ -9,7 +9,7 @@ enum class AgeRating(val value: String, val ageRating: Int? = null) {
     G("G", 0),
     KIDS_TO_ADULTS("Kids to Adults", 6),
     M("M", 17),
-    MA_15("MA 15+", 15),
+    MA_15("MA15+", 15),
     MATURE_17("Mature 17+", 17),
     PG("PG", 8),
     R_18("R18+", 18),
