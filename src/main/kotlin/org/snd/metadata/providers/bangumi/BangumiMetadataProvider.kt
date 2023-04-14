@@ -61,35 +61,35 @@ class BangumiMetadataProvider(
         val matches = searchResults.data.asSequence()
             .sortedWith(subjectRank())
             .filter { it.tags.none { tag -> tag.name == "漫画单行本" } }
-            .filter {
-                val titles = listOfNotNull(it.nameCn, it.name)
-                nameMatcher.matches(seriesName, titles)
-            }.toList()
+            .filter { nameMatcher.matches(seriesName, listOfNotNull(it.nameCn, it.name)) }
+            .toList()
 
-        val matchId = if (matches.size > 1) {
-            matches.asSequence()
-                .map { client.getSubject(it.id) }
-                .firstOrNull {
-                    when (this.mediaType) {
-                        MediaType.MANGA -> it.platform == "漫画"
-                        MediaType.NOVEL -> it.platform == "小说"
+        val subject = when (matches.size) {
+            0 -> null
+            1 -> matches.first().let { client.getSubject(it.id) }
+            else -> {
+                matches.asSequence()
+                    .map { client.getSubject(it.id) }
+                    .firstOrNull {
+                        when (this.mediaType) {
+                            MediaType.MANGA -> it.platform == "漫画"
+                            MediaType.NOVEL -> it.platform == "小说"
+                        }
                     }
-                }?.id
-        } else matches.firstOrNull()?.id
+            }
+        } ?: return null
 
-        return matchId?.let {
-            val series = client.getSubject(it)
-            val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
-            val bookRelations = client.getSubjectRelations(series.id)
-                .filter { book -> book.type == SubjectType.BOOK }
-                .filter { book -> book.relation == "单行本" }
+        val thumbnail = if (fetchSeriesCovers) client.getThumbnail(subject) else null
+        val bookRelations = client.getSubjectRelations(subject.id)
+            .filter { it.type == SubjectType.BOOK }
+            .filter { it.relation == "单行本" }
 
-            metadataMapper.toSeriesMetadata(
-                series,
-                bookRelations,
-                thumbnail,
-            )
-        }
+        return metadataMapper.toSeriesMetadata(
+            subject,
+            bookRelations,
+            thumbnail,
+        )
+
     }
 
     private fun subjectRank() = Comparator<SubjectSearchData> { a, b ->
