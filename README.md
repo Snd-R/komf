@@ -190,7 +190,10 @@ metadataProviders:
     mangaDex:
       priority: 90
       enabled: false
-      
+    bangumi: # Chinese metadata provider. https://bgm.tv/
+      priority: 100
+      enabled: false
+
 server:
   port: 8085 # or env:KOMF_SERVER_PORT
 
