@@ -24,6 +24,10 @@ import org.snd.metadata.model.Provider
 import org.snd.metadata.providers.anilist.AniListClient
 import org.snd.metadata.providers.anilist.AniListMetadataMapper
 import org.snd.metadata.providers.anilist.AniListMetadataProvider
+import org.snd.metadata.providers.bangumi.BangumiClient
+import org.snd.metadata.providers.bangumi.BangumiMetadataMapper
+import org.snd.metadata.providers.bangumi.BangumiMetadataProvider
+import org.snd.metadata.providers.bangumi.BangumiUserAgentInterceptor
 import org.snd.metadata.providers.bookwalker.BookWalkerClient
 import org.snd.metadata.providers.bookwalker.BookWalkerMapper
 import org.snd.metadata.providers.bookwalker.BookWalkerMetadataProvider
@@ -73,6 +77,7 @@ class MetadataModule(
     private val vizClient = createVizClient()
     private val bookWalkerClient = createBookWalkerClient()
     private val mangaDexClient = createMangaDexClient()
+    private val bangumiClient = createBangumiClient()
 
     val metadataProviders = createMetadataProviders(providersConfig)
 
@@ -104,6 +109,8 @@ class MetadataModule(
         bookwalkerPriority = config.bookWalker.priority,
         mangaDex = createMangaDexMetadataProvider(config.mangaDex, mangaDexClient),
         mangaDexPriority = config.mangaDex.priority,
+        bangumi = createBangumiMetadataProvider(config.bangumi, bangumiClient),
+        bangumiPriority = config.bangumi.priority,
     )
 
     private fun createComicInfoWriter() = ComicInfoWriter()
@@ -294,6 +301,20 @@ class MetadataModule(
         return MangaDexClient(httpClient, jsonModule.moshi)
     }
 
+    private fun createBangumiClient(): BangumiClient {
+        val httpClient = createHttpClient(
+            name = "Bangumi",
+            rateLimitConfig = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(5))
+                .limitForPeriod(5)
+                .timeoutDuration(Duration.ofSeconds(5))
+                .build(),
+            interceptors = listOf(BangumiUserAgentInterceptor())
+        )
+
+        return BangumiClient(httpClient, jsonModule.moshi)
+    }
+
     private fun createMalMetadataProvider(
         config: ProviderConfig,
         client: MalClient,
@@ -481,6 +502,29 @@ class MetadataModule(
         )
     }
 
+    private fun createBangumiMetadataProvider(
+        config: ProviderConfig,
+        client: BangumiClient,
+    ): BangumiMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val bangumiMetadataMapper = BangumiMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
+        val bangumiSimilarityMatcher: NameSimilarityMatcher =
+            config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+        return BangumiMetadataProvider(
+            client,
+            bangumiMetadataMapper,
+            bangumiSimilarityMatcher,
+            config.seriesMetadata.thumbnail,
+            config.mediaType,
+        )
+    }
+
     class MetadataProviders(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
@@ -523,7 +567,10 @@ class MetadataModule(
         private val bookwalkerPriority: Int,
 
         private val mangaDex: MangaDexMetadataProvider?,
-        private val mangaDexPriority: Int
+        private val mangaDexPriority: Int,
+
+        private val bangumi: BangumiMetadataProvider?,
+        private val bangumiPriority: Int,
     ) {
 
         val providers = listOfNotNull(
@@ -535,7 +582,8 @@ class MetadataModule(
             kodansha?.let { it to kodanshaPriority },
             viz?.let { it to vizPriority },
             bookwalker?.let { it to bookwalkerPriority },
-            mangaDex?.let { it to mangaDexPriority }
+            mangaDex?.let { it to mangaDexPriority },
+            bangumi?.let { it to bangumiPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -552,6 +600,7 @@ class MetadataModule(
                 Provider.VIZ -> viz
                 Provider.BOOK_WALKER -> bookwalker
                 Provider.MANGADEX -> mangaDex
+                Provider.BANGUMI -> bangumi
             }
         }
     }

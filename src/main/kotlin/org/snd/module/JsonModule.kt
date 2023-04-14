@@ -11,6 +11,9 @@ import org.snd.mediaserver.kavita.model.KavitaPublicationStatusAdapter
 import org.snd.mediaserver.komga.model.dto.KomgaReadingDirectionAdapter
 import org.snd.metadata.model.metadata.json.ProviderBookIdJsonAdapter
 import org.snd.metadata.model.metadata.json.ProviderSeriesIdJsonAdapter
+import org.snd.metadata.providers.bangumi.model.json.InfoboxAdapter
+import org.snd.metadata.providers.bangumi.model.json.SubjectJsonAdapter
+import org.snd.metadata.providers.bangumi.model.json.SubjectTypeAdapter
 import org.snd.metadata.providers.mal.model.json.SearchResultsJsonAdapter
 import org.snd.metadata.providers.mal.model.json.SeriesJsonAdapter
 import org.snd.metadata.providers.mangadex.model.json.MangaDexCoverArtJsonAdapter
@@ -38,5 +41,8 @@ class JsonModule {
         .add(ProviderSeriesIdJsonAdapter())
         .add(ProviderBookIdJsonAdapter())
         .add(YenPressSearchResultJsonAdapter())
+        .add(SubjectTypeAdapter())
+        .add(InfoboxAdapter())
+        .add(SubjectJsonAdapter())
         .build()
 }
