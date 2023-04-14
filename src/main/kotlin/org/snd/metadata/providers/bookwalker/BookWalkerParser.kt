@@ -56,7 +56,7 @@ class BookWalkerParser {
         var romajiTitle: String? = null
         japaneseTitles?.let { titleElement ->
             when (titleElement.children().size) {
-                1 -> japaneseTitle = replaceFullwidthChars(titleElement.text())
+                0 -> japaneseTitle = replaceFullwidthChars(titleElement.text())
                 else -> {
                     japaneseTitle = titleElement.child(0).textNodes()
                         .firstOrNull()?.text()
