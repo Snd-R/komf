@@ -40,7 +40,7 @@ class ComicVineMetadataMapper(
 
     fun toSeriesSearchResult(volume: ComicVineVolume): SeriesSearchResult {
         return SeriesSearchResult(
-            imageUrl = volume.image?.medium_url,
+            imageUrl = volume.image?.mediumUrl,
             title = seriesTitle(volume),
             provider = Provider.COMIC_VINE,
             resultId = volume.id.toString()
@@ -55,8 +55,8 @@ class ComicVineMetadataMapper(
             titles = listOf(SeriesTitle(volume.name, null, null)),
             summary = volume.description?.let { parseDescription(it) },
             publisher = volume.publisher?.name,
-            releaseDate = ReleaseDate(volume.start_year?.toIntOrNull(), null, null),
-            links = listOf(WebLink("ComicVine", volume.site_detail_url)),
+            releaseDate = ReleaseDate(volume.startYear?.toIntOrNull(), null, null),
+            links = listOf(WebLink("ComicVine", volume.siteDetailUrl)),
             thumbnail = cover
         )
         val providerMetadata = ProviderSeriesMetadata(
@@ -65,7 +65,7 @@ class ComicVineMetadataMapper(
             books = (volume.issues ?: emptyList()).map {
                 SeriesBook(
                     id = ProviderBookId(it.id.toString()),
-                    number = it.issue_number?.toDoubleOrNull()
+                    number = it.issueNumber?.toDoubleOrNull()
                         ?.let { number -> BookRange(number, number) },
                     name = it.name,
                     type = null,
@@ -83,11 +83,11 @@ class ComicVineMetadataMapper(
         val metadata = BookMetadata(
             title = issue.name,
             summary = issue.description?.let { parseDescription(it) },
-            number = issue.issue_number?.toDoubleOrNull()?.let { BookRange(it, it) },
-            numberSort = issue.issue_number?.toDoubleOrNull(),
-            releaseDate = (issue.store_date ?: issue.cover_date)?.let { LocalDate.parse(it) },
+            number = issue.issueNumber?.toDoubleOrNull()?.let { BookRange(it, it) },
+            numberSort = issue.issueNumber?.toDoubleOrNull(),
+            releaseDate = (issue.storeDate ?: issue.coverDate)?.let { LocalDate.parse(it) },
             authors = getAuthors(issue),
-            links = listOf(WebLink("ComicVine", issue.site_detail_url)),
+            links = listOf(WebLink("ComicVine", issue.siteDetailUrl)),
             thumbnail = cover
         )
 
@@ -99,7 +99,7 @@ class ComicVineMetadataMapper(
     }
 
     private fun getAuthors(issue: ComicVineIssue): List<Author> {
-        return (issue.person_credits ?: emptyList())
+        return (issue.personCredits ?: emptyList())
             .flatMap { person -> person.role.split(", ").map { person.name to it } }
             .flatMap { (name, role) ->
                 when (role) {
@@ -142,7 +142,7 @@ class ComicVineMetadataMapper(
     }
 
     private fun seriesTitle(volume: ComicVineVolume): String {
-        val startYearString = volume.start_year?.let { " ($it)" } ?: ""
+        val startYearString = volume.startYear?.let { " ($it)" } ?: ""
         return "${volume.name}$startYearString"
     }
 }

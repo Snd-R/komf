@@ -12,7 +12,7 @@ import org.snd.metadata.model.metadata.ProviderBookId
 import org.snd.metadata.model.metadata.ProviderBookMetadata
 import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.metadata.model.metadata.ProviderSeriesMetadata
-import org.snd.metadata.providers.comicvine.model.ComicVineResult
+import org.snd.metadata.providers.comicvine.model.ComicVineSearchResult
 import org.snd.metadata.providers.comicvine.model.ComicVineVolume
 import org.snd.metadata.providers.comicvine.model.toComicVineIssueId
 import org.snd.metadata.providers.comicvine.model.toComicVineVolumeId
@@ -30,13 +30,13 @@ class ComicVineMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = handleResult(client.getVolume(seriesId.toComicVineVolumeId()))
-        val cover = series.image?.medium_url?.let { client.getCover(it.toHttpUrl()) }
+        val cover = series.image?.mediumUrl?.let { client.getCover(it.toHttpUrl()) }
         return mapper.toSeriesMetadata(series, cover)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val issue = handleResult(client.getIssue(bookId.toComicVineIssueId()))
-        val cover = issue.image?.medium_url?.let { client.getCover(it.toHttpUrl()) }
+        val cover = issue.image?.mediumUrl?.let { client.getCover(it.toHttpUrl()) }
         return mapper.toBookMetadata(issue, cover)
     }
 
@@ -75,13 +75,13 @@ class ComicVineMetadataProvider(
         val nameMatch = nameMatcher.matches(seriesName, result.name)
 
         if (!nameMatch) return false
-        if (startYear == null || result.start_year == null) return true
-        return startYear == result.start_year.toIntOrNull()
+        if (startYear == null || result.startYear == null) return true
+        return startYear == result.startYear.toIntOrNull()
     }
 
-    private inline fun <reified T : Any> handleResult(result: ComicVineResult<T>): T {
+    private inline fun <reified T : Any> handleResult(result: ComicVineSearchResult<T>): T {
         if (result.error != "OK")
-            throw ValidationException("Comic Vine returned error response. status code ${result.status_code}")
+            throw ValidationException("Comic Vine returned error response. status code ${result.statusCode}")
         return result.results
     }
 }

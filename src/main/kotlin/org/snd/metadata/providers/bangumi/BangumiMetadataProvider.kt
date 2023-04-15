@@ -2,6 +2,7 @@ package org.snd.metadata.providers.bangumi
 
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.SeriesSearchResult
@@ -56,12 +57,12 @@ class BangumiMetadataProvider(
             }.toList()
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
-        val searchResults = client.searchSeries(seriesName)
+    override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
+        val searchResults = client.searchSeries(matchQuery.seriesName)
         val matches = searchResults.data.asSequence()
             .sortedWith(subjectRank())
             .filter { it.tags.none { tag -> tag.name == "漫画单行本" } }
-            .filter { nameMatcher.matches(seriesName, listOfNotNull(it.nameCn, it.name)) }
+            .filter { nameMatcher.matches(matchQuery.seriesName, listOfNotNull(it.nameCn, it.name)) }
             .toList()
 
         val subject = when (matches.size) {

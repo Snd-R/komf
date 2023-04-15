@@ -11,7 +11,7 @@ import org.snd.metadata.providers.comicvine.ComicVineClient.ComicVineTypeId.ISSU
 import org.snd.metadata.providers.comicvine.ComicVineClient.ComicVineTypeId.VOLUME
 import org.snd.metadata.providers.comicvine.model.ComicVineIssue
 import org.snd.metadata.providers.comicvine.model.ComicVineIssueId
-import org.snd.metadata.providers.comicvine.model.ComicVineResult
+import org.snd.metadata.providers.comicvine.model.ComicVineSearchResult
 import org.snd.metadata.providers.comicvine.model.ComicVineVolume
 import org.snd.metadata.providers.comicvine.model.ComicVineVolumeId
 
@@ -22,7 +22,7 @@ class ComicVineClient(
     private val moshi: Moshi,
 ) {
 
-    fun searchVolume(name: String): ComicVineResult<List<ComicVineVolume>> {
+    fun searchVolume(name: String): ComicVineSearchResult<List<ComicVineVolume>> {
         val request = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments("search")
                 .addQueryParameter("query", name)
@@ -34,7 +34,7 @@ class ComicVineClient(
         return parseJson(client.execute(request))
     }
 
-    fun getVolume(id: ComicVineVolumeId): ComicVineResult<ComicVineVolume> {
+    fun getVolume(id: ComicVineVolumeId): ComicVineSearchResult<ComicVineVolume> {
         val request = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments("volume/${VOLUME.id}-${id.id}")
                 .addQueryParameter("format", "json")
@@ -44,7 +44,7 @@ class ComicVineClient(
         return parseJson(client.execute(request))
     }
 
-    fun getIssue(id: ComicVineIssueId): ComicVineResult<ComicVineIssue> {
+    fun getIssue(id: ComicVineIssueId): ComicVineSearchResult<ComicVineIssue> {
         val request = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments("issue/${ISSUE.id}-${id.id}")
                 .addQueryParameter("format", "json")
