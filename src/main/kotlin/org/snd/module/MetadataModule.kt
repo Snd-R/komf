@@ -629,7 +629,7 @@ class MetadataModule(
             viz?.let { it to vizPriority },
             bookwalker?.let { it to bookwalkerPriority },
             mangaDex?.let { it to mangaDexPriority },
-            bangumi?.let { it to bangumiPriority }
+            bangumi?.let { it to bangumiPriority },
             comicVine?.let { it to comicVinePriority }
         )
             .sortedBy { (_, priority) -> priority }

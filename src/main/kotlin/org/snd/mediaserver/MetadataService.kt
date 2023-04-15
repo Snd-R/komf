@@ -219,7 +219,7 @@ class MetadataService(
             } else emptyMap()
         } else {
             books.associateWith { book ->
-                val volumes = BookNameParser.getVolumes(book.name)
+                val volumes = BookNameParser.getVolumes(book.name) ?: BookRange(book.number)
                 noEditionBooks.firstOrNull { it.number != null && it.number == volumes }
             }
         }
@@ -233,7 +233,7 @@ class MetadataService(
         val editions = providerBooks.groupBy { it.edition }
         val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
         return books.associateWith { book ->
-            val volume = BookNameParser.getVolumes(book.name) ?: book.number..book.number
+            val volume = BookNameParser.getVolumes(book.name) ?: BookRange(book.number)
             editions[editionName]?.firstOrNull { it.number != null && volume == it.number }
         }
     }
