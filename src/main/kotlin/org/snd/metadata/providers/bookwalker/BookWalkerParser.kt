@@ -50,14 +50,25 @@ class BookWalkerParser {
         val seriesTitle = seriesTitleElement?.text()?.let { parseSeriesName(it) }
         val seriesId = seriesTitleElement?.getElementsByTag("a")?.first()?.attr("href")?.let { parseSeriesId(it) }
         val japaneseTitles = productDetail.children().firstOrNull { it.child(0).text() == "Japanese Title" }
-            ?.child(1)?.child(0)?.child(0)
-        val japaneseTitle = japaneseTitles?.textNodes()?.firstOrNull()?.text()
-            ?.removeSuffix(" (")?.trim()
-            ?.let { replaceFullwidthChars(it) }
-        val romajiTitle = japaneseTitles?.getElementsByClass("product-detail-romaji")?.first()?.text()
-            ?.removeSuffix(")")?.trim()
-            ?.let { replaceFullwidthChars(it) }
+            ?.child(1)?.child(0)
 
+        var japaneseTitle: String? = null
+        var romajiTitle: String? = null
+        japaneseTitles?.let { titleElement ->
+            when (titleElement.children().size) {
+                0 -> japaneseTitle = replaceFullwidthChars(titleElement.text())
+                else -> {
+                    japaneseTitle = titleElement.child(0).textNodes()
+                        .firstOrNull()?.text()
+                        ?.removeSuffix(" (")?.trim()
+                        ?.let { replaceFullwidthChars(it) }
+                    romajiTitle = titleElement.child(0).getElementsByClass("product-detail-romaji")
+                        .first()?.text()
+                        ?.removeSuffix(")")?.trim()
+                        ?.let { replaceFullwidthChars(it) }
+                }
+            }
+        }
         val authors = productDetail.children().firstOrNull { it.child(0).text() == "Author" || it.child(0).text() == "By (author)" }
             ?.child(1)?.children()
             ?.map { it.text() }

@@ -204,31 +204,38 @@ class MetadataService(
         providerBooks: Collection<SeriesBook>,
         edition: String? = null
     ): Map<MediaServerBook, SeriesBook?> {
-        val editions = providerBooks.groupBy { it.edition }
         val noEditionBooks = providerBooks.filter { it.edition == null }
 
         if (edition != null) {
-            val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
-            return books.associateWith { book ->
-                val volume = BookNameParser.getVolumes(book.name) ?: BookRange(book.number.toDouble(), book.number.toDouble())
-                editions[editionName]?.firstOrNull { it.number != null && volume == it.number }
-            }
+            return associateByEdition(books, providerBooks, edition)
         }
 
-        val byEdition: Map<MediaServerBook, String?> = books.associateWith { book ->
-            val bookExtraData = BookNameParser.getExtraData(book.name).map { it.lowercase() }
-            editions.keys.firstOrNull { bookExtraData.contains(it) }
-        }
+        return if (books.size == 1 && providerBooks.size == 1) {
+            val mediaServerBook = books.first()
+            val mediaServerVolumeNumber = BookNameParser.getVolumes(mediaServerBook.name)
 
-        return byEdition.map { (book, edition) ->
-            val volumes = BookNameParser.getVolumes(book.name) ?: BookRange(book.number.toDouble(), book.number.toDouble())
-            val matched = if (edition == null) {
+            if (mediaServerVolumeNumber == providerBooks.first().number) {
+                mapOf(books.first() to providerBooks.first())
+            } else emptyMap()
+        } else {
+            books.associateWith { book ->
+                val volumes = BookNameParser.getVolumes(book.name)
                 noEditionBooks.firstOrNull { it.number != null && it.number == volumes }
-            } else {
-                editions[edition]?.firstOrNull { it.number != null && it.number == volumes }
             }
-            book to matched
-        }.toMap()
+        }
+    }
+
+    private fun associateByEdition(
+        books: Collection<MediaServerBook>,
+        providerBooks: Collection<SeriesBook>,
+        edition: String
+    ): Map<MediaServerBook, SeriesBook?> {
+        val editions = providerBooks.groupBy { it.edition }
+        val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
+        return books.associateWith { book ->
+            val volume = BookNameParser.getVolumes(book.name) ?: book.number..book.number
+            editions[editionName]?.firstOrNull { it.number != null && volume == it.number }
+        }
     }
 
     private fun aggregateMetadataFromProviders(

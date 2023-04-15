@@ -48,6 +48,7 @@ class Metadata : CliktCommand() {
                 viz = ProviderConfig(enabled = true, mediaType = mediaType),
                 bookWalker = ProviderConfig(enabled = true, mediaType = mediaType),
                 mangaDex = ProviderConfig(enabled = true, mediaType = mediaType),
+                bangumi = ProviderConfig(enabled = true, mediaType = mediaType),
             )
         )
     }

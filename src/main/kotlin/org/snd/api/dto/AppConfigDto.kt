@@ -100,6 +100,7 @@ data class ProvidersConfigDto(
     val viz: ProviderConfigDto,
     val bookWalker: ProviderConfigDto,
     val mangaDex: ProviderConfigDto,
+    val bangumi: ProviderConfigDto,
 )
 
 @JsonClass(generateAdapter = true)

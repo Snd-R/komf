@@ -51,6 +51,31 @@ services:
       - /path/to/config:/config #path to directory with application.yml and database file
     restart: unless-stopped
 ```
+
+### Running with Docker Create
+
+```
+docker create \
+  --name komf \
+  -p 8085:8085 \
+  -u 1000:1000 \
+  -e KOMF_KOMGA_BASE_URI=http://komga:8080 \
+  -e KOMF_KOMGA_USER=admin@example.org \
+  -e KOMF_KOMGA_PASSWORD=admin \
+  -e KOMF_KAVITA_BASE_URI=http://kavita:5000 \
+  -e KOMF_KAVITA_API_KEY=16707507-d05d-4696-b126-c3976ae14ffb \
+  -e KOMF_LOG_LEVEL=INFO \
+  -v /path/to/config:/config \
+  --restart unless-stopped \
+  sndxr/komf:latest
+```
+- if you don't already have a komga or kavita network you'll need to network create a new one
+  - `docker network create my_network`
+- attach komf and media server to new network:
+  - `docker network connect my_network komga_or_kavita`
+  - `docker network connect my_network komf`
+- start the container `docker start komf`
+
 ## Example `application.yml` Config
 
 ### Important
@@ -117,7 +142,8 @@ kavita:
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 
 discord:
-  webhooks: ['insert webhooks links seperated by (,)'] # list of discord webhook urls. Will call these webhooks after series or books were added
+  # List of discord webhook urls. Will call these webhooks after series or books were added. 
+  webhooks: # config example: webhooks: ["https://discord.com/api/webhooks/9..."] 
   descriptionTemplate: "discordWebhook.vm" # description template filename
   seriesCover: false # include series cover in message. Requires imgurClientId
   templatesDirectory: "./" # path to a directory with templates
@@ -164,7 +190,10 @@ metadataProviders:
     mangaDex:
       priority: 90
       enabled: false
-      
+    bangumi: # Chinese metadata provider. https://bgm.tv/
+      priority: 100
+      enabled: false
+
 server:
   port: 8085 # or env:KOMF_SERVER_PORT
 

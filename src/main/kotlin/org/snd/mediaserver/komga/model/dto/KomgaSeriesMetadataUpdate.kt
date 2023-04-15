@@ -73,7 +73,7 @@ fun MediaServerSeriesMetadataUpdate.metadataUpdateRequest() = KomgaSeriesMetadat
             TitleType.ROMAJI -> KomgaAlternativeTitle(type.label, name)
             TitleType.NATIVE -> KomgaAlternativeTitle(type.label, name)
             TitleType.LOCALIZED -> KomgaAlternativeTitle((language ?: type.label), name)
-            null -> null
+            null -> language?.let { KomgaAlternativeTitle(it, name) }
         }
     }?.distinctBy { it.title },
     summary = summary,

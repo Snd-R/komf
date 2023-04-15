@@ -5,7 +5,7 @@ import org.snd.metadata.model.metadata.BookRange
 object BookNameParser {
     private val volumeRegexes = listOf(
         "(?i),?\\s\\(?volume\\s(?<volumeStart>[0-9]+)(,?\\s?[0-9]+,)+(?<volumeEnd>\\s?[0-9]+)\\)?".toRegex(),
-        "(?i),?\\s\\(?([vtT]|vols\\.\\s|vol\\.\\s|volume\\s)(?<startVolume>[0-9]+([.x#][0-9]+)?)(?<endVolume>-[0-9]+([.x#][0-9]+)?)?\\)?".toRegex(),
+        "(?i),?\\s\\(?([vtT]|vols\\.\\s|vol\\.\\s|volume\\s)(?<volumeStart>[0-9]+([.x#][0-9]+)?)(?<volumeEnd>-[0-9]+([.x#][0-9]+)?)?\\)?".toRegex(),
     )
 
     private val chapterRegex = "\\sc?(?<startChapter>[0-9]+([.x#][0-9]+)?)(?<endChapter>-[0-9]+([.x#][0-9]+)?)?".toRegex()
@@ -13,10 +13,10 @@ object BookNameParser {
 
     fun getVolumes(name: String): BookRange? {
         val matchedGroups = volumeRegexes.firstNotNullOfOrNull { it.find(name)?.groups }
-        val startVolume = matchedGroups?.get("startVolume")?.value
+        val startVolume = matchedGroups?.get("volumeStart")?.value
             ?.replace("[x#]".toRegex(), ".")
             ?.toDoubleOrNull()
-        val endVolume = matchedGroups?.get("endVolume")?.value
+        val endVolume = matchedGroups?.get("volumeEnd")?.value
             ?.replace("-", "")
             ?.replace("[x#]".toRegex(), ".")
             ?.toDoubleOrNull()

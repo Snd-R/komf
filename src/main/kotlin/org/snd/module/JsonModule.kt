@@ -11,12 +11,16 @@ import org.snd.mediaserver.kavita.model.KavitaPublicationStatusAdapter
 import org.snd.mediaserver.komga.model.dto.KomgaReadingDirectionAdapter
 import org.snd.metadata.model.metadata.json.ProviderBookIdJsonAdapter
 import org.snd.metadata.model.metadata.json.ProviderSeriesIdJsonAdapter
+import org.snd.metadata.providers.bangumi.model.json.InfoboxAdapter
+import org.snd.metadata.providers.bangumi.model.json.SubjectJsonAdapter
+import org.snd.metadata.providers.bangumi.model.json.SubjectTypeAdapter
 import org.snd.metadata.providers.mal.model.json.SearchResultsJsonAdapter
 import org.snd.metadata.providers.mal.model.json.SeriesJsonAdapter
 import org.snd.metadata.providers.mangadex.model.json.MangaDexCoverArtJsonAdapter
 import org.snd.metadata.providers.mangadex.model.json.MangaDexMangaJsonAdapter
 import org.snd.metadata.providers.mangaupdates.model.json.MangaUpdatesSearchResultsJsonAdapter
 import org.snd.metadata.providers.mangaupdates.model.json.MangaUpdatesSeriesJsonAdapter
+import org.snd.metadata.providers.yenpress.model.YenPressSearchResultJsonAdapter
 
 class JsonModule {
     val moshi: Moshi = Moshi.Builder()
@@ -36,5 +40,9 @@ class JsonModule {
         .add(MangaDexCoverArtJsonAdapter())
         .add(ProviderSeriesIdJsonAdapter())
         .add(ProviderBookIdJsonAdapter())
+        .add(YenPressSearchResultJsonAdapter())
+        .add(SubjectTypeAdapter())
+        .add(InfoboxAdapter())
+        .add(SubjectJsonAdapter())
         .build()
 }

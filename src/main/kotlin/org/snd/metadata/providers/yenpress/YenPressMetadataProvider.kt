@@ -14,6 +14,7 @@ import org.snd.metadata.model.metadata.ProviderBookMetadata
 import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.providers.yenpress.model.YenPressBookId
+import org.snd.metadata.providers.yenpress.model.YenPressSeriesId
 import org.snd.metadata.providers.yenpress.model.toSeriesSearchResult
 
 class YenPressMetadataProvider(
@@ -30,10 +31,15 @@ class YenPressMetadataProvider(
     }
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val series = client.getBook(YenPressBookId(seriesId.id))
-        val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(series) else null
+        val allBooks = client.getBookList(YenPressSeriesId(seriesId.id))
+        val firstBook = allBooks.firstOrNull { it.number != null }
+            ?: (if (allBooks.size == 1) allBooks.first() else null)
+            ?: throw IllegalStateException("Can't find first book")
 
-        return metadataMapper.toSeriesMetadata(series, thumbnail)
+        val seriesBook = client.getBook(firstBook.id)
+        val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(seriesBook) else null
+
+        return metadataMapper.toSeriesMetadata(seriesBook, allBooks, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
@@ -53,6 +59,7 @@ class YenPressMetadataProvider(
         val searchResults = client.searchSeries(seriesName.take(400))
 
         return searchResults
+            .filter { !it.title.contains("(audio)") }
             .filter {
                 when (mediaType) {
                     MANGA -> !it.title.contains("(light novel)")
@@ -60,10 +67,16 @@ class YenPressMetadataProvider(
                 }
             }
             .firstOrNull { nameMatcher.matches(seriesName, bookTitle(it.title)) }
-            ?.let {
-                val book = client.getBook(it.id)
-                val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(book) else null
-                metadataMapper.toSeriesMetadata(book, thumbnail)
-            }
+            ?.let { getSeriesMetadata(it.id) }
+    }
+
+    private fun getSeriesMetadata(seriesId: YenPressSeriesId): ProviderSeriesMetadata? {
+        val books = client.getBookList(seriesId)
+        val firstBook = books.find { book -> book.number?.start != null }
+            ?: (if (books.size == 1) books.first() else null)
+
+        val seriesBook = firstBook?.let { client.getBook(it.id) } ?: return null
+        val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(seriesBook) else null
+        return metadataMapper.toSeriesMetadata(seriesBook, books, thumbnail)
     }
 }

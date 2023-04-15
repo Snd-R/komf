@@ -65,6 +65,7 @@ open class HttpClient(
     private fun throwException(response: Response) {
         when (response.code) {
             404 -> throw HttpException.NotFound(response)
+            401 -> throw HttpException.Unauthorized(response)
             else -> throw HttpException(response)
         }
     }

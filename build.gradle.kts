@@ -50,11 +50,11 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.apache.commons:commons-compress:1.21")
     implementation("org.apache.commons:commons-text:1.10.0")
+    implementation("commons-validator:commons-validator:1.7")
     implementation("org.apache.velocity:velocity-engine-core:2.3")
     implementation("org.jsoup:jsoup:1.15.4")
     implementation("com.microsoft.signalr:signalr:6.0.10")
     implementation("org.bitbucket.b_c:jose4j:0.9.3")
-
 }
 
 tasks.withType<KotlinCompile>().configureEach {
@@ -151,4 +151,33 @@ apollo {
 tasks.wrapper {
     gradleVersion = "8.0.2"
     distributionType = Wrapper.DistributionType.ALL
+}
+
+tasks.register("depsize") {
+    description = "Prints dependencies for \"runtime\" configuration"
+    doLast {
+        listConfigurationDependencies(configurations["runtimeClasspath"])
+    }
+}
+
+fun listConfigurationDependencies(configuration: Configuration) {
+    val formatStr = "%,10.2f"
+
+    val size = configuration.sumOf { it.length() / (1024.0 * 1024.0) }
+
+    val out = StringBuffer()
+    out.append("\nConfiguration name: \"${configuration.name}\"\n")
+    if (size > 0) {
+        out.append("Total dependencies size:".padEnd(65))
+        out.append("${String.format(formatStr, size)} Mb\n\n")
+
+        configuration.sortedBy { -it.length() }
+            .forEach {
+                out.append(it.name.padEnd(65))
+                out.append("${String.format(formatStr, (it.length() / 1024.0))} kb\n")
+            }
+    } else {
+        out.append("No dependencies found")
+    }
+    println(out)
 }
