@@ -55,6 +55,7 @@ class MetadataPostProcessor(
     }
 
     private fun seriesTitle(titles: Collection<SeriesTitle>): SeriesTitle? {
-        return titles.find { it.language == config.seriesTitleLanguage }
+        return if (config.seriesTitleLanguage == null) titles.firstOrNull()
+        else titles.find { it.language == config.seriesTitleLanguage }
     }
 }
