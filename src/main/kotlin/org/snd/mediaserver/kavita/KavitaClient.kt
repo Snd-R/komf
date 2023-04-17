@@ -181,7 +181,7 @@ class KavitaClient(
             .url(
                 baseUrl.newBuilder()
                     .addPathSegments("api/image/chapter-cover")
-                    .addQueryParameter("seriesId", chapterId.id.toString())
+                    .addQueryParameter("chapterId", chapterId.id.toString())
                     .build()
             )
             .build()

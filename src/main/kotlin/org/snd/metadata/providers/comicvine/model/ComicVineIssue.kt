@@ -56,7 +56,7 @@ data class ComicVineIssueSlim(
     @Json(name = "api_detail_url")
     val apiDetailUrl: String,
     @Json(name = "site_detail_url")
-    val siteDetailUrl: String,
+    val siteDetailUrl: String?,
 
     @Json(name = "issue_number")
     val issueNumber: String?,

@@ -30,6 +30,31 @@ data class ComicVineVolume(
 )
 
 @JsonClass(generateAdapter = true)
+data class ComicVineVolumeSearch(
+    val id: Int,
+    val name: String,
+    @Json(name = "api_detail_url")
+    val apiDetailUrl: String,
+    @Json(name = "site_detail_url")
+    val siteDetailUrl: String,
+
+    val aliases: String?,
+    @Json(name = "count_of_issues")
+    val countOfIssues: Int?,
+    val description: String?,
+    @Json(name = "first_issue")
+    val firstIssue: ComicVineIssueSlim?,
+    @Json(name = "last_issue")
+    val lastIssue: ComicVineIssueSlim?,
+    val image: ComicVineImage?,
+    val publisher: ComicVinePublisher?,
+    @Json(name = "start_year")
+    val startYear: String?,
+    @Json(name = "resource_type")
+    val resourceType: String?,
+)
+
+@JsonClass(generateAdapter = true)
 data class ComicVineConcept(
     val id: Int,
     val name: String,

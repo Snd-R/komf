@@ -9,6 +9,7 @@ data class MatchQuery(
 )
 
 data class BookQualifier(
+    val name: String,
     val number: BookRange,
     val cover: Image?
 )

@@ -14,6 +14,7 @@ import org.snd.metadata.providers.comicvine.model.ComicVineIssueId
 import org.snd.metadata.providers.comicvine.model.ComicVineSearchResult
 import org.snd.metadata.providers.comicvine.model.ComicVineVolume
 import org.snd.metadata.providers.comicvine.model.ComicVineVolumeId
+import org.snd.metadata.providers.comicvine.model.ComicVineVolumeSearch
 
 private val baseUrl: HttpUrl = "https://comicvine.gamespot.com/api/".toHttpUrl()
 
@@ -22,7 +23,7 @@ class ComicVineClient(
     private val moshi: Moshi,
 ) {
 
-    fun searchVolume(name: String): ComicVineSearchResult<List<ComicVineVolume>> {
+    fun searchVolume(name: String): ComicVineSearchResult<List<ComicVineVolumeSearch>> {
         val request = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments("search")
                 .addQueryParameter("query", name)

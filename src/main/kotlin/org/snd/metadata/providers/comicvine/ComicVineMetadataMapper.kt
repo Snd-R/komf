@@ -31,6 +31,7 @@ import org.snd.metadata.model.metadata.SeriesTitle
 import org.snd.metadata.model.metadata.WebLink
 import org.snd.metadata.providers.comicvine.model.ComicVineIssue
 import org.snd.metadata.providers.comicvine.model.ComicVineVolume
+import org.snd.metadata.providers.comicvine.model.ComicVineVolumeSearch
 import java.time.LocalDate
 
 class ComicVineMetadataMapper(
@@ -38,7 +39,7 @@ class ComicVineMetadataMapper(
     private val bookMetadataConfig: BookMetadataConfig,
 ) {
 
-    fun toSeriesSearchResult(volume: ComicVineVolume): SeriesSearchResult {
+    fun toSeriesSearchResult(volume: ComicVineVolumeSearch): SeriesSearchResult {
         return SeriesSearchResult(
             imageUrl = volume.image?.mediumUrl,
             title = seriesTitle(volume),
@@ -141,7 +142,7 @@ class ComicVineMetadataMapper(
         return "$prependText${element.childNodes().joinToString("") { parseDescription(it) }}"
     }
 
-    private fun seriesTitle(volume: ComicVineVolume): String {
+    private fun seriesTitle(volume: ComicVineVolumeSearch): String {
         val startYearString = volume.startYear?.let { " ($it)" } ?: ""
         return "${volume.name}$startYearString"
     }
