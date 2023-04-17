@@ -116,7 +116,8 @@ class MediaServerModule(
             name = "Kavita"
         ),
         moshi = jsonModule.moshi,
-        baseUrl = kavitaConfig.baseUri.toHttpUrl()
+        baseUrl = kavitaConfig.baseUri.toHttpUrl(),
+        apiKey = kavitaConfig.apiKey
     )
 
     val komgaMediaServerClient = KomgaMediaServerClientAdapter(komgaClient)

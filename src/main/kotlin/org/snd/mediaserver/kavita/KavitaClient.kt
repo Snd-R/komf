@@ -31,6 +31,7 @@ class KavitaClient(
     private val client: HttpClient,
     private val moshi: Moshi,
     private val baseUrl: HttpUrl,
+    private val apiKey: String,
 ) {
     fun getSeries(seriesId: KavitaSeriesId): KavitaSeries {
         val request = Request.Builder()
@@ -67,6 +68,7 @@ class KavitaClient(
                 baseUrl.newBuilder()
                     .addPathSegments("api/image/series-cover")
                     .addQueryParameter("seriesId", seriesId.id.toString())
+                    .addQueryParameter("apiKey", apiKey)
                     .build()
             )
             .build()
@@ -182,6 +184,7 @@ class KavitaClient(
                 baseUrl.newBuilder()
                     .addPathSegments("api/image/chapter-cover")
                     .addQueryParameter("chapterId", chapterId.id.toString())
+                    .addQueryParameter("apiKey", apiKey)
                     .build()
             )
             .build()
