@@ -105,7 +105,7 @@ komga:
       seriesCovers: false # update series thumbnails
       postProcessing:
         seriesTitle: false # update series title
-        seriesTitleLanguage: "en" # series title update language
+        seriesTitleLanguage: "en" # series title update language. If empty chose first matching title
         alternativeSeriesTitles: false # use other title types as alternative title option
         alternativeSeriesTitleLanguages: # alternative title languages
           - "en"
@@ -134,7 +134,7 @@ kavita:
       seriesCovers: false #update series thumbnails
       postProcessing:
         seriesTitle: false #update series title
-        seriesTitleLanguage: "en" # series title update language
+        seriesTitleLanguage: "en" # series title update language. If empty chose first matching title
         alternativeSeriesTitles: false # use other title types as alternative title option
         alternativeSeriesTitleLanguages: # alternative title language. Only first language is used. Use single value for consistency
           - "ja-ro"
@@ -153,6 +153,7 @@ database:
 
 metadataProviders:
   malClientId: "" # required for mal provider. See https://myanimelist.net/forum/?topicid=1973077
+  comicVineApiKey: # required for comicVine provider https://comicvine.gamespot.com/api/
   defaultProviders:
     mangaUpdates:
       priority: 10
@@ -192,6 +193,9 @@ metadataProviders:
       enabled: false
     bangumi: # Chinese metadata provider. https://bgm.tv/
       priority: 100
+      enabled: false
+    comicVine: # https://comicvine.gamespot.com/ requires API key. Experimental provider, can mismatch issue numbers
+      priority: 110
       enabled: false
 
 server:
