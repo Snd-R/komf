@@ -22,6 +22,7 @@ interface MediaServerClient {
     fun getBook(bookId: MediaServerBookId): MediaServerBook
     fun getBooks(seriesId: MediaServerSeriesId): Collection<MediaServerBook>
     fun getBookThumbnails(bookId: MediaServerBookId): Collection<MediaServerBookThumbnail>
+    fun getBookThumbnail(bookId: MediaServerBookId): Image?
     fun getLibrary(libraryId: MediaServerLibraryId): MediaServerLibrary
     fun searchSeries(name: String): Collection<MediaServerSeriesSearch>
 

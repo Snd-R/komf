@@ -13,6 +13,7 @@ import org.snd.config.MetadataProvidersConfig
 import org.snd.config.ProviderConfig
 import org.snd.config.ProvidersConfig
 import org.snd.metadata.MetadataProvider
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.MediaType.MANGA
 import org.snd.metadata.model.NameMatchingMode
@@ -109,7 +110,7 @@ class Metadata : CliktCommand() {
             val provider = provider(provider)
 
             try {
-                val matchResult = provider.matchSeriesMetadata(title)
+                val matchResult = provider.matchSeriesMetadata(MatchQuery(title, null, null))
                 if (matchResult == null) {
                     echoError("No Match")
                     exitProcess(1)

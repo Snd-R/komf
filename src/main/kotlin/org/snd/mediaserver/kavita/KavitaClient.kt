@@ -31,6 +31,7 @@ class KavitaClient(
     private val client: HttpClient,
     private val moshi: Moshi,
     private val baseUrl: HttpUrl,
+    private val apiKey: String,
 ) {
     fun getSeries(seriesId: KavitaSeriesId): KavitaSeries {
         val request = Request.Builder()
@@ -67,6 +68,7 @@ class KavitaClient(
                 baseUrl.newBuilder()
                     .addPathSegments("api/image/series-cover")
                     .addQueryParameter("seriesId", seriesId.id.toString())
+                    .addQueryParameter("apiKey", apiKey)
                     .build()
             )
             .build()
@@ -174,6 +176,21 @@ class KavitaClient(
             ).build()
         return parseJson(client.execute(request))
 
+    }
+
+    fun getChapterCover(chapterId: KavitaChapterId): Image {
+        val request = Request.Builder()
+            .url(
+                baseUrl.newBuilder()
+                    .addPathSegments("api/image/chapter-cover")
+                    .addQueryParameter("chapterId", chapterId.id.toString())
+                    .addQueryParameter("apiKey", apiKey)
+                    .build()
+            )
+            .build()
+
+        val response = client.executeWithResponse(request)
+        return Image(response.body ?: throw IllegalStateException(), response.headers["Content-Type"])
     }
 
     fun uploadSeriesCover(seriesId: KavitaSeriesId, cover: Image) {

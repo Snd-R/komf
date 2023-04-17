@@ -11,4 +11,5 @@ enum class Provider {
     BOOK_WALKER,
     MANGADEX,
     BANGUMI,
+    COMIC_VINE
 }

@@ -82,6 +82,10 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
         return emptyList()
     }
 
+    override fun getBookThumbnail(bookId: MediaServerBookId): Image? {
+        return runCatching { kavitaClient.getChapterCover(bookId.kavitaChapterId()) }.getOrNull()
+    }
+
     override fun getLibrary(libraryId: MediaServerLibraryId): MediaServerLibrary {
         return kavitaClient.getLibraries().first { it.libraryId() == libraryId.kavitaLibraryId() }
             .mediaServerLibrary()
@@ -92,7 +96,7 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
     }
 
     override fun updateSeriesMetadata(seriesId: MediaServerSeriesId, metadata: MediaServerSeriesMetadataUpdate) {
-        val localizedName = metadata.alternativeTitles?.find { it.type != null }
+        val localizedName = metadata.alternativeTitles?.find { it.language != null }
         if (metadata.title != null || localizedName != null) {
             val series = kavitaClient.getSeries(seriesId.kavitaSeriesId())
             kavitaClient.updateSeries(series.kavitaTitleUpdate(metadata.title?.name, metadata.titleSort?.name, localizedName?.name))

@@ -4,6 +4,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Image
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.BOOK_WALKER
@@ -54,7 +55,8 @@ class BookWalkerMetadataProvider(
         }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
+        val seriesName = matchQuery.seriesName
         val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(100)), category)
 
         return searchResults

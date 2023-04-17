@@ -3,6 +3,7 @@ package org.snd.metadata.providers.anilist
 import kotlinx.coroutines.runBlocking
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.Provider.ANILIST
 import org.snd.metadata.model.SeriesSearchResult
@@ -45,7 +46,8 @@ class AniListMetadataProvider(
         return searchResults.map { metadataMapper.toSearchResult(it.aniListManga) }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
+        val seriesName = matchQuery.seriesName
         val searchResults = client.search(seriesName.take(400), seriesFormats)
 
         val match = searchResults.firstOrNull {

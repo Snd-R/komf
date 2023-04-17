@@ -204,6 +204,16 @@ class KomgaClient(
         return parseJson(client.execute(request))
     }
 
+    fun getBookThumbnail(bookId: KomgaBookId): Image {
+        val request = Request.Builder()
+            .url(baseUrl.newBuilder().addPathSegments("api/v1/books/${bookId.id}/thumbnail").build())
+            .build()
+
+        val response = client.executeWithResponse(request)
+        val responseBody = response.body ?: throw IllegalStateException("Response cannot be empty")
+        return Image(responseBody, response.headers["Content-Type"])
+    }
+
     fun uploadBookThumbnail(bookId: KomgaBookId, thumbnail: Image, selected: Boolean = false): KomgaBookThumbnail {
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart("file", "thumbnail", thumbnail.image.toRequestBody())

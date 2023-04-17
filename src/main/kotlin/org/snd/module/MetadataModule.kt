@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.commons.lang3.SystemUtils
 import org.snd.common.exceptions.HttpException
+import org.snd.common.exceptions.ValidationException
 import org.snd.common.http.HttpClient
 import org.snd.config.AniListConfig
 import org.snd.config.CalibreConfig
@@ -31,6 +32,10 @@ import org.snd.metadata.providers.bangumi.BangumiUserAgentInterceptor
 import org.snd.metadata.providers.bookwalker.BookWalkerClient
 import org.snd.metadata.providers.bookwalker.BookWalkerMapper
 import org.snd.metadata.providers.bookwalker.BookWalkerMetadataProvider
+import org.snd.metadata.providers.comicvine.ComicVineApiKeyInterceptor
+import org.snd.metadata.providers.comicvine.ComicVineClient
+import org.snd.metadata.providers.comicvine.ComicVineMetadataMapper
+import org.snd.metadata.providers.comicvine.ComicVineMetadataProvider
 import org.snd.metadata.providers.kodansha.KodanshaClient
 import org.snd.metadata.providers.kodansha.KodanshaMetadataMapper
 import org.snd.metadata.providers.kodansha.KodanshaMetadataProvider
@@ -78,6 +83,7 @@ class MetadataModule(
     private val bookWalkerClient = createBookWalkerClient()
     private val mangaDexClient = createMangaDexClient()
     private val bangumiClient = createBangumiClient()
+    private val comicVineClient = providersConfig.comicVineApiKey?.let { createComicVineClient(it) }
 
     val metadataProviders = createMetadataProviders(providersConfig)
 
@@ -111,6 +117,8 @@ class MetadataModule(
         mangaDexPriority = config.mangaDex.priority,
         bangumi = createBangumiMetadataProvider(config.bangumi, bangumiClient),
         bangumiPriority = config.bangumi.priority,
+        comicVine = createComicVineMetadataProvider(config.comicVine, comicVineClient),
+        comicVinePriority = config.comicVine.priority
     )
 
     private fun createComicInfoWriter() = ComicInfoWriter()
@@ -313,6 +321,20 @@ class MetadataModule(
         )
 
         return BangumiClient(httpClient, jsonModule.moshi)
+    }
+
+    private fun createComicVineClient(apiKey: String): ComicVineClient {
+        val httpClient = createHttpClient(
+            name = "ComicVine",
+            interceptors = listOf(ComicVineApiKeyInterceptor(apiKey)),
+            rateLimitConfig = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(5))
+                .limitForPeriod(5)
+                .timeoutDuration(Duration.ofSeconds(5))
+                .build()
+        )
+
+        return ComicVineClient(httpClient, jsonModule.moshi)
     }
 
     private fun createMalMetadataProvider(
@@ -525,6 +547,27 @@ class MetadataModule(
         )
     }
 
+    private fun createComicVineMetadataProvider(
+        config: ProviderConfig,
+        client: ComicVineClient?,
+    ): ComicVineMetadataProvider? {
+        if (config.enabled.not()) return null
+        if (client == null) throw ValidationException("Api key is not configured for ComicVine provider")
+
+        val metadataMapper = ComicVineMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+        )
+        val similarityMatcher: NameSimilarityMatcher =
+            config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
+
+        return ComicVineMetadataProvider(
+            client,
+            metadataMapper,
+            similarityMatcher,
+        )
+    }
+
     class MetadataProviders(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
@@ -571,6 +614,9 @@ class MetadataModule(
 
         private val bangumi: BangumiMetadataProvider?,
         private val bangumiPriority: Int,
+
+        private val comicVine: ComicVineMetadataProvider?,
+        private val comicVinePriority: Int
     ) {
 
         val providers = listOfNotNull(
@@ -583,7 +629,8 @@ class MetadataModule(
             viz?.let { it to vizPriority },
             bookwalker?.let { it to bookwalkerPriority },
             mangaDex?.let { it to mangaDexPriority },
-            bangumi?.let { it to bangumiPriority }
+            bangumi?.let { it to bangumiPriority },
+            comicVine?.let { it to comicVinePriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -601,6 +648,7 @@ class MetadataModule(
                 Provider.BOOK_WALKER -> bookwalker
                 Provider.MANGADEX -> mangaDex
                 Provider.BANGUMI -> bangumi
+                Provider.COMIC_VINE -> comicVine
             }
         }
     }

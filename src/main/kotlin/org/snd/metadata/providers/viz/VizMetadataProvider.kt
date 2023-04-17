@@ -5,6 +5,7 @@ import org.snd.common.exceptions.HttpException
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.Image
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.VIZ
 import org.snd.metadata.model.SeriesSearchResult
@@ -54,7 +55,8 @@ class VizMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
+        val seriesName = matchQuery.seriesName
         if (isInvalidName(seriesName)) return null
         val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(100)))
 

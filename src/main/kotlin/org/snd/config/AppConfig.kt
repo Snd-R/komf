@@ -85,7 +85,7 @@ data class MetadataProcessingConfig(
 @Serializable
 data class MetadataPostProcessingConfig(
     val seriesTitle: Boolean = false,
-    val seriesTitleLanguage: String = "en",
+    val seriesTitleLanguage: String? = "en",
     @Deprecated("replaced with seriesTitleLanguage")
     val titleType: TitleType? = null,
     val alternativeSeriesTitles: Boolean = false,
@@ -106,7 +106,6 @@ data class EventListenerConfig(
     val enabled: Boolean = false,
     val libraries: Collection<String> = emptyList()
 )
-
 
 @Serializable
 data class DiscordConfig(

@@ -2,6 +2,7 @@ package org.snd.metadata.providers.nautiljon
 
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
+import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.Provider.NAUTILJON
 import org.snd.metadata.model.SeriesSearchResult
@@ -44,7 +45,8 @@ class NautiljonMetadataProvider(
         return searchResults.map { it.toSeriesSearchResult() }
     }
 
-    override fun matchSeriesMetadata(seriesName: String): ProviderSeriesMetadata? {
+    override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
+        val seriesName = matchQuery.seriesName
         val searchResults = client.searchSeries(seriesName.take(400))
         val match = searchResults
             .firstOrNull { nameMatcher.matches(seriesName, listOfNotNull(it.title, it.alternativeTitle)) }
