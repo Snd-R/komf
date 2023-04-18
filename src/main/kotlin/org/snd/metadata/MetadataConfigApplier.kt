@@ -66,7 +66,7 @@ object MetadataConfigApplier {
 
     private fun seriesTitles(titles: Collection<SeriesTitle>, enabled: Boolean): Collection<SeriesTitle> {
         return if (!enabled) {
-            titles.map { it.copy(type = null) }
+            titles.map { it.copy(type = null, language = null) }
         } else titles
 
     }
