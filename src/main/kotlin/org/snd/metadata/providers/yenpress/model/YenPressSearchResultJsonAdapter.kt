@@ -9,7 +9,7 @@ class YenPressSearchResultJsonAdapter {
         return YenPressSearchResult(
             id = YenPressSeriesId(json.url.raw.removePrefix("/series/")),
             title = json.title.raw,
-            imageUrl = json.image.raw
+            imageUrl = json.image?.raw
         )
     }
 

@@ -7,7 +7,7 @@ import org.snd.metadata.model.SeriesSearchResult
 data class YenPressSearchResult(
     val id: YenPressSeriesId,
     val title: String,
-    val imageUrl: String,
+    val imageUrl: String?,
 )
 
 fun YenPressSearchResult.toSeriesSearchResult(): SeriesSearchResult {
@@ -33,7 +33,7 @@ data class YenPressSearchResponseJson(
 @JsonClass(generateAdapter = true)
 data class YenPressSearchResultJson(
     val id: RawFieldJson,
-    val image: RawFieldJson,
+    val image: RawFieldJson?,
     val title: RawFieldJson,
     val url: RawFieldJson,
 )
