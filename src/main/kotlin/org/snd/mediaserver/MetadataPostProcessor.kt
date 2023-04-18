@@ -24,7 +24,7 @@ class MetadataPostProcessor(
         val altTitles = if (config.alternativeSeriesTitles)
             series.titles.filter { it != seriesTitle && (it.language == null || it.language in config.alternativeSeriesTitleLanguages) }
                 .sortedBy { it.language }
-                .distinct()
+                .distinctBy { it.name }
         else emptyList()
         val tags = if (config.scoreTag && series.score != null) series.tags.plus("score: ${series.score.toInt()}") else series.tags
 
