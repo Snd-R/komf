@@ -216,7 +216,7 @@ class MetadataService(
 
             if (mediaServerVolumeNumber == providerBooks.first().number) {
                 mapOf(books.first() to providerBooks.first())
-            } else emptyMap()
+            } else mapOf(books.first() to null)
         } else {
             books.associateWith { book ->
                 val volumes = BookNameParser.getVolumes(book.name) ?: BookRange(book.number)
