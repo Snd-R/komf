@@ -3,6 +3,7 @@ package org.snd.metadata.providers.bookwalker
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.snd.common.StringUtils.replaceFullwidthChars
 import org.snd.metadata.BookNameParser
 import org.snd.metadata.model.metadata.BookRange
 import org.snd.metadata.providers.bookwalker.model.BookWalkerBook
@@ -165,9 +166,5 @@ class BookWalkerParser {
         return BookNameParser.getVolumes(name)
             ?: "(?i)(?<!chapter)\\s\\d+".toRegex().findAll(name).lastOrNull()?.value?.toDoubleOrNull()
                 ?.let { BookRange(it, it) }
-    }
-
-    private fun replaceFullwidthChars(string: String) = string.replace("[\uff01-\uff5e]".toRegex()) { match ->
-        Character.toString(match.value.codePointAt(0) - 0xfee0)
     }
 }

@@ -1,5 +1,6 @@
 package org.snd.mediaserver
 
+import org.snd.common.StringUtils
 import org.snd.config.MetadataPostProcessingConfig
 import org.snd.mediaserver.model.SeriesAndBookMetadata
 import org.snd.mediaserver.model.mediaserver.MediaServerBook
@@ -22,9 +23,12 @@ class MetadataPostProcessor(
         val seriesTitle = if (config.seriesTitle) seriesTitle(series.titles) ?: series.title else null
 
         val altTitles = if (config.alternativeSeriesTitles)
-            series.titles.filter { it != seriesTitle && (it.language == null || it.language in config.alternativeSeriesTitleLanguages) }
-                .sortedBy { it.language }
-                .distinctBy { it.name }
+            series.titles.asSequence()
+                .filter { (it.language == null || it.language in config.alternativeSeriesTitleLanguages) }
+                .filter { seriesTitle?.name == null || distinctName(it.name) != distinctName(seriesTitle.name) }
+                .sortedWith(compareBy(nullsLast()) { it.language })
+                .distinctBy { distinctName(it.name) }
+                .toList()
         else emptyList()
         val tags = if (config.scoreTag && series.score != null) series.tags.plus("score: ${series.score.toInt()}") else series.tags
 
@@ -57,5 +61,12 @@ class MetadataPostProcessor(
     private fun seriesTitle(titles: Collection<SeriesTitle>): SeriesTitle? {
         return if (config.seriesTitleLanguage == null) titles.firstOrNull()
         else titles.find { it.language == config.seriesTitleLanguage }
+    }
+
+    private fun distinctName(title: String): String {
+        return title.replace(" ", "")
+            .let { StringUtils.stripAccents(it) }
+            .let { StringUtils.replaceFullwidthChars(it) }
+            .lowercase()
     }
 }
