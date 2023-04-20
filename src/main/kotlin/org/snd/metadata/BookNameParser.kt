@@ -8,7 +8,7 @@ object BookNameParser {
         "(?i),?\\s\\(?([vtT]|vols\\.\\s|vol\\.\\s|volume\\s)(?<volumeStart>[0-9]+([.x#][0-9]+)?)(?<volumeEnd>-[0-9]+([.x#][0-9]+)?)?\\)?".toRegex(),
     )
 
-    private val chapterRegex = "\\sc?(?<startChapter>[0-9]+([.x#][0-9]+)?)(?<endChapter>-[0-9]+([.x#][0-9]+)?)?".toRegex()
+    private val chapterRegex = "(?i)(\\sc|chapter\\s)(?<startChapter>[0-9]+([.x#][0-9]+)?)(?<endChapter>-[0-9]+([.x#][0-9]+)?)?".toRegex()
     private val extraDataRegex = "\\[(?<extra>.*?)]".toRegex()
 
     fun getVolumes(name: String): BookRange? {
@@ -41,7 +41,7 @@ object BookNameParser {
         return if (startChapter != null && endChapter != null) {
             BookRange(startChapter, endChapter)
         } else if (startChapter != null) {
-            BookRange(startChapter, startChapter)
+            BookRange(startChapter)
         } else null
     }
 
