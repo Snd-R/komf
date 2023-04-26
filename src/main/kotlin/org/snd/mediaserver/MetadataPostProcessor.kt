@@ -50,7 +50,7 @@ class MetadataPostProcessor(
     }
 
     private fun orderBook(book: MediaServerBook, metadata: BookMetadata): BookMetadata {
-        val range = BookNameParser.getVolumes(book.name) ?: BookNameParser.getChapters(book.name)
+        val range = BookNameParser.getVolumes(book.name) ?: BookNameParser.getBookNumber(book.name)
 
         return metadata.copy(
             number = range ?: metadata.number,
