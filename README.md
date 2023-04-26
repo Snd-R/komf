@@ -97,6 +97,7 @@ komga:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
   metadataUpdate:
     default:
+      libraryType: "MANGA" # Can be "MANGA", "NOVEL" or "COMIC". Hint to help better match book numbers
       updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
       aggregate: false # if enabled will search and aggregate metadata from all configured providers
       mergeTags: false # if true and aggregate is enabled will merge tags from all providers
@@ -126,6 +127,7 @@ kavita:
     libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
   metadataUpdate:
     default:
+      libraryType: "MANGA" # Can be "MANGA", "NOVEL" or "COMIC". Hint to help better match book numbers
       updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
       aggregate: false # if enabled will search and aggregate metadata from all configured providers
       mergeTags: false # if true and aggregate is enabled will merge tags from all providers
