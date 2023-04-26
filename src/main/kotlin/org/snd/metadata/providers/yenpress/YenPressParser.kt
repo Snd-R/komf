@@ -68,11 +68,10 @@ class YenPressParser {
             .attr("href")
             .removePrefix("/series/")
             .removeSuffix("?format=Digital")
-
         return YenPressBook(
             id = bookId,
             name = title,
-            number = BookNameParser.getVolumes(title),
+            number = BookNameParser.getVolumes(title) ?: BookNameParser.getBookNumber(title),
             seriesId = YenPressSeriesId(seriesId),
 
             authors = authors,
@@ -98,7 +97,7 @@ class YenPressParser {
 
                 YenPressBookShort(
                     id = bookId,
-                    number = BookNameParser.getVolumes(name),
+                    number = BookNameParser.getVolumes(name) ?: BookNameParser.getBookNumber(name),
                     name = name,
                 )
             }
