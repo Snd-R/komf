@@ -4,6 +4,7 @@ import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.MediaType
+import org.snd.metadata.model.MediaType.COMIC
 import org.snd.metadata.model.MediaType.MANGA
 import org.snd.metadata.model.MediaType.NOVEL
 import org.snd.metadata.model.Provider
@@ -25,6 +26,9 @@ class YenPressMetadataProvider(
     private val fetchSeriesCovers: Boolean,
     private val fetchBookCovers: Boolean,
 ) : MetadataProvider {
+    init {
+        if (mediaType == COMIC) throw IllegalStateException("Comics media type is not supported")
+    }
 
     override fun providerName(): Provider {
         return YEN_PRESS
@@ -64,6 +68,7 @@ class YenPressMetadataProvider(
                 when (mediaType) {
                     MANGA -> !it.title.contains("(light novel)")
                     NOVEL -> !it.title.contains("(manga)")
+                    COMIC -> false
                 }
             }
             .firstOrNull { nameMatcher.matches(seriesName, bookTitle(it.title)) }

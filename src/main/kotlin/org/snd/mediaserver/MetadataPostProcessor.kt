@@ -5,12 +5,14 @@ import org.snd.config.MetadataPostProcessingConfig
 import org.snd.mediaserver.model.SeriesAndBookMetadata
 import org.snd.mediaserver.model.mediaserver.MediaServerBook
 import org.snd.metadata.BookNameParser
+import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.metadata.BookMetadata
 import org.snd.metadata.model.metadata.SeriesMetadata
 import org.snd.metadata.model.metadata.SeriesTitle
 
 class MetadataPostProcessor(
-    private val config: MetadataPostProcessingConfig
+    private val config: MetadataPostProcessingConfig,
+    private val libraryType: MediaType
 ) {
 
     fun process(metadata: SeriesAndBookMetadata): SeriesAndBookMetadata {
@@ -50,7 +52,10 @@ class MetadataPostProcessor(
     }
 
     private fun orderBook(book: MediaServerBook, metadata: BookMetadata): BookMetadata {
-        val range = BookNameParser.getVolumes(book.name) ?: BookNameParser.getBookNumber(book.name)
+        val range = when (libraryType) {
+            MediaType.MANGA -> BookNameParser.getVolumes(book.name) ?: BookNameParser.getBookNumber(book.name)
+            MediaType.NOVEL, MediaType.COMIC -> BookNameParser.getBookNumber(book.name)
+        }
 
         return metadata.copy(
             number = range ?: metadata.number,

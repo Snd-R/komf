@@ -42,7 +42,11 @@ class MangaUpdatesMetadataProvider(
     mediaType: MediaType,
 ) : MetadataProvider {
 
-    private val seriesTypes = if (mediaType == MediaType.MANGA) mangaTypes else novelTypes
+    private val seriesTypes = when (mediaType) {
+        MediaType.MANGA -> mangaTypes
+        MediaType.NOVEL -> novelTypes
+        MediaType.COMIC -> throw IllegalStateException("Comics media type is not supported")
+    }
 
     override fun providerName() = MANGA_UPDATES
 

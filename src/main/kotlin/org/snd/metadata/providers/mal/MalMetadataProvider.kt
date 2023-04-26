@@ -33,7 +33,11 @@ class MalMetadataProvider(
     private val fetchSeriesCovers: Boolean,
     mediaType: MediaType,
 ) : MetadataProvider {
-    private val seriesTypes = if (mediaType == MediaType.MANGA) mangaMediaTypes else novelMediaTypes
+    private val seriesTypes = when (mediaType) {
+        MediaType.MANGA -> mangaMediaTypes
+        MediaType.NOVEL -> novelMediaTypes
+        MediaType.COMIC -> throw IllegalStateException("Comics media type is not supported")
+    }
 
     override fun providerName() = MAL
 

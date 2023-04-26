@@ -110,6 +110,7 @@ class ConfigUpdateMapper {
 
     private fun toDto(config: MetadataProcessingConfig): MetadataProcessingConfigDto {
         return MetadataProcessingConfigDto(
+            libraryType = config.libraryType,
             aggregate = config.aggregate,
             mergeTags = config.mergeTags,
             mergeGenres = config.mergeGenres,
@@ -176,6 +177,7 @@ class ConfigUpdateMapper {
             bookWalker = toDto(config.bookWalker),
             mangaDex = toDto(config.mangaDex),
             bangumi = toDto(config.bangumi),
+            comicVine = toDto(config.comicVine),
         )
     }
 
@@ -310,6 +312,7 @@ class ConfigUpdateMapper {
             bookWalker = patch.bookWalker?.let { providerConfig(config.bookWalker, it) } ?: config.bookWalker,
             mangaDex = patch.mangaDex?.let { providerConfig(config.mangaDex, it) } ?: config.mangaDex,
             bangumi = patch.bangumi?.let { providerConfig(config.bangumi, it) } ?: config.bangumi,
+            comicVine = patch.comicVine?.let { providerConfig(config.comicVine, it) } ?: config.comicVine,
         )
     }
 
@@ -467,6 +470,7 @@ class ConfigUpdateMapper {
         patch: MetadataProcessingConfigUpdateDto
     ): MetadataProcessingConfig {
         return config.copy(
+            libraryType = patch.libraryType ?: config.libraryType,
             aggregate = patch.aggregate ?: config.aggregate,
             mergeTags = patch.mergeTags ?: config.mergeTags,
             mergeGenres = patch.mergeGenres ?: config.mergeGenres,

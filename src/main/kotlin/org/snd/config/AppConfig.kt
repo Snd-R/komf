@@ -3,6 +3,8 @@ package org.snd.config
 import kotlinx.serialization.Serializable
 import org.snd.mediaserver.model.UpdateMode
 import org.snd.mediaserver.model.UpdateMode.API
+import org.snd.metadata.model.MediaType
+import org.snd.metadata.model.MediaType.MANGA
 import org.snd.metadata.model.metadata.ReadingDirection
 import org.snd.metadata.model.metadata.TitleType
 
@@ -71,6 +73,7 @@ data class MetadataUpdateConfig(
 
 @Serializable
 data class MetadataProcessingConfig(
+    val libraryType: MediaType = MANGA,
     val aggregate: Boolean = false,
     val mergeTags: Boolean = false,
     val mergeGenres: Boolean = false,
@@ -139,4 +142,3 @@ data class CalibreConfig(
 data class ServerConfig(
     val port: Int = 8085
 )
-

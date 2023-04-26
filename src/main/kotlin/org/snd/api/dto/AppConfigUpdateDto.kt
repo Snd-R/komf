@@ -49,6 +49,7 @@ data class MetadataUpdateConfigUpdateDto(
 
 @JsonClass(generateAdapter = true)
 data class MetadataProcessingConfigUpdateDto(
+    val libraryType: MediaType? = null,
     val aggregate: Boolean? = null,
     val bookCovers: Boolean? = null,
     val mergeTags: Boolean? = null,
@@ -113,6 +114,7 @@ data class ProvidersConfigUpdateDto(
     val bookWalker: ProviderConfigUpdateDto? = null,
     val mangaDex: ProviderConfigUpdateDto? = null,
     val bangumi: ProviderConfigUpdateDto? = null,
+    val comicVine: ProviderConfigUpdateDto? = null,
 )
 
 @JsonClass(generateAdapter = true)

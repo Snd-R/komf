@@ -23,6 +23,9 @@ class BangumiMetadataProvider(
     private val fetchSeriesCovers: Boolean,
     private val mediaType: MediaType,
 ) : MetadataProvider {
+    init {
+        if (mediaType == MediaType.COMIC) throw IllegalStateException("Comics media type is not supported")
+    }
 
     override fun providerName() = Provider.BANGUMI
 
@@ -75,6 +78,7 @@ class BangumiMetadataProvider(
                         when (this.mediaType) {
                             MediaType.MANGA -> it.platform == "漫画"
                             MediaType.NOVEL -> it.platform == "小说"
+                            MediaType.COMIC -> false
                         }
                     }
             }

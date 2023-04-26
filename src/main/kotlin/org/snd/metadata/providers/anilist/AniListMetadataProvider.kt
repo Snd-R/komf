@@ -25,7 +25,11 @@ class AniListMetadataProvider(
     private val fetchSeriesCovers: Boolean,
     mediaType: MediaType,
 ) : MetadataProvider {
-    private val seriesFormats = if (mediaType == MediaType.MANGA) mangaMediaFormats else novelMediaFormats
+    private val seriesFormats = when (mediaType) {
+        MediaType.MANGA -> mangaMediaFormats
+        MediaType.NOVEL -> novelMediaFormats
+        MediaType.COMIC -> throw IllegalStateException("Comics media type is not supported")
+    }
 
     override fun providerName() = ANILIST
 

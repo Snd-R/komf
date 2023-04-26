@@ -265,7 +265,8 @@ class MediaServerModule(
             executor = metadataAggregationExecutor,
             metadataUpdateService = metadataUpdateService,
             seriesMatchRepository = seriesMatchRepository,
-            metadataMerger = MetadataMerger(mergeTags = config.mergeTags, mergeGenres = config.mergeGenres)
+            metadataMerger = MetadataMerger(mergeTags = config.mergeTags, mergeGenres = config.mergeGenres),
+            libraryType = config.libraryType
         )
     }
 
@@ -275,7 +276,7 @@ class MediaServerModule(
         seriesThumbnailsRepository: SeriesThumbnailsRepository,
         bookThumbnailsRepository: BookThumbnailsRepository,
     ): MetadataUpdateService {
-        val postProcessor = MetadataPostProcessor(config.postProcessing)
+        val postProcessor = MetadataPostProcessor(config.postProcessing, config.libraryType)
 
         return MetadataUpdateService(
             mediaServerClient = mediaServerClient,

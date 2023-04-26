@@ -13,6 +13,7 @@ import org.snd.metadata.BookNameParser
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.model.BookQualifier
 import org.snd.metadata.model.MatchQuery
+import org.snd.metadata.model.MediaType
 import org.snd.metadata.model.Provider
 import org.snd.metadata.model.SeriesSearchResult
 import org.snd.metadata.model.metadata.BookMetadata
@@ -34,6 +35,7 @@ class MetadataService(
     private val executor: ExecutorService,
     private val metadataUpdateService: MetadataUpdateService,
     private val seriesMatchRepository: SeriesMatchRepository,
+    private val libraryType: MediaType,
 ) {
     fun availableProviders(libraryId: MediaServerLibraryId) = metadataProviders.providers(libraryId.id)
 
@@ -209,34 +211,36 @@ class MetadataService(
         if (edition != null) {
             val editionName = edition.replace("(?i)\\s?[EÉ]dition\\s?".toRegex(), "").lowercase()
             return books.associateWith { book ->
-                val volume = BookNameParser.getVolumes(book.name)
-                    ?: if (BookNameParser.getChapters(book.name) == null) BookRange(book.number)
-                    else null
-                editionBooks[editionName]?.firstOrNull { it.number != null && volume == it.number }
+                val bookNumber = getBookNumber(book.name)
+                editionBooks[editionName]?.firstOrNull { it.number != null && bookNumber == it.number }
             }
         }
 
         if (books.size == 1 && providerBooks.size == 1) {
             val mediaServerBook = books.first()
-            val mediaServerVolumeNumber = BookNameParser.getVolumes(mediaServerBook.name)
+            val chapterNumber = BookNameParser.getChapters(mediaServerBook.name)
 
-            return if (mediaServerVolumeNumber == providerBooks.first().number) {
+            return if (chapterNumber == null)
                 mapOf(books.first() to providerBooks.first())
-            } else mapOf(books.first() to null)
+            else mapOf(books.first() to null)
         }
 
         return books.associateWith { book ->
             val bookExtraData = BookNameParser.getExtraData(book.name).map { it.lowercase() }
             editionBooks.keys.firstOrNull { bookExtraData.contains(it) }
         }.map { (book, edition) ->
-            val volumes = BookNameParser.getVolumes(book.name)
-                ?: if (BookNameParser.getChapters(book.name) == null) BookRange(book.number)
-                else null
-
+            val bookNumber = getBookNumber(book.name)
             val providerBook = editionBooks[edition]
-                ?.firstOrNull { it.number != null && it.number == volumes }
+                ?.firstOrNull { it.number != null && it.number == bookNumber }
             book to providerBook
         }.toMap()
+    }
+
+    private fun getBookNumber(bookName: String): BookRange? {
+        return when (libraryType) {
+            MediaType.MANGA -> BookNameParser.getVolumes(bookName)
+            MediaType.NOVEL, MediaType.COMIC -> BookNameParser.getBookNumber(bookName)
+        }
     }
 
     private fun aggregateMetadataFromProviders(

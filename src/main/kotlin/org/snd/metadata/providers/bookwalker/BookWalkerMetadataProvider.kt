@@ -30,7 +30,11 @@ class BookWalkerMetadataProvider(
     private val fetchBookCovers: Boolean,
     mediaType: MediaType,
 ) : MetadataProvider {
-    private val category = if (mediaType == MediaType.MANGA) MANGA else LIGHT_NOVELS
+    private val category = when (mediaType) {
+        MediaType.MANGA -> MANGA
+        MediaType.NOVEL -> LIGHT_NOVELS
+        MediaType.COMIC -> throw IllegalStateException("Comics media type is not supported")
+    }
 
     override fun providerName(): Provider = BOOK_WALKER
 
