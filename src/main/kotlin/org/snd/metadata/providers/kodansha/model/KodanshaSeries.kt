@@ -1,25 +1,22 @@
 package org.snd.metadata.providers.kodansha.model
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class KodanshaSeries(
-    val id: KodanshaSeriesId,
+    val id: Int,
+    val genres: List<KodanshaGenre>,
+    val creators: List<KodanshaCreator>,
+    val completionStatus: String,
     val title: String,
-    val coverUrl: String?,
-    val summary: String?,
-    val authors: Collection<String>,
-    val ageRating: Int?,
-    val status: Status?,
-    val tags: Collection<String>,
-    val books: Collection<KodanshaSeriesBook>,
-    val publisher: String = "Kodansha"
+    val description: String?,
+    val ageRating: String?,
+    val thumbnails: List<KodanshaThumbnail>,
+    val publisher: String?,
 )
 
-data class KodanshaSeriesBook(
-    val id: KodanshaBookId,
-    val number: Int?,
+@JsonClass(generateAdapter = true)
+data class KodanshaGenre(
+    val name: String,
+    val id: Int
 )
-
-enum class Status {
-    ONGOING,
-    COMPLETED,
-    COMPLETE
-}

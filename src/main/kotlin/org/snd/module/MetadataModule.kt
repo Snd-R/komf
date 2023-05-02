@@ -257,7 +257,8 @@ class MetadataModule(
                     .limitForPeriod(5)
                     .timeoutDuration(Duration.ofSeconds(5))
                     .build()
-            )
+            ),
+            moshi = jsonModule.moshi
         )
     }
 

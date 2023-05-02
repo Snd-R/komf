@@ -12,8 +12,6 @@ import org.snd.metadata.model.metadata.ProviderBookMetadata
 import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.metadata.model.metadata.ProviderSeriesMetadata
 import org.snd.metadata.providers.kodansha.model.KodanshaBookId
-import org.snd.metadata.providers.kodansha.model.KodanshaSeries
-import org.snd.metadata.providers.kodansha.model.KodanshaSeriesBook
 import org.snd.metadata.providers.kodansha.model.KodanshaSeriesId
 import org.snd.metadata.providers.kodansha.model.toSeriesSearchResult
 
@@ -30,58 +28,45 @@ class KodanshaMetadataProvider(
     }
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val series = getSeries(KodanshaSeriesId(seriesId.id))
-        val thumbnail = if (fetchSeriesCovers) getThumbnail(series.coverUrl) else null
-        return metadataMapper.toSeriesMetadata(series, thumbnail)
+        val series = client.getSeries(KodanshaSeriesId(seriesId.id.toInt()))
+        val thumbnail = if (fetchSeriesCovers) getThumbnail(series.thumbnails.firstOrNull()?.url) else null
+        val bookList = client.getAllSeriesBooks(KodanshaSeriesId(series.id))
+        return metadataMapper.toSeriesMetadata(series, bookList, thumbnail)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
-        val bookMetadata = client.getBook(KodanshaBookId(bookId.id))
-        val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.coverUrl) else null
+        val bookMetadata = client.getBook(KodanshaBookId(bookId.id.toInt())).response
+        val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.thumbnails.firstOrNull()?.url) else null
 
         return metadataMapper.toBookMetadata(bookMetadata, thumbnail)
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(400))).take(limit)
-        return searchResults.map { it.toSeriesSearchResult() }
+        val searchResults = client.search(seriesName.take(400)).response.take(limit)
+        return searchResults
+            .filter { it.type == "series" }
+            .map { it.toSeriesSearchResult() }
     }
 
     override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
         val seriesName = matchQuery.seriesName
-        val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(400)))
+        val searchResults = client.search(seriesName.take(400)).response
 
-        return searchResults.firstOrNull { nameMatcher.matches(seriesName, it.title) }
+        return searchResults
+            .filter { it.type == "series" }
+            .filter { it.content.readableUrl != null }
+            .firstOrNull { nameMatcher.matches(seriesName, it.content.title.removeSuffix(" (manga)")) }
             ?.let {
-                val series = getSeries(it.seriesId)
-                val thumbnail = if (fetchSeriesCovers) getThumbnail(series.coverUrl) else null
-                metadataMapper.toSeriesMetadata(series, thumbnail)
+                val series = client.getSeries(KodanshaSeriesId(it.content.id))
+                val thumbnail = if (fetchSeriesCovers) getThumbnail(series.thumbnails.firstOrNull()?.url) else null
+                val bookList = client.getAllSeriesBooks(KodanshaSeriesId(series.id))
+                metadataMapper.toSeriesMetadata(series, bookList, thumbnail)
             }
     }
 
-    private fun getThumbnail(url: String?): Image? = url?.toHttpUrl()?.let { client.getThumbnail(it) }
+    private fun getThumbnail(url: String?): Image? {
+        if (url == null || url.contains("kodansha_placeholder")) return null
 
-    private fun getSeries(seriesId: KodanshaSeriesId): KodanshaSeries {
-        val series = client.getSeries(seriesId)
-
-        return if (series.books.size == 4 || series.books.size == 30) {
-            val allBooks = getAllBooks(series)
-            if (allBooks.size > series.books.size) series.copy(books = allBooks)
-            else series
-        } else series
-    }
-
-    private fun getAllBooks(series: KodanshaSeries): Collection<KodanshaSeriesBook> {
-        return generateSequence(client.getAllSeriesBooks(series.id, 1)) {
-            if (it.page == it.totalPages) null
-            else client.getAllSeriesBooks(series.id, it.page + 1)
-        }.flatMap { it.books }.toList()
-    }
-
-    private fun sanitizeSearchInput(name: String): String {
-        return name
-            .replace("[(]([^)]+)[)]".toRegex(), "")
-            .replace("...", "")
-            .trim()
+        return client.getThumbnail(url.toHttpUrl())
     }
 }

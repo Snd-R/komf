@@ -1,5 +1,7 @@
 package org.snd.metadata.providers.kodansha
 
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
@@ -7,7 +9,7 @@ import org.snd.common.http.HttpClient
 import org.snd.metadata.model.Image
 import org.snd.metadata.providers.kodansha.model.KodanshaBook
 import org.snd.metadata.providers.kodansha.model.KodanshaBookId
-import org.snd.metadata.providers.kodansha.model.KodanshaBookListPage
+import org.snd.metadata.providers.kodansha.model.KodanshaResponse
 import org.snd.metadata.providers.kodansha.model.KodanshaSearchResult
 import org.snd.metadata.providers.kodansha.model.KodanshaSeries
 import org.snd.metadata.providers.kodansha.model.KodanshaSeriesId
@@ -16,47 +18,48 @@ const val kodanshaBaseUrl = "https://kodansha.us/"
 
 class KodanshaClient(
     private val client: HttpClient,
+    private val moshi: Moshi,
 ) {
-    private val baseUrl = kodanshaBaseUrl.toHttpUrl()
-    private val parser = KodanshaParser()
+    private val apiUrl = "https://api.kodansha.us".toHttpUrl()
 
-    fun searchSeries(name: String): Collection<KodanshaSearchResult> {
+    fun search(name: String): KodanshaResponse<List<KodanshaSearchResult>> {
         val request = Request.Builder().url(
-            baseUrl.newBuilder()
-                .addQueryParameter("s", name)
-                .addQueryParameter("filter_category[]", "manga")
+            apiUrl.newBuilder()
+                .addPathSegments("search/V3")
+                .addQueryParameter("query", name)
                 .build()
         ).build()
 
-        return parser.parseSearchResults(client.execute(request))
+        val response = client.execute(request)
+        return parseJson(response)
     }
 
     fun getSeries(seriesId: KodanshaSeriesId): KodanshaSeries {
         val request = Request.Builder().url(
-            baseUrl.newBuilder().addPathSegments("series/${seriesId.id}")
+            apiUrl.newBuilder().addPathSegments("series/V2/${seriesId.id}")
                 .build()
         ).build()
 
-        return parser.parseSeries(client.execute(request))
+        return parseJson(client.execute(request))
     }
 
-    fun getAllSeriesBooks(seriesId: KodanshaSeriesId, page: Int): KodanshaBookListPage {
+    fun getAllSeriesBooks(seriesId: KodanshaSeriesId): List<KodanshaBook> {
         val request = Request.Builder().url(
-            baseUrl.newBuilder().addPathSegments("/manga/browse-volumes/page/$page/")
-                .addQueryParameter("filter_series", seriesId.id)
+            apiUrl.newBuilder()
+                .addPathSegments("product/forSeries/${seriesId.id}")
                 .build()
         ).build()
 
-        return parser.parseBookListPage(client.execute(request))
+        return parseJson(client.execute(request))
     }
 
-    fun getBook(bookId: KodanshaBookId): KodanshaBook {
+    fun getBook(bookId: KodanshaBookId): KodanshaResponse<KodanshaBook> {
         val request = Request.Builder().url(
-            baseUrl.newBuilder().addPathSegments("volume/${bookId.id}")
+            apiUrl.newBuilder().addPathSegments("product/${bookId.id}")
                 .build()
         ).build()
 
-        return parser.parseBook(client.execute(request))
+        return parseJson(client.execute(request))
     }
 
     fun getThumbnail(url: HttpUrl): Image {
@@ -65,4 +68,9 @@ class KodanshaClient(
 
         return Image(bytes)
     }
+
+    private inline fun <reified T : Any> parseJson(json: String): T {
+        return moshi.adapter<T>().lenient().fromJson(json) ?: throw RuntimeException("Could not parse Json")
+    }
 }
+

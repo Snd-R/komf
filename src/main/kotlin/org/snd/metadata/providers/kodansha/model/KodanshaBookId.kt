@@ -1,4 +1,4 @@
 package org.snd.metadata.providers.kodansha.model
 
 @JvmInline
-value class KodanshaBookId(val id: String)
+value class KodanshaBookId(val id: Int)
