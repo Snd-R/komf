@@ -29,7 +29,7 @@ class YenPressClient(
     private val searchUrl = "https://enterprise-search.yenpress.com/".toHttpUrl()
     private val parser = YenPressParser()
 
-    private var searchKey = "search-88nvfh48rnhmefeom4i31k65"
+    private var searchKey = "search-kmcvvfh6ckq7dny1sqdnd1r9"
 
     fun searchSeries(name: String): List<YenPressSearchResult> {
         return try {
