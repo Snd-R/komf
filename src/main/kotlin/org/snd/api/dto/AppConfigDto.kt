@@ -85,6 +85,7 @@ data class EventListenerConfigDto(
 @JsonClass(generateAdapter = true)
 data class MetadataProvidersConfigDto(
     val malClientId: String,
+    val comicVineClientId: String?,
     val nameMatchingMode: NameMatchingMode,
     val defaultProviders: ProvidersConfigDto,
     val libraryProviders: Map<String, ProvidersConfigDto>,

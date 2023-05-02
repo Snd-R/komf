@@ -95,12 +95,18 @@ data class EventListenerConfigUpdateDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class MetadataProvidersConfigUpdateDto(
-    val malClientId: String? = null,
-    val nameMatchingMode: NameMatchingMode? = null,
-    val defaultProviders: ProvidersConfigUpdateDto? = null,
-    val libraryProviders: Map<String, ProvidersConfigUpdateDto?>? = null,
-)
+class MetadataProvidersConfigUpdateDto {
+
+    @Transient
+    private val isSet = mutableMapOf<String, Boolean>()
+    fun isSet(prop: String) = isSet.getOrDefault(prop, false)
+    var comicVineClientId: String? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
+
+    var malClientId: String? = null
+    var nameMatchingMode: NameMatchingMode? = null
+    var defaultProviders: ProvidersConfigUpdateDto? = null
+    var libraryProviders: Map<String, ProvidersConfigUpdateDto?>? = null
+}
 
 @JsonClass(generateAdapter = true)
 data class ProvidersConfigUpdateDto(

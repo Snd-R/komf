@@ -155,8 +155,15 @@ class ConfigUpdateMapper {
     private fun toDto(config: MetadataProvidersConfig): MetadataProvidersConfigDto {
         val malClientId = if (config.malClientId.length < 32) maskedPlaceholder
         else config.malClientId.replace("(?<=.{4}).".toRegex(), "*")
+
+        val comicVineClientId = config.comicVineApiKey?.let {
+            if (config.comicVineApiKey.length < 40) maskedPlaceholder
+            else config.comicVineApiKey.replace("(?<=.{4}).".toRegex(), "*")
+        }
+
         return MetadataProvidersConfigDto(
             malClientId = malClientId,
+            comicVineClientId = comicVineClientId,
             nameMatchingMode = config.nameMatchingMode,
             defaultProviders = toDto(config.defaultProviders),
             libraryProviders = config.libraryProviders
@@ -266,11 +273,14 @@ class ConfigUpdateMapper {
     ): MetadataProvidersConfig {
         return config.copy(
             malClientId = patch.malClientId ?: config.malClientId,
+            comicVineApiKey =
+            if (patch.isSet("comicVineClientId")) patch.comicVineClientId?.ifBlank { null }
+            else config.comicVineApiKey,
             nameMatchingMode = patch.nameMatchingMode ?: config.nameMatchingMode,
             defaultProviders = patch.defaultProviders
                 ?.let { providersConfig(config.defaultProviders, it) } ?: config.defaultProviders,
             libraryProviders = patch.libraryProviders
-                ?.let { libraryProviders(config.libraryProviders, patch.libraryProviders) }
+                ?.let { libraryProviders(config.libraryProviders, it) }
                 ?: config.libraryProviders,
         )
     }
