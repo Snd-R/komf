@@ -46,16 +46,22 @@ class MetadataService(
 
         return providers
             .map { supplyAsync({ it.searchSeries(seriesName) }, executor) }
-            .map { it.join() }
-            .flatten()
+            .map {
+                runCatching { it.join() }
+                    .onFailure { logger.error(it) { } }
+                    .getOrDefault(emptyList())
+            }.flatten()
     }
 
     fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
         val providers = metadataProviders.defaultProvidersList()
         return providers
             .map { supplyAsync({ it.searchSeries(seriesName) }, executor) }
-            .map { it.join() }
-            .flatten()
+            .map {
+                runCatching { it.join() }
+                    .onFailure { logger.error(it) { } }
+                    .getOrDefault(emptyList())
+            }.flatten()
     }
 
     fun setSeriesMetadata(
@@ -266,9 +272,11 @@ class MetadataService(
                     edition
                 )
             }, executor)
-        }
-            .mapNotNull { it.join() }
-            .fold(metadata) { oldMetadata, newMetadata -> mergeMetadata(oldMetadata, newMetadata) }
+        }.mapNotNull {
+            runCatching { it.join() }
+                .onFailure { logger.error(it) { } }
+                .getOrNull()
+        }.fold(metadata) { oldMetadata, newMetadata -> mergeMetadata(oldMetadata, newMetadata) }
     }
 
     private fun mergeMetadata(
