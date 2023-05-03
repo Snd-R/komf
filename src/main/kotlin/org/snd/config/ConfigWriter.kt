@@ -2,6 +2,7 @@ package org.snd.config
 
 import com.charleskorn.kaml.Yaml
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isWritable
 import kotlin.io.path.writeText
@@ -25,7 +26,9 @@ class ConfigWriter(
     @Synchronized
     fun writeConfigToDefaultPath(config: AppConfig) {
         val filePath = Path.of(".").toAbsolutePath().normalize().resolve("application.yml")
-        checkWriteAccess(filePath)
+        if (filePath.exists())
+            checkWriteAccess(filePath)
+
         filePath.writeText(yaml.encodeToString(AppConfig.serializer(), removeDeprecatedOptions(config)), UTF_8)
     }
 
