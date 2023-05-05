@@ -5,13 +5,13 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class KodanshaSeries(
     val id: Int,
-    val genres: List<KodanshaGenre>,
-    val creators: List<KodanshaCreator>,
-    val completionStatus: String,
     val title: String,
+    val genres: List<KodanshaGenre>?,
+    val creators: List<KodanshaCreator>?,
+    val completionStatus: String?,
     val description: String?,
     val ageRating: String?,
-    val thumbnails: List<KodanshaThumbnail>,
+    val thumbnails: List<KodanshaThumbnail>?,
     val publisher: String?,
 )
 

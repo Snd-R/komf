@@ -41,14 +41,14 @@ class KodanshaMetadataMapper(
         val seriesTitle = series.title.removeSuffix("(manga)")
         val ageRating = series.ageRating?.removeSuffix("+")?.toIntOrNull()
 
-        val author = if (series.creators.size == 1) Author(series.creators.first().name, AuthorRole.WRITER) else null
+        val author = if (series.creators?.size == 1) Author(series.creators.first().name, AuthorRole.WRITER) else null
         val metadata = SeriesMetadata(
             status = status,
             titles = listOf(SeriesTitle(seriesTitle, TitleType.LOCALIZED, "en")),
             summary = series.description?.let { parseDescription(it) },
             publisher = series.publisher,
             ageRating = ageRating,
-            genres = series.genres.map { it.name },
+            genres = series.genres?.map { it.name } ?: emptyList(),
             totalBookCount = if (bookList.isEmpty()) null else bookList.size,
             thumbnail = thumbnail,
             authors = author?.let { listOf(it) } ?: emptyList(),
@@ -66,7 +66,10 @@ class KodanshaMetadataMapper(
             books = bookList.map {
                 SeriesBook(
                     id = ProviderBookId(it.id.toString()),
-                    number = BookRange(it.volumeNumber.toDouble()),
+                    number = it.volumeNumber?.let { volumeNumber ->
+                        if (volumeNumber == 0) null
+                        else BookRange(volumeNumber.toDouble())
+                    },
                     name = "${series.title} ${it.volumeNumber}",
                     type = null,
                     edition = null
@@ -81,7 +84,10 @@ class KodanshaMetadataMapper(
         val metadata = BookMetadata(
             title = book.name,
             summary = book.description?.let { parseDescription(it) },
-            number = BookRange(book.volumeNumber.toDouble()),
+            number = book.volumeNumber?.let { volumeNumber ->
+                if (volumeNumber == 0) null
+                else BookRange(volumeNumber.toDouble())
+            },
             releaseDate = book.readable.digitalReleaseDate?.toLocalDate() ?: book.readable.printReleaseDate?.toLocalDate(),
             isbn = book.readable.eisbn ?: book.readable.isbn,
             authors = author?.let { listOf(it) } ?: emptyList(),

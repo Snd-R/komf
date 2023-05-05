@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 data class KodanshaBook(
     val id: Int,
     val name: String,
-    val volumeNumber: Int,
+    val volumeNumber: Int?,
     val chapterNumber: Int?,
     val description: String?,
     val readable: KodanshaBookReadable,
@@ -34,7 +34,7 @@ data class KodanshaBookVariant(
     val isPreorder: Boolean?,
     val priceType: String?,
     val id: Int,
-    val description: String,
+    val description: String?,
     val isOnSale: Boolean?,
     val userDefaultProductImage: Boolean?,
     val thumbnails: List<KodanshaThumbnail>,
@@ -43,12 +43,12 @@ data class KodanshaBookVariant(
 @JsonClass(generateAdapter = true)
 data class KodanshaBookReadable(
     val seriesId: String,
-    val genres: List<KodanshaGenre>,
+    val genres: List<KodanshaGenre>?,
     val isbn: String?,
     val eisbn: String?,
     val pageCount: Int?,
-    val coverType: String,
-    val colorType: String,
+    val coverType: String?,
+    val colorType: String?,
     val printReleaseDate: LocalDateTime?,
     val digitalReleaseDate: LocalDateTime?,
     val releaseDate: LocalDateTime?
