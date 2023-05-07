@@ -54,7 +54,7 @@ class ServerModule(
         MetadataController(
             metadataServiceProvider = mediaServerModule.kavitaMetadataServiceProvider,
             metadataUpdateServiceProvider = mediaServerModule.kavitaMetadataUpdateServiceProvider,
-            mediaServerClient = mediaServerModule.komgaMediaServerClient,
+            mediaServerClient = mediaServerModule.kavitaMediaServerClient,
             taskHandler = executor,
             moshi = jsonModule.moshi,
             serverType = KAVITA
