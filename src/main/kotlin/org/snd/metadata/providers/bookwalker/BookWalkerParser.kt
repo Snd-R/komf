@@ -146,7 +146,8 @@ class BookWalkerParser {
     }
 
     private fun parseSeriesName(name: String): String {
-        return name.replace("\\(?(Manga|Light Novels | Vol. \\d$)\\)?$".toRegex(), "")
+        return name.trimEnd()
+            .replace("\\(?(Manga|Light Novels| Vol. \\d$)\\)?$".toRegex(), "")
             .trim()
     }
 
