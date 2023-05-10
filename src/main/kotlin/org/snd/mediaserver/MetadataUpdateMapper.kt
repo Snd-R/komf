@@ -68,7 +68,7 @@ class MetadataUpdateMapper {
 
     fun toComicInfo(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata?): ComicInfo? {
         if (bookMetadata == null && seriesMetadata == null) return null
-        val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }) ?: seriesMetadata?.authors
+        val authors = ((bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }) ?: seriesMetadata?.authors)?.ifEmpty { null }
 
         return ComicInfo(
             series = seriesMetadata?.title?.name,
@@ -95,8 +95,8 @@ class MetadataUpdateMapper {
             translator = authors?.filter { it.role == TRANSLATOR }
                 ?.joinToString(",") { it.name },
             publisher = seriesMetadata?.publisher,
-            genre = seriesMetadata?.genres?.joinToString(","),
-            tags = bookMetadata?.tags?.joinToString(","),
+            genre = seriesMetadata?.genres?.ifEmpty { null }?.joinToString(","),
+            tags = bookMetadata?.tags?.ifEmpty { null }?.joinToString(","),
             ageRating = seriesMetadata?.ageRating
                 ?.let { metadataRating ->
                     (AgeRating.values()
@@ -112,7 +112,7 @@ class MetadataUpdateMapper {
     }
 
     fun toSeriesComicInfo(seriesMetadata: SeriesMetadata, bookMetadata: BookMetadata?): ComicInfo {
-        val authors = seriesMetadata.authors
+        val authors = seriesMetadata.authors.ifEmpty { null }
         return ComicInfo(
             series = seriesMetadata.title?.name,
             number = bookMetadata?.number?.toString(),
@@ -121,25 +121,25 @@ class MetadataUpdateMapper {
             year = seriesMetadata.releaseDate?.year,
             month = seriesMetadata.releaseDate?.month,
             day = seriesMetadata.releaseDate?.day,
-            writer = authors.filter { it.role == WRITER }
-                .joinToString(",") { it.name },
-            penciller = authors.filter { it.role == PENCILLER }
-                .joinToString(",") { it.name },
-            inker = authors.filter { it.role == INKER }
-                .joinToString(",") { it.name },
-            colorist = authors.filter { it.role == COLORIST }
-                .joinToString(",") { it.name },
-            letterer = authors.filter { it.role == LETTERER }
-                .joinToString(",") { it.name },
-            coverArtist = authors.filter { it.role == COVER }
-                .joinToString(",") { it.name },
-            editor = authors.filter { it.role == EDITOR }
-                .joinToString(",") { it.name },
-            translator = authors.filter { it.role == TRANSLATOR }
-                .joinToString(",") { it.name },
+            writer = authors?.filter { it.role == WRITER }
+                ?.joinToString(",") { it.name },
+            penciller = authors?.filter { it.role == PENCILLER }
+                ?.joinToString(",") { it.name },
+            inker = authors?.filter { it.role == INKER }
+                ?.joinToString(",") { it.name },
+            colorist = authors?.filter { it.role == COLORIST }
+                ?.joinToString(",") { it.name },
+            letterer = authors?.filter { it.role == LETTERER }
+                ?.joinToString(",") { it.name },
+            coverArtist = authors?.filter { it.role == COVER }
+                ?.joinToString(",") { it.name },
+            editor = authors?.filter { it.role == EDITOR }
+                ?.joinToString(",") { it.name },
+            translator = authors?.filter { it.role == TRANSLATOR }
+                ?.joinToString(",") { it.name },
             publisher = seriesMetadata.publisher,
-            genre = seriesMetadata.genres.joinToString(","),
-            tags = seriesMetadata.tags.joinToString(","),
+            genre = seriesMetadata.genres.ifEmpty { null }?.joinToString(","),
+            tags = seriesMetadata.tags.ifEmpty { null }?.joinToString(","),
             ageRating = seriesMetadata.ageRating
                 ?.let { metadataRating ->
                     (AgeRating.values()
