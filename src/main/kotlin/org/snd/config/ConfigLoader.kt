@@ -42,7 +42,11 @@ class ConfigLoader {
     private fun overrideConfigDirAndEnvVars(config: AppConfig, configDirectory: String?): AppConfig {
         val databaseConfig = config.database
         val databaseFile = configDirectory?.let { "$it/database.sqlite" } ?: databaseConfig.file
-        val discordTemplatesDirectory = configDirectory ?: config.discord.templatesDirectory
+        val discordConfig = config.discord
+        val discordTemplatesDirectory = configDirectory ?: discordConfig.templatesDirectory
+        val discordWebhooks = System.getenv("KOMF_DISCORD_WEBHOOKS")?.ifBlank { null }
+            ?.split(",")?.toList()
+            ?: discordConfig.webhooks
 
         val komgaConfig = config.komga
         val komgaBaseUri = System.getenv("KOMF_KOMGA_BASE_URI")?.ifBlank { null } ?: komgaConfig.baseUri
@@ -56,6 +60,12 @@ class ConfigLoader {
         val serverConfig = config.server
         val serverPort = System.getenv("KOMF_SERVER_PORT")?.toIntOrNull() ?: serverConfig.port
         val logLevel = System.getenv("KOMF_LOG_LEVEL")?.ifBlank { null } ?: config.logLevel
+
+        val metadataProvidersConfig = config.metadataProviders
+        val malClientId = System.getenv("KOMF_METADATA_PROVIDERS_MAL_CLIENT_ID")?.ifBlank { null }?.toString()
+            ?: metadataProvidersConfig.malClientId
+        val comicVineApiKey = System.getenv("KOMF_METADATA_PROVIDERS_COMIC_VINE_API_KEY")?.ifBlank { null }?.toString()
+            ?: metadataProvidersConfig.comicVineApiKey
 
         return config.copy(
             komga = komgaConfig.copy(
@@ -71,8 +81,13 @@ class ConfigLoader {
             database = databaseConfig.copy(
                 file = databaseFile
             ),
+            metadataProviders = metadataProvidersConfig.copy(
+                malClientId = malClientId,
+                comicVineApiKey = comicVineApiKey
+            ),
             discord = config.discord.copy(
-                templatesDirectory = discordTemplatesDirectory
+                templatesDirectory = discordTemplatesDirectory,
+                webhooks = discordWebhooks
             ),
             server = serverConfig.copy(port = serverPort),
             logLevel = logLevel
