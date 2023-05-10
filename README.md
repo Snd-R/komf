@@ -145,7 +145,7 @@ kavita:
 
 discord:
   # List of discord webhook urls. Will call these webhooks after series or books were added. 
-  webhooks: # config example: webhooks: ["https://discord.com/api/webhooks/9..."] 
+  webhooks: # config example: webhooks: ["https://discord.com/api/webhooks/9..."] (env:KOMF_DISCORD_WEBHOOKS - comma separated list of webhooks)
   descriptionTemplate: "discordWebhook.vm" # description template filename
   seriesCover: false # include series cover in message. Requires imgurClientId
   templatesDirectory: "./" # path to a directory with templates
@@ -154,8 +154,8 @@ database:
   file: ./database.sqlite # database file location.
 
 metadataProviders:
-  malClientId: "" # required for mal provider. See https://myanimelist.net/forum/?topicid=1973077
-  comicVineApiKey: # required for comicVine provider https://comicvine.gamespot.com/api/
+  malClientId: "" # required for mal provider. See https://myanimelist.net/forum/?topicid=1973077 env:KOMF_METADATA_PROVIDERS_MAL_CLIENT_ID
+  comicVineApiKey: # required for comicVine provider https://comicvine.gamespot.com/api/ env:KOMF_METADATA_PROVIDERS_COMIC_VINE_API_KEY
   defaultProviders:
     mangaUpdates:
       priority: 10
