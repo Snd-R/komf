@@ -27,8 +27,6 @@ data class ComicVineIssue(
     @Json(name = "date_last_updated")
     val dateLastUpdated: String?,
     val description: String?,
-    @Json(name = "has_staff_review")
-    val hasStaffReview: Boolean?,
     val image: ComicVineImage?,
     @Json(name = "issue_number")
     val issueNumber: String?,
