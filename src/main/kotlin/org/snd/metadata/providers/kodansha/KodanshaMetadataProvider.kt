@@ -42,7 +42,7 @@ class KodanshaMetadataProvider(
     }
 
     override fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val searchResults = client.search(seriesName.take(400)).response.take(limit)
+        val searchResults = client.search(sanitizeSearchInput(seriesName)).response.take(limit)
         return searchResults
             .filter { it.type == "series" }
             .map { it.toSeriesSearchResult() }
@@ -50,7 +50,7 @@ class KodanshaMetadataProvider(
 
     override fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
         val seriesName = matchQuery.seriesName
-        val searchResults = client.search(seriesName.take(400)).response
+        val searchResults = client.search(sanitizeSearchInput(seriesName)).response
 
         return searchResults
             .filter { it.type == "series" }
@@ -68,5 +68,10 @@ class KodanshaMetadataProvider(
         if (url == null || url.contains("kodansha_placeholder")) return null
 
         return client.getThumbnail(url.toHttpUrl())
+    }
+
+    private fun sanitizeSearchInput(input: String): String {
+        return input.take(300)
+            .replace("\"", "")
     }
 }
