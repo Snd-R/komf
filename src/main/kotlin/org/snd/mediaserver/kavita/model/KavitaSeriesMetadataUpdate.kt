@@ -86,7 +86,7 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
         ageRating = ageRating ?: oldMeta.ageRating,
         language = language ?: oldMeta.language,
         releaseYear = releaseYear ?: oldMeta.releaseYear,
-        webLinks = links.map { it.url }.joinToString(separator = ",") ?: oldMeta.webLinks
+        webLinks = links?.map { it.url }?.joinToString(separator = ",") ?: oldMeta.webLinks
     )
     return KavitaSeriesMetadataUpdate(metadata, collectionTags)
 }

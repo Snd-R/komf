@@ -13,6 +13,7 @@ import org.snd.metadata.model.metadata.AuthorRole.LETTERER
 import org.snd.metadata.model.metadata.AuthorRole.PENCILLER
 import org.snd.metadata.model.metadata.AuthorRole.TRANSLATOR
 import org.snd.metadata.model.metadata.SeriesStatus
+import org.snd.metadata.model.metadata.WebLink
 
 @JsonClass(generateAdapter = true)
 data class KavitaSeriesMetadata(
@@ -135,7 +136,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         totalBookCount = if (totalCount == 0) null else totalCount,
         authors = authors,
         releaseYear = releaseYear,
-        links = webLinks.split(",").map { WebLink(it, it) },
+        links = webLinks?.split(",")?.map { WebLink(it, it) } ?: emptyList(),
 
         statusLock = publicationStatusLocked,
         titleLock = series.nameLocked,
