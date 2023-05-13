@@ -85,7 +85,8 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
             ?.map { KavitaAuthor(id = 0, name = it.name, role = TRANSLATOR) }?.toSet() ?: oldMeta.translators,
         ageRating = ageRating ?: oldMeta.ageRating,
         language = language ?: oldMeta.language,
-        releaseYear = releaseYear ?: oldMeta.releaseYear
+        releaseYear = releaseYear ?: oldMeta.releaseYear,
+        webLinks = links.map { it.url }.joinToString(separator = ",") ?: oldMeta.webLinks
     )
     return KavitaSeriesMetadataUpdate(metadata, collectionTags)
 }
@@ -114,6 +115,7 @@ fun kavitaSeriesResetRequest(seriesId: KavitaSeriesId): KavitaSeriesMetadataUpda
         maxCount = 0,
         totalCount = 0,
         publicationStatus = ONGOING,
+        webLinks = "",
 
         languageLocked = false,
         summaryLocked = false,

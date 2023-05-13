@@ -40,6 +40,7 @@ data class KavitaSeriesMetadata(
     val totalCount: Int,
     @PublicationStatus
     val publicationStatus: KavitaPublicationStatus,
+    val webLinks: String?,
 
     val languageLocked: Boolean,
     val summaryLocked: Boolean,
@@ -134,7 +135,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         totalBookCount = if (totalCount == 0) null else totalCount,
         authors = authors,
         releaseYear = releaseYear,
-        links = emptyList(),
+        links = webLinks.split(",").map { WebLink(it, it) },
 
         statusLock = publicationStatusLocked,
         titleLock = series.nameLocked,
