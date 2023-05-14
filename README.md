@@ -47,6 +47,7 @@ services:
       - KOMF_KAVITA_BASE_URI=http://kavita:5000
       - KOMF_KAVITA_API_KEY=16707507-d05d-4696-b126-c3976ae14ffb
       - KOMF_LOG_LEVEL=INFO
+      - TZ=UTC # set the same timezone as your Kavita instance if you want Kavita event listener to work properly
     volumes:
       - /path/to/config:/config #path to directory with application.yml and database file
     restart: unless-stopped
