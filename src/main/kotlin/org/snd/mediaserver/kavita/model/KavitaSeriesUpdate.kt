@@ -16,9 +16,9 @@ data class KavitaSeriesUpdate(
 
 fun KavitaSeries.kavitaTitleUpdate(newName: String?, newSortName: String?, newLocalizedName: String?) = KavitaSeriesUpdate(
     id = id,
-    name = newName ?: name,
-    sortName = newSortName ?: sortName,
-    localizedName = newLocalizedName ?: localizedName,
+    name = newName?.trim() ?: name,
+    sortName = newSortName?.trim() ?: sortName,
+    localizedName = newLocalizedName?.trim() ?: localizedName,
     nameLocked = nameLocked,
     sortNameLocked = sortNameLocked,
     localizedNameLocked = localizedNameLocked,
