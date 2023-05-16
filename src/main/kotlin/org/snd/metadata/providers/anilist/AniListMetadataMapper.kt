@@ -74,13 +74,13 @@ class AniListMetadataMapper(
 
         val titles = listOfNotNull(
             series.title?.english?.let {
-                SeriesTitle(name = it, type = LOCALIZED, language = "en")
+                SeriesTitle(name = it.trim(), type = LOCALIZED, language = "en")
             },
             series.title?.romaji?.let {
-                SeriesTitle(name = it, type = ROMAJI, language = "ja-ro")
+                SeriesTitle(name = it.trim(), type = ROMAJI, language = "ja-ro")
             },
             series.title?.native?.let {
-                SeriesTitle(name = it, type = NATIVE, language = "ja")
+                SeriesTitle(name = it.trim(), type = NATIVE, language = "ja")
             },
         )
 
