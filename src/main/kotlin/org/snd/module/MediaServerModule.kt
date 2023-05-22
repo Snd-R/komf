@@ -120,7 +120,7 @@ class MediaServerModule(
         apiKey = kavitaConfig.apiKey
     )
 
-    val komgaMediaServerClient = KomgaMediaServerClientAdapter(komgaClient)
+    val komgaMediaServerClient = KomgaMediaServerClientAdapter(komgaClient, komgaConfig.thumbnailSizeLimit)
     val kavitaMediaServerClient = KavitaMediaServerClientAdapter(kavitaClient)
 
 

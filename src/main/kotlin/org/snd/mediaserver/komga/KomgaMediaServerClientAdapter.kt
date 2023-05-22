@@ -1,5 +1,6 @@
 package org.snd.mediaserver.komga
 
+import mu.KotlinLogging
 import org.snd.mediaserver.MediaServerClient
 import org.snd.mediaserver.komga.model.dto.KomgaSeriesId
 import org.snd.mediaserver.komga.model.dto.bookMetadataResetRequest
@@ -30,7 +31,12 @@ import org.snd.mediaserver.model.mediaserver.MediaServerSeriesThumbnail
 import org.snd.mediaserver.model.mediaserver.MediaServerThumbnailId
 import org.snd.metadata.model.Image
 
-class KomgaMediaServerClientAdapter(private val komgaClient: KomgaClient) : MediaServerClient {
+private val logger = KotlinLogging.logger {}
+
+class KomgaMediaServerClientAdapter(
+    private val komgaClient: KomgaClient,
+    private val komgaCoverUploadLimit: Long
+) : MediaServerClient {
 
     override fun getSeries(seriesId: MediaServerSeriesId): MediaServerSeries {
         return komgaClient.getSeries(KomgaSeriesId(seriesId.id)).mediaServerSeries()
@@ -103,11 +109,20 @@ class KomgaMediaServerClientAdapter(private val komgaClient: KomgaClient) : Medi
         komgaClient.updateSeriesMetadata(seriesId.komgaSeriesId(), metadataResetRequest(seriesName), true)
     }
 
-    override fun uploadSeriesThumbnail(seriesId: MediaServerSeriesId, thumbnail: Image, selected: Boolean): MediaServerSeriesThumbnail {
+    override fun uploadSeriesThumbnail(seriesId: MediaServerSeriesId, thumbnail: Image, selected: Boolean): MediaServerSeriesThumbnail? {
+        if (thumbnail.image.size > komgaCoverUploadLimit) {
+            logger.warn { "Thumbnail size is bigger than $komgaCoverUploadLimit bytes. Skipping thumbnail upload" }
+            return null
+        }
+
         return komgaClient.uploadSeriesThumbnail(seriesId.komgaSeriesId(), thumbnail, selected).mediaServerSeriesThumbnail()
     }
 
-    override fun uploadBookThumbnail(bookId: MediaServerBookId, thumbnail: Image, selected: Boolean): MediaServerBookThumbnail {
+    override fun uploadBookThumbnail(bookId: MediaServerBookId, thumbnail: Image, selected: Boolean): MediaServerBookThumbnail? {
+        if (thumbnail.image.size > komgaCoverUploadLimit) {
+            logger.warn { "Thumbnail size is bigger than $komgaCoverUploadLimit bytes. Skipping thumbnail upload" }
+            return null
+        }
         return komgaClient.uploadBookThumbnail(bookId.komgaBookId(), thumbnail, selected).mediaServerBookThumbnail()
     }
 

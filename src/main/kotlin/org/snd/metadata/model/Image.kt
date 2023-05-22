@@ -23,9 +23,7 @@ data class Image(
 
         other as Image
 
-        if (!image.contentEquals(other.image)) return false
-
-        return true
+        return image.contentEquals(other.image)
     }
 
     override fun hashCode(): Int {

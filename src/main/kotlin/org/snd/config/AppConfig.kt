@@ -25,6 +25,7 @@ data class KomgaConfig(
     val baseUri: String = "http://localhost:8080",
     val komgaUser: String = "admin@example.org",
     val komgaPassword: String = "admin",
+    val thumbnailSizeLimit: Long = 1048575,
     val eventListener: EventListenerConfig = EventListenerConfig(),
     val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
