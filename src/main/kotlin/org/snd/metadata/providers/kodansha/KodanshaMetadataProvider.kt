@@ -67,7 +67,12 @@ class KodanshaMetadataProvider(
     private fun getThumbnail(url: String?): Image? {
         if (url == null || url.contains("kodansha_placeholder")) return null
 
-        return client.getThumbnail(url.toHttpUrl())
+        return client.getThumbnail(
+            url.toHttpUrl().newBuilder()
+                .addQueryParameter("w", "1000")
+                .addQueryParameter("f", "webp")
+                .build()
+        )
     }
 
     private fun sanitizeSearchInput(input: String): String {
