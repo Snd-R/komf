@@ -37,6 +37,7 @@ class MetadataUpdateService(
     private val epubWriter: CalibreEpubMetadataWriter,
 
     private val updateModes: Set<UpdateMode>,
+    private val overrideExistingCovers: Boolean,
     private val uploadBookCovers: Boolean,
     private val uploadSeriesCovers: Boolean,
 ) {
@@ -144,11 +145,14 @@ class MetadataUpdateService(
         val existingMatch = bookThumbnailsRepository.findFor(bookId)
         val thumbnails = mediaServerClient.getBookThumbnails(bookId)
 
+        val selectThumbnail = overrideExistingCovers ||
+                thumbnails.all { it.type == "GENERATED" || it.id == existingMatch?.thumbnailId }
+
         val uploadedThumbnail = thumbnail?.let {
             mediaServerClient.uploadBookThumbnail(
                 bookId = bookId,
                 thumbnail = thumbnail,
-                selected = true
+                selected = selectThumbnail
             )
         }
 
@@ -165,11 +169,13 @@ class MetadataUpdateService(
         val matchedSeries = seriesThumbnailsRepository.findFor(seriesId)
         val thumbnails = mediaServerClient.getSeriesThumbnails(seriesId)
 
+        val selectThumbnail = overrideExistingCovers || thumbnails.isEmpty()
+
         val uploadedThumbnail = thumbnail?.let {
             mediaServerClient.uploadSeriesThumbnail(
                 seriesId = seriesId,
                 thumbnail = thumbnail,
-                selected = true
+                selected = selectThumbnail
             )
         }
 

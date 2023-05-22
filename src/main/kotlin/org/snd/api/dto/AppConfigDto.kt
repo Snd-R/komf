@@ -52,6 +52,8 @@ data class MetadataProcessingConfigDto(
     val mergeGenres: Boolean,
     val bookCovers: Boolean,
     val seriesCovers: Boolean,
+    val overrideExistingCovers: Boolean,
+
     val updateModes: Set<UpdateMode>,
     val postProcessing: MetadataPostProcessingConfigDto
 

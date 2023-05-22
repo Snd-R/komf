@@ -80,6 +80,7 @@ data class MetadataProcessingConfig(
 
     val bookCovers: Boolean = false,
     val seriesCovers: Boolean = false,
+    val overrideExistingCovers: Boolean = true,
     val updateModes: Set<UpdateMode> = setOf(API),
 
     val postProcessing: MetadataPostProcessingConfig = MetadataPostProcessingConfig()

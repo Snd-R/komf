@@ -116,8 +116,9 @@ class ConfigUpdateMapper {
             mergeGenres = config.mergeGenres,
             bookCovers = config.bookCovers,
             seriesCovers = config.seriesCovers,
+            overrideExistingCovers = config.overrideExistingCovers,
             updateModes = config.updateModes,
-            postProcessing = toDto(config.postProcessing)
+            postProcessing = toDto(config.postProcessing),
         )
     }
 
@@ -486,6 +487,7 @@ class ConfigUpdateMapper {
             mergeGenres = patch.mergeGenres ?: config.mergeGenres,
             bookCovers = patch.bookCovers ?: config.bookCovers,
             seriesCovers = patch.seriesCovers ?: config.seriesCovers,
+            overrideExistingCovers = patch.overrideExistingCovers ?: config.overrideExistingCovers,
             updateModes = patch.updateModes ?: config.updateModes,
             postProcessing = patch.postProcessing
                 ?.let { metadataPostProcessingConfig(config.postProcessing, it) }
