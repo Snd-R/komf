@@ -105,6 +105,7 @@ komga:
       mergeGenres: false # if true and aggregate is enabled will merge genres from all providers
       bookCovers: false # update book thumbnails
       seriesCovers: false # update series thumbnails
+      overrideExistingCovers: true # if false will upload but not select new cover if another cover already exists
       postProcessing:
         seriesTitle: false # update series title
         seriesTitleLanguage: "en" # series title update language. If empty chose first matching title
