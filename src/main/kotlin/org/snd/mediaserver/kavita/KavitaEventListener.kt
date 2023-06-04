@@ -6,7 +6,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import mu.KotlinLogging
-import org.snd.common.exceptions.HttpException
 import org.snd.mediaserver.NotificationService
 import org.snd.mediaserver.kavita.model.KavitaChapter
 import org.snd.mediaserver.kavita.model.KavitaVolume
@@ -151,11 +150,8 @@ class KavitaEventListener(
         return volumeIds.mapNotNull {
             try {
                 kavitaClient.getVolume(KavitaVolumeId(it))
-            } catch (exception: HttpException) {
-                if (exception.body?.contains("\"message\":\"Sequence contains no elements.\"") == true
-                    || exception.code == 404
-                ) null
-                else throw exception
+            } catch (exception: KavitaResourceNotFoundException) {
+                null
             }
         }
     }
