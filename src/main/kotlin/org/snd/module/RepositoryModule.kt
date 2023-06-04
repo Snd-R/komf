@@ -27,6 +27,7 @@ class RepositoryModule(
     init {
         Flyway(
             Flyway.configure()
+                .loggers("slf4j")
                 .dataSource("jdbc:sqlite:${config.file}", null, null)
                 .locations("classpath:db/migration/sqlite")
         ).migrate()
