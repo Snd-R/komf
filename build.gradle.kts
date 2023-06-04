@@ -54,6 +54,7 @@ dependencies {
     implementation("commons-validator:commons-validator:1.7")
     implementation("org.apache.velocity:velocity-engine-core:2.3")
     implementation("org.jsoup:jsoup:1.16.1")
+    implementation("net.grey-panther:natural-comparator:1.1")
 
     implementation("com.microsoft.signalr:signalr:7.0.4")
     implementation("org.bitbucket.b_c:jose4j:0.9.3")

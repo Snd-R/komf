@@ -31,7 +31,7 @@ interface MediaServerClient {
     fun updateBookMetadata(bookId: MediaServerBookId, metadata: MediaServerBookMetadataUpdate)
     fun deleteBookThumbnail(bookId: MediaServerBookId, thumbnailId: MediaServerThumbnailId)
 
-    fun resetBookMetadata(bookId: MediaServerBookId, bookName: String)
+    fun resetBookMetadata(bookId: MediaServerBookId, bookName: String, bookNumber: Int?)
     fun resetSeriesMetadata(seriesId: MediaServerSeriesId, seriesName: String)
 
     fun uploadSeriesThumbnail(

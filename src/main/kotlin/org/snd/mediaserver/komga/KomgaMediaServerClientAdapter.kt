@@ -101,8 +101,12 @@ class KomgaMediaServerClientAdapter(
         komgaClient.deleteBookThumbnail(bookId.komgaBookId(), thumbnailId.komgaThumbnailId())
     }
 
-    override fun resetBookMetadata(bookId: MediaServerBookId, bookName: String) {
-        komgaClient.updateBookMetadata(bookId.komgaBookId(), bookMetadataResetRequest(bookName), true)
+    override fun resetBookMetadata(bookId: MediaServerBookId, bookName: String, bookNumber: Int?) {
+        komgaClient.updateBookMetadata(
+            bookId.komgaBookId(),
+            bookMetadataResetRequest(bookName, bookNumber),
+            true
+        )
     }
 
     override fun resetSeriesMetadata(seriesId: MediaServerSeriesId, seriesName: String) {

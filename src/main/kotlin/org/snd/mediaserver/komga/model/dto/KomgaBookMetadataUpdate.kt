@@ -50,9 +50,11 @@ fun MediaServerBookMetadataUpdate.komgaMetadataUpdate() = KomgaBookMetadataUpdat
     linksLock = linksLock,
 )
 
-fun bookMetadataResetRequest(name: String) = KomgaBookMetadataUpdate(
+fun bookMetadataResetRequest(name: String, bookNumber: Int?) = KomgaBookMetadataUpdate(
     title = name,
     summary = "",
+    number = bookNumber?.toString(),
+    numberSort = bookNumber?.toDouble(),
     releaseDate = null,
     authors = emptyList(),
     tags = emptySet(),

@@ -1,6 +1,7 @@
 package org.snd.mediaserver
 
 import mu.KotlinLogging
+import net.greypanther.natsort.CaseInsensitiveSimpleNaturalComparator
 import org.snd.mediaserver.model.BookThumbnail
 import org.snd.mediaserver.model.SeriesAndBookMetadata
 import org.snd.mediaserver.model.SeriesThumbnail
@@ -42,6 +43,7 @@ class MetadataUpdateService(
     private val uploadSeriesCovers: Boolean,
 ) {
     private val requireMetadataRefresh = setOf(COMIC_INFO, OPF)
+    private val natSortComparator: Comparator<String> = CaseInsensitiveSimpleNaturalComparator.getInstance()
 
     fun updateMetadata(series: MediaServerSeries, metadata: SeriesAndBookMetadata) {
         val processedMetadata = postProcessor.process(metadata)
@@ -201,14 +203,15 @@ class MetadataUpdateService(
         mediaServerClient.resetSeriesMetadata(series.id, series.name)
 
         mediaServerClient.getBooks(series.id)
-            .forEach { resetBookMetadata(it) }
+            .sortedWith(compareBy(natSortComparator) { it.name })
+            .forEachIndexed { index, book -> resetBookMetadata(book, index + 1) }
 
         replaceSeriesThumbnail(series.id, null)
         seriesThumbnailsRepository.delete(series.id)
     }
 
-    private fun resetBookMetadata(book: MediaServerBook) {
-        mediaServerClient.resetBookMetadata(book.id, book.name)
+    private fun resetBookMetadata(book: MediaServerBook, sortNumber: Int?) {
+        mediaServerClient.resetBookMetadata(book.id, book.name, sortNumber)
 
         replaceBookThumbnail(book.id, null)
         bookThumbnailsRepository.delete(book.id)
@@ -217,7 +220,7 @@ class MetadataUpdateService(
     private fun bookToWriteSeriesMetadata(bookMetadata: Map<MediaServerBook, BookMetadata?>): MediaServerBookId? {
         if (updateModes.none { it == COMIC_INFO || it == OPF }) return null
 
-        val books = bookMetadata.keys.sortedBy { it.name.lowercase() }
+        val books = bookMetadata.keys.sortedWith(compareBy(natSortComparator) { it.name })
         val firstBook = books.asSequence()
             .mapNotNull { book -> BookNameParser.getVolumes(book.name)?.let { book to it } }
             .map { (book, range) -> book to range.start }
