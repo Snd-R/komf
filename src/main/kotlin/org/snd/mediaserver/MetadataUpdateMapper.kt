@@ -79,20 +79,28 @@ class MetadataUpdateMapper {
             month = bookMetadata?.releaseDate?.monthValue,
             day = bookMetadata?.releaseDate?.dayOfMonth,
             writer = authors?.filter { it.role == WRITER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             penciller = authors?.filter { it.role == PENCILLER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             inker = authors?.filter { it.role == INKER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             colorist = authors?.filter { it.role == COLORIST }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             letterer = authors?.filter { it.role == LETTERER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             coverArtist = authors?.filter { it.role == COVER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             editor = authors?.filter { it.role == EDITOR }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             translator = authors?.filter { it.role == TRANSLATOR }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             publisher = seriesMetadata?.publisher,
             genre = seriesMetadata?.genres?.ifEmpty { null }?.joinToString(","),
@@ -122,20 +130,28 @@ class MetadataUpdateMapper {
             month = seriesMetadata.releaseDate?.month,
             day = seriesMetadata.releaseDate?.day,
             writer = authors?.filter { it.role == WRITER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             penciller = authors?.filter { it.role == PENCILLER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             inker = authors?.filter { it.role == INKER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             colorist = authors?.filter { it.role == COLORIST }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             letterer = authors?.filter { it.role == LETTERER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             coverArtist = authors?.filter { it.role == COVER }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             editor = authors?.filter { it.role == EDITOR }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             translator = authors?.filter { it.role == TRANSLATOR }
+                ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
             publisher = seriesMetadata.publisher,
             genre = seriesMetadata.genres.ifEmpty { null }?.joinToString(","),
