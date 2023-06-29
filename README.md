@@ -41,7 +41,7 @@ services:
       - "8085:8085"
     user: "1000:1000"
     environment:
-      - KOMF_KOMGA_BASE_URI=http://komga:8080
+      - KOMF_KOMGA_BASE_URI=http://komga:25600
       - KOMF_KOMGA_USER=admin@example.org
       - KOMF_KOMGA_PASSWORD=admin
       - KOMF_KAVITA_BASE_URI=http://kavita:5000
@@ -60,7 +60,7 @@ docker create \
   --name komf \
   -p 8085:8085 \
   -u 1000:1000 \
-  -e KOMF_KOMGA_BASE_URI=http://komga:8080 \
+  -e KOMF_KOMGA_BASE_URI=http://komga:25600 \
   -e KOMF_KOMGA_USER=admin@example.org \
   -e KOMF_KOMGA_PASSWORD=admin \
   -e KOMF_KAVITA_BASE_URI=http://kavita:5000 \
@@ -88,7 +88,7 @@ docker create \
 
 ```yml
 komga:
-  baseUri: http://localhost:8080 #or env:KOMF_KOMGA_BASE_URI
+  baseUri: http://localhost:25600 #or env:KOMF_KOMGA_BASE_URI
   komgaUser: admin@example.org #or env:KOMF_KOMGA_USER
   komgaPassword: admin #or env:KOMF_KOMGA_PASSWORD
   eventListener:
