@@ -19,7 +19,6 @@ data class KomgaLibrary(
     val importLocalArtwork: Boolean,
     val importBarcodeIsbn: Boolean,
     val scanForceModifiedTime: Boolean,
-    val scanDeep: Boolean,
     val repairExtensions: Boolean,
     val convertToCbz: Boolean,
     val emptyTrashAfterScan: Boolean,
