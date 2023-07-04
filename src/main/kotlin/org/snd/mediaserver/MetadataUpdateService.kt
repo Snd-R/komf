@@ -190,21 +190,24 @@ class MetadataUpdateService(
         return uploadedThumbnail?.id
     }
 
-    fun resetLibraryMetadata(libraryId: MediaServerLibraryId) {
-        mediaServerClient.getSeries(libraryId).forEach { resetSeriesMetadata(it) }
+    fun resetLibraryMetadata(libraryId: MediaServerLibraryId, removeComicInfo: Boolean) {
+        mediaServerClient.getSeries(libraryId).forEach { resetSeriesMetadata(it, removeComicInfo) }
     }
 
-    fun resetSeriesMetadata(seriesId: MediaServerSeriesId) {
+    fun resetSeriesMetadata(seriesId: MediaServerSeriesId, removeComicInfo: Boolean) {
         val series = mediaServerClient.getSeries(seriesId)
-        resetSeriesMetadata(series)
+        resetSeriesMetadata(series, removeComicInfo)
     }
 
-    private fun resetSeriesMetadata(series: MediaServerSeries) {
+    private fun resetSeriesMetadata(series: MediaServerSeries, removeComicInfo: Boolean) {
         mediaServerClient.resetSeriesMetadata(series.id, series.name)
 
         mediaServerClient.getBooks(series.id)
             .sortedWith(compareBy(natSortComparator) { it.name })
-            .forEachIndexed { index, book -> resetBookMetadata(book, index + 1) }
+            .forEachIndexed { index, book ->
+                if (removeComicInfo) comicInfoWriter.removeComicInfo(Path.of(book.url))
+                resetBookMetadata(book, index + 1)
+            }
 
         replaceSeriesThumbnail(series.id, null)
         seriesThumbnailsRepository.delete(series.id)

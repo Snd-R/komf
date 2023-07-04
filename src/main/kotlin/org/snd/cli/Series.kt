@@ -3,6 +3,8 @@ package org.snd.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import org.snd.mediaserver.model.mediaserver.MediaServerSeriesId
@@ -73,13 +75,14 @@ class Series : CliktCommand() {
 
     class Reset : CliktCommand() {
         private val context by requireObject<CliAppContext>()
+        private val removeComicInfo by option().convert { it.toBoolean() }.default(false)
         private val id by argument()
 
         override fun run() {
             val client = context.cliAppModule.mediaServerClient
             val series = client.getSeries(MediaServerSeriesId(id))
             context.cliAppModule.metadataUpdateServiceProvider.serviceFor(series.libraryId.id)
-                .resetSeriesMetadata(MediaServerSeriesId(id))
+                .resetSeriesMetadata(MediaServerSeriesId(id), removeComicInfo)
             exitProcess(0)
         }
     }

@@ -133,20 +133,23 @@ class MetadataController(
     private fun resetLibrarySeries(ctx: Context): Context {
         val libraryId = ctx.pathParam("libraryId")
         val seriesId = MediaServerSeriesId(ctx.pathParam("seriesId"))
-        metadataUpdateServiceProvider.serviceFor(libraryId).resetSeriesMetadata(seriesId)
+        val removeComicInfo = ctx.queryParam("removeComicInfo").toBoolean()
+        metadataUpdateServiceProvider.serviceFor(libraryId).resetSeriesMetadata(seriesId, removeComicInfo)
         return ctx.status(NO_CONTENT)
     }
 
     @Deprecated("use resetLibrarySeries")
     private fun resetSeries(ctx: Context): Context {
         val seriesId = MediaServerSeriesId(ctx.pathParam("id"))
-        metadataUpdateServiceProvider.default().resetSeriesMetadata(seriesId)
+        val removeComicInfo = ctx.queryParam("removeComicInfo").toBoolean()
+        metadataUpdateServiceProvider.default().resetSeriesMetadata(seriesId, removeComicInfo)
         return ctx.status(NO_CONTENT)
     }
 
     private fun resetLibrary(ctx: Context): Context {
         val libraryId = MediaServerLibraryId(ctx.pathParam("id"))
-        metadataUpdateServiceProvider.serviceFor(libraryId.id).resetLibraryMetadata(libraryId)
+        val removeComicInfo = ctx.queryParam("removeComicInfo").toBoolean()
+        metadataUpdateServiceProvider.serviceFor(libraryId.id).resetLibraryMetadata(libraryId, removeComicInfo)
         return ctx.status(NO_CONTENT)
     }
 }

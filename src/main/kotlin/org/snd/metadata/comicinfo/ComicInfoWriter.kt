@@ -47,6 +47,29 @@ class ComicInfoWriter {
 
     private val supportedExtensions = setOf("cbz", "zip")
 
+    fun removeComicInfo(archivePath: Path) {
+        validate(archivePath)
+
+        val tempFile = createTempFile(archivePath.parent)
+        runCatching {
+            ZipFile(archivePath.toFile()).use { zip ->
+                if (zip.entries.asSequence().none { it.name == COMIC_INFO }) {
+                    tempFile.deleteIfExists()
+                    return
+                }
+
+                ZipArchiveOutputStream(tempFile).use { output ->
+                    output.setLevel(NO_COMPRESSION)
+                    copyEntries(zip, output)
+                }
+            }
+            tempFile.moveTo(archivePath, overwrite = true)
+        }.onFailure {
+            tempFile.deleteIfExists()
+            throw it
+        }
+    }
+
     fun writeMetadata(archivePath: Path, comicInfo: ComicInfo) {
         validate(archivePath)
 
