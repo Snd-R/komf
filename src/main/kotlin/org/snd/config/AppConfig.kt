@@ -110,7 +110,8 @@ data class DatabaseConfig(
 @Serializable
 data class EventListenerConfig(
     val enabled: Boolean = false,
-    val libraries: Collection<String> = emptyList()
+    val libraries: Collection<String> = emptyList(),
+    val excludeSeries: Set<String> = emptySet()
 )
 
 @Serializable

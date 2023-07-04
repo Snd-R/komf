@@ -27,13 +27,13 @@ import java.util.function.Predicate
 
 private val logger = KotlinLogging.logger {}
 
-//ugly
 class KavitaEventListener(
     private val baseUrl: String,
     private val metadataServiceProvider: MetadataServiceProvider,
     private val kavitaClient: KavitaClient,
     private val tokenProvider: KavitaTokenProvider,
     private val libraryFilter: Predicate<String>,
+    private val seriesFilter: Predicate<String>,
     private val notificationService: NotificationService,
     private val seriesMatchRepository: SeriesMatchRepository,
     private val executor: ExecutorService,
@@ -116,6 +116,7 @@ class KavitaEventListener(
             .groupBy { it.seriesId() }
             .mapKeys { (s, _) -> kavitaClient.getSeries(s) }
             .filter { (s, _) -> libraryFilter.test(s.libraryId.toString()) }
+            .filter { (series, _) -> seriesFilter.test(series.id.toString()) }
             .mapValues { (_, v) -> v.flatMap { newVolumes[it]!! } }
 
         val libraryToSeriesMap = seriesToChaptersMap.entries

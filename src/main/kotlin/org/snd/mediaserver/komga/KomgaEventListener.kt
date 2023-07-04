@@ -36,6 +36,7 @@ class KomgaEventListener(
     private val seriesThumbnailsRepository: SeriesThumbnailsRepository,
     private val seriesMatchRepository: SeriesMatchRepository,
     private val libraryFilter: Predicate<String>,
+    private val seriesFilter: Predicate<String>,
     private val notificationService: NotificationService,
     private val executor: ExecutorService,
 ) : EventSourceListener() {
@@ -75,7 +76,7 @@ class KomgaEventListener(
         when (type) {
             "BookAdded" -> {
                 val event = moshi.adapter<BookEvent>().fromJson(data) ?: throw RuntimeException()
-                if (libraryFilter.test(event.libraryId)) {
+                if (libraryFilter.test(event.libraryId) && seriesFilter.test(event.seriesId)) {
                     bookAddedEvents.add(event)
                 }
             }

@@ -169,6 +169,7 @@ class MediaServerModule(
             if (komgaConfig.eventListener.libraries.isEmpty()) true
             else komgaConfig.eventListener.libraries.contains(it)
         },
+        seriesFilter = { seriesId -> komgaConfig.eventListener.excludeSeries.none { seriesId == it } },
         notificationService = komgaNotificationService,
         bookThumbnailsRepository = repositoryModule.komgaBookThumbnailsRepository,
         seriesThumbnailsRepository = repositoryModule.komgaSeriesThumbnailsRepository,
@@ -194,6 +195,7 @@ class MediaServerModule(
             if (kavitaConfig.eventListener.libraries.isEmpty()) true
             else kavitaConfig.eventListener.libraries.contains(it)
         },
+        seriesFilter = { seriesId -> kavitaConfig.eventListener.excludeSeries.none { seriesId == it } },
         notificationService = kavitaNotificationService,
         seriesMatchRepository = repositoryModule.kavitaSeriesMatchRepository,
         executor = eventListenerExecutor,
