@@ -32,6 +32,7 @@ import org.snd.mediaserver.komga.KomgaMediaServerClientAdapter
 import org.snd.mediaserver.repository.BookThumbnailsRepository
 import org.snd.mediaserver.repository.SeriesMatchRepository
 import org.snd.mediaserver.repository.SeriesThumbnailsRepository
+import org.snd.metadata.comicinfo.ComicInfoWriter
 import java.time.Clock
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit.SECONDS
@@ -284,7 +285,7 @@ class MediaServerModule(
             bookThumbnailsRepository = bookThumbnailsRepository,
             metadataUpdateMapper = updateMapper,
             postProcessor = postProcessor,
-            comicInfoWriter = metadataModule.comicInfoWriter,
+            comicInfoWriter = ComicInfoWriter.getInstance(config.overrideComicInfo),
             epubWriter = metadataModule.epubWriter,
 
             updateModes = config.updateModes,

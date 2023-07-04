@@ -18,7 +18,6 @@ import org.snd.config.ProviderConfig
 import org.snd.config.ProvidersConfig
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
-import org.snd.metadata.comicinfo.ComicInfoWriter
 import org.snd.metadata.epub.CalibreEpubMetadataWriter
 import org.snd.metadata.model.NameMatchingMode
 import org.snd.metadata.model.Provider
@@ -69,7 +68,6 @@ class MetadataModule(
     private val okHttpClient: OkHttpClient,
     private val jsonModule: JsonModule
 ) : AutoCloseable {
-    val comicInfoWriter = createComicInfoWriter()
     val epubWriter = createEpubWriter(calibreConfig)
     private val nameSimilarityMatcher = createNameSimilarityMatcher(providersConfig.nameMatchingMode)
 
@@ -121,7 +119,6 @@ class MetadataModule(
         comicVinePriority = config.comicVine.priority
     )
 
-    private fun createComicInfoWriter() = ComicInfoWriter()
     private fun createEpubWriter(config: CalibreConfig): CalibreEpubMetadataWriter {
         val executablePath = when {
             config.ebookMetaPath != null -> config.ebookMetaPath

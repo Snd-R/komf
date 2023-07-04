@@ -83,6 +83,7 @@ data class MetadataProcessingConfig(
     val seriesCovers: Boolean = false,
     val overrideExistingCovers: Boolean = true,
     val updateModes: Set<UpdateMode> = setOf(API),
+    val overrideComicInfo: Boolean = false,
 
     val postProcessing: MetadataPostProcessingConfig = MetadataPostProcessingConfig()
 )

@@ -27,7 +27,9 @@ import kotlin.io.path.moveTo
 private const val COMIC_INFO = "ComicInfo.xml"
 private val logger = KotlinLogging.logger {}
 
-class ComicInfoWriter {
+class ComicInfoWriter private constructor(
+    private val overrideComicInfo: Boolean
+) {
 
     @OptIn(ExperimentalXmlUtilApi::class)
     private val xml = XML {
@@ -77,8 +79,11 @@ class ComicInfoWriter {
         runCatching {
             ZipFile(archivePath.toFile()).use { zip ->
                 val oldComicInfo = getComicInfo(zip)
-                val comicInfoToWrite = oldComicInfo?.let { old -> mergeComicInfoMetadata(old, comicInfo) }
-                    ?: comicInfo
+
+                val comicInfoToWrite =
+                    if (overrideComicInfo) comicInfo
+                    else oldComicInfo?.let { old -> mergeComicInfoMetadata(old, comicInfo) } ?: comicInfo
+
                 if (oldComicInfo == comicInfoToWrite) {
                     tempFile.deleteIfExists()
                     return
@@ -179,5 +184,17 @@ class ComicInfoWriter {
             localizedSeries = new.localizedSeries ?: old.localizedSeries,
             pages = new.pages ?: old.pages
         )
+    }
+
+    companion object {
+        private val withComicInfoOverride: ComicInfoWriter = ComicInfoWriter(true)
+        private val withComicInfoAppend: ComicInfoWriter = ComicInfoWriter(false)
+
+        fun getInstance(overrideComicInfo: Boolean): ComicInfoWriter {
+            return when (overrideComicInfo) {
+                true -> withComicInfoOverride
+                false -> withComicInfoAppend
+            }
+        }
     }
 }
