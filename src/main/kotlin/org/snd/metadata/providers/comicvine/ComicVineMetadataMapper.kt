@@ -143,7 +143,8 @@ class ComicVineMetadataMapper(
     }
 
     private fun seriesTitle(volume: ComicVineVolumeSearch): String {
+        val publisher = volume.publisher?.name?.let { " ($it)" } ?: ""
         val startYearString = volume.startYear?.let { " ($it)" } ?: ""
-        return "${volume.name}$startYearString"
+        return "${volume.name}$startYearString$publisher"
     }
 }
