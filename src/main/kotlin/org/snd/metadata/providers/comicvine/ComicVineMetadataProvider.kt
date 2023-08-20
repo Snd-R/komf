@@ -1,12 +1,15 @@
 package org.snd.metadata.providers.comicvine
 
+import io.javalin.http.HttpStatus
 import mu.KotlinLogging
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.helper.ValidationException
+import org.snd.common.exceptions.HttpException
 import org.snd.metadata.ImageHashComparator
 import org.snd.metadata.MetadataProvider
 import org.snd.metadata.NameSimilarityMatcher
 import org.snd.metadata.model.BookQualifier
+import org.snd.metadata.model.Image
 import org.snd.metadata.model.MatchQuery
 import org.snd.metadata.model.Provider.COMIC_VINE
 import org.snd.metadata.model.SeriesSearchResult
@@ -14,6 +17,7 @@ import org.snd.metadata.model.metadata.ProviderBookId
 import org.snd.metadata.model.metadata.ProviderBookMetadata
 import org.snd.metadata.model.metadata.ProviderSeriesId
 import org.snd.metadata.model.metadata.ProviderSeriesMetadata
+import org.snd.metadata.providers.comicvine.model.ComicVineImage
 import org.snd.metadata.providers.comicvine.model.ComicVineIssueId
 import org.snd.metadata.providers.comicvine.model.ComicVineSearchResult
 import org.snd.metadata.providers.comicvine.model.ComicVineVolumeId
@@ -34,13 +38,13 @@ class ComicVineMetadataProvider(
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = handleResult(client.getVolume(seriesId.toComicVineVolumeId()))
-        val cover = series.image?.mediumUrl?.let { client.getCover(it.toHttpUrl()) }
+        val cover = series.image?.let { getCover(it) }
         return mapper.toSeriesMetadata(series, cover)
     }
 
     override fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val issue = handleResult(client.getIssue(bookId.toComicVineIssueId()))
-        val cover = issue.image?.mediumUrl?.let { client.getCover(it.toHttpUrl()) }
+        val cover = issue.image?.let { getCover(it) }
         return mapper.toBookMetadata(issue, cover)
     }
 
@@ -82,7 +86,7 @@ class ComicVineMetadataProvider(
         if (qualifier.number.start != firstIssueNumber) return false
 
         val issue = handleResult(client.getIssue(ComicVineIssueId(volume.firstIssue.id)))
-        val issueCover = issue.image?.smallUrl?.let { client.getCover(it.toHttpUrl()) }?.toBufferedImage() ?: return false
+        val issueCover = issue.image?.let { getCover(it) }?.toBufferedImage() ?: return false
         return ImageHashComparator.compareImages(qualifierImage, issueCover)
     }
 
@@ -103,6 +107,19 @@ class ComicVineMetadataProvider(
         if (!nameMatch) return false
         if (startYear == null || result.startYear == null) return true
         return startYear == result.startYear.toIntOrNull()
+    }
+
+    private fun getCover(image: ComicVineImage): Image? {
+        val url = image.mediumUrl ?: image.smallUrl ?: image.originalUrl ?: return null
+        return try {
+            client.getCover(url.toHttpUrl())
+        } catch (e: HttpException) {
+            // some entries have url but it returns 404. Ignore such cases
+            if (e.code == HttpStatus.NOT_FOUND.code) {
+                logger.error { "Entry has cover url but there was no image. Skipping cover retrieval \"$url\"" }
+                null
+            } else throw e
+        }
     }
 
     private inline fun <reified T : Any> handleResult(result: ComicVineSearchResult<T>): T {
