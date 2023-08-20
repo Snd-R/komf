@@ -35,6 +35,10 @@ class MangaDexClient(
                 .addQueryParameter("includes[]", "author")
                 .addQueryParameter("includes[]", "cover_art")
                 .addQueryParameter("order[relevance]", "desc")
+                .addQueryParameter("contentRating[]", "safe")
+                .addQueryParameter("contentRating[]", "suggestive")
+                .addQueryParameter("contentRating[]", "erotica")
+                .addQueryParameter("contentRating[]", "pornographic")
 
                 .addQueryParameter("title", title)
                 .build()
