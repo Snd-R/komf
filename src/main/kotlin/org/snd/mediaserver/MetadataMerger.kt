@@ -60,12 +60,12 @@ class MetadataMerger(
     }
 
     private fun mergeTags(old: Collection<String>, new: Collection<String>): Collection<String> {
-        return if (mergeTags) (old + new).toSet()
+        return if (mergeTags) (old + new).toSortedSet { a, b -> a.lowercase().compareTo(b.lowercase()) }
         else old.ifEmpty { new }
     }
 
     private fun mergeGenres(old: Collection<String>, new: Collection<String>): Collection<String> {
-        return if (mergeGenres) (old + new).toSet()
+        return if (mergeGenres) (old + new).toSortedSet { a, b -> a.lowercase().compareTo(b.lowercase()) }
         else old.ifEmpty { new }
     }
 }
