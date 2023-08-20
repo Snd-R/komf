@@ -76,7 +76,10 @@ class MangaDexMetadataMapper(
                         link.novelUpdates?.let { WebLink("NovelUpdates", it) },
                         link.kitsu?.let { WebLink("Kitsu", it) },
                         link.amazon?.let { WebLink("Amazon", it) },
-                        link.ebookJapan?.let { WebLink("eBookJapan", it) },
+                        link.ebookJapan?.let {
+                            WebLink("eBookJapan",
+                                (it.toIntOrNull()?.let { bookId -> "https://ebookjapan.yahoo.co.jp/books/$bookId" } ?: it))
+                        },
                         link.myAnimeList?.let { WebLink("MyAnimeList", it) },
                         link.cdJapan?.let { WebLink("CDJapan", it) },
                         link.raw?.let { WebLink("Official Raw", it) },
