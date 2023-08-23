@@ -75,7 +75,7 @@ class VizMetadataMapper(
             startChapter = null,
             endChapter = null,
             thumbnail = thumbnail,
-            links = listOf(WebLink("Viz", vizBaseUrl + "/read/manga/${URLEncoder.encode(book.id.id, "UTF-8")}"))
+            links = listOf(WebLink("Viz", vizBaseUrl + "/read/manga/${book.id.id}"))
         )
 
         val providerMetadata = ProviderBookMetadata(
