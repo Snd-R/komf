@@ -2,13 +2,12 @@ package org.snd.module
 
 import io.github.resilience4j.ratelimiter.RateLimiterConfig
 import io.github.resilience4j.retry.RetryConfig
-import mu.KotlinLogging
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.snd.common.exceptions.HttpException
 import org.snd.common.http.HttpClient
+import org.snd.common.http.LoggingInterceptor
 import org.snd.config.DiscordConfig
 import org.snd.noifications.discord.DiscordWebhookService
 import org.snd.noifications.discord.client.DiscordClient
@@ -32,9 +31,7 @@ class NotificationsModule(
 
     private val discordHttpClient = okHttpClient
         .newBuilder()
-        .addInterceptor(HttpLoggingInterceptor { message ->
-            KotlinLogging.logger {}.debug { message }
-        }.setLevel(HttpLoggingInterceptor.Level.BASIC))
+        .addInterceptor(LoggingInterceptor())
         .build()
 
     private val discordRetryConfig = RetryConfig.custom<Any>()

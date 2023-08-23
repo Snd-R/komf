@@ -3,14 +3,13 @@ package org.snd.module
 import io.github.resilience4j.core.IntervalFunction
 import io.github.resilience4j.ratelimiter.RateLimiterConfig
 import io.github.resilience4j.retry.RetryConfig
-import mu.KotlinLogging
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.commons.lang3.SystemUtils
 import org.snd.common.exceptions.HttpException
 import org.snd.common.exceptions.ValidationException
 import org.snd.common.http.HttpClient
+import org.snd.common.http.LoggingInterceptor
 import org.snd.common.http.UserAgentInterceptor
 import org.snd.config.AniListConfig
 import org.snd.config.CalibreConfig
@@ -148,9 +147,7 @@ class MetadataModule(
         retryConfig: RetryConfig = RetryConfig.ofDefaults(),
     ): HttpClient {
         val httpClient = okHttpClient.newBuilder()
-            .addInterceptor(HttpLoggingInterceptor { message ->
-                KotlinLogging.logger {}.debug { message }
-            }.setLevel(HttpLoggingInterceptor.Level.BASIC))
+            .addInterceptor(LoggingInterceptor())
             .addInterceptor(UserAgentInterceptor())
         interceptors.forEach { httpClient.addInterceptor(it) }
 
@@ -216,9 +213,7 @@ class MetadataModule(
 
     private fun createAnilistClient(): AniListClient {
         val okHttpClient = okHttpClient.newBuilder()
-            .addInterceptor(HttpLoggingInterceptor { message ->
-                KotlinLogging.logger {}.debug { message }
-            }.setLevel(HttpLoggingInterceptor.Level.BASIC))
+            .addInterceptor(LoggingInterceptor())
             .build()
 
         return AniListClient(

@@ -1,14 +1,13 @@
 package org.snd.module
 
-import mu.KotlinLogging
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.snd.common.http.BasicAuthInterceptor
 import org.snd.common.http.HttpClient
 import org.snd.common.http.KavitaBearerAuthInterceptor
+import org.snd.common.http.LoggingInterceptor
 import org.snd.common.http.SimpleCookieJar
 import org.snd.common.http.UserAgentInterceptor
 import org.snd.config.KavitaConfig
@@ -67,15 +66,15 @@ class MediaServerModule(
         .newBuilder()
         .readTimeout(0, SECONDS)
         .addInterceptor(BasicAuthInterceptor(komgaConfig.komgaUser, komgaConfig.komgaPassword))
-        .addInterceptor(HttpLoggingInterceptor { message -> KotlinLogging.logger {}.debug { message } }.setLevel(BASIC))
         .addInterceptor(UserAgentInterceptor())
+        .addInterceptor(LoggingInterceptor())
         .build()
 
     private val komgaSseClient = httpClient.newBuilder()
         .readTimeout(0, SECONDS)
         .addInterceptor(BasicAuthInterceptor(komgaConfig.komgaUser, komgaConfig.komgaPassword))
-        .addInterceptor(HttpLoggingInterceptor { message -> KotlinLogging.logger {}.debug { message } }.setLevel(BASIC))
         .addInterceptor(UserAgentInterceptor())
+        .addInterceptor(LoggingInterceptor(HttpLoggingInterceptor.Level.BASIC))
         .build()
 
     private val komgaClient = KomgaClient(
@@ -91,10 +90,8 @@ class MediaServerModule(
         client = HttpClient(
             client = httpClient
                 .newBuilder()
-                .addInterceptor(HttpLoggingInterceptor { message ->
-                    KotlinLogging.logger {}.debug { message }
-                }.setLevel(BASIC))
                 .addInterceptor(UserAgentInterceptor())
+                .addInterceptor(LoggingInterceptor())
                 .build(),
             name = "KavitaAuth"
         ),
@@ -111,9 +108,9 @@ class MediaServerModule(
 
     private val kavitaHttpClient = httpClient
         .newBuilder()
-        .addInterceptor(HttpLoggingInterceptor { message -> KotlinLogging.logger {}.debug { message } }.setLevel(BASIC))
         .addInterceptor(KavitaBearerAuthInterceptor(kavitaTokenProvider))
         .addInterceptor(UserAgentInterceptor())
+        .addInterceptor(LoggingInterceptor())
         .build()
 
     private val kavitaClient = KavitaClient(
