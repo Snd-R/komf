@@ -12,7 +12,7 @@ data class MangaDexManga(
     val attributes: MangaDexAttributes,
     val authors: List<MangaDexAuthor>,
     val artists: List<MangaDexAuthor>,
-    val coverArt: MangaDexCoverArt,
+    val coverArt: MangaDexCoverArt?,
 )
 
 data class MangaDexAttributes(
@@ -132,7 +132,9 @@ data class MangaDexCoverArt(
 
 fun MangaDexManga.toSeriesSearchResult(): SeriesSearchResult {
     return SeriesSearchResult(
-        imageUrl = filesUrl.newBuilder().addPathSegments("covers/${id.id}/${coverArt.fileName}.512.jpg").toString(),
+        imageUrl = coverArt?.fileName?.let {
+            filesUrl.newBuilder().addPathSegments("covers/${id.id}/${coverArt.fileName}.512.jpg").toString()
+        },
         title = attributes.title["en"] ?: attributes.title.values.first(),
         provider = MANGADEX,
         resultId = id.id

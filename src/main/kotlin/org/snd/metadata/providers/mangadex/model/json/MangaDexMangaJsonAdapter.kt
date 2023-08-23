@@ -43,9 +43,9 @@ class MangaDexMangaJsonAdapter {
             }
     }
 
-    private fun coverArt(relationships: List<MangaDexRelationshipJson>): MangaDexCoverArt {
-        return relationships.first { it.type == "cover_art" }
-            .let { relationship ->
+    private fun coverArt(relationships: List<MangaDexRelationshipJson>): MangaDexCoverArt? {
+        return relationships.firstOrNull() { it.type == "cover_art" }
+            ?.let { relationship ->
                 MangaDexCoverArt(
                     id = MangaDexCoverArtId(relationship.id),
                     description = relationship.attributes!!["description"]!! as String,
