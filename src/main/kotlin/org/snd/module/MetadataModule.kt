@@ -11,6 +11,7 @@ import org.apache.commons.lang3.SystemUtils
 import org.snd.common.exceptions.HttpException
 import org.snd.common.exceptions.ValidationException
 import org.snd.common.http.HttpClient
+import org.snd.common.http.UserAgentInterceptor
 import org.snd.config.AniListConfig
 import org.snd.config.CalibreConfig
 import org.snd.config.MetadataProvidersConfig
@@ -27,7 +28,6 @@ import org.snd.metadata.providers.anilist.AniListMetadataProvider
 import org.snd.metadata.providers.bangumi.BangumiClient
 import org.snd.metadata.providers.bangumi.BangumiMetadataMapper
 import org.snd.metadata.providers.bangumi.BangumiMetadataProvider
-import org.snd.metadata.providers.bangumi.BangumiUserAgentInterceptor
 import org.snd.metadata.providers.bookwalker.BookWalkerClient
 import org.snd.metadata.providers.bookwalker.BookWalkerMapper
 import org.snd.metadata.providers.bookwalker.BookWalkerMetadataProvider
@@ -151,6 +151,7 @@ class MetadataModule(
             .addInterceptor(HttpLoggingInterceptor { message ->
                 KotlinLogging.logger {}.debug { message }
             }.setLevel(HttpLoggingInterceptor.Level.BASIC))
+            .addInterceptor(UserAgentInterceptor())
         interceptors.forEach { httpClient.addInterceptor(it) }
 
         return HttpClient(
@@ -314,8 +315,7 @@ class MetadataModule(
                 .limitRefreshPeriod(Duration.ofSeconds(5))
                 .limitForPeriod(5)
                 .timeoutDuration(Duration.ofSeconds(5))
-                .build(),
-            interceptors = listOf(BangumiUserAgentInterceptor())
+                .build()
         )
 
         return BangumiClient(httpClient, jsonModule.moshi)
