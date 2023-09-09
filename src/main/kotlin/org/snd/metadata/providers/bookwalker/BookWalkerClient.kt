@@ -44,7 +44,8 @@ class BookWalkerClient(
             baseUrl.newBuilder().addPathSegments("series/${id.id}")
                 .addQueryParameter("page", page.toString())
                 .build()
-        ).build()
+        ).addHeader("Cookie", "safeSearch=111; glSafeSearch=1")
+        .build()
 
         return parser.parseSeriesBooks(client.execute(request))
     }
@@ -53,7 +54,8 @@ class BookWalkerClient(
         val request = Request.Builder().url(
             baseUrl.newBuilder().addPathSegments(id.id)
                 .build()
-        ).build()
+        ).addHeader("Cookie", "safeSearch=111; glSafeSearch=1")
+        .build()
 
         return parser.parseBook(client.execute(request))
     }
