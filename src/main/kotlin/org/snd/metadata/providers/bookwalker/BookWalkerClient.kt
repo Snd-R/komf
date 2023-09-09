@@ -28,7 +28,8 @@ class BookWalkerClient(
                 .addQueryParameter("qcat", category.number.toString())
                 .addQueryParameter("np", "0")
                 .build()
-        ).build()
+        ).addHeader("Cookie", "safeSearch=111; glSafeSearch=1")
+        .build()
 
         return try {
             parser.parseSearchResults(client.execute(request))
