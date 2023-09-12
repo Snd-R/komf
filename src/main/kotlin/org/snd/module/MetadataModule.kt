@@ -30,6 +30,7 @@ import org.snd.metadata.providers.bangumi.BangumiMetadataProvider
 import org.snd.metadata.providers.bookwalker.BookWalkerClient
 import org.snd.metadata.providers.bookwalker.BookWalkerMapper
 import org.snd.metadata.providers.bookwalker.BookWalkerMetadataProvider
+import org.snd.metadata.providers.bookwalker.BookWalkerSafeSearchInterceptor
 import org.snd.metadata.providers.comicvine.ComicVineApiKeyInterceptor
 import org.snd.metadata.providers.comicvine.ComicVineClient
 import org.snd.metadata.providers.comicvine.ComicVineMetadataMapper
@@ -277,6 +278,7 @@ class MetadataModule(
         return BookWalkerClient(
             createHttpClient(
                 name = "BookWalker",
+                interceptors = listOf(BookWalkerSafeSearchInterceptor()),
                 rateLimitConfig = RateLimiterConfig.custom()
                     .limitRefreshPeriod(Duration.ofSeconds(5))
                     .limitForPeriod(5)
