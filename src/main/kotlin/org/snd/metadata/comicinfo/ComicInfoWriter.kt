@@ -15,6 +15,8 @@ import org.snd.common.exceptions.ValidationException
 import org.snd.metadata.comicinfo.model.ComicInfo
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption.COPY_ATTRIBUTES
+import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.util.zip.Deflater.NO_COMPRESSION
 import java.util.zip.ZipEntry
 import kotlin.io.path.createTempFile
@@ -65,7 +67,7 @@ class ComicInfoWriter private constructor(
                     copyEntries(zip, output)
                 }
             }
-            tempFile.moveTo(archivePath, overwrite = true)
+            tempFile.moveTo(archivePath, REPLACE_EXISTING, COPY_ATTRIBUTES)
         }.onFailure {
             tempFile.deleteIfExists()
             throw it
@@ -95,7 +97,7 @@ class ComicInfoWriter private constructor(
                     putComicInfoEntry(comicInfoToWrite, output)
                 }
             }
-            tempFile.moveTo(archivePath, overwrite = true)
+            tempFile.moveTo(archivePath, REPLACE_EXISTING, COPY_ATTRIBUTES)
         }.onFailure {
             tempFile.deleteIfExists()
             throw it
