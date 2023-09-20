@@ -51,8 +51,8 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
         publicationStatus = status ?: oldMeta.publicationStatus,
         summary = summary ?: oldMeta.summary,
         publishers = publishers,
-        genres = genres?.map { KavitaGenre(id = 0, title = it) }?.toSet() ?: oldMeta.genres,
-        tags = tags?.map { KavitaTag(id = 0, title = it) }?.toSet() ?: oldMeta.tags,
+        genres = genres?.let { deduplicate(it) }?.map { KavitaGenre(id = 0, title = it) }?.toSet() ?: oldMeta.genres,
+        tags = tags?.let { deduplicate(it) }?.map { KavitaTag(id = 0, title = it) }?.toSet() ?: oldMeta.tags,
         writers = authors
             ?.get(AuthorRole.WRITER.name.lowercase())
             ?.map { KavitaAuthor(id = 0, name = it.name, role = WRITER) }?.toSet()
@@ -90,6 +90,12 @@ fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSe
     )
     return KavitaSeriesMetadataUpdate(metadata, collectionTags)
 }
+
+private val normalizeRegex = "[^\\p{L}0-9+!]".toRegex()
+private fun deduplicate(values: Collection<String>) = values
+    .map { normalizeRegex.replace(it, "").trim().lowercase() to it }
+    .distinctBy { (normalized, _) -> normalized }
+    .map { (_, value) -> value }
 
 fun kavitaSeriesResetRequest(seriesId: KavitaSeriesId): KavitaSeriesMetadataUpdate {
     val metadata = KavitaSeriesMetadata(
