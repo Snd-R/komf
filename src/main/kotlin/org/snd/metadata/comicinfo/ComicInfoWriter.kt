@@ -15,15 +15,15 @@ import org.snd.common.exceptions.ValidationException
 import org.snd.metadata.comicinfo.model.ComicInfo
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
-import java.nio.file.StandardCopyOption.COPY_ATTRIBUTES
-import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.util.zip.Deflater.NO_COMPRESSION
 import java.util.zip.ZipEntry
 import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.extension
+import kotlin.io.path.getPosixFilePermissions
 import kotlin.io.path.isWritable
 import kotlin.io.path.moveTo
+import kotlin.io.path.setPosixFilePermissions
 
 
 private const val COMIC_INFO = "ComicInfo.xml"
@@ -67,7 +67,9 @@ class ComicInfoWriter private constructor(
                     copyEntries(zip, output)
                 }
             }
-            tempFile.moveTo(archivePath, REPLACE_EXISTING, COPY_ATTRIBUTES)
+
+            copyPermissions(from = archivePath, to = tempFile)
+            tempFile.moveTo(archivePath, overwrite = true)
         }.onFailure {
             tempFile.deleteIfExists()
             throw it
@@ -97,7 +99,9 @@ class ComicInfoWriter private constructor(
                     putComicInfoEntry(comicInfoToWrite, output)
                 }
             }
-            tempFile.moveTo(archivePath, REPLACE_EXISTING, COPY_ATTRIBUTES)
+
+            copyPermissions(from = archivePath, to = tempFile)
+            tempFile.moveTo(archivePath, overwrite = true)
         }.onFailure {
             tempFile.deleteIfExists()
             throw it
@@ -140,6 +144,11 @@ class ComicInfoWriter private constructor(
         if (!path.isWritable()) {
             throw ValidationException("No write permission for file $path")
         }
+    }
+
+    private fun copyPermissions(from: Path, to: Path) {
+        runCatching { from.getPosixFilePermissions() }.getOrNull()
+            ?.let { to.setPosixFilePermissions(it) }
     }
 
     private fun mergeComicInfoMetadata(old: ComicInfo, new: ComicInfo): ComicInfo {
