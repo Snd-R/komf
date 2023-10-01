@@ -85,27 +85,28 @@ class MangaDexMangaJsonAdapter {
     }
 
     private fun links(linksMap: Map<String, String>): MangaDexLinks {
-        return linksMap.entries.fold(MangaDexLinks.Builder())
-        { builder, (key, value) ->
-            when (key) {
-                "al" -> builder.apply { aniList = "https://anilist.co/manga/$value" }
-                "ap" -> builder.apply { animePlanet = "https://www.anime-planet.com/manga/$value" }
-                "bw" -> builder.apply { bookWalker = "https://bookwalker.jp/$value" }
-                "mu" -> builder.apply { mangaUpdates = "https://www.mangaupdates.com/series.html?id=$value" }
-                "nu" -> builder.apply { novelUpdates = "https://www.novelupdates.com/series/$value" }
-                "kt" -> builder.apply {
-                    kitsu = value.toIntOrNull()?.let { "https://kitsu.io/manga/$it" }
-                        ?: "https://kitsu.io/manga/$value"
-                }
+        return linksMap.entries
+            .map { (key, value) -> key to value.trim() }
+            .fold(MangaDexLinks.Builder()) { builder, (key, value) ->
+                when (key) {
+                    "al" -> builder.apply { aniList = "https://anilist.co/manga/$value" }
+                    "ap" -> builder.apply { animePlanet = "https://www.anime-planet.com/manga/$value" }
+                    "bw" -> builder.apply { bookWalker = "https://bookwalker.jp/$value" }
+                    "mu" -> builder.apply { mangaUpdates = "https://www.mangaupdates.com/series.html?id=$value" }
+                    "nu" -> builder.apply { novelUpdates = "https://www.novelupdates.com/series/$value" }
+                    "kt" -> builder.apply {
+                        kitsu = value.toIntOrNull()?.let { "https://kitsu.io/manga/$it" }
+                            ?: "https://kitsu.io/manga/$value"
+                    }
 
-                "amz" -> builder.apply { amazon = value }
-                "ebj" -> builder.apply { ebookJapan = value }
-                "mal" -> builder.apply { myAnimeList = "https://myanimelist.net/manga/$value" }
-                "cdj" -> builder.apply { cdJapan = value }
-                "raw" -> builder.apply { raw = value }
-                "engtl" -> builder.apply { engTl = value }
-                else -> builder
-            }
-        }.build()
+                    "amz" -> builder.apply { amazon = value }
+                    "ebj" -> builder.apply { ebookJapan = value }
+                    "mal" -> builder.apply { myAnimeList = "https://myanimelist.net/manga/$value" }
+                    "cdj" -> builder.apply { cdJapan = value }
+                    "raw" -> builder.apply { raw = value }
+                    "engtl" -> builder.apply { engTl = value }
+                    else -> builder
+                }
+            }.build()
     }
 }
