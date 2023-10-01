@@ -35,9 +35,12 @@ class MetadataUpdateMapper {
                 authors = getIfNotLockedOrEmpty(authors, authorsLock),
                 tags = getIfNotLockedOrEmpty(bookMetadata?.tags, tagsLock),
                 isbn = getIfNotLockedOrEmpty(bookMetadata?.isbn, isbnLock),
-                number = getIfNotLockedOrEmpty(bookMetadata?.number?.toString(), numberLock),
-                numberSort = getIfNotLockedOrEmpty(bookMetadata?.number?.start, numberSortLock),
                 links = getIfNotLockedOrEmpty(bookMetadata?.links, linksLock),
+
+                number = bookMetadata?.number?.toString(),
+                numberSort = bookMetadata?.number?.start,
+                numberLock = bookMetadata?.number != null,
+                numberSortLock = bookMetadata?.number != null,
             )
         }
     }
