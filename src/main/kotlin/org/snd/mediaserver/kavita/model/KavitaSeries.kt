@@ -20,7 +20,7 @@ class KavitaSeries(
     val pagesRead: Int,
     val latestReadDate: LocalDateTime,
     val lastChapterAdded: LocalDateTime,
-    val userRating: Int,
+    val userRating: Double,
     val userReview: String?,
     val format: Int,
     val created: LocalDateTime,
