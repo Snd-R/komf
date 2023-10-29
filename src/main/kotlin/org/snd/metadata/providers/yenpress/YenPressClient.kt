@@ -56,7 +56,7 @@ class YenPressClient(
     }
 
     fun getBookList(id: YenPressSeriesId): List<YenPressBookShort> {
-        return generateSequence(getMoreBooks(id, 0)) { it.nextOrd?.let { next -> getMoreBooks(id, next) } }
+        return generateSequence(getMoreBooks(id, 99999)) { it.nextOrd?.let { next -> getMoreBooks(id, next) } }
             .flatMap { it.books }
             .sortedBy { it.number?.start }
             .toList()
