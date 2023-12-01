@@ -49,16 +49,16 @@ data class KavitaSeriesMetadata(
     val publicationStatusLocked: Boolean,
     val genresLocked: Boolean,
     val tagsLocked: Boolean,
-    val writersLocked: Boolean,
-    val charactersLocked: Boolean,
-    val coloristsLocked: Boolean,
-    val editorsLocked: Boolean,
-    val inkersLocked: Boolean,
-    val letterersLocked: Boolean,
-    val pencillersLocked: Boolean,
-    val publishersLocked: Boolean,
-    val translatorsLocked: Boolean,
-    val coverArtistsLocked: Boolean,
+    val writerLocked: Boolean,
+    val characterLocked: Boolean,
+    val coloristLocked: Boolean,
+    val editorLocked: Boolean,
+    val inkerLocked: Boolean,
+    val lettererLocked: Boolean,
+    val pencillerLocked: Boolean,
+    val publisherLocked: Boolean,
+    val translatorLocked: Boolean,
+    val coverArtistLocked: Boolean,
     val releaseYearLocked: Boolean,
 )
 
@@ -110,14 +110,14 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
             translators.map { MediaServerAuthor(it.name, TRANSLATOR.name) }
 
     val authorsLock = sequenceOf(
-        writersLocked,
-        coverArtistsLocked,
-        pencillersLocked,
-        letterersLocked,
-        inkersLocked,
-        coloristsLocked,
-        editorsLocked,
-        translatorsLocked
+        writerLocked,
+        coverArtistLocked,
+        pencillerLocked,
+        lettererLocked,
+        inkerLocked,
+        coloristLocked,
+        editorLocked,
+        translatorLocked
     ).any { it } //TODO per role locks?
 
     return MediaServerSeriesMetadata(
@@ -143,7 +143,7 @@ fun KavitaSeriesMetadata.mediaServerSeriesMetadata(series: KavitaSeries): MediaS
         titleSortLock = series.sortNameLocked,
         summaryLock = summaryLocked,
         readingDirectionLock = false,
-        publisherLock = publishersLocked,
+        publisherLock = publisherLocked,
         ageRatingLock = ageRatingLocked,
         languageLock = languageLocked,
         genresLock = genresLocked,
