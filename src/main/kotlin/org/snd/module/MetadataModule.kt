@@ -220,11 +220,22 @@ class MetadataModule(
         return AniListClient(
             okHttpClient = okHttpClient,
             name = "AniList",
+
             rateLimiterConfig = RateLimiterConfig.custom()
                 .limitRefreshPeriod(Duration.ofSeconds(5))
                 .limitForPeriod(5)
                 .timeoutDuration(Duration.ofSeconds(5))
-                .build()
+                .build(),
+
+            retryConfig = RetryConfig.custom<Any>()
+                .intervalBiFunction { _, result ->
+                    if (result.isRight) return@intervalBiFunction 5000
+
+                    val exception = result.left
+                    return@intervalBiFunction if (exception is HttpException && exception.code == 429) {
+                        exception.headers["retry-after"]?.toLong()?.times(1000) ?: 5000
+                    } else 5000
+                }.build()
         )
     }
 
