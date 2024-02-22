@@ -8,6 +8,7 @@ data class MediaServerBook(
     val name: String,
     val url: String,
     val number: Int,
+    val oneshot: Boolean,
     val metadata: MediaServerBookMetadata,
     val deleted: Boolean,
 )

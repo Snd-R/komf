@@ -17,7 +17,13 @@ class MetadataPostProcessor(
 
     fun process(metadata: SeriesAndBookMetadata): SeriesAndBookMetadata {
         val seriesMetadata = postProcessSeries(metadata.seriesMetadata)
-        val bookMetadata = postProcessBooks(metadata.bookMetadata)
+        var bookMetadata = postProcessBooks(metadata.bookMetadata)
+
+        //oneshot
+        if (bookMetadata.size == 1 && bookMetadata.keys.first().oneshot && bookMetadata.values.first() == null) {
+            bookMetadata = bookMetadata.map { (book, _) -> book to BookMetadata(links = seriesMetadata.links.toList()) }.toMap()
+        }
+
         return SeriesAndBookMetadata(seriesMetadata, bookMetadata)
     }
 

@@ -50,6 +50,7 @@ fun KavitaChapter.mediaServerBook(volume: KavitaVolume, metadata: KavitaChapterM
         name = fileName,
         url = filePath.toString(),
         number = number?.toIntOrNull() ?: 0,
+        oneshot = false,
         metadata = metadata.mediaServerBookMetadata(this),
         deleted = false,
     )
