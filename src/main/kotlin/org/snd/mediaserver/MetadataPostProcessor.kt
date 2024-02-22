@@ -21,7 +21,12 @@ class MetadataPostProcessor(
 
         //oneshot
         if (bookMetadata.size == 1 && bookMetadata.keys.first().oneshot && bookMetadata.values.first() == null) {
-            bookMetadata = bookMetadata.map { (book, _) -> book to BookMetadata(links = seriesMetadata.links.toList()) }.toMap()
+            bookMetadata = bookMetadata.map { (book, _) -> book to BookMetadata(
+                summary = seriesMetadata.summary,
+                tags = seriesMetadata.tags.toSet(),
+                links = seriesMetadata.links.toList(),
+            )
+            }.toMap()
         }
 
         return SeriesAndBookMetadata(seriesMetadata, bookMetadata)
