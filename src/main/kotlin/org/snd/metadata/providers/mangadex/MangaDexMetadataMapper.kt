@@ -108,7 +108,7 @@ class MangaDexMetadataMapper(
                     .mapValues { (_, value) -> value.firstOrNull() }
             }
             .mapNotNull { byLocale ->
-                (byLocale["en"] ?: byLocale["jp"] ?: byLocale.values.firstOrNull())
+                (byLocale["en"] ?: byLocale["ja"] ?: byLocale.values.firstOrNull())
                     ?.let { coverArtToBook(it) }
             }
 
