@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 VOLUME /tmp
 WORKDIR app
 COPY build/libs/komf-1.0-SNAPSHOT-all.jar ./
