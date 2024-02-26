@@ -1,5 +1,6 @@
 package org.snd.module
 
+import com.apollographql.apollo3.exception.ApolloHttpException
 import io.github.resilience4j.core.IntervalFunction
 import io.github.resilience4j.ratelimiter.RateLimiterConfig
 import io.github.resilience4j.retry.RetryConfig
@@ -232,9 +233,20 @@ class MetadataModule(
                     if (result.isRight) return@intervalBiFunction 5000
 
                     val exception = result.left
-                    return@intervalBiFunction if (exception is HttpException && exception.code == 429) {
-                        exception.headers["retry-after"]?.toLong()?.times(1000) ?: 5000
-                    } else 5000
+                    return@intervalBiFunction when {
+                        exception is ApolloHttpException && exception.statusCode == 429 -> {
+                            exception.headers
+                                .firstOrNull { it.name == "retry-after" }
+                                ?.let { it.value.toLongOrNull()?.times(1000) }
+                                ?: 5000
+                        }
+
+                        exception is HttpException && exception.code == 429 -> {
+                            exception.headers["retry-after"]?.toLong()?.times(1000) ?: 5000
+                        }
+
+                        else -> 5000
+                    }
                 }.build()
         )
     }
