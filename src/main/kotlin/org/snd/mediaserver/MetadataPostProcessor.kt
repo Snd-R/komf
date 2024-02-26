@@ -22,21 +22,24 @@ class MetadataPostProcessor(
     }
 
     private fun postProcessSeries(series: SeriesMetadata): SeriesMetadata {
-        val seriesTitle = if (config.seriesTitle) seriesTitle(series.titles) ?: series.title else null
-
         val altTitles = if (config.alternativeSeriesTitles)
             series.titles.asSequence()
                 .filter { (it.language == null || it.language in config.alternativeSeriesTitleLanguages) }
-                .filter { seriesTitle?.name == null || distinctName(it.name) != distinctName(seriesTitle.name) }
                 .sortedWith(compareBy(nullsLast()) { it.language })
                 .distinctBy { distinctName(it.name) }
                 .toList()
         else emptyList()
+
+        val seriesTitle = chooseSeriesTitle(series) ?: altTitles.firstOrNull()
+        val altsWithoutSeriesTitle =
+            if (seriesTitle != null) altTitles.filter { distinctName(it.name) != distinctName(seriesTitle.name) }
+            else altTitles
+
         val tags = if (config.scoreTag && series.score != null) series.tags.plus("score: ${series.score.toInt()}") else series.tags
 
         return series.copy(
             title = seriesTitle,
-            titles = altTitles,
+            titles = altsWithoutSeriesTitle,
             readingDirection = config.readingDirectionValue ?: series.readingDirection,
             language = config.languageValue ?: series.language,
             tags = tags,
@@ -66,9 +69,13 @@ class MetadataPostProcessor(
         )
     }
 
-    private fun seriesTitle(titles: Collection<SeriesTitle>): SeriesTitle? {
-        return if (config.seriesTitleLanguage == null) titles.firstOrNull()
-        else titles.find { it.language == config.seriesTitleLanguage }
+    private fun chooseSeriesTitle(series: SeriesMetadata): SeriesTitle? {
+        if (!config.seriesTitle) return null
+
+        val chosenTitle = if (config.seriesTitleLanguage == null) series.titles.firstOrNull()
+        else series.titles.find { it.language == config.seriesTitleLanguage }
+
+        return chosenTitle ?: series.title
     }
 
     private fun distinctName(title: String): String {
