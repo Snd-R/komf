@@ -68,7 +68,7 @@ class MetadataPostProcessingConfigUpdateDto {
     fun isSet(prop: String) = isSet.getOrDefault(prop, false)
 
     var seriesTitle: Boolean? = null
-    var seriesTitleLanguage: String? = null
+    var seriesTitleLanguage: String? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
 
     @Deprecated("replaced with seriesTitleLanguage")
     var titleType: TitleType? = null

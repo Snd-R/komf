@@ -501,13 +501,12 @@ class ConfigUpdateMapper {
     ): MetadataPostProcessingConfig {
         return config.copy(
             seriesTitle = patch.seriesTitle ?: config.seriesTitle,
-            //TODO remove titleType in future
-            seriesTitleLanguage = patch.seriesTitleLanguage ?: when (patch.titleType) {
-                TitleType.ROMAJI -> "ja-ro"
-                TitleType.LOCALIZED -> "en"
-                TitleType.NATIVE -> "ja"
-                null -> null
-            } ?: config.seriesTitleLanguage,
+            seriesTitleLanguage = if (!patch.isSet("seriesTitleLanguage")) config.seriesTitleLanguage
+            else when (patch.seriesTitleLanguage) {
+                null, "" -> null
+                else -> patch.seriesTitleLanguage
+
+            },
             alternativeSeriesTitles = patch.alternativeSeriesTitles ?: config.alternativeSeriesTitles,
             alternativeSeriesTitleLanguages = patch.alternativeSeriesTitleLanguages ?: config.alternativeSeriesTitleLanguages,
             orderBooks = patch.orderBooks ?: config.orderBooks,
