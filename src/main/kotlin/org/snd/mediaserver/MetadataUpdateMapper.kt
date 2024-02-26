@@ -39,8 +39,8 @@ class MetadataUpdateMapper {
 
                 number = bookMetadata?.number?.toString(),
                 numberSort = bookMetadata?.number?.start,
-                numberLock = bookMetadata?.number != null,
-                numberSortLock = bookMetadata?.number != null,
+                numberLock = bookMetadata?.let { it.number != null },
+                numberSortLock = bookMetadata?.let { it.number != null },
             )
         }
     }
