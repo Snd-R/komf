@@ -30,7 +30,10 @@ class MetadataPostProcessor(
                 .toList()
         else emptyList()
 
-        val seriesTitle = chooseSeriesTitle(series) ?: altTitles.firstOrNull()
+        val seriesTitle = if (config.seriesTitle) {
+            chooseSeriesTitle(series) ?: altTitles.firstOrNull()
+        } else null
+
         val altsWithoutSeriesTitle =
             if (seriesTitle != null) altTitles.filter { distinctName(it.name) != distinctName(seriesTitle.name) }
             else altTitles
@@ -70,8 +73,6 @@ class MetadataPostProcessor(
     }
 
     private fun chooseSeriesTitle(series: SeriesMetadata): SeriesTitle? {
-        if (!config.seriesTitle) return null
-
         val chosenTitle = if (config.seriesTitleLanguage == null) series.titles.firstOrNull()
         else series.titles.find { it.language == config.seriesTitleLanguage }
 
