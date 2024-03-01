@@ -20,6 +20,7 @@ data class KomgaBook(
     val name: String,
     val url: String,
     val number: Int,
+    val oneshot: Boolean,
     val created: ZonedDateTime,
     val lastModified: ZonedDateTime,
     val fileLastModified: ZonedDateTime,
@@ -86,6 +87,7 @@ fun KomgaBook.mediaServerBook() = MediaServerBook(
     name = name,
     url = url,
     number = number,
+    oneshot = oneshot,
     metadata = metadata.mediaServerBookMetadata(),
     deleted = deleted,
 )
