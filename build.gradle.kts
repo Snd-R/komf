@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.10"
-    kotlin("plugin.serialization") version "1.9.10"
+    kotlin("jvm") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.22"
     id("com.github.johnrengelman.shadow").version("8.1.1")
-    id("com.google.devtools.ksp").version("1.9.10-1.0.13")
-    id("org.flywaydb.flyway") version "9.22.3"
-    id("nu.studer.jooq") version "8.2.1"
+    id("com.google.devtools.ksp").version("1.9.22-1.0.17")
+    id("org.flywaydb.flyway") version "10.8.1"
+    id("nu.studer.jooq") version "9.0"
     id("com.apollographql.apollo3").version("3.8.2")
 }
 
@@ -19,48 +19,48 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("ch.qos.logback:logback-core:1.4.11")
-    implementation("ch.qos.logback:logback-classic:1.4.11")
-    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("ch.qos.logback:logback-core:1.5.1")
+    implementation("ch.qos.logback:logback-classic:1.5.1")
+    implementation("org.slf4j:slf4j-api:2.0.12")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okhttp3:okhttp-sse:4.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-    implementation("com.squareup.moshi:moshi:1.15.0")
-    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp-sse:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.moshi:moshi:1.15.1")
+    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
     implementation("com.apollographql.apollo3:apollo-runtime")
 
-    implementation("io.javalin:javalin:5.6.2")
+    implementation("io.javalin:javalin:6.1.2")
 
-    implementation("io.github.resilience4j:resilience4j-ratelimiter:2.1.0")
-    implementation("io.github.resilience4j:resilience4j-retry:2.1.0")
-    implementation("io.github.resilience4j:resilience4j-kotlin:2.1.0")
+    implementation("io.github.resilience4j:resilience4j-ratelimiter:2.2.0")
+    implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
+    implementation("io.github.resilience4j:resilience4j-kotlin:2.2.0")
 
-    implementation("org.flywaydb:flyway-core:9.22.3")
-    implementation("org.jooq:jooq:3.18.7")
-    implementation("org.xerial:sqlite-jdbc:3.43.0.0")
-    jooqGenerator("org.xerial:sqlite-jdbc:3.43.0.0")
-    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("org.flywaydb:flyway-core:10.8.1")
+    implementation("org.jooq:jooq:3.19.5")
+    implementation("org.xerial:sqlite-jdbc:3.45.1.0")
+    jooqGenerator("org.xerial:sqlite-jdbc:3.45.1.0")
+    implementation("com.zaxxer:HikariCP:5.1.0")
 
-    implementation("io.github.pdvrieze.xmlutil:core-jvm:0.86.2")
-    implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.86.2")
-    implementation("com.charleskorn.kaml:kaml:0.55.0")
+    implementation("io.github.pdvrieze.xmlutil:core-jvm:0.86.3")
+    implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.86.3")
+    implementation("com.charleskorn.kaml:kaml:0.57.0")
 
-    implementation("com.github.ajalt.clikt:clikt:4.2.1")
-    implementation("commons-io:commons-io:2.14.0")
-    implementation("org.apache.commons:commons-compress:1.24.0")
-    implementation("org.apache.commons:commons-text:1.10.0")
-    implementation("commons-validator:commons-validator:1.7")
+    implementation("com.github.ajalt.clikt:clikt:4.2.2")
+    implementation("commons-io:commons-io:2.15.0")
+    implementation("org.apache.commons:commons-compress:1.26.0")
+    implementation("org.apache.commons:commons-text:1.11.0")
+    implementation("commons-validator:commons-validator:1.8.0")
     implementation("org.apache.velocity:velocity-engine-core:2.3")
-    implementation("org.jsoup:jsoup:1.16.1")
+    implementation("org.jsoup:jsoup:1.17.2")
     implementation("net.grey-panther:natural-comparator:1.1")
 
-    implementation("com.microsoft.signalr:signalr:7.0.8")
-    implementation("org.bitbucket.b_c:jose4j:0.9.3")
+    implementation("com.microsoft.signalr:signalr:8.0.2")
+    implementation("org.bitbucket.b_c:jose4j:0.9.5")
 
-    implementation("com.twelvemonkeys.imageio:imageio-core:3.9.4")
-    runtimeOnly("com.twelvemonkeys.imageio:imageio-jpeg:3.9.4")
+    implementation("com.twelvemonkeys.imageio:imageio-core:3.10.1")
+    runtimeOnly("com.twelvemonkeys.imageio:imageio-jpeg:3.10.1")
 
 }
 
@@ -121,7 +121,7 @@ tasks.flywayMigrate {
 }
 
 jooq {
-    version.set("3.18.7")
+    version.set("3.19.5")
     configurations {
         create("main") {
             jooqConfiguration.apply {
@@ -156,7 +156,7 @@ apollo {
 }
 
 tasks.wrapper {
-    gradleVersion = "8.4"
+    gradleVersion = "8.6"
     distributionType = Wrapper.DistributionType.ALL
 }
 

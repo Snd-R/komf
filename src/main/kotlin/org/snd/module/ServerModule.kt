@@ -3,6 +3,7 @@ package org.snd.module
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import io.javalin.Javalin
+import io.javalin.plugin.bundled.CorsPlugin
 import io.javalin.util.ConcurrencyUtil
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.eclipse.jetty.server.LowResourceMonitor
@@ -32,40 +33,43 @@ class ServerModule(
     private val configWriter = ConfigWriter(Yaml(configuration = YamlConfiguration(encodeDefaults = false)))
     private val configMapper = ConfigUpdateMapper()
 
-    private val jetty = Server(ConcurrencyUtil.jettyThreadPool("JettyServerThreadPool", 1, 20))
+    private val jetty = Server(ConcurrencyUtil.jettyThreadPool("JettyServerThreadPool", 1, 20, false))
         .apply {
             addBean(LowResourceMonitor(this))
             insertHandler(StatisticsHandler())
             stopTimeout = 30000L
         }
-    private val server = Javalin.create { config ->
-        config.plugins.enableCors { cors -> cors.add { it.anyHost() } }
-        config.showJavalinBanner = false
-        config.jetty.server { jetty }
-    }.routes {
-        MetadataController(
-            metadataServiceProvider = mediaServerModule.komgaMetadataServiceProvider,
-            metadataUpdateServiceProvider = mediaServerModule.komgaMetadataUpdateServiceProvider,
-            mediaServerClient = mediaServerModule.komgaMediaServerClient,
-            taskHandler = executor,
-            moshi = jsonModule.moshi,
-            serverType = KOMGA
-        ).register()
-        MetadataController(
-            metadataServiceProvider = mediaServerModule.kavitaMetadataServiceProvider,
-            metadataUpdateServiceProvider = mediaServerModule.kavitaMetadataUpdateServiceProvider,
-            mediaServerClient = mediaServerModule.kavitaMediaServerClient,
-            taskHandler = executor,
-            moshi = jsonModule.moshi,
-            serverType = KAVITA
-        ).register()
 
-        ConfigController(
-            appContext = appContext,
-            configWriter = configWriter,
-            moshi = jsonModule.moshi,
-            configMapper = configMapper
-        ).register()
+    private val server = Javalin.create { config ->
+        config.registerPlugin(CorsPlugin { cors -> cors.addRule { it.anyHost() } })
+        config.showJavalinBanner = false
+        config.jetty.modifyServer { jetty }
+
+        config.router.apiBuilder {
+            MetadataController(
+                metadataServiceProvider = mediaServerModule.komgaMetadataServiceProvider,
+                metadataUpdateServiceProvider = mediaServerModule.komgaMetadataUpdateServiceProvider,
+                mediaServerClient = mediaServerModule.komgaMediaServerClient,
+                taskHandler = executor,
+                moshi = jsonModule.moshi,
+                serverType = KOMGA
+            ).register()
+            MetadataController(
+                metadataServiceProvider = mediaServerModule.kavitaMetadataServiceProvider,
+                metadataUpdateServiceProvider = mediaServerModule.kavitaMetadataUpdateServiceProvider,
+                mediaServerClient = mediaServerModule.kavitaMediaServerClient,
+                taskHandler = executor,
+                moshi = jsonModule.moshi,
+                serverType = KAVITA
+            ).register()
+
+            ConfigController(
+                appContext = appContext,
+                configWriter = configWriter,
+                moshi = jsonModule.moshi,
+                configMapper = configMapper
+            ).register()
+        }
     }
 
     init {
@@ -84,7 +88,7 @@ class ServerModule(
         while (true) {
             try {
                 if (!jetty.isStopped || !jetty.isFailed)
-                    server.close()
+                    server.stop()
                 return
             } catch (e: Exception) {
                 //ignore
