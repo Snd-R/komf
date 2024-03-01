@@ -37,10 +37,13 @@ class MetadataUpdateMapper {
                 isbn = getIfNotLockedOrEmpty(bookMetadata?.isbn, isbnLock),
                 links = getIfNotLockedOrEmpty(bookMetadata?.links, linksLock),
 
+                // ignore lock since we can't know if komf was the one to lock number
                 number = bookMetadata?.number?.toString(),
                 numberSort = bookMetadata?.number?.start,
-                numberLock = bookMetadata?.let { it.number != null },
-                numberSortLock = bookMetadata?.let { it.number != null },
+
+                // lock if number is not null; do not unlock if was locked
+                numberLock = numberLock || bookMetadata?.number != null,
+                numberSortLock = numberSortLock || bookMetadata?.numberSort != null,
             )
         }
     }
