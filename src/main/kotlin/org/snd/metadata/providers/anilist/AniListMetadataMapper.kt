@@ -110,7 +110,7 @@ class AniListMetadataMapper(
     fun toSearchResult(search: AniListManga): SeriesSearchResult {
         val title = search.title?.english ?: search.title?.romaji ?: search.title?.native
         return SeriesSearchResult(
-            imageUrl = search.coverImage?.large,
+            imageUrl = search.coverImage?.extraLarge,
             title = title!!,
             provider = Provider.ANILIST,
             resultId = search.id.toString()
