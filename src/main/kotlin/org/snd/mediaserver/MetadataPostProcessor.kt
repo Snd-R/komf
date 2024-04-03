@@ -16,23 +16,12 @@ class MetadataPostProcessor(
 ) {
 
     fun process(metadata: SeriesAndBookMetadata): SeriesAndBookMetadata {
-        var seriesMetadata = postProcessSeries(metadata.seriesMetadata)
-        var bookMetadata = postProcessBooks(metadata.bookMetadata)
+        val seriesMetadata = postProcessSeries(metadata.seriesMetadata)
+        val bookMetadata = postProcessBooks(metadata.bookMetadata)
 
-        //oneshot
-        if (bookMetadata.size == 1 && bookMetadata.keys.first().oneshot && bookMetadata.values.first() == null) {
-            bookMetadata = bookMetadata.map { (book, _) -> book to BookMetadata(
-                summary = seriesMetadata.summary,
-                tags = seriesMetadata.tags.toSet(),
-                links = seriesMetadata.links.toList(),
-                thumbnail = seriesMetadata.thumbnail
-            ) }.toMap()
-            seriesMetadata = seriesMetadata.copy(
-                thumbnail = null //series thumbnail should be null for oneshots
-            )
-        }
+        val updated = handleKomgaOneshot(seriesMetadata, bookMetadata)
 
-        return SeriesAndBookMetadata(seriesMetadata, bookMetadata)
+        return updated
     }
 
     private fun postProcessSeries(series: SeriesMetadata): SeriesMetadata {
@@ -98,5 +87,29 @@ class MetadataPostProcessor(
             .let { StringUtils.stripAccents(it) }
             .let { StringUtils.replaceFullwidthChars(it) }
             .lowercase()
+    }
+
+    private fun handleKomgaOneshot(
+        seriesMetadata: SeriesMetadata,
+        bookMetadata: Map<MediaServerBook, BookMetadata?>
+    ): SeriesAndBookMetadata {
+        if (bookMetadata.size > 1 || bookMetadata.keys.firstOrNull()?.oneshot == false) {
+            return SeriesAndBookMetadata(seriesMetadata, bookMetadata)
+        }
+
+        val newBookMetadata = bookMetadata.map { (book, metadata) ->
+            book to BookMetadata(
+                summary = metadata?.summary ?: seriesMetadata.summary,
+                tags = metadata?.tags?.toSet() ?: seriesMetadata.tags.toSet(),
+                links = metadata?.links?.toList() ?: seriesMetadata.links.toList(),
+                thumbnail = metadata?.thumbnail ?: seriesMetadata.thumbnail
+            )
+        }.toMap()
+
+        val newSeriesMetadata = seriesMetadata.copy(
+            thumbnail = null //series thumbnail should be null for oneshots
+        )
+
+        return SeriesAndBookMetadata(newSeriesMetadata, newBookMetadata)
     }
 }
