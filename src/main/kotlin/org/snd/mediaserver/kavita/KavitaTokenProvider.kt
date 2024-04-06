@@ -19,6 +19,8 @@ class KavitaTokenProvider(
         if (verificationKey != null)
             setVerificationKey(SecretKeySpec(Base64.getDecoder().decode(verificationKey), "HmacSHA512"))
         else setSkipSignatureVerification()
+
+        setAllowedClockSkewInSeconds(60)
     }.build()
 
     @Volatile
