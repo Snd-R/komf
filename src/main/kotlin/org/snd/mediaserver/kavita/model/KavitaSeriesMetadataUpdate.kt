@@ -19,7 +19,7 @@ import org.snd.metadata.model.metadata.SeriesStatus
 @JsonClass(generateAdapter = true)
 data class KavitaSeriesMetadataUpdate(
     val seriesMetadata: KavitaSeriesMetadata,
-    val collectionTags: Collection<KavitaCollectionTag>
+    val collectionTags: Collection<KavitaCollectionTag>?
 )
 
 fun MediaServerSeriesMetadataUpdate.kavitaSeriesMetadataUpdate(oldMeta: KavitaSeriesMetadata): KavitaSeriesMetadataUpdate {

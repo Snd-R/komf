@@ -10,7 +10,7 @@ data class KavitaVolume(
     val minNumber: Float?,
     val maxNumber: Float?,
     @Deprecated("replaced with minNumber in new releases")
-    val number: Float,
+    val number: Int?,
     val name: String,
     val pages: Int,
     val pagesRead: Int,

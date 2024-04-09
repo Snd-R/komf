@@ -20,7 +20,7 @@ data class KavitaSeriesMetadata(
     val id: Int,
     val seriesId: Int,
     val summary: String?,
-    val collectionTags: Collection<KavitaCollectionTag>,
+    val collectionTags: Collection<KavitaCollectionTag>?,
     val genres: Set<KavitaGenre>,
     val tags: Set<KavitaTag>,
     val writers: Set<KavitaAuthor>,
