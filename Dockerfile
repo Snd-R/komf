@@ -12,3 +12,5 @@ ENV LC_ALL=en_US.UTF-8
 ENV KOMF_CONFIG_DIR="/config"
 ENTRYPOINT ["java","-jar", "komf-1.0-SNAPSHOT-all.jar"]
 EXPOSE 8085
+
+LABEL org.opencontainers.image.url=https://github.com/Snd-R/komf org.opencontainers.image.source=https://github.com/Snd-R/komf
