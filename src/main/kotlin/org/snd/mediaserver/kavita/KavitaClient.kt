@@ -231,7 +231,7 @@ class KavitaClient(
         val request = Request.Builder()
             .url(
                 baseUrl.newBuilder()
-                    .addPathSegments("api/library")
+                    .addPathSegments("api/library/libraries")
                     .build()
             ).build()
 
