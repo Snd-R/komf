@@ -68,7 +68,7 @@ class AniListClient(
 
     fun getThumbnail(series: AniListManga): Image? {
         return rateLimited {
-            series.coverImage?.large?.toHttpUrlOrNull()?.let {
+            series.coverImage?.extraLarge?.toHttpUrlOrNull()?.let {
                 val request = Request.Builder().url(it).build()
                 val bytes = okHttpClient.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) throw HttpException(response)
