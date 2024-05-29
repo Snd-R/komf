@@ -30,6 +30,7 @@ class MangaDexMetadataMapper(
     private val bookMetadataConfig: BookMetadataConfig,
     private val authorRoles: Collection<AuthorRole>,
     private val artistRoles: Collection<AuthorRole>,
+    private val coverLanguages: List<String>,
 ) {
     private val mangaDexBaseUrl = "https://mangadex.org"
 
@@ -101,16 +102,10 @@ class MangaDexMetadataMapper(
             links = links,
         )
 
-        // TODO configurable language
-        val books = covers.groupBy { it.volume }.values
-            .map { byVolume ->
-                byVolume.groupBy { it.locale }
-                    .mapValues { (_, value) -> value.firstOrNull() }
-            }
-            .mapNotNull { byLocale ->
-                (byLocale["en"] ?: byLocale["ja"] ?: byLocale.values.firstOrNull())
-                    ?.let { coverArtToBook(it) }
-            }
+        val books = covers
+            .filter { it.locale in coverLanguages }
+            .groupBy { it.volume }.values
+            .map { coverArtToBook(it.first()) }
 
         return MetadataConfigApplier.apply(
             ProviderSeriesMetadata(

@@ -14,6 +14,7 @@ import org.snd.common.http.LoggingInterceptor
 import org.snd.common.http.UserAgentInterceptor
 import org.snd.config.AniListConfig
 import org.snd.config.CalibreConfig
+import org.snd.config.MangaDexConfig
 import org.snd.config.MetadataProvidersConfig
 import org.snd.config.ProviderConfig
 import org.snd.config.ProvidersConfig
@@ -520,7 +521,7 @@ class MetadataModule(
     }
 
     private fun createMangaDexMetadataProvider(
-        config: ProviderConfig,
+        config: MangaDexConfig,
         client: MangaDexClient,
     ): MangaDexMetadataProvider? {
         if (config.enabled.not()) return null
@@ -530,7 +531,9 @@ class MetadataModule(
             bookMetadataConfig = config.bookMetadata,
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
+            coverLanguages = config.coverLanguages
         )
+
         val mangaDexSimilarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { NameSimilarityMatcher.getInstance(it) } ?: nameSimilarityMatcher
         return MangaDexMetadataProvider(

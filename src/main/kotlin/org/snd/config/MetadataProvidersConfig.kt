@@ -56,7 +56,7 @@ data class ProvidersConfig(
     val kodansha: ProviderConfig = ProviderConfig(),
     val viz: ProviderConfig = ProviderConfig(),
     val bookWalker: ProviderConfig = ProviderConfig(),
-    val mangaDex: ProviderConfig = ProviderConfig(),
+    val mangaDex: MangaDexConfig = MangaDexConfig(),
     val bangumi: ProviderConfig = ProviderConfig(),
     val comicVine: ProviderConfig = ProviderConfig(),
 )
@@ -88,6 +88,20 @@ data class AniListConfig(
     val artistRoles: Collection<AuthorRole> = listOf(PENCILLER, INKER, COLORIST, LETTERER, COVER),
     val tagsScoreThreshold: Int = 60,
     val tagsSizeLimit: Int = 15,
+)
+
+@Serializable
+data class MangaDexConfig(
+    val priority: Int = 10,
+    val enabled: Boolean = false,
+    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
+    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    val nameMatchingMode: NameMatchingMode? = null,
+    val mediaType: MediaType = MANGA,
+
+    val coverLanguages: List<String> = listOf("en", "ja"),
+    val authorRoles: Collection<AuthorRole> = listOf(WRITER),
+    val artistRoles: Collection<AuthorRole> = listOf(PENCILLER, INKER, COLORIST, LETTERER, COVER),
 )
 
 @Serializable

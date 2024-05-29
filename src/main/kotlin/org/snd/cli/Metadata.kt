@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
 import org.snd.config.AniListConfig
+import org.snd.config.MangaDexConfig
 import org.snd.config.MetadataProvidersConfig
 import org.snd.config.ProviderConfig
 import org.snd.config.ProvidersConfig
@@ -47,7 +48,7 @@ class Metadata : CliktCommand() {
                 kodansha = ProviderConfig(enabled = true, mediaType = mediaType),
                 viz = ProviderConfig(enabled = true, mediaType = mediaType),
                 bookWalker = ProviderConfig(enabled = true, mediaType = mediaType),
-                mangaDex = ProviderConfig(enabled = true, mediaType = mediaType),
+                mangaDex = MangaDexConfig(enabled = true, mediaType = mediaType),
                 bangumi = ProviderConfig(enabled = true, mediaType = mediaType),
             )
         )

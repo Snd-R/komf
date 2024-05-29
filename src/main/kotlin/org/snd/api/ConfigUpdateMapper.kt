@@ -37,6 +37,7 @@ import org.snd.config.DiscordConfig
 import org.snd.config.EventListenerConfig
 import org.snd.config.KavitaConfig
 import org.snd.config.KomgaConfig
+import org.snd.config.MangaDexConfig
 import org.snd.config.MetadataPostProcessingConfig
 import org.snd.config.MetadataProcessingConfig
 import org.snd.config.MetadataProvidersConfig
@@ -229,6 +230,19 @@ class ConfigUpdateMapper {
         )
     }
 
+    private fun toDto(config: MangaDexConfig): ProviderConfigDto {
+        return ProviderConfigDto(
+            nameMatchingMode = config.nameMatchingMode,
+            priority = config.priority,
+            enabled = config.enabled,
+            mediaType = config.mediaType,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+            seriesMetadata = toDto(config.seriesMetadata),
+            bookMetadata = toDto(config.bookMetadata),
+        )
+    }
+
     private fun toDto(config: SeriesMetadataConfig): SeriesMetadataConfigDto {
         return SeriesMetadataConfigDto(
             status = config.status,
@@ -321,7 +335,7 @@ class ConfigUpdateMapper {
             kodansha = patch.kodansha?.let { providerConfig(config.kodansha, it) } ?: config.kodansha,
             viz = patch.viz?.let { providerConfig(config.viz, it) } ?: config.viz,
             bookWalker = patch.bookWalker?.let { providerConfig(config.bookWalker, it) } ?: config.bookWalker,
-            mangaDex = patch.mangaDex?.let { providerConfig(config.mangaDex, it) } ?: config.mangaDex,
+            mangaDex = patch.mangaDex?.let { mangaDexProviderConfig(config.mangaDex, it) } ?: config.mangaDex,
             bangumi = patch.bangumi?.let { providerConfig(config.bangumi, it) } ?: config.bangumi,
             comicVine = patch.comicVine?.let { providerConfig(config.comicVine, it) } ?: config.comicVine,
         )
@@ -362,6 +376,23 @@ class ConfigUpdateMapper {
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
             nameMatchingMode = if (patch.isSet("nameMatchingMode")) patch.nameMatchingMode else config.nameMatchingMode
+        )
+    }
+
+    private fun mangaDexProviderConfig(config: MangaDexConfig, patch: ProviderConfigUpdateDto): MangaDexConfig {
+        return config.copy(
+            priority = patch.priority ?: config.priority,
+            enabled = patch.enabled ?: config.enabled,
+            mediaType = patch.mediaType ?: config.mediaType,
+            authorRoles = patch.authorRoles ?: config.authorRoles,
+            artistRoles = patch.artistRoles ?: config.artistRoles,
+            bookMetadata = patch.bookMetadata
+                ?.let { bookMetadataConfig(config.bookMetadata, it) }
+                ?: config.bookMetadata,
+            seriesMetadata = patch.seriesMetadata
+                ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
+                ?: config.seriesMetadata,
+            nameMatchingMode = if (patch.isSet("nameMatchingMode")) patch.nameMatchingMode else config.nameMatchingMode,
         )
     }
 
