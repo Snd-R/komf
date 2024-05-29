@@ -22,7 +22,7 @@ data class AppConfig(
 
 @Serializable
 data class KomgaConfig(
-    val baseUri: String = "http://localhost:8080",
+    val baseUri: String = "http://localhost:25600",
     val komgaUser: String = "admin@example.org",
     val komgaPassword: String = "admin",
     val thumbnailSizeLimit: Long = 1048575,

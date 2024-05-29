@@ -111,6 +111,7 @@ komga:
       postProcessing:
         seriesTitle: false # update series title
         seriesTitleLanguage: "en" # series title update language. If empty chose first matching title
+        fallbackToAltTitle: false # fallback to first alternative tile if series title is not found
         alternativeSeriesTitles: false # use other title types as alternative title option
         alternativeSeriesTitleLanguages: # alternative title languages
           - "en"
@@ -197,6 +198,9 @@ metadataProviders:
     mangaDex:
       priority: 90
       enabled: false
+      coverLanguages:
+        - "en"
+        - "ja"
     bangumi: # Chinese metadata provider. https://bgm.tv/
       priority: 100
       enabled: false
