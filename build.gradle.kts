@@ -1,13 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("jvm") version "1.9.24"
+    kotlin("plugin.serialization") version "1.9.24"
     id("com.github.johnrengelman.shadow").version("8.1.1")
-    id("com.google.devtools.ksp").version("1.9.22-1.0.17")
+    id("com.google.devtools.ksp").version("1.9.24-1.0.20")
     id("org.flywaydb.flyway") version "10.8.1"
     id("nu.studer.jooq") version "9.0"
-    id("com.apollographql.apollo3").version("3.8.2")
+    id("com.apollographql.apollo3").version("3.8.4")
 }
 
 group = "org.snd"
@@ -19,9 +19,9 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("ch.qos.logback:logback-core:1.5.1")
-    implementation("ch.qos.logback:logback-classic:1.5.1")
-    implementation("org.slf4j:slf4j-api:2.0.12")
+    implementation("ch.qos.logback:logback-core:1.5.6")
+    implementation("ch.qos.logback:logback-classic:1.5.6")
+    implementation("org.slf4j:slf4j-api:2.0.13")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
@@ -31,7 +31,7 @@ dependencies {
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
     implementation("com.apollographql.apollo3:apollo-runtime")
 
-    implementation("io.javalin:javalin:6.1.2")
+    implementation("io.javalin:javalin:6.1.4")
 
     implementation("io.github.resilience4j:resilience4j-ratelimiter:2.2.0")
     implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
@@ -45,19 +45,19 @@ dependencies {
 
     implementation("io.github.pdvrieze.xmlutil:core-jvm:0.86.3")
     implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.86.3")
-    implementation("com.charleskorn.kaml:kaml:0.57.0")
+    implementation("com.charleskorn.kaml:kaml:0.59.0")
 
-    implementation("com.github.ajalt.clikt:clikt:4.2.2")
-    implementation("commons-io:commons-io:2.15.0")
-    implementation("org.apache.commons:commons-compress:1.26.0")
-    implementation("org.apache.commons:commons-text:1.11.0")
+    implementation("com.github.ajalt.clikt:clikt:4.4.0")
+    implementation("commons-io:commons-io:2.16.1")
+    implementation("org.apache.commons:commons-compress:1.26.2")
+    implementation("org.apache.commons:commons-text:1.12.0")
     implementation("commons-validator:commons-validator:1.8.0")
     implementation("org.apache.velocity:velocity-engine-core:2.3")
     implementation("org.jsoup:jsoup:1.17.2")
     implementation("net.grey-panther:natural-comparator:1.1")
 
-    implementation("com.microsoft.signalr:signalr:8.0.2")
-    implementation("org.bitbucket.b_c:jose4j:0.9.5")
+    implementation("com.microsoft.signalr:signalr:8.0.5")
+    implementation("org.bitbucket.b_c:jose4j:0.9.6")
 
     implementation("com.twelvemonkeys.imageio:imageio-core:3.10.1")
     runtimeOnly("com.twelvemonkeys.imageio:imageio-jpeg:3.10.1")
@@ -156,7 +156,7 @@ apollo {
 }
 
 tasks.wrapper {
-    gradleVersion = "8.6"
+    gradleVersion = "8.7"
     distributionType = Wrapper.DistributionType.ALL
 }
 
