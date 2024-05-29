@@ -12,7 +12,7 @@ fragment aniListManga on Media {
     chapters,
     volumes,
     coverImage {
-        large
+        extraLarge
     },
     startDate {
         year,
