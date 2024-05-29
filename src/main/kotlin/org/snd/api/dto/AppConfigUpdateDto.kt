@@ -78,6 +78,7 @@ class MetadataPostProcessingConfigUpdateDto {
 
     var readingDirectionValue: ReadingDirection? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
     var languageValue: String? by Delegates.observable(null) { prop, _, _ -> isSet[prop.name] = true }
+    var fallbackToAltTitle: Boolean? = null
 }
 
 @JsonClass(generateAdapter = true)

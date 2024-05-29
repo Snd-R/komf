@@ -12,7 +12,7 @@ import org.snd.metadata.model.metadata.SeriesTitle
 
 class MetadataPostProcessor(
     private val config: MetadataPostProcessingConfig,
-    private val libraryType: MediaType
+    private val libraryType: MediaType,
 ) {
 
     fun process(metadata: SeriesAndBookMetadata): SeriesAndBookMetadata {
@@ -34,7 +34,7 @@ class MetadataPostProcessor(
         else emptyList()
 
         val seriesTitle = if (config.seriesTitle) {
-            chooseSeriesTitle(series) ?: altTitles.firstOrNull()
+            chooseSeriesTitle(series) ?: if (config.fallbackToAltTitle) altTitles.firstOrNull() else null
         } else null
 
         val altsWithoutSeriesTitle =

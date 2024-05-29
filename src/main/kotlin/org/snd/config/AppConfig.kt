@@ -100,6 +100,7 @@ data class MetadataPostProcessingConfig(
     val scoreTag: Boolean = false,
     val readingDirectionValue: ReadingDirection? = null,
     val languageValue: String? = null,
+    val fallbackToAltTitle: Boolean = false
 )
 
 @Serializable

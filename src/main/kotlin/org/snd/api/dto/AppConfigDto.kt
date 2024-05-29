@@ -70,6 +70,7 @@ data class MetadataPostProcessingConfigDto(
     val orderBooks: Boolean,
     val readingDirectionValue: ReadingDirection?,
     val languageValue: String?,
+    val fallbackToAltTitle: Boolean,
 )
 
 @JsonClass(generateAdapter = true)

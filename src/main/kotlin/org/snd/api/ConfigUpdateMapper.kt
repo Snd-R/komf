@@ -137,7 +137,8 @@ class ConfigUpdateMapper {
             alternativeSeriesTitleLanguages = config.alternativeSeriesTitleLanguages,
             orderBooks = config.orderBooks,
             readingDirectionValue = config.readingDirectionValue,
-            languageValue = config.languageValue
+            languageValue = config.languageValue,
+            fallbackToAltTitle = config.fallbackToAltTitle
         )
     }
 
@@ -544,7 +545,8 @@ class ConfigUpdateMapper {
             readingDirectionValue = if (patch.isSet("readingDirectionValue")) patch.readingDirectionValue
             else config.readingDirectionValue,
             languageValue = if (patch.isSet("languageValue")) patch.languageValue
-            else config.languageValue
+            else config.languageValue,
+            fallbackToAltTitle = patch.fallbackToAltTitle ?: config.fallbackToAltTitle,
         )
     }
 
