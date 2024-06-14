@@ -1,5 +1,6 @@
 package org.snd.metadata.providers.mangadex
 
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.snd.config.BookMetadataConfig
 import org.snd.config.SeriesMetadataConfig
 import org.snd.metadata.MetadataConfigApplier
@@ -87,6 +88,7 @@ class MangaDexMetadataMapper(
                         link.engTl?.let { WebLink("Official English", it) },
                     )
                 } ?: emptyList())
+                    .map { it.copy(url = it.url.toHttpUrl().toString()) }
 
         val metadata = SeriesMetadata(
             status = status,
