@@ -55,7 +55,7 @@ class KodanshaMetadataMapper(
             links = listOf(
                 WebLink(
                     "Kodansha",
-                    kodanshaBaseUrl + "series/${series.id}"
+                    kodanshaBaseUrl + "series/${series.readableUrl ?: series.id}"
                 )
             )
         )
@@ -92,7 +92,7 @@ class KodanshaMetadataMapper(
             isbn = book.readable.eisbn ?: book.readable.isbn,
             authors = author?.let { listOf(it) } ?: emptyList(),
             thumbnail = thumbnail,
-            links = listOf(WebLink("Kodansha", kodanshaBaseUrl + "product/${book.id}"))
+            links = listOf(WebLink("Kodansha", kodanshaBaseUrl + "product/${book.readableUrl ?: book.id}"))
         )
 
         val providerMetadata = ProviderBookMetadata(

@@ -28,7 +28,7 @@ class KodanshaMetadataProvider(
     }
 
     override fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val series = client.getSeries(KodanshaSeriesId(seriesId.id.toInt()))
+        val series = client.getSeries(KodanshaSeriesId(seriesId.id.toInt())).response
         val thumbnail = if (fetchSeriesCovers) getThumbnail(series.thumbnails?.firstOrNull()?.url) else null
         val bookList = client.getAllSeriesBooks(KodanshaSeriesId(series.id))
         return metadataMapper.toSeriesMetadata(series, bookList, thumbnail)
@@ -57,7 +57,7 @@ class KodanshaMetadataProvider(
             .filter { it.content.readableUrl != null }
             .firstOrNull { nameMatcher.matches(seriesName, it.content.title.removeSuffix(" (manga)")) }
             ?.let {
-                val series = client.getSeries(KodanshaSeriesId(it.content.id))
+                val series = client.getSeries(KodanshaSeriesId(it.content.id)).response
                 val thumbnail = if (fetchSeriesCovers) getThumbnail(series.thumbnails?.firstOrNull()?.url) else null
                 val bookList = client.getAllSeriesBooks(KodanshaSeriesId(series.id))
                 metadataMapper.toSeriesMetadata(series, bookList, thumbnail)

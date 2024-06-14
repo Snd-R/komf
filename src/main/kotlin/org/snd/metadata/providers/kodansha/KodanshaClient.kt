@@ -34,7 +34,7 @@ class KodanshaClient(
         return parseJson(response)
     }
 
-    fun getSeries(seriesId: KodanshaSeriesId): KodanshaSeries {
+    fun getSeries(seriesId: KodanshaSeriesId): KodanshaResponse<KodanshaSeries> {
         val request = Request.Builder().url(
             apiUrl.newBuilder().addPathSegments("series/V2/${seriesId.id}")
                 .build()

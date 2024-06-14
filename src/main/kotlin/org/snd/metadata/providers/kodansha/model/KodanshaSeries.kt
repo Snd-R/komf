@@ -13,6 +13,7 @@ data class KodanshaSeries(
     val ageRating: String?,
     val thumbnails: List<KodanshaThumbnail>?,
     val publisher: String?,
+    val readableUrl: String?,
 )
 
 @JsonClass(generateAdapter = true)

@@ -22,6 +22,8 @@ data class KodanshaBook(
     val thumbnails: List<KodanshaThumbnail>,
 
     val creators: List<KodanshaCreator>?,
+
+    val readableUrl: String?,
 )
 
 
