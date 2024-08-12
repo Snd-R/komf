@@ -1,0 +1,22 @@
+import snd.komf.mediaserver.model.MediaServer;
+import snd.komf.mediaserver.model.MediaServerSeriesId;
+import snd.komf.mediaserver.model.MediaServerThumbnailId;
+
+CREATE TABLE SeriesThumbnail (
+    seriesId        TEXT AS MediaServerSeriesId NOT NULL PRIMARY KEY,
+    thumbnailId     TEXT AS MediaServerThumbnailId,
+    mediaServer     TEXT AS MediaServer NOT NULL
+);
+CREATE INDEX series_thumbnail_series_id_idx ON SeriesThumbnail (seriesId);
+CREATE INDEX series_thumbnail_server_type_idx ON SeriesThumbnail (mediaServer);
+
+
+findFor:
+SELECT * FROM SeriesThumbnail WHERE seriesId=?;
+
+save:
+INSERT OR REPLACE INTO SeriesThumbnail (seriesId,thumbnailId,mediaServer)
+VALUES(?,?,?);
+
+delete:
+DELETE FROM SeriesThumbnail WHERE seriesId=?;

@@ -1,0 +1,38 @@
+import kotlinx.datetime.Instant;
+import snd.komf.mediaserver.jobs.MetadataJobId;
+import snd.komf.mediaserver.jobs.MetadataJobStatus;
+import snd.komf.mediaserver.model.MediaServerSeriesId;
+
+CREATE TABLE KomfJobRecord (
+    id          TEXT AS MetadataJobId NOT NULL,
+    seriesId    TEXT AS MediaServerSeriesId NOT NULL,
+    status      TEXT AS MetadataJobStatus NOT NULL,
+    message     TEXT,
+    startedAt   INTEGER AS Instant NOT NULL,
+    finishedAt  INTEGER AS Instant ,
+    PRIMARY     KEY (id)
+);
+CREATE INDEX komf_job_series_id_idx ON KomfJobRecord(seriesId);
+CREATE INDEX komf_job_status_idx ON KomfJobRecord(status);
+CREATE INDEX komf_job_started_at_idx ON KomfJobRecord(startedAt);
+CREATE INDEX komf_job_finished_at_idx ON KomfJobRecord(finishedAt);
+
+get:
+SELECT * FROM KomfJobRecord WHERE id=?;
+
+countAll:
+SELECT COUNT() FROM KomfJobRecord;
+findAll:
+SELECT * FROM KomfJobRecord ORDER BY startedAt DESC LIMIT ? OFFSET ?;
+
+countAllWithStatus:
+SELECT COUNT() FROM KomfJobRecord WHERE status=?;
+findAllWithStatus:
+SELECT * FROM KomfJobRecord WHERE status=? ORDER BY startedAt DESC LIMIT ? OFFSET ?;
+
+save:
+INSERT OR REPLACE INTO KomfJobRecord VALUES ?;
+
+
+deleteAll:
+DELETE FROM KomfJobRecord;

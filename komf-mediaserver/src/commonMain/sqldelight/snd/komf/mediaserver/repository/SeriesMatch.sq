@@ -1,0 +1,26 @@
+import snd.komf.mediaserver.model.MediaServer;
+import snd.komf.mediaserver.model.MediaServerSeriesId;
+import snd.komf.model.MatchType;
+import snd.komf.model.ProviderSeriesId;
+import snd.komf.providers.CoreProviders;
+
+CREATE TABLE SeriesMatch (
+    seriesId            TEXT AS MediaServerSeriesId NOT NULL,
+    type                TEXT AS MatchType NOT NULL,
+    mediaServer         TEXT AS MediaServer NOT NULL,
+    provider            TEXT AS CoreProviders NOT NULL,
+    providerSeriesId    TEXT AS ProviderSeriesId NOT NULL,
+    PRIMARY KEY (seriesId, mediaServer)
+);
+
+CREATE INDEX series_match_type_idx ON SeriesMatch (type);
+
+findManualFor:
+SELECT * FROM SeriesMatch WHERE type='MANUAL' AND seriesId=? AND mediaServer=?;
+
+save:
+INSERT OR REPLACE INTO SeriesMatch (seriesId,type,mediaServer,provider,providerSeriesId)
+VALUES (?,?,?,?,?);
+
+delete:
+DELETE FROM SeriesMatch WHERE seriesId=?;
