@@ -17,6 +17,8 @@ data class AppConfig(
     val metadataProviders: MetadataProvidersConfig = MetadataProvidersConfig(),
     val notifications: NotificationsConfig = NotificationsConfig(),
 
+    @Deprecated("moved to NotificationsConfig object")
+    val discord: DiscordConfig? = null,
     val server: ServerConfig = ServerConfig(),
     val logLevel: String = "INFO"
 )
@@ -28,6 +30,9 @@ data class KomgaConfig(
     val komgaPassword: String = "admin",
     val thumbnailSizeLimit: Long = 1048575,
     val eventListener: EventListenerConfig = EventListenerConfig(),
+
+    @Deprecated("Moved to EventListenerConfig object")
+    val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
 )
 
@@ -36,7 +41,16 @@ data class KavitaConfig(
     val baseUri: String = "http://localhost:5000",
     val apiKey: String = "",
     val eventListener: EventListenerConfig = EventListenerConfig(enabled = false),
+
+    @Deprecated("Moved to EventListenerConfig object")
+    val notifications: NotificationConfig = NotificationConfig(),
     val metadataUpdate: MetadataUpdateConfig = MetadataUpdateConfig(),
+)
+
+@Serializable
+@Deprecated("Moved to EventListenerConfig object")
+data class NotificationConfig(
+    val libraries: Collection<String>? = null
 )
 
 @Serializable
@@ -86,6 +100,11 @@ data class EventListenerConfig(
     val metadataLibraryFilter: Collection<String> = emptyList(),
     val metadataSeriesExcludeFilter: Collection<String> = emptySet(),
     val notificationsLibraryFilter: Collection<String> = emptyList(),
+
+    @Deprecated("Renamed to metadataLibraryFilter")
+    val libraries: Collection<String>? = null,
+    @Deprecated("Renamed to metadataSeriesExcludeFilter")
+    val excludeSeries: Collection<String>? = null
 )
 
 @Serializable
