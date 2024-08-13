@@ -12,7 +12,6 @@ CREATE TABLE SeriesMatch (
     providerSeriesId    TEXT AS ProviderSeriesId NOT NULL,
     PRIMARY KEY (seriesId, mediaServer)
 );
-
 CREATE INDEX series_match_type_idx ON SeriesMatch (type);
 
 findManualFor:

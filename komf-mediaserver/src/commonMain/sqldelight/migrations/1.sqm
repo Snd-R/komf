@@ -1,0 +1,78 @@
+CREATE TABLE BookThumbnail (
+    bookId          TEXT NOT NULL PRIMARY KEY,
+    seriesId        TEXT NOT NULL,
+    thumbnailId     TEXT,
+    mediaServer     TEXT NOT NULL
+);
+CREATE INDEX book_thumbnails_series_idx ON BookThumbnail (seriesId);
+CREATE INDEX book_thumbnails_server_type_idx ON BookThumbnail (mediaServer);
+
+CREATE TABLE SeriesThumbnail (
+    seriesId        TEXT NOT NULL PRIMARY KEY,
+    thumbnailId     TEXT,
+    mediaServer     TEXT NOT NULL
+);
+CREATE INDEX series_thumbnail_server_type_idx ON SeriesThumbnail (mediaServer);
+
+CREATE TABLE SeriesMatch (
+    seriesId            TEXT NOT NULL,
+    type                TEXT NOT NULL,
+    mediaServer         TEXT NOT NULL,
+    provider            TEXT NOT NULL,
+    providerSeriesId    TEXT NOT NULL,
+    PRIMARY KEY (seriesId, mediaServer)
+);
+CREATE INDEX series_match_type_idx ON SeriesMatch (type);
+
+
+CREATE TABLE KomfJobRecord (
+    id          TEXT NOT NULL,
+    seriesId    TEXT NOT NULL,
+    status      TEXT NOT NULL,
+    message     TEXT,
+    startedAt   INTEGER NOT NULL,
+    finishedAt  INTEGER,
+    PRIMARY     KEY (id)
+);
+CREATE INDEX komf_job_series_id_idx ON KomfJobRecord(seriesId);
+CREATE INDEX komf_job_status_idx ON KomfJobRecord(status);
+CREATE INDEX komf_job_started_at_idx ON KomfJobRecord(startedAt);
+CREATE INDEX komf_job_finished_at_idx ON KomfJobRecord(finishedAt);
+
+-- MIGRATION FROM OLD TABLES
+CREATE TABLE IF NOT EXISTS BOOK_THUMBNAILS(
+    BOOK_ID             TEXT NOT NULL PRIMARY KEY,
+    SERIES_ID           TEXT NOT NULL,
+    THUMBNAIL_ID        TEXT,
+    SERVER_TYPE         TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS SERIES_THUMBNAILS(
+    SERIES_ID           TEXT NOT NULL PRIMARY KEY,
+    THUMBNAIL_ID        TEXT,
+    SERVER_TYPE         TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS SERIES_MATCH(
+    SERIES_ID           TEXT NOT NULL,
+    TYPE                TEXT NOT NULL,
+    SERVER_TYPE         TEXT NOT NULL,
+    PROVIDER            TEXT NOT NULL,
+    PROVIDER_SERIES_ID  TEXT NOT NULL,
+    PRIMARY KEY (SERIES_ID, SERVER_TYPE)
+);
+
+INSERT INTO BookThumbnail (bookId, seriesId, thumbnailId, mediaServer)
+SELECT BOOK_ID, SERIES_ID, THUMBNAIL_ID, SERVER_TYPE
+FROM BOOK_THUMBNAILS;
+
+INSERT INTO SeriesThumbnail (seriesId, thumbnailId, mediaServer)
+SELECT SERIES_ID, THUMBNAIL_ID, SERVER_TYPE
+FROM SERIES_THUMBNAILS;
+
+INSERT INTO SeriesMatch (seriesId, type, mediaServer, provider, providerSeriesId)
+SELECT SERIES_ID, TYPE, SERVER_TYPE, PROVIDER, PROVIDER_SERIES_ID
+FROM SERIES_MATCH;
+
+DROP TABLE BOOK_THUMBNAILS;
+DROP TABLE SERIES_THUMBNAILS;
+DROP TABLE SERIES_MATCH;
+DROP TABLE IF EXISTS flyway_schema_history;

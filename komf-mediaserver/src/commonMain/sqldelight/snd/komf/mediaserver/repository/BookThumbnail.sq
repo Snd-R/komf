@@ -9,7 +9,6 @@ CREATE TABLE BookThumbnail (
     thumbnailId     TEXT AS MediaServerThumbnailId,
     mediaServer     TEXT AS MediaServer NOT NULL
 );
-CREATE INDEX book_thumbnails_book_id_idx ON BookThumbnail (bookId);
 CREATE INDEX book_thumbnails_series_idx ON BookThumbnail (seriesId);
 CREATE INDEX book_thumbnails_server_type_idx ON BookThumbnail (mediaServer);
 

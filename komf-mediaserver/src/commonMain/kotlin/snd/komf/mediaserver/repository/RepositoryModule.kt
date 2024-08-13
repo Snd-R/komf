@@ -47,21 +47,6 @@ fun createDatabase(driverFactory: DriverFactory): Database {
             mediaServerAdapter = EnumColumnAdapter()
         ),
     )
-
-    Database.Schema.migrate(
-        driver = dbDriver,
-        oldVersion = 0,
-        newVersion = Database.Schema.version,
-        AfterVersion(0) { driver ->
-            driver.execute(
-                null,
-                "CREATE TABLE migrations (version INTEGER NOT NULL PRIMARY KEY);",
-                0
-            )
-            driver.execute(null, "", 1)
-        }
-    )
-    // Do more work with the database (see below).
     return database
 }
 

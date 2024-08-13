@@ -77,7 +77,7 @@ data class MetadataPostProcessingConfig(
 
 @Serializable
 data class DatabaseConfig(
-    val file: String = "./database2.sqlite"
+    val file: String = "./database.sqlite"
 )
 
 @Serializable

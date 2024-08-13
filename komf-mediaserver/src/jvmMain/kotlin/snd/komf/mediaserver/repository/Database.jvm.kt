@@ -10,6 +10,7 @@ actual class DriverFactory(private val databaseFile: Path) {
             JdbcSqliteDriver(
                 url = "jdbc:sqlite:${databaseFile}",
                 schema = Database.Schema,
+                migrateEmptySchema = true
             )
         return driver
     }
