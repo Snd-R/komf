@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.sse)
+    implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.encoding)

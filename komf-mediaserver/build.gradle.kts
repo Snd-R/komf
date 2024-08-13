@@ -67,6 +67,14 @@ kotlin {
 
 }
 
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("snd.komf.mediaserver.repository")
+        }
+    }
+}
+
 android {
     namespace = "snd.komf"
     compileSdk = 34
@@ -79,14 +87,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-}
-
-sqldelight {
-    databases {
-        create("Database") {
-            packageName.set("snd.komf.mediaserver.repository")
-        }
-    }
 }
 
 mavenPublishing {

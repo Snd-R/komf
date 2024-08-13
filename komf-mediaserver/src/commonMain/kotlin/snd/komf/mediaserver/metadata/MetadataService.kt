@@ -123,7 +123,7 @@ class MetadataService(
                         errorCount += 1
                     }
             }
-        } while (page.pageNumber != page.totalPages)
+        } while (page.pageNumber != page.totalPages || page.content.isNotEmpty())
         logger.info { "Finished library scan. Encountered $errorCount errors" }
     }
 
@@ -134,7 +134,7 @@ class MetadataService(
         val jobId = launchJob(seriesId) { eventFlow ->
             val series = mediaServerClient.getSeries(seriesId)
             val books = mediaServerClient.getBooks(seriesId)
-            val seriesTitle =  series.metadata.title.ifBlank { series.name }
+            val seriesTitle = series.metadata.title.ifBlank { series.name }
 
             val existingMatch = seriesMatchRepository.findManualFor(seriesId)
             val matchProvider =

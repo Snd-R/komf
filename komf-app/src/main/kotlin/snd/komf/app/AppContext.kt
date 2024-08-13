@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -25,6 +26,8 @@ import snd.komf.app.module.NotificationsModule
 import snd.komf.app.module.ProvidersModule
 import snd.komf.app.module.ServerModule
 import snd.komf.ktor.komfUserAgent
+import snd.komf.mediaserver.MediaServerClient
+import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.repository.Database
 import snd.komf.mediaserver.repository.DriverFactory
 import snd.komf.mediaserver.repository.createDatabase
@@ -39,12 +42,18 @@ class AppContext(private val configPath: Path? = null) {
         private set
 
     private val ktorBaseClient: HttpClient
+    private val jsonBase: Json
     private val mediaServerDatabase: Database
     private val serverModule: ServerModule
 
     private var providersModule: ProvidersModule
     private var mediaServerModule: MediaServerModule
     private var notificationsModule: NotificationsModule
+
+    private val komgaClient: MutableStateFlow<MediaServerClient>
+    private val komgaServiceProvider: MutableStateFlow<MetadataServiceProvider>
+    private val kavitaClient: MutableStateFlow<MediaServerClient>
+    private val kavitaServiceProvider: MutableStateFlow<MetadataServiceProvider>
 
     private val yaml = Yaml(
         configuration = YamlConfiguration(
@@ -54,7 +63,7 @@ class AppContext(private val configPath: Path? = null) {
     )
     private val configWriter = ConfigWriter(yaml)
     private val configLoader = ConfigLoader(yaml)
-    private val mutex = Mutex()
+    private val stateRefreshMutex = Mutex()
 
     init {
         val config = loadConfig()
@@ -75,6 +84,12 @@ class AppContext(private val configPath: Path? = null) {
                 )
             )
             .build()
+
+        jsonBase = Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = false
+        }
+
         ktorBaseClient = HttpClient(OkHttp) {
             engine { preconfigured = baseOkHttpClient }
             expectSuccess = true
@@ -85,19 +100,27 @@ class AppContext(private val configPath: Path? = null) {
         notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
 
         mediaServerModule = MediaServerModule(
-            config.komga,
-            ktorBaseClient,
-            mediaServerDatabase,
-            notificationsModule.discordWebhookService,
-            providersModule.metadataProviders
+            komgaConfig = config.komga,
+            kavitaConfig = config.kavita,
+            jsonBase = jsonBase,
+            ktorBaseClient = ktorBaseClient,
+            mediaServerDatabase = mediaServerDatabase,
+            discordWebhookService = notificationsModule.discordWebhookService,
+            metadataProviders = providersModule.metadataProviders
         )
+        komgaClient = MutableStateFlow(mediaServerModule.komgaClient)
+        komgaServiceProvider = MutableStateFlow(mediaServerModule.komgaMetadataServiceProvider)
+        kavitaClient = MutableStateFlow(mediaServerModule.kavitaMediaServerClient)
+        kavitaServiceProvider = MutableStateFlow(mediaServerModule.kavitaMetadataServiceProvider)
 
         serverModule = ServerModule(
             appContext = this,
-            komgaMediaServerClient = MutableStateFlow(mediaServerModule.komgaClient),
-            komgaMetadataServiceProvider = MutableStateFlow(mediaServerModule.komgaMetadataServiceProvider),
             jobTracker = mediaServerModule.jobTracker,
             jobsRepository = mediaServerModule.jobRepository,
+            komgaMediaServerClient = komgaClient,
+            komgaMetadataServiceProvider = komgaServiceProvider,
+            kavitaMediaServerClient = kavitaClient,
+            kavitaMetadataServiceProvider = kavitaServiceProvider,
         )
 
         serverModule.startServer()
@@ -112,8 +135,8 @@ class AppContext(private val configPath: Path? = null) {
         }
     }
 
-    suspend fun refresh() {
-        mutex.withLock {
+    private suspend fun refresh() {
+        stateRefreshMutex.withLock {
             close()
             val config = loadConfig()
             appConfig = config
@@ -121,12 +144,18 @@ class AppContext(private val configPath: Path? = null) {
             providersModule = ProvidersModule(config.metadataProviders, ktorBaseClient)
             notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
             mediaServerModule = MediaServerModule(
-                config.komga,
-                ktorBaseClient,
-                mediaServerDatabase,
-                notificationsModule.discordWebhookService,
-                providersModule.metadataProviders
+                komgaConfig = config.komga,
+                kavitaConfig = config.kavita,
+                jsonBase = jsonBase,
+                ktorBaseClient = ktorBaseClient,
+                mediaServerDatabase = mediaServerDatabase,
+                discordWebhookService = notificationsModule.discordWebhookService,
+                metadataProviders = providersModule.metadataProviders
             )
+            komgaClient.value = mediaServerModule.komgaClient
+            komgaServiceProvider.value = mediaServerModule.komgaMetadataServiceProvider
+            kavitaClient.value = mediaServerModule.kavitaMediaServerClient
+            kavitaServiceProvider.value = mediaServerModule.kavitaMetadataServiceProvider
         }
     }
 

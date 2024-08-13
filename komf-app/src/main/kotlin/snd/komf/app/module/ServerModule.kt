@@ -21,16 +21,18 @@ import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.jobs.KomfJobTracker
 import snd.komf.mediaserver.jobs.KomfJobsRepository
+import snd.komf.mediaserver.model.MediaServer.KAVITA
 import snd.komf.mediaserver.model.MediaServer.KOMGA
 
 class ServerModule(
     private val appContext: AppContext,
-    private val komgaMediaServerClient: StateFlow<MediaServerClient>,
-    private val komgaMetadataServiceProvider: StateFlow<MetadataServiceProvider>,
     private val jobTracker: KomfJobTracker,
     private val jobsRepository: KomfJobsRepository,
-//    kavitaMetadataServiceProvider: MetadataServiceProvider,
-//    kavitaMediaServerClient: MediaServerClient
+
+    private val komgaMediaServerClient: StateFlow<MediaServerClient>,
+    private val komgaMetadataServiceProvider: StateFlow<MetadataServiceProvider>,
+    private val kavitaMetadataServiceProvider: StateFlow<MetadataServiceProvider>,
+    private val kavitaMediaServerClient: StateFlow<MediaServerClient>
 ) {
     private val configMapper = DeprecatedConfigUpdateMapper()
     private val json = Json {
@@ -64,6 +66,13 @@ class ServerModule(
                     ).registerRoutes(this)
                 }
 
+                route("/kavita") {
+                    MetadataRoutes(
+                        metadataServiceProvider = kavitaMetadataServiceProvider,
+                        mediaServerClient = kavitaMediaServerClient,
+                    ).registerRoutes(this)
+                }
+
             }
         }
     }
@@ -78,6 +87,11 @@ class ServerModule(
             metadataServiceProvider = komgaMetadataServiceProvider,
             mediaServerClient = komgaMediaServerClient,
             serverType = KOMGA
+        ).registerRoutes(application)
+        DeprecatedMetadataRoutes(
+            metadataServiceProvider = kavitaMetadataServiceProvider,
+            mediaServerClient = kavitaMediaServerClient,
+            serverType = KAVITA
         ).registerRoutes(application)
     }
 

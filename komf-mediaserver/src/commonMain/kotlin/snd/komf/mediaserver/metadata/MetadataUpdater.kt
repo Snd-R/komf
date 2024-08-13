@@ -51,7 +51,7 @@ class MetadataUpdater(
         do {
             val page = mediaServerClient.getSeries(libraryId, 1)
             page.content.forEach { resetSeriesMetadata(it, removeComicInfo) }
-        } while (page.pageNumber != page.totalPages)
+        } while (page.pageNumber != page.totalPages || page.content.isNotEmpty())
     }
 
     suspend fun resetSeriesMetadata(seriesId: MediaServerSeriesId, removeComicInfo: Boolean) {
@@ -85,7 +85,10 @@ class MetadataUpdater(
         }
     }
 
-    private suspend fun updateBookMetadata(unprocessedMetadata: SeriesAndBookMetadata, processedMetadata: SeriesAndBookMetadata) {
+    private suspend fun updateBookMetadata(
+        unprocessedMetadata: SeriesAndBookMetadata,
+        processedMetadata: SeriesAndBookMetadata
+    ) {
         val bookIdToWriteSeriesMetadata = bookToWriteSeriesMetadata(unprocessedMetadata.bookMetadata)
 
         processedMetadata.bookMetadata.forEach { (book, metadata) ->
@@ -168,7 +171,10 @@ class MetadataUpdater(
         return uploadedThumbnail?.id
     }
 
-    private suspend fun replaceSeriesThumbnail(seriesId: MediaServerSeriesId, thumbnail: Image?): MediaServerThumbnailId? {
+    private suspend fun replaceSeriesThumbnail(
+        seriesId: MediaServerSeriesId,
+        thumbnail: Image?
+    ): MediaServerThumbnailId? {
         val matchedSeries = seriesThumbnailsRepository.findFor(seriesId)
         val thumbnails = mediaServerClient.getSeriesThumbnails(seriesId)
 

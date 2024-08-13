@@ -23,8 +23,6 @@ private val logger = KotlinLogging.logger {}
 
 class KomgaEventHandler(
     eventSourceFactory: suspend () -> KomgaSSESession,
-//    private val libraryFilter: Predicate<String>,
-//    private val seriesFilter: Predicate<String>,
     private val eventListeners: List<MediaServerEventListener>
 ) {
     private val eventHandlerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -72,7 +70,7 @@ class KomgaEventHandler(
         }
     }
 
-    private suspend fun processEvents(
+    private fun processEvents(
         bookAddedEvents: List<KomgaEvent.BookEvent>,
         seriesDeletedEvents: List<KomgaEvent.SeriesEvent>,
         bookDeletedEvents: List<KomgaEvent.BookEvent>,
