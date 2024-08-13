@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("com.github.johnrengelman.shadow").version("8.1.1")
+    alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.shadow)
 }
 
 group = "io.github.snd-r"
@@ -26,45 +26,32 @@ java {
 val ktorVersion = "3.0.0-rc-1-eap-997"
 val exposedVersion = "0.52.0"
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
-
-    implementation("ch.qos.logback:logback-core:1.5.6")
-    implementation("ch.qos.logback:logback-classic:1.5.6")
-    implementation("org.slf4j:slf4j-api:2.0.13")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-
-    implementation("io.ktor:ktor-server-core:$ktorVersion")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("io.ktor:ktor-server-cio:$ktorVersion")
-    implementation("io.ktor:ktor-server-cors:$ktorVersion")
-    implementation("io.ktor:ktor-server-sse:$ktorVersion")
-
-
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("io.ktor:ktor-client-encoding:$ktorVersion")
-    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
-
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:okhttp-sse:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-
-
-    implementation("com.charleskorn.kaml:kaml:0.59.0")
-
-    implementation("org.apache.velocity:velocity-engine-core:2.3")
-
-    implementation("com.microsoft.signalr:signalr:8.0.5")
-    implementation("org.bitbucket.b_c:jose4j:0.9.6")
-
     implementation(project(":komf-core"))
     implementation(project(":komf-mediaserver"))
     implementation(project(":komf-notifications"))
     implementation(project(":komf-api-models"))
-    implementation("io.github.snd-r:komga-client:0.1.0-SNAPSHOT")
 
+    implementation(libs.logback.core)
+    implementation(libs.logback.classic)
+    implementation(libs.slf4j.api)
+    implementation(libs.kotlin.logging)
+
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.sse)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.encoding)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.sse)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.kaml)
 }
 
 tasks {

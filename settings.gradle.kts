@@ -6,18 +6,6 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
-
-    plugins {
-        val kotlinVersion = "2.0.10"
-        val agpVersion = "8.2.0"
-        val mavenPublishVersion = "0.29.0"
-        kotlin("jvm").version(kotlinVersion)
-        kotlin("multiplatform").version(kotlinVersion)
-        kotlin("plugin.serialization").version(kotlinVersion)
-        kotlin("android").version(kotlinVersion)
-        id("com.android.library").version(agpVersion)
-        id("com.vanniktech.maven.publish").version(mavenPublishVersion)
-    }
 }
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {

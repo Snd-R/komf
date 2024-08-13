@@ -7,16 +7,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.serialization")
-    id("com.android.library")
-    id("com.vanniktech.maven.publish")
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.mavenPublish)
 }
 
 group = "io.github.snd-r"
 version = "1.0.0-SNAPSHOT"
-
-val ktorVersion = "3.0.0-rc-1-eap-997"
 
 kotlin {
     jvmToolchain(17)
@@ -33,17 +31,14 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
-
-            implementation("io.github.oshai:kotlin-logging:7.0.0")
-
-            implementation("io.ktor:ktor-client-core:$ktorVersion")
-            implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-            implementation("io.ktor:ktor-client-encoding:$ktorVersion")
-
             api(project(":komf-api-models"))
+            implementation(libs.kotlin.logging)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.encoding)
+            implementation(libs.ktor.serialization.kotlinx.json)
         }
     }
 

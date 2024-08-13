@@ -1,0 +1,71 @@
+[versions]
+agp = "8.2.0"
+commons-text = "1.12.0"
+commons-compress = "1.26.2"
+jose4j = "0.9.6"
+kaml = "0.59.0"
+kotlin = "2.0.10"
+kotlin-atomicfu = "0.25.0"
+kotlin-logging = "7.0.0"
+kotlinx-coroutines = "1.8.1"
+kotlinx-datetime = "0.6.0"
+kotlinx-serialization = "1.7.1"
+kotlinx-io = "0.5.1"
+komga-client = "0.1.0-SNAPSHOT"
+ktor = "3.0.0-rc-1-eap-997"
+ksoup = "0.1.4"
+logback = "1.5.6"
+mavenPublish = "0.29.0"
+okhttp = "4.12.0"
+shadow = "8.1.1"
+slf4j = "2.0.13"
+signalr = "8.0.5"
+sqldelight = "2.0.2"
+velocity = "2.3"
+xmlutil = "0.90.1"
+
+[libraries]
+commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }
+jose4j = { module = "org.bitbucket.b_c:jose4j", version.ref = "jose4j" }
+kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
+komga-client = { module = "io.github.snd-r:komga-client", version.ref = "komga-client" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
+ktor-server-sse = { module = "io.ktor:ktor-server-sse", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
+logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-sse = { module = "com.squareup.okhttp3:okhttp-sse", version.ref = "okhttp" }
+okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+signalr = { module = "com.microsoft.signalr:signalr", version.ref = "signalr" }
+sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
+sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+velocity-core = { module = "org.apache.velocity:velocity-engine-core", version.ref = "velocity" }
+xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "xmlutil" }
+xmlutil-serialization = { module = "io.github.pdvrieze.xmlutil:serialization", version.ref = "xmlutil" }
+
+[plugins]
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinAtomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "kotlin-atomicfu" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

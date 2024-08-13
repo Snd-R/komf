@@ -6,11 +6,11 @@ import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.serialization")
-    id("com.android.library")
-    id("kotlinx-atomicfu")
-    id("com.vanniktech.maven.publish")
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinAtomicfu)
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.mavenPublish)
 }
 
 group = "io.github.snd-r"
@@ -39,38 +39,27 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.oshai:kotlin-logging:7.0.0")
-
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.5.1")
-
-
-            implementation("io.ktor:ktor-client-core:$ktorVersion")
-            implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-            implementation("io.ktor:ktor-client-encoding:$ktorVersion")
-
-            implementation("io.github.pdvrieze.xmlutil:core:0.90.1")
-            implementation("io.github.pdvrieze.xmlutil:serialization:0.90.1")
-
-            implementation("com.fleeksoft.ksoup:ksoup:0.1.4")
+            implementation(libs.kotlin.logging)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.io.core)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.encoding)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.xmlutil.core)
+            implementation(libs.xmlutil.serialization)
+            implementation(libs.ksoup)
         }
         androidMain.dependencies {
-            implementation("app.cash.sqldelight:android-driver:2.0.2")
-            implementation("org.apache.commons:commons-text:1.12.0")
+            implementation(libs.commons.text)
         }
 
         val jvmMain by getting
         jvmMain.dependencies {
-            implementation("com.squareup.okhttp3:okhttp:4.12.0")
-            implementation("com.squareup.okhttp3:okhttp-sse:4.12.0")
-            implementation("org.apache.commons:commons-compress:1.26.2")
-//            implementation("org.flywaydb:flyway-core:10.8.1")
-            implementation("app.cash.sqldelight:sqlite-driver:2.0.2")
-
+            implementation(libs.commons.compress)
+            implementation(libs.commons.text)
         }
     }
 
