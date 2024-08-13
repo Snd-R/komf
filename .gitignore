@@ -1,29 +1,44 @@
-### Gradle
 .gradle
 !gradle/wrapper/gradle-wrapper.jar
+build/
+**/build/
+!src/**/build/
 
-### Logs
-*.log
-*.log.*.gz
-
-### Temporary files
-*.tmp
-*.bak
-
-### IntelliJ IDEA
-.idea/*
-!/.idea/codeStyles/
-!/.idea/runConfigurations/
+### intellij idea ###
+.idea/modules.xml
+.idea/jarrepositories.xml
+.idea/compiler.xml
+.idea/libraries/
 *.iws
 *.iml
 *.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
-### NetBeans
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
+### eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springbeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
 
-/database.sqlite
+### netbeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### vs code ###
+.vscode/
+
+### mac os ###
+.ds_store
+
+database.sqlite
