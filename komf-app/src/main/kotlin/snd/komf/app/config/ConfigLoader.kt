@@ -1,7 +1,7 @@
 package snd.komf.app.config
 
 import com.charleskorn.kaml.Yaml
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isReadable

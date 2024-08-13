@@ -39,7 +39,7 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.encoding)
             implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.velocity.core)
+            api(libs.velocity.core)
         }
     }
 }

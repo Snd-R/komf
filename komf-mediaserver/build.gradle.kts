@@ -50,7 +50,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.xmlutil.core)
             implementation(libs.xmlutil.serialization)
-            implementation(libs.komga.client)
+            api(libs.komga.client)
 
         }
         androidMain.dependencies {

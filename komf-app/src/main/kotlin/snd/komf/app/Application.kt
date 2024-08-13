@@ -1,6 +1,6 @@
 package snd.komf.app
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.Path
 import kotlin.system.exitProcess
 
