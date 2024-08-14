@@ -1,8 +1,14 @@
 package snd.komf.providers.mal.model
 
 import kotlinx.datetime.Instant
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.nullable
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 data class MalSeries(
@@ -88,6 +94,7 @@ data class MalSerializationNode(
     val name: String
 )
 
+@Serializable(with = MalMediaTypeSerializer::class)
 enum class MalMediaType {
     UNKNOWN,
     MANGA,
@@ -98,9 +105,9 @@ enum class MalMediaType {
     MANHUA,
     OEL,
     LIGHT_NOVEL
-
 }
 
+@Serializable(with = MalStatusSerializer::class)
 enum class MalStatus {
     FINISHED,
     CURRENTLY_PUBLISHING,
@@ -109,9 +116,30 @@ enum class MalStatus {
     DISCONTINUED
 }
 
+@Serializable(with = MalNSFWSerializer::class)
 enum class MalNSFW {
     WHITE,
     GRAY,
     BLACK
+}
+
+class MalMediaTypeSerializer : KSerializer<MalMediaType> {
+    override val descriptor = PrimitiveSerialDescriptor("MalMediaType", PrimitiveKind.INT).nullable
+    override fun serialize(encoder: Encoder, value: MalMediaType) = encoder.encodeString(value.name.lowercase())
+    override fun deserialize(decoder: Decoder): MalMediaType {
+        return runCatching {
+            MalMediaType.valueOf(decoder.decodeString().uppercase())
+        }.getOrElse { MalMediaType.UNKNOWN }
+    }
+}
+class MalStatusSerializer : KSerializer<MalStatus> {
+    override val descriptor = PrimitiveSerialDescriptor("MalStatus", PrimitiveKind.INT).nullable
+    override fun serialize(encoder: Encoder, value: MalStatus) = encoder.encodeString(value.name.lowercase())
+    override fun deserialize(decoder: Decoder): MalStatus = MalStatus.valueOf(decoder.decodeString().uppercase())
+}
+class MalNSFWSerializer : KSerializer<MalNSFW> {
+    override val descriptor = PrimitiveSerialDescriptor("MalNSFW", PrimitiveKind.INT).nullable
+    override fun serialize(encoder: Encoder, value: MalNSFW) = encoder.encodeString(value.name.lowercase())
+    override fun deserialize(decoder: Decoder): MalNSFW = MalNSFW.valueOf(decoder.decodeString().uppercase())
 }
 

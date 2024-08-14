@@ -55,7 +55,7 @@ class MalClient(private val ktor: HttpClient) {
 
     suspend fun getThumbnail(series: MalSeries): Image? {
         return series.mainPicture?.medium?.let {
-            val bytes: ByteArray = ktor.get("it").body()
+            val bytes: ByteArray = ktor.get(it).body()
             Image(bytes)
         }
     }

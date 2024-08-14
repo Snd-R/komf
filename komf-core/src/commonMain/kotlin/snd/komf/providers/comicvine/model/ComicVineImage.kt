@@ -6,24 +6,24 @@ import kotlinx.serialization.Serializable
 @Serializable()
 data class ComicVineImage(
     @SerialName("icon_url")
-    val iconUrl: String?,
+    val iconUrl: String? = null,
     @SerialName("medium_url")
-    val mediumUrl: String?,
+    val mediumUrl: String? = null,
     @SerialName("screen_url")
-    val screenUrl: String?,
+    val screenUrl: String? = null,
     @SerialName("screen_large_url")
-    val screenLargeUrl: String?,
+    val screenLargeUrl: String? = null,
     @SerialName("small_url")
-    val smallUrl: String?,
+    val smallUrl: String? = null,
     @SerialName("super_url")
-    val superUrl: String?,
+    val superUrl: String? = null,
     @SerialName("thumb_url")
-    val thumbUrl: String?,
+    val thumbUrl: String? = null,
     @SerialName("tiny_url")
-    val tinyUrl: String?,
+    val tinyUrl: String? = null,
     @SerialName("original_url")
-    val originalUrl: String?,
+    val originalUrl: String? = null,
     @SerialName("image_tags")
-    val imageTags: String?,
+    val imageTags: String? = null,
 )
 

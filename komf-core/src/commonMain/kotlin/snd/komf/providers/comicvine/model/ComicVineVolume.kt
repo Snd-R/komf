@@ -14,20 +14,20 @@ data class ComicVineVolume(
     @SerialName("site_detail_url")
     val siteDetailUrl: String,
 
-    val aliases: String?,
+    val aliases: String? = null,
     @SerialName("count_of_issues")
-    val countOfIssues: Int?,
-    val description: String?,
-    val image: ComicVineImage?,
-    val publisher: ComicVinePublisher?,
+    val countOfIssues: Int? = null,
+    val description: String? = null,
+    val image: ComicVineImage? = null,
+    val publisher: ComicVinePublisher? = null,
     @SerialName("start_year")
-    val startYear: String?,
+    val startYear: String? = null,
     @SerialName("resource_type")
-    val resourceType: String?,
-    val characters: List<ComicVineCredit>?,
-    val locations: List<ComicVineCredit>?,
-    val issues: List<ComicVineIssueSlim>?,
-    val concepts: List<ComicVineConcept>?,
+    val resourceType: String? = null,
+    val characters: List<ComicVineCredit>? = null,
+    val locations: List<ComicVineCredit>? = null,
+    val issues: List<ComicVineIssueSlim>? = null,
+    val concepts: List<ComicVineConcept>? = null,
 )
 
 @Serializable
@@ -39,20 +39,20 @@ data class ComicVineVolumeSearch(
     @SerialName("site_detail_url")
     val siteDetailUrl: String,
 
-    val aliases: String?,
+    val aliases: String? = null,
     @SerialName("count_of_issues")
-    val countOfIssues: Int?,
-    val description: String?,
+    val countOfIssues: Int? = null,
+    val description: String? = null,
     @SerialName("first_issue")
-    val firstIssue: ComicVineIssueSlim?,
+    val firstIssue: ComicVineIssueSlim? = null,
     @SerialName("last_issue")
-    val lastIssue: ComicVineIssueSlim?,
-    val image: ComicVineImage?,
-    val publisher: ComicVinePublisher?,
+    val lastIssue: ComicVineIssueSlim? = null,
+    val image: ComicVineImage? = null,
+    val publisher: ComicVinePublisher? = null,
     @SerialName("start_year")
-    val startYear: String?,
+    val startYear: String? = null,
     @SerialName("resource_type")
-    val resourceType: String?,
+    val resourceType: String? = null,
 )
 
 @Serializable

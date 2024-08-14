@@ -8,57 +8,57 @@ import kotlin.jvm.JvmInline
 @Serializable
 data class ComicVineIssue(
     val id: Int,
-    val name: String?,
+    val name: String? = null,
     @SerialName("api_detail_url")
     val apiDetailUrl: String,
     @SerialName("site_detail_url")
     val siteDetailUrl: String,
 
-    val aliases: String?,
+    val aliases: String? = null,
     @SerialName("associated_images")
-    val associatedImages: List<ComicVineAltImage>?,
+    val associatedImages: List<ComicVineAltImage>? = null,
     @SerialName("character_credits")
-    val characterCredits: List<ComicVineCredit>?,
+    val characterCredits: List<ComicVineCredit>? = null,
     @SerialName("concept_credits")
-    val conceptCredits: List<ComicVineCredit>?,
+    val conceptCredits: List<ComicVineCredit>? = null,
     @SerialName("cover_date")
-    val coverDate: String?,
+    val coverDate: String? = null,
     @SerialName("date_added")
-    val dateAdded: String?,
+    val dateAdded: String? = null,
     @SerialName("date_last_updated")
-    val dateLastUpdated: String?,
-    val description: String?,
-    val image: ComicVineImage?,
+    val dateLastUpdated: String? = null,
+    val description: String? = null,
+    val image: ComicVineImage? = null,
     @SerialName("issue_number")
-    val issueNumber: String?,
+    val issueNumber: String? = null,
     @SerialName("location_credits")
-    val locationCredits: List<ComicVineCredit>?,
+    val locationCredits: List<ComicVineCredit>? = null,
     @SerialName("object_credits")
-    val objectCredits: List<ComicVineCredit>?,
+    val objectCredits: List<ComicVineCredit>? = null,
     @SerialName("person_credits")
-    val personCredits: List<ComicVinePersonCredit>?,
+    val personCredits: List<ComicVinePersonCredit>? = null,
     @SerialName("store_date")
-    val storeDate: String?,
+    val storeDate: String? = null,
     @SerialName("story_arc_credits")
-    val storyArcCredits: List<ComicVineCredit>?,
+    val storyArcCredits: List<ComicVineCredit>? = null,
 
     @SerialName("team_credits")
-    val teamCredits: List<ComicVineCredit>?,
-    val volume: ComicVineVolume?,
+    val teamCredits: List<ComicVineCredit>? = null,
+    val volume: ComicVineVolume? = null,
 )
 
 @Serializable
 data class ComicVineIssueSlim(
     val id: Int,
-    val name: String?,
+    val name: String? = null,
 
     @SerialName("api_detail_url")
     val apiDetailUrl: String,
     @SerialName("site_detail_url")
-    val siteDetailUrl: String?,
+    val siteDetailUrl: String? = null,
 
     @SerialName("issue_number")
-    val issueNumber: String?,
+    val issueNumber: String? = null,
 )
 
 @Serializable
@@ -76,10 +76,10 @@ data class ComicVinePersonCredit(
 data class ComicVineAltImage(
     val id: Int,
     @SerialName("original_url")
-    val originalUrl: String?,
-    val caption: String?,
+    val originalUrl: String? = null,
+    val caption: String? = null,
     @SerialName("image_tags")
-    val imageTags: String?,
+    val imageTags: String? = null,
 )
 
 @JvmInline

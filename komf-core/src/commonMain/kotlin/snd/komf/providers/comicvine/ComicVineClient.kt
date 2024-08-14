@@ -13,29 +13,33 @@ import snd.komf.providers.comicvine.model.ComicVineVolume
 import snd.komf.providers.comicvine.model.ComicVineVolumeId
 import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
 
-private const val baseUrl = "https://comicvine.gamespot.com/api/"
+private const val baseUrl = "https://comicvine.gamespot.com/api"
 
 class ComicVineClient(
     private val ktor: HttpClient,
+    private val apiKey: String,
 ) {
 
     suspend fun searchVolume(name: String): ComicVineSearchResult<List<ComicVineVolumeSearch>> {
-        return ktor.get("$baseUrl/search") {
+        return ktor.get("$baseUrl/search/") {
             parameter("query", name)
             parameter("format", "json")
             parameter("resources", "volume")
+            parameter("api_key",apiKey)
         }.body()
     }
 
     suspend fun getVolume(id: ComicVineVolumeId): ComicVineSearchResult<ComicVineVolume> {
         return ktor.get("$baseUrl/volume/${VOLUME.id}-${id.id}") {
             parameter("format", "json")
+            parameter("api_key",apiKey)
         }.body()
     }
 
     suspend fun getIssue(id: ComicVineIssueId): ComicVineSearchResult<ComicVineIssue> {
         return ktor.get("$baseUrl/issue/${ISSUE.id}-${id.id}") {
             parameter("format", "json")
+            parameter("api_key",apiKey)
         }.body()
     }
 
@@ -49,4 +53,3 @@ class ComicVineClient(
         ISSUE(4000)
     }
 }
-

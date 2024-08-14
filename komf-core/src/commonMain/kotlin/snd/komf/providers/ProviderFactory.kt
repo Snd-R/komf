@@ -4,14 +4,16 @@ import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
-import io.ktor.http.*
+import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import snd.komf.ktor.HttpRequestRateLimiter
+import snd.komf.ktor.intervalLimiter
 import snd.komf.ktor.komfUserAgent
+import snd.komf.ktor.rateLimiter
 import snd.komf.providers.anilist.AniListClient
 import snd.komf.providers.anilist.AniListMetadataMapper
 import snd.komf.providers.anilist.AniListMetadataProvider
@@ -58,9 +60,21 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
 
     fun getMetadataProviders(config: MetadataProvidersConfig): MetadataProviders {
         val defaultNameMatcher = nameSimilarityMatcher(config.nameMatchingMode)
-        val defaultProviders = createMetadataProviders(config.defaultProviders, defaultNameMatcher)
+        val defaultProviders = createMetadataProviders(
+            config = config.defaultProviders,
+            defaultNameMatcher = defaultNameMatcher,
+            malClientId = config.malClientId,
+            comicVineClientId = config.comicVineApiKey,
+        )
         val libraryProviders = config.libraryProviders
-            .map { (libraryId, config) -> libraryId to createMetadataProviders(config, defaultNameMatcher) }
+            .map { (libraryId, libraryConfig) ->
+                libraryId to createMetadataProviders(
+                    config = libraryConfig,
+                    defaultNameMatcher = defaultNameMatcher,
+                    malClientId = config.malClientId,
+                    comicVineClientId = config.comicVineApiKey,
+                )
+            }
             .toMap()
 
         return MetadataProviders(defaultProviders, libraryProviders)
@@ -90,19 +104,8 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         install(ContentNegotiation) { json(json) }
     }
 
-    private val malClient = MalClient(
-        baseHttpClientJson.config {
-            install(HttpRequestRateLimiter) {
-                interval = 60.seconds
-                eventsPerInterval = 90
-                allowBurst = false
-            }
-            install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
-                exponentialDelay(respectRetryAfterHeader = true)
-            }
-        }
-    )
+    private val malRateLimiter = rateLimiter(60, 60.seconds)
+    private val comicVineRateLimiter = intervalLimiter(60, 60.seconds)
 
     private val mangaUpdatesClient = MangaUpdatesClient(
         baseHttpClientJson.config {
@@ -197,6 +200,11 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 }
                 exponentialDelay(respectRetryAfterHeader = true)
             }
+
+            defaultRequest {
+                cookie("safeSearch", "111")
+                cookie("glSafeSearch", "1")
+            }
         }
     )
     private val mangaDexClient = MangaDexClient(
@@ -225,23 +233,12 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
         }
     )
-    private val comicVineClient = ComicVineClient(
-        baseHttpClientJson.config {
-            install(HttpRequestRateLimiter) {
-                interval = 60.seconds
-                eventsPerInterval = 60
-                allowBurst = true
-            }
-            install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
-                exponentialDelay(respectRetryAfterHeader = true)
-            }
-        }
-    )
 
     private fun createMetadataProviders(
         config: ProvidersConfig,
-        defaultNameMatcher: NameSimilarityMatcher
+        defaultNameMatcher: NameSimilarityMatcher,
+        malClientId: String?,
+        comicVineClientId: String?
     ): MetadataProvidersContainer {
         return MetadataProvidersContainer(
             mangaupdates = createMangaUpdatesMetadataProvider(
@@ -252,7 +249,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             mangaupdatesPriority = config.mangaUpdates.priority,
             mal = createMalMetadataProvider(
                 config.mal,
-                malClient,
+                malClientId,
                 defaultNameMatcher
             ),
             malPriority = config.mal.priority,
@@ -306,7 +303,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             bangumiPriority = config.bangumi.priority,
             comicVine = createComicVineMetadataProvider(
                 config.comicVine,
-                comicVineClient,
+                comicVineClientId,
                 defaultNameMatcher
             ),
             comicVinePriority = config.comicVine.priority
@@ -315,10 +312,26 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
 
     private fun createMalMetadataProvider(
         config: ProviderConfig,
-        client: MalClient,
+        clientId: String?,
         defaultNameMatcher: NameSimilarityMatcher,
     ): MalMetadataProvider? {
         if (config.enabled.not()) return null
+        requireNotNull(clientId) { "MyAnimeList clientId is not set" }
+
+        val malClient = MalClient(
+            baseHttpClientJson.config {
+                install(HttpRequestRateLimiter) {
+                    preconfigured = malRateLimiter
+                }
+                install(HttpRequestRetry) {
+                    retryOnServerErrors(maxRetries = 3)
+                    exponentialDelay(respectRetryAfterHeader = true)
+                }
+                defaultRequest {
+                    header("X-MAL-CLIENT-ID", clientId)
+                }
+            }
+        )
 
         val malMetadataMapper = MalMetadataMapper(
             metadataConfig = config.seriesMetadata,
@@ -328,7 +341,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         val malSimilarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
         return MalMetadataProvider(
-            client,
+            malClient,
             malMetadataMapper,
             malSimilarityMatcher,
             config.seriesMetadata.thumbnail,
@@ -555,12 +568,24 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
 
     private fun createComicVineMetadataProvider(
         config: ProviderConfig,
-        client: ComicVineClient?,
+        apiKey: String?,
         defaultNameMatcher: NameSimilarityMatcher,
     ): ComicVineMetadataProvider? {
         if (config.enabled.not()) return null
-        require(client != null) { "Api key is not configured for ComicVine provider" }
+        requireNotNull(apiKey) { "Api key is not configured for ComicVine provider" }
 
+        val comicVineClient = ComicVineClient(
+            ktor = baseHttpClientJson.config {
+                install(HttpRequestRateLimiter) {
+                    preconfigured = comicVineRateLimiter
+                }
+                install(HttpRequestRetry) {
+                    retryOnServerErrors(maxRetries = 3)
+                    exponentialDelay(respectRetryAfterHeader = true)
+                }
+            },
+            apiKey = apiKey
+        )
         val metadataMapper = ComicVineMetadataMapper(
             seriesMetadataConfig = config.seriesMetadata,
             bookMetadataConfig = config.bookMetadata,
@@ -569,7 +594,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
 
         return ComicVineMetadataProvider(
-            client,
+            comicVineClient,
             metadataMapper,
             similarityMatcher,
         )

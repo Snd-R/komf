@@ -1,6 +1,8 @@
 package snd.komf.mediaserver.metadata
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.client.plugins.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -397,19 +399,29 @@ class MetadataService(
                 block(eventFlow)
             } catch (providerException: ProviderException) {
                 val errorMessage = providerException.cause?.let { cause ->
-                    "${cause::class.simpleName}: ${cause.message}"
+                    if (cause is ResponseException) {
+                        "${cause::class.simpleName}: status code ${cause.response.status} ${cause.response.bodyAsText()}"
+                    } else {
+                        "${cause::class.simpleName}: ${cause.message}"
+                    }
                 } ?: "Unknown error"
 
                 eventFlow.emit(
-                    MetadataJobEvent.ProviderErrorEvent(
+                    ProviderErrorEvent(
                         provider = providerException.provider,
                         message = errorMessage
                     )
                 )
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: ResponseException) {
+                eventFlow.emit(
+                    ProcessingErrorEvent(
+                        "${exception::class.simpleName}: status code ${exception.response.status} ${exception.response.bodyAsText()}"
+                    )
+                )
             } catch (exception: Exception) {
                 eventFlow.emit(ProcessingErrorEvent("${exception::class.simpleName}: ${exception.message}"))
-
-                if (exception is CancellationException) throw exception
             } finally {
                 eventFlow.emit(CompletionEvent)
             }

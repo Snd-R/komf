@@ -28,7 +28,9 @@ class KomfJobTracker(
                 when (event) {
                     is MetadataJobEvent.ProviderErrorEvent -> {
                         val activeJob = requireNotNull(activeJobs.remove(job.id))
-                        jobsRepository.save(activeJob.metadataJob.fail(event.message))
+                        jobsRepository.save(
+                            activeJob.metadataJob.fail("${event.provider}\n${event.message}")
+                        )
                         activeJob.flowCompletionListener.cancel()
                     }
 

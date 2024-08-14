@@ -1,5 +1,8 @@
 package snd.komf.app.api
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.client.plugins.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -19,6 +22,8 @@ import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.model.MediaServerLibraryId
 import snd.komf.mediaserver.model.MediaServerSeriesId
 import snd.komf.model.ProviderSeriesId
+
+private val logger = KotlinLogging.logger {}
 
 class MetadataRoutes(
     private val metadataServiceProvider: StateFlow<MetadataServiceProvider>,
@@ -64,19 +69,32 @@ class MetadataRoutes(
                 ?.let { MediaServerLibraryId(it) }
                 ?: seriesId?.let { mediaServerClient.value.getSeries(it).libraryId }
 
-            val searchResults = libraryId
-                ?.let { metadataServiceProvider.value.fetcherServiceFor(it.value).searchSeriesMetadata(seriesName, it) }
-                ?: metadataServiceProvider.value.defaultFetcherService().searchSeriesMetadata(seriesName)
+            try {
+                val searchResults = libraryId
+                    ?.let {
+                        metadataServiceProvider.value.fetcherServiceFor(it.value).searchSeriesMetadata(seriesName, it)
+                    }
+                    ?: metadataServiceProvider.value.defaultFetcherService().searchSeriesMetadata(seriesName)
 
-            call.respond(HttpStatusCode.OK, searchResults.map {
-                KomfMetadataSeriesSearchResult(
-                    url = it.url,
-                    imageUrl = it.imageUrl,
-                    title = it.title,
-                    provider = it.provider.fromProvider(),
-                    resultId = it.resultId
+                call.respond(HttpStatusCode.OK, searchResults.map {
+                    KomfMetadataSeriesSearchResult(
+                        url = it.url,
+                        imageUrl = it.imageUrl,
+                        title = it.title,
+                        provider = it.provider.fromProvider(),
+                        resultId = it.resultId
+                    )
+                })
+            } catch (exception: ResponseException) {
+                call.respond(exception.response.status, KomfErrorResponse(exception.response.bodyAsText()))
+                logger.catching(exception)
+            } catch (exception: Exception) {
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    KomfErrorResponse("${exception::class.simpleName} :${exception.message}")
                 )
-            })
+                logger.catching(exception)
+            }
         }
     }
 
