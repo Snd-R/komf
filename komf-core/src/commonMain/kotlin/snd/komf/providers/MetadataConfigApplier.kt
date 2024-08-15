@@ -15,10 +15,12 @@ object MetadataConfigApplier {
                 books = getIfEnabled(books, config.books) ?: emptyList(),
                 metadata = SeriesMetadata(
                     status = getIfEnabled(metadata.status, config.status),
+                    title = getIfEnabled(metadata.title, config.title),
                     titles = seriesTitles(metadata.titles, config.title),
                     summary = getIfEnabled(metadata.summary, config.summary),
                     publisher = getIfEnabled(metadata.publisher, config.publisher),
-                    alternativePublishers = getIfEnabled(metadata.alternativePublishers, config.publisher) ?: emptySet(),
+                    alternativePublishers = getIfEnabled(metadata.alternativePublishers, config.publisher)
+                        ?: emptySet(),
                     readingDirection = getIfEnabled(metadata.readingDirection, config.readingDirection),
                     ageRating = getIfEnabled(metadata.ageRating, config.ageRating),
                     language = getIfEnabled(metadata.language, config.language),
@@ -53,6 +55,7 @@ object MetadataConfigApplier {
                     chapters = metadata.chapters,
                     startChapter = metadata.startChapter,
                     endChapter = metadata.endChapter,
+                    storyArcs = metadata.storyArcs,
                 )
             )
         }

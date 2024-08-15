@@ -15,6 +15,7 @@ import snd.komf.model.ProviderSeriesMetadata
 import snd.komf.model.SeriesSearchResult
 import snd.komf.providers.comicvine.model.ComicVineImage
 import snd.komf.providers.comicvine.model.ComicVineSearchResult
+import snd.komf.providers.comicvine.model.ComicVineStoryArcId
 import snd.komf.providers.comicvine.model.ComicVineVolumeId
 import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
 import snd.komf.providers.comicvine.model.toComicVineIssueId
@@ -39,8 +40,11 @@ class ComicVineMetadataProvider(
 
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val issue = handleResult(client.getIssue(bookId.toComicVineIssueId()))
+        val storyArcs = issue.storyArcCredits?.let { credits ->
+            credits.map { arc -> client.getStoryArc(ComicVineStoryArcId(arc.id)).results }
+        }?: emptyList()
         val cover = issue.image?.let { getCover(it) }
-        return mapper.toBookMetadata(issue, cover)
+        return mapper.toBookMetadata(issue, storyArcs, cover)
     }
 
     override suspend fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {

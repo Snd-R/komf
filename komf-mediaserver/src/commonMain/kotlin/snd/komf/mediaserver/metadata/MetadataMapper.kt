@@ -31,6 +31,8 @@ class MetadataMapper {
                 ?.map { author -> MediaServerAuthor(author.name, author.role.name) }
 
             MediaServerBookMetadataUpdate(
+                title = getIfNotLockedOrEmpty(bookMetadata?.title, titleLock),
+
                 summary = getIfNotLockedOrEmpty(bookMetadata?.summary, summaryLock),
                 releaseDate = getIfNotLockedOrEmpty(bookMetadata?.releaseDate, releaseDateLock),
                 authors = getIfNotLockedOrEmpty(authors, authorsLock),
@@ -84,6 +86,7 @@ class MetadataMapper {
             ((bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }) ?: seriesMetadata?.authors)?.ifEmpty { null }
 
         return ComicInfo(
+            title = bookMetadata?.title,
             series = seriesMetadata?.title?.name,
             number = bookMetadata?.number?.toString(),
             count = seriesMetadata?.totalBookCount,
@@ -128,13 +131,17 @@ class MetadataMapper {
                         .value
                 },
             languageISO = seriesMetadata?.language,
-            localizedSeries = seriesMetadata?.titles?.find { it.type != null }?.name
+            localizedSeries = seriesMetadata?.titles?.find { it.type != null }?.name,
+            storyArc = bookMetadata?.storyArcs?.joinToString(",") { it.name },
+            storyArcNumber = bookMetadata?.storyArcs?.joinToString(",") { it.number.toString() },
+            gtin = bookMetadata?.isbn
         )
     }
 
     fun toSeriesComicInfo(seriesMetadata: SeriesMetadata, bookMetadata: BookMetadata?): ComicInfo {
         val authors = seriesMetadata.authors.ifEmpty { null }
         return ComicInfo(
+            title = bookMetadata?.title,
             series = seriesMetadata.title?.name,
             number = bookMetadata?.number?.toString(),
             count = seriesMetadata.totalBookCount,
@@ -179,7 +186,10 @@ class MetadataMapper {
                         .value
                 },
             languageISO = seriesMetadata.language,
-            localizedSeries = seriesMetadata.titles.find { it.type != null }?.name
+            localizedSeries = seriesMetadata.titles.find { it.type != null }?.name,
+            storyArc = bookMetadata?.storyArcs?.joinToString(",") { it.name },
+            storyArcNumber = bookMetadata?.storyArcs?.joinToString(",") { it.number.toString() },
+            gtin = bookMetadata?.isbn
         )
     }
 

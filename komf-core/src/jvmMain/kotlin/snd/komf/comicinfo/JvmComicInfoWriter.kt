@@ -19,7 +19,13 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
 import java.util.zip.Deflater.NO_COMPRESSION
 import java.util.zip.ZipEntry
-import kotlin.io.path.*
+import kotlin.io.path.createTempFile
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.extension
+import kotlin.io.path.getPosixFilePermissions
+import kotlin.io.path.isWritable
+import kotlin.io.path.moveTo
+import kotlin.io.path.setPosixFilePermissions
 
 private const val COMIC_INFO = "ComicInfo.xml"
 private val logger = KotlinLogging.logger {}
@@ -189,10 +195,12 @@ class JvmComicInfoWriter private constructor(private val overrideComicInfo: Bool
             locations = new.locations ?: old.locations,
             scanInformation = new.scanInformation ?: old.scanInformation,
             storyArc = new.storyArc ?: old.storyArc,
+            storyArcNumber = new.storyArcNumber ?: old.storyArcNumber,
             seriesGroup = new.seriesGroup ?: old.seriesGroup,
             ageRating = new.ageRating ?: old.ageRating,
             rating = new.rating ?: old.rating,
             localizedSeries = new.localizedSeries ?: old.localizedSeries,
+            gtin = new.gtin ?: old.gtin,
             pages = new.pages ?: old.pages
         )
     }

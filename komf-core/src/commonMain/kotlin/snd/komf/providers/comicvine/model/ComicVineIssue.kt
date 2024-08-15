@@ -5,9 +5,17 @@ import kotlinx.serialization.Serializable
 import snd.komf.model.ProviderBookId
 import kotlin.jvm.JvmInline
 
+@JvmInline
+@Serializable
+value class ComicVineIssueId(val value: Int) {
+    override fun toString() = value.toString()
+}
+
+fun ProviderBookId.toComicVineIssueId() = ComicVineIssueId(id.toInt())
+
 @Serializable
 data class ComicVineIssue(
-    val id: Int,
+    val id: ComicVineIssueId,
     val name: String? = null,
     @SerialName("api_detail_url")
     val apiDetailUrl: String,
@@ -82,7 +90,3 @@ data class ComicVineAltImage(
     val imageTags: String? = null,
 )
 
-@JvmInline
-value class ComicVineIssueId(val id: Int)
-
-fun ProviderBookId.toComicVineIssueId() = ComicVineIssueId(id.toInt())

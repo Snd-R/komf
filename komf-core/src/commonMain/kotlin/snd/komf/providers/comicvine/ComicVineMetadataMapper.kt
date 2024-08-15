@@ -15,6 +15,7 @@ import snd.komf.model.AuthorRole.PENCILLER
 import snd.komf.model.AuthorRole.WRITER
 import snd.komf.model.BookMetadata
 import snd.komf.model.BookRange
+import snd.komf.model.BookStoryArc
 import snd.komf.model.Image
 import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
@@ -32,6 +33,7 @@ import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
 import snd.komf.providers.comicvine.model.ComicVineIssue
+import snd.komf.providers.comicvine.model.ComicVineStoryArc
 import snd.komf.providers.comicvine.model.ComicVineVolume
 import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
 
@@ -55,6 +57,7 @@ class ComicVineMetadataMapper(
         cover: Image?
     ): ProviderSeriesMetadata {
         val metadata = SeriesMetadata(
+            title = SeriesTitle(volume.name, null, null),
             titles = listOf(SeriesTitle(volume.name, null, null)),
             summary = volume.description?.let { parseDescription(it) },
             publisher = volume.publisher?.name?.let { Publisher(it) },
@@ -81,6 +84,7 @@ class ComicVineMetadataMapper(
 
     fun toBookMetadata(
         issue: ComicVineIssue,
+        storyArcs: List<ComicVineStoryArc>,
         cover: Image?
     ): ProviderBookMetadata {
         val metadata = BookMetadata(
@@ -91,7 +95,13 @@ class ComicVineMetadataMapper(
             releaseDate = (issue.storeDate ?: issue.coverDate)?.let { LocalDate.parse(it) },
             authors = getAuthors(issue),
             links = listOf(WebLink("ComicVine", issue.siteDetailUrl)),
-            thumbnail = cover
+            storyArcs = storyArcs.map { arc ->
+                val index = arc.issues.indexOfFirst { it.id == issue.id }
+                require(index != -1) { "Story arc does not contain this issue arcs:${arc.issues.map { it.id }}; issue ${issue.id} " }
+
+                BookStoryArc(name = arc.name, number = index + 1)
+            },
+            thumbnail = cover,
         )
 
         val providerMetadata = ProviderBookMetadata(

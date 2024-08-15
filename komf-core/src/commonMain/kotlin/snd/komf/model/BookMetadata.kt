@@ -21,12 +21,16 @@ data class BookMetadata(
     val isbn: String? = null,
     val links: List<WebLink> = emptyList(),
     val chapters: Collection<Chapter> = emptyList(),
+    val storyArcs: List<BookStoryArc>? = null,
 
     val startChapter: Int? = null,
     val endChapter: Int? = null,
 
     val thumbnail: Image? = null,
 )
+
+@Serializable
+data class BookStoryArc(val name: String, val number: Int)
 
 @Serializable
 data class Chapter(

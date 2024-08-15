@@ -172,6 +172,10 @@ data class ComicInfo(
     val localizedSeries: String? = null,
 
     @XmlElement(true)
+    @XmlSerialName("GTIN", "", "")
+    val gtin: String? = null,
+
+    @XmlElement(true)
     @XmlSerialName("Pages", "", "")
     @XmlChildrenName("Page", "", "")
     val pages: Collection<Page>? = null
