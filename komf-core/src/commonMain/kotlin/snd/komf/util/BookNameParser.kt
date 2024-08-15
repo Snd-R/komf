@@ -11,10 +11,12 @@ object BookNameParser {
     )
 
     private val chapterRegexes = listOf(
-        "(?i)(\\sc|chapter\\s)(?<start>[0-9]+([.x#][0-9]+)?)(?<end>-[0-9]+([.x#][0-9]+)?)?".toRegex(),
+        "(?i)(\\sc|\\s?ch\\.\\s|\\s?chapter\\s|\\s?ep\\.\\s)(?<start>[0-9]+([.x#][0-9]+)?)(?<end>-[0-9]+([.x#][0-9]+)?)?".toRegex(),
         ".*第(?<start>\\d+(\\.\\d+)?)-?(?<end>\\d+(\\.\\d+)?)?.*話".toRegex(),
     )
-    private val bookNumberRegex = "(?i)(?:\\s|#|no\\.)(?<start>[0-9]+([.x#][0-9]+)?)(?<end>-[0-9]+([.x#][0-9]+)?)?".toRegex()
+    private val bookNumberRegexes = listOf(
+        "(?i)(?:#|no\\.)(?<start>[0-9]+([.x#][0-9]+)?)(?<end>-[0-9]+([.x#][0-9]+)?)?(?:\\s\\(.*\\)\\s*)*$".toRegex()
+    )
     private val extraDataRegex = "\\[(?<extra>.*?)]".toRegex()
 
     fun getVolumes(name: String): BookRange? {
@@ -35,7 +37,7 @@ object BookNameParser {
     }
 
     fun getChapters(name: String) = getBookNumber(name, chapterRegexes)
-    fun getBookNumber(name: String) = getBookNumber(name, listOf(bookNumberRegex))
+    fun getBookNumber(name: String) = getBookNumber(name, bookNumberRegexes)
 
     private fun getBookNumber(name: String, regexes: List<Regex>): BookRange? {
         val matchedGroups = regexes.firstNotNullOfOrNull { it.findAll(name).lastOrNull()?.groups }
