@@ -6,14 +6,39 @@ import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.util.*
 import io.ktor.sse.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import snd.komf.api.KomfPage
 import snd.komf.api.KomfServerSeriesId
-import snd.komf.api.job.*
+import snd.komf.api.job.KomfMetadataJob
+import snd.komf.api.job.KomfMetadataJobEvent
+import snd.komf.api.job.KomfMetadataJobId
+import snd.komf.api.job.KomfMetadataJobStatus
+import snd.komf.api.job.eventsStreamNotFoundName
+import snd.komf.api.job.postProcessingStartName
+import snd.komf.api.job.processingErrorEvent
+import snd.komf.api.job.providerBookEventName
+import snd.komf.api.job.providerCompletedEventName
+import snd.komf.api.job.providerErrorEventName
+import snd.komf.api.job.providerSeriesEventName
 import snd.komf.app.api.mappers.fromProvider
-import snd.komf.mediaserver.jobs.*
-import snd.komf.mediaserver.jobs.MetadataJobEvent.*
+import snd.komf.mediaserver.jobs.KomfJobTracker
+import snd.komf.mediaserver.jobs.KomfJobsRepository
+import snd.komf.mediaserver.jobs.MetadataJob
+import snd.komf.mediaserver.jobs.MetadataJobEvent.CompletionEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.PostProcessingStartEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProcessingErrorEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderBookEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderCompletedEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderErrorEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderSeriesEvent
+import snd.komf.mediaserver.jobs.MetadataJobId
+import snd.komf.mediaserver.jobs.MetadataJobStatus
 import java.util.*
 
 class JobRoutes(
@@ -21,6 +46,7 @@ class JobRoutes(
     private val jobsRepository: KomfJobsRepository,
     private val json: Json
 ) {
+    private val sseScope = CoroutineScope(Dispatchers.Default)
 
     fun registerRoutes(routing: Route) {
         routing.route("/jobs") {
@@ -41,39 +67,41 @@ class JobRoutes(
                 return@sse
             }
 
-            eventFlow.collect { event ->
-                when (event) {
-                    is ProviderSeriesEvent -> send(
-                        ServerSentEvent(json.encodeToString(event.toDto()), providerSeriesEventName)
-                    )
-
-                    is ProviderBookEvent -> send(
-                        ServerSentEvent(json.encodeToString(event.toDto()), providerBookEventName)
-                    )
-
-                    is ProviderCompletedEvent -> send(
-                        ServerSentEvent(json.encodeToString(event.toDto()), providerCompletedEventName)
-                    )
-
-                    is ProviderErrorEvent -> {
-                        send(ServerSentEvent(json.encodeToString(event.toDto()), providerErrorEventName))
-                    }
-
-                    PostProcessingStartEvent -> send(
-                        ServerSentEvent(
-                            json.encodeToString(KomfMetadataJobEvent.PostProcessingStartEvent),
-                            postProcessingStartName
+            eventFlow
+                .takeWhile { it !is CompletionEvent }
+                .collect { event ->
+                    currentCoroutineContext()
+                    when (event) {
+                        is ProviderSeriesEvent -> send(
+                            ServerSentEvent(json.encodeToString(event.toDto()), providerSeriesEventName)
                         )
-                    )
 
-                    is ProcessingErrorEvent -> send(
-                        ServerSentEvent(json.encodeToString(event.toDto()), processingErrorEvent)
-                    )
+                        is ProviderBookEvent -> send(
+                            ServerSentEvent(json.encodeToString(event.toDto()), providerBookEventName)
+                        )
 
-                    CompletionEvent -> this.close()
+                        is ProviderCompletedEvent -> send(
+                            ServerSentEvent(json.encodeToString(event.toDto()), providerCompletedEventName)
+                        )
+
+                        is ProviderErrorEvent -> {
+                            send(ServerSentEvent(json.encodeToString(event.toDto()), providerErrorEventName))
+                        }
+
+                        PostProcessingStartEvent -> send(
+                            ServerSentEvent(
+                                json.encodeToString(KomfMetadataJobEvent.PostProcessingStartEvent),
+                                postProcessingStartName
+                            )
+                        )
+
+                        is ProcessingErrorEvent -> send(
+                            ServerSentEvent(json.encodeToString(event.toDto()), processingErrorEvent)
+                        )
+
+                        CompletionEvent -> this.cancel()
+                    }
                 }
-
-            }
         }
     }
 

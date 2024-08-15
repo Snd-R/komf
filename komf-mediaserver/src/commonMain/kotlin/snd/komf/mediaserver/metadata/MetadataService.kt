@@ -14,7 +14,13 @@ import kotlinx.coroutines.launch
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.jobs.KomfJobTracker
 import snd.komf.mediaserver.jobs.MetadataJobEvent
-import snd.komf.mediaserver.jobs.MetadataJobEvent.*
+import snd.komf.mediaserver.jobs.MetadataJobEvent.CompletionEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.PostProcessingStartEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProcessingErrorEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderBookEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderCompletedEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderErrorEvent
+import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderSeriesEvent
 import snd.komf.mediaserver.jobs.MetadataJobId
 import snd.komf.mediaserver.metadata.repository.SeriesMatchRepository
 import snd.komf.mediaserver.model.MediaServerBook
@@ -412,6 +418,7 @@ class MetadataService(
                         message = errorMessage
                     )
                 )
+                logger.catching(providerException)
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: ResponseException) {
@@ -420,8 +427,10 @@ class MetadataService(
                         "${exception::class.simpleName}: status code ${exception.response.status} ${exception.response.bodyAsText()}"
                     )
                 )
+                logger.catching(exception)
             } catch (exception: Exception) {
                 eventFlow.emit(ProcessingErrorEvent("${exception::class.simpleName}: ${exception.message}"))
+                logger.catching(exception)
             } finally {
                 eventFlow.emit(CompletionEvent)
             }

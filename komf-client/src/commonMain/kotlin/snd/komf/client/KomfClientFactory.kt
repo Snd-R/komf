@@ -13,7 +13,7 @@ class KomfClientFactory private constructor(private val builder: Builder) {
 
     fun configClient() = KomfConfigClient(ktor)
     fun metadataClient(mediaServer: MediaServer) = KomfMetadataClient(ktor, mediaServer)
-    fun jobClient() = KomfJobClient(ktor = ktor, ktorSSE = ktorSSE, json = json)
+    fun jobClient() = KomfJobClient(ktor = ktor, ktorSSE = ktor, json = json)
 
     private val json = Json(builder.json) {
         ignoreUnknownKeys = true
@@ -26,20 +26,12 @@ class KomfClientFactory private constructor(private val builder: Builder) {
         builder.cookieStorage?.let { install(HttpCookies) { storage = it } }
         defaultRequest { url(baseUrl()) }
         install(ContentNegotiation) { json(json) }
-    }
-
-    //TODO after making an sse request the next normal request will fail to receive a response
-    // use a separate client to as a workaround
-    private val ktorSSE: HttpClient = HttpClient().config {
-        expectSuccess = true
-        builder.cookieStorage?.let { install(HttpCookies) { storage = it } }
-        defaultRequest { url(baseUrl()) }
         install(SSE)
     }
 
     class Builder {
         internal var ktor: HttpClient? = null
-        internal var baseUrl: () -> String = { "http://localhost:25600/" }
+        internal var baseUrl: () -> String = { "http://localhost:8085" }
         internal var cookieStorage: CookiesStorage? = AcceptAllCookiesStorage()
         internal var json: Json = Json
 

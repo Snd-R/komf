@@ -8,13 +8,23 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import snd.komf.api.KomfPage
-import snd.komf.api.job.*
+import snd.komf.api.job.KomfMetadataJob
+import snd.komf.api.job.KomfMetadataJobEvent
 import snd.komf.api.job.KomfMetadataJobEvent.ProcessingErrorEvent
 import snd.komf.api.job.KomfMetadataJobEvent.ProviderBookEvent
 import snd.komf.api.job.KomfMetadataJobEvent.ProviderCompletedEvent
 import snd.komf.api.job.KomfMetadataJobEvent.ProviderErrorEvent
 import snd.komf.api.job.KomfMetadataJobEvent.ProviderSeriesEvent
 import snd.komf.api.job.KomfMetadataJobEvent.UnknownEvent
+import snd.komf.api.job.KomfMetadataJobId
+import snd.komf.api.job.KomfMetadataJobStatus
+import snd.komf.api.job.eventsStreamNotFoundName
+import snd.komf.api.job.postProcessingStartName
+import snd.komf.api.job.processingErrorEvent
+import snd.komf.api.job.providerBookEventName
+import snd.komf.api.job.providerCompletedEventName
+import snd.komf.api.job.providerErrorEventName
+import snd.komf.api.job.providerSeriesEventName
 
 class KomfJobClient(
     private val ktor: HttpClient,
