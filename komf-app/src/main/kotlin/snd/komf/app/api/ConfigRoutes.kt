@@ -6,6 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import snd.komf.api.KomfErrorResponse
 import snd.komf.api.config.KomfConfigUpdateRequest
 import snd.komf.app.AppContext
 import snd.komf.app.api.mappers.AppConfigMapper
@@ -38,9 +39,12 @@ class ConfigRoutes(
             mutex.withLock {
                 val config = updateConfigMapper.patch(appContext.appConfig, request)
                 try {
-                    appContext.updateConfig(config)
+                    appContext.refreshState(config)
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.UnprocessableEntity, "${e::class.simpleName}: ${e.message}")
+                    call.respond(
+                        HttpStatusCode.UnprocessableEntity,
+                        KomfErrorResponse("${e::class.simpleName}: ${e.message}")
+                    )
                     return@patch
                 }
 

@@ -33,7 +33,7 @@ class DeprecatedConfigRoutes(
             val config = configMapper.patch(appContext.appConfig, request)
 
             try {
-                appContext.updateConfig(config)
+                appContext.refreshState(config)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.UnprocessableEntity, "${e::class.simpleName}: ${e.message}")
                 return@patch

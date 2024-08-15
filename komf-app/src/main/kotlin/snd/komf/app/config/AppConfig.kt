@@ -1,6 +1,8 @@
 package snd.komf.app.config
 
 import kotlinx.serialization.Serializable
+import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
 import snd.komf.model.MediaType
 import snd.komf.model.MediaType.MANGA
 import snd.komf.model.ReadingDirection
@@ -20,7 +22,8 @@ data class AppConfig(
     @Deprecated("moved to NotificationsConfig object")
     val discord: DiscordConfig? = null,
     val server: ServerConfig = ServerConfig(),
-    val logLevel: String = "INFO"
+    val logLevel: String = "INFO",
+    val httpLogLevel: HttpLoggingInterceptor.Level = BASIC
 )
 
 @Serializable

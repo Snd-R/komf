@@ -14,6 +14,7 @@ import snd.komf.app.config.KomgaConfig
 import snd.komf.app.config.MetadataProcessingConfig
 import snd.komf.app.config.MetadataUpdateConfig
 import snd.komf.comicinfo.JvmComicInfoWriter
+import snd.komf.ktor.komfUserAgent
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.jobs.KomfJobTracker
@@ -85,6 +86,7 @@ class MediaServerModule(
             .username(komgaConfig.komgaUser)
             .password(komgaConfig.komgaPassword)
             .baseUrl { komgaConfig.baseUri }
+            .useragent(komfUserAgent)
             .build()
         komgaClient = KomgaMediaServerClientAdapter(
             komgaClientFactory.bookClient(),
