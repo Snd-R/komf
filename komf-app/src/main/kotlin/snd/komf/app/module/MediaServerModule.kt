@@ -195,6 +195,12 @@ class MediaServerModule(
             clock = Clock.System,
             eventListeners = listOfNotNull(kavitaMetadataEventHandler, kavitaNotificationsHandler),
         )
+        if (kavitaConfig.eventListener.enabled) {
+            kavitaEventHandler.start()
+        }
+        if (komgaConfig.eventListener.enabled) {
+            komgaEventHandler.start()
+        }
     }
 
     fun close() {

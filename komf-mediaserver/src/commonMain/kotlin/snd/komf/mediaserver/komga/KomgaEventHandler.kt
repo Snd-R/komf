@@ -1,6 +1,7 @@
 package snd.komf.mediaserver.komga
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,10 +23,14 @@ import snd.komga.client.sse.KomgaSSESession
 private val logger = KotlinLogging.logger {}
 
 class KomgaEventHandler(
-    eventSourceFactory: suspend () -> KomgaSSESession,
+    private val eventSourceFactory: suspend () -> KomgaSSESession,
     private val eventListeners: List<MediaServerEventListener>
 ) {
-    private val eventHandlerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val eventHandlerScope = CoroutineScope(
+        Dispatchers.Default +
+                SupervisorJob() +
+                CoroutineExceptionHandler { _, exception -> logger.catching(exception) }
+    )
     private val mutex = Mutex()
 
     private val bookAddedEvents: MutableList<KomgaEvent.BookEvent> = mutableListOf()
@@ -34,16 +39,14 @@ class KomgaEventHandler(
     private var eventSource: KomgaSSESession? = null
 
 
-    init {
+    fun start() {
         eventHandlerScope.launch {
-            val eventSource = try {
-                eventSourceFactory().also { this@KomgaEventHandler.eventSource = it }
-            } catch (e: Exception) {
-                logger.catching(e)
-                throw e
-            }
+            val eventSource = eventSourceFactory()
+            this@KomgaEventHandler.eventSource = eventSource
+            logger.info { "Connected to Komga event source" }
 
             eventSource.incoming.onEach { event ->
+                logger.debug { event }
                 when (event) {
                     is KomgaEvent.BookAdded -> mutex.withLock { bookAddedEvents.add(event) }
                     is KomgaEvent.BookDeleted -> mutex.withLock { bookDeletedEvents.add(event) }

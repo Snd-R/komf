@@ -36,6 +36,8 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.isDirectory
 
+private val logger = KotlinLogging.logger {}
+
 class AppContext(private val configPath: Path? = null) {
     @Volatile
     var appConfig: AppConfig
@@ -137,6 +139,7 @@ class AppContext(private val configPath: Path? = null) {
 
     private suspend fun refresh() {
         stateRefreshMutex.withLock {
+            logger.info { "Reconfiguring application state" }
             close()
             val config = loadConfig()
             appConfig = config
