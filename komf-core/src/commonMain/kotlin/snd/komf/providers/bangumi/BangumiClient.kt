@@ -4,6 +4,10 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import snd.komf.model.Image
 import snd.komf.providers.bangumi.model.BangumiSubject
 import snd.komf.providers.bangumi.model.SearchSubjectsResponse
@@ -23,14 +27,14 @@ class BangumiClient(
         return ktor.post("$apiV0Url/search/subjects") {
             contentType(ContentType.Application.Json)
             setBody(
-                mapOf(
-                    "keyword" to keyword,
-                    "filter" to mapOf(
-                        "type" to listOf(SubjectType.BOOK.value), // supports multiple, only use MANGA for now
-                        "rating" to rating,
-                        "rank" to rank,
-                    )
-                )
+                buildJsonObject {
+                    put("keyword", keyword)
+                    put("filter", buildJsonObject {
+                        putJsonArray("type") { add(SubjectType.BOOK.value) }
+                        putJsonArray("rating") { rating.forEach { add(it) } }
+                        putJsonArray("rank") { rank.forEach { add(it) } }
+                    })
+                }
             )
 
         }.body()

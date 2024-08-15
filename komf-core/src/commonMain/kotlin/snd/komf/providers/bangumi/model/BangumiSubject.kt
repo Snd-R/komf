@@ -4,13 +4,17 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.nullable
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 @Serializable
 data class BangumiSubject(
@@ -46,29 +50,40 @@ data class BangumiSubject(
     val infobox: Collection<Infobox>? = null,
 )
 
-object InfoBoxSerializer : JsonContentPolymorphicSerializer<InfoboxValue>(InfoboxValue::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<InfoboxValue> {
-        TODO("Not yet implemented")
+object InfoBoxSerializer : JsonContentPolymorphicSerializer<Infobox>(Infobox::class) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<Infobox> {
+        if (element !is JsonObject) throw SerializationException("Expected JsonObject go ${element::class}")
+        val value = element["value"]
+
+        return when (value) {
+            is JsonArray -> Infobox.MultipleValues.serializer()
+            is JsonPrimitive -> Infobox.SingleValue.serializer()
+            else -> throw SerializationException("Unexpected element type ${element::class}")
+        }
     }
 }
 
-@Serializable
-data class Infobox(
-    val key: String,
-    val value: InfoboxValue
-)
-
 @Serializable(with = InfoBoxSerializer::class)
-sealed class InfoboxValue {
-    class SingleValue(val value: String) : InfoboxValue()
-    class MultipleValues(val value: List<InfoboxNestedValue>) : InfoboxValue()
-}
+sealed interface Infobox {
+    val key: String
 
+    @Serializable
+    class SingleValue(
+        override val key: String,
+        val value: String
+    ) : Infobox
+
+    @Serializable
+    class MultipleValues(
+        override val key: String,
+        val value: List<InfoboxNestedValue>,
+    ) : Infobox
+}
 
 @Serializable
 data class InfoboxNestedValue(
     @SerialName("k")
-    val key: String?,
+    val key: String? = null,
     @SerialName("v")
     val value: String
 )
@@ -142,9 +157,9 @@ data class SubjectRating(
 
 @Serializable
 data class Images(
-    val large: String?,
-    val common: String?,
-    val medium: String?,
-    val small: String?,
-    val grid: String?
+    val large: String? = null,
+    val common: String? = null,
+    val medium: String? = null,
+    val small: String? = null,
+    val grid: String? = null
 )

@@ -22,7 +22,7 @@ import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
 import snd.komf.providers.bangumi.model.BangumiSubject
-import snd.komf.providers.bangumi.model.InfoboxValue
+import snd.komf.providers.bangumi.model.Infobox
 import snd.komf.providers.bangumi.model.SubjectRelation
 import snd.komf.providers.bangumi.model.SubjectSearchData
 
@@ -40,9 +40,9 @@ class BangumiMetadataMapper(
         bookRelations: Collection<SubjectRelation>,
         thumbnail: Image?,
     ): ProviderSeriesMetadata {
-        val infoBox = subject.infobox?.associate { it.key to it.value } ?: emptyMap()
+        val infoBox = subject.infobox?.associate { it.key to it } ?: emptyMap()
         val endDateRaw = when (val endDate = infoBox["结束"]) {
-            is InfoboxValue.SingleValue -> endDate.value
+            is Infobox.SingleValue -> endDate.value
             else -> null
         }
         // Does not seem to have Abandon info
@@ -61,8 +61,8 @@ class BangumiMetadataMapper(
 
         val altTitles =
             when (val infoBoxAliases = infoBox["别名"]) {
-                is InfoboxValue.SingleValue -> listOf(null to infoBoxAliases.value)
-                is InfoboxValue.MultipleValues -> infoBoxAliases.value.map { it.key to it.value }
+                is Infobox.SingleValue -> listOf(null to infoBoxAliases.value)
+                is Infobox.MultipleValues -> infoBoxAliases.value.map { it.key to it.value }
                 null -> emptyList()
             }
                 .map { (language, name) -> if (language == "hk") name to "zh-hk" else name to language }
@@ -74,11 +74,11 @@ class BangumiMetadataMapper(
         ) + altTitles
 
         val publishers = when (val publisherInfo = infoBox["出版社"]) {
-            is InfoboxValue.SingleValue -> publisherInfo.value.split(',', '，', '、')
+            is Infobox.SingleValue -> publisherInfo.value.split(',', '，', '、')
             else -> emptyList()
         }
         val otherPublishers = when (val publisherInfo = infoBox["其他出版社"]) {
-            is InfoboxValue.SingleValue -> publisherInfo.value.split(',', '，', '、')
+            is Infobox.SingleValue -> publisherInfo.value.split(',', '，', '、')
             else -> emptyList()
         }
 
@@ -106,8 +106,7 @@ class BangumiMetadataMapper(
         val books = bookRelations.map {
             SeriesBook(
                 id = ProviderBookId(it.id.toString()),
-                number = bookNumberRegex.find(it.name)?.groups?.last()?.value
-                    ?.let { number -> BookRange(number.toDouble(), number.toDouble()) },
+                number = getBookNumber(it.name),
                 name = it.name,
                 type = null,
                 edition = null
@@ -134,14 +133,14 @@ class BangumiMetadataMapper(
             .filter { it.count > 1 }
             .map { it.name }.toSet()
 
-        val infoBox = book.infobox?.associate { it.key to it.value } ?: emptyMap()
+        val infoBox = book.infobox?.associate { it.key to it } ?: emptyMap()
         val bookNumber = getBookNumber(book.name)
 
         val isbn = when (val isbn = infoBox["ISBN-13"]) {
-            is InfoboxValue.SingleValue -> isbn.value
+            is Infobox.SingleValue -> isbn.value
             else -> null
         } ?: when (val isbn = infoBox["ISBN"]) {
-            is InfoboxValue.SingleValue -> isbn10ToIsbn13(isbn.value)
+            is Infobox.SingleValue -> isbn10ToIsbn13(isbn.value)
             else -> null
         }
         val metadata = BookMetadata(
@@ -167,26 +166,26 @@ class BangumiMetadataMapper(
     }
 
     private fun getBookNumber(name: String): BookRange? {
-        return bookNumberRegex.find(name)?.groups?.last()?.value
-            ?.let { number -> BookRange(number.toDouble(), number.toDouble()) }
+        return bookNumberRegex.find(name)?.groups?.last()?.value?.toDoubleOrNull()
+            ?.let { number -> BookRange(number, number) }
     }
 
-    private fun getAuthors(infoBox: Map<String, InfoboxValue>): List<Author> {
+    private fun getAuthors(infoBox: Map<String, Infobox>): List<Author> {
         val author = when (val author = infoBox["作者"]) {
-            is InfoboxValue.SingleValue -> author.value
+            is Infobox.SingleValue -> author.value
             else -> null
         }
 
         val originalCreator = when (val originalCreator = infoBox["原作"]) {
-            is InfoboxValue.SingleValue -> originalCreator.value
+            is Infobox.SingleValue -> originalCreator.value
             else -> null
         }
         val illustrator = when (val illustrator = infoBox["作画"]) {
-            is InfoboxValue.SingleValue -> illustrator.value
+            is Infobox.SingleValue -> illustrator.value
             else -> null
         }
         val characterDesign = when (val characterDesign = infoBox["人物原案"]) {
-            is InfoboxValue.SingleValue -> characterDesign.value
+            is Infobox.SingleValue -> characterDesign.value
             else -> null
         }
 
@@ -209,17 +208,17 @@ class BangumiMetadataMapper(
     }
 
     private fun isbn10ToIsbn13(isbn10: String): String {
-        var isbn13 = "978" + isbn10.substring(0, 9)
-        var d: Int
-        var sum = 0
-        for (i in isbn13.indices) {
-            d = (if ((i % 2 == 0)) 1 else 3)
-            sum += isbn13[i].digitToInt() * d
-        }
-        sum = 10 - (sum % 10)
-        isbn13 += sum
+        val isbnIntermediate = "978" + isbn10.substring(0, 9)
 
-        return isbn13
+        var sum = 0
+        for (index in isbnIntermediate.indices) {
+            val d = if (index % 2 == 0) 1 else 3
+            sum += isbnIntermediate[index].digitToInt() * d
+        }
+
+        val mod = sum % 10
+        val checkDigit = if (mod == 0) 0 else 10 - mod
+        return isbnIntermediate + checkDigit
     }
 
     fun toSearchResult(searchData: SubjectSearchData): SeriesSearchResult {
