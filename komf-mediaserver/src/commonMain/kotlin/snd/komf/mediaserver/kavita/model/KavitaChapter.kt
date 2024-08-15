@@ -6,7 +6,9 @@ import snd.komf.mediaserver.model.MediaServerBookId
 
 @JvmInline
 @Serializable
-value class KavitaChapterId(val value: Int)
+value class KavitaChapterId(val value: Int){
+    override fun toString() = value.toString()
+}
 
 fun MediaServerBookId.toKavitaChapterId() = KavitaChapterId(value.toInt())
 
@@ -53,7 +55,7 @@ data class KavitaChapter(
 data class KavitaChapterFile(
     val id: Int,
     val filePath: String,
-    val pages: String,
+    val pages: Int,
     val format: Int,
     val created: LocalDateTime
 )

@@ -147,7 +147,6 @@ class KavitaClient(
         ktor.post("/api/upload/chapter") {
             contentType(ContentType.Application.Json)
             setBody(KavitaCoverUploadRequest(id = chapterId.value, url = base64Image))
-
         }
     }
 

@@ -7,7 +7,9 @@ import snd.komf.mediaserver.model.MediaServerLibraryId
 
 @JvmInline
 @Serializable
-value class KavitaLibraryId(val value: Int)
+value class KavitaLibraryId(val value: Int){
+    override fun toString() = value.toString()
+}
 
 fun MediaServerLibraryId.toKavitaLibraryId() = KavitaLibraryId(value.toInt())
 @Serializable

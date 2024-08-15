@@ -174,7 +174,7 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
 
 private fun KavitaSeries.toMediaServerSeries(metadata: KavitaSeriesMetadata, bookCount: Int): MediaServerSeries {
     return MediaServerSeries(
-        id = MediaServerSeriesId(id.toString()),
+        id = MediaServerSeriesId(id.value.toString()),
         libraryId = MediaServerLibraryId(libraryId.toString()),
         name = originalName,
         booksCount = bookCount,
@@ -189,7 +189,7 @@ private fun KavitaChapter.toMediaServerBook(volume: KavitaVolume): MediaServerBo
     val fileName = filePath.fileName.toString()
 
     return MediaServerBook(
-        id = MediaServerBookId(id.toString()),
+        id = MediaServerBookId(id.value.toString()),
         seriesId = MediaServerSeriesId(volume.seriesId.toString()),
         libraryId = null,
         seriesTitle = title,
@@ -236,7 +236,7 @@ private fun KavitaChapter.toMediaServerBookMetadata(): MediaServerBookMetadata {
 }
 
 private fun KavitaLibrary.toMediaServerLibrary() = MediaServerLibrary(
-    id = MediaServerLibraryId(id.toString()),
+    id = MediaServerLibraryId(id.value.toString()),
     name = name,
     roots = folders
 )

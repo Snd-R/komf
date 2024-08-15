@@ -4,7 +4,9 @@ import kotlinx.serialization.Serializable
 
 @JvmInline
 @Serializable
-value class KavitaVolumeId(val value: Int)
+value class KavitaVolumeId(val value: Int) {
+    override fun toString() = value.toString()
+}
 
 @Serializable
 data class KavitaVolume(

@@ -12,7 +12,9 @@ import snd.komf.mediaserver.model.MediaServerSeriesId
 
 @JvmInline
 @Serializable
-value class KavitaSeriesId(val value: Int)
+value class KavitaSeriesId(val value: Int) {
+    override fun toString() = value.toString()
+}
 
 fun MediaServerSeriesId.toKavitaSeriesId() = KavitaSeriesId(value.toInt())
 
