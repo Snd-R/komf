@@ -6,7 +6,7 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable
-value class ProviderSeriesId(val value: String){
+value class ProviderSeriesId(val value: String) {
     override fun toString() = value
 }
 
@@ -16,8 +16,8 @@ data class SeriesMetadata(
     val title: SeriesTitle? = null,
     val titles: Collection<SeriesTitle> = emptyList(),
     val summary: String? = null,
-    val publisher: String? = null,
-    val alternativePublishers: Set<String> = emptySet(),
+    val publisher: Publisher? = null,
+    val alternativePublishers: Set<Publisher> = emptySet(),
     val readingDirection: ReadingDirection? = null,
     val ageRating: Int? = null,
     val language: String? = null,
@@ -67,9 +67,11 @@ enum class TitleType(val label: String) {
     LOCALIZED("Localized"),
     NATIVE("Native"),
 }
+
 enum class ReadingDirection {
     LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
 }
+
 enum class SeriesStatus {
     ENDED,
     ONGOING,
@@ -78,6 +80,17 @@ enum class SeriesStatus {
     COMPLETED
 }
 
+@Serializable
+data class Publisher(
+    val name: String,
+    val type: PublisherType? = null,
+    val languageTag: String? = null
+)
+
+enum class PublisherType {
+    ORIGINAL,
+    LOCALIZED
+}
 
 fun LocalDate.toReleaseDate() = ReleaseDate(year = year, month = monthNumber, day = dayOfMonth)
 

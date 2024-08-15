@@ -10,6 +10,8 @@ import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
+import snd.komf.model.Publisher
+import snd.komf.model.PublisherType
 import snd.komf.model.ReleaseDate
 import snd.komf.model.SeriesBook
 import snd.komf.model.SeriesMetadata
@@ -25,9 +27,9 @@ import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
 import snd.komf.providers.nautiljon.model.NautiljonSeries
 import snd.komf.providers.nautiljon.model.NautiljonSeriesId
-import snd.komf.providers.nautiljon.model.SearchResult
 import snd.komf.providers.nautiljon.model.NautiljonVolume
 import snd.komf.providers.nautiljon.model.NautiljonVolumeId
+import snd.komf.providers.nautiljon.model.SearchResult
 
 class NautiljonSeriesMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
@@ -51,12 +53,6 @@ class NautiljonSeriesMetadataMapper(
             artistRoles.map { role -> Author(artist, role) }
         }
 
-        val tags = series.themes + listOfNotNull(
-            seriesMetadataConfig.originalPublisherTagName
-                ?.let { tag -> series.originalPublisher?.let { publisher -> "$tag: $publisher" } },
-            seriesMetadataConfig.frenchPublisherTagName
-                ?.let { tag -> series.frenchPublisher?.let { publisher -> "$tag: $publisher" } }
-        )
         val titles = listOfNotNull(
             SeriesTitle(series.title, null, null),
             series.romajiTitle?.let { SeriesTitle(it, ROMAJI, "ja-ro") },
@@ -64,16 +60,18 @@ class NautiljonSeriesMetadataMapper(
         ) + series.alternativeTitles.map { SeriesTitle(it, null, null) }
 
 
+        val originalPublisher = series.originalPublisher?.let { Publisher(it, PublisherType.ORIGINAL) }
+        val frenchPublisher = series.frenchPublisher?.let { Publisher(it, PublisherType.LOCALIZED, "fr") }
+        val publisher = if (seriesMetadataConfig.useOriginalPublisher) originalPublisher
+        else frenchPublisher ?: originalPublisher
         val metadata = SeriesMetadata(
             status = status,
             titles = titles,
             summary = series.description,
-            publisher = if (seriesMetadataConfig.useOriginalPublisher) series.originalPublisher
-            else series.frenchPublisher ?: series.originalPublisher,
-            alternativePublishers = if (seriesMetadataConfig.useOriginalPublisher) setOfNotNull(series.frenchPublisher)
-            else series.frenchPublisher?.let { setOfNotNull(series.originalPublisher) } ?: emptySet(),
+            publisher = publisher,
+            alternativePublishers = setOfNotNull(originalPublisher, frenchPublisher) - setOfNotNull(publisher),
             genres = series.genres,
-            tags = tags,
+            tags = series.themes,
             authors = authors,
             thumbnail = thumbnail,
             totalBookCount = series.numberOfVolumes,
@@ -135,8 +133,8 @@ class NautiljonSeriesMetadataMapper(
     }
 
     private fun seriesUrl(seriesId: NautiljonSeriesId) =
-        nautiljonBaseUrl + "mangas/${seriesId.value.encodeURLPath()}.html"
+        nautiljonBaseUrl + "/mangas/${seriesId.value.encodeURLPath()}.html"
 
     private fun bookUrl(seriesId: NautiljonSeriesId, volumeId: NautiljonVolumeId) = nautiljonBaseUrl +
-            "mangas/${seriesId.value.encodeURLPath()}/volume-${volumeId.value.encodeURLPath()}.html"
+            "/mangas/${seriesId.value.encodeURLPath()}/volume-${volumeId.value.encodeURLPath()}.html"
 }

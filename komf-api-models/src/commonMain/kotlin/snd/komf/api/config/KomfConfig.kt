@@ -61,6 +61,16 @@ data class MetadataPostProcessingConfigDto(
     val readingDirectionValue: KomfReadingDirection?,
     val languageValue: String?,
     val fallbackToAltTitle: Boolean,
+
+    val scoreTagName: String?,
+    val originalPublisherTagName: String?,
+    val publisherTagNames: List<PublisherTagNameConfigDto>,
+)
+
+@Serializable
+data class PublisherTagNameConfigDto(
+    val tagName: String,
+    val language: String
 )
 
 @Serializable

@@ -11,6 +11,8 @@ import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
+import snd.komf.model.Publisher
+import snd.komf.model.PublisherType
 import snd.komf.model.SeriesBook
 import snd.komf.model.SeriesMetadata
 import snd.komf.model.SeriesSearchResult
@@ -49,7 +51,7 @@ class KodanshaMetadataMapper(
             status = status,
             titles = listOf(SeriesTitle(seriesTitle, TitleType.LOCALIZED, "en")),
             summary = series.description?.let { parseDescription(it) },
-            publisher = series.publisher,
+            publisher = series.publisher?.let { Publisher(it, PublisherType.LOCALIZED) },
             ageRating = ageRating,
             genres = series.genres?.map { it.name } ?: emptyList(),
             totalBookCount = if (bookList.isEmpty()) null else bookList.size,

@@ -25,6 +25,8 @@ import snd.komf.app.config.MetadataPostProcessingConfig
 import snd.komf.app.config.MetadataProcessingConfig
 import snd.komf.app.config.MetadataUpdateConfig
 import snd.komf.app.config.NotificationsConfig
+import snd.komf.mediaserver.metadata.PublisherTagNameConfig
+import snd.komf.model.ReadingDirection
 import snd.komf.notifications.discord.DiscordConfig
 import snd.komf.providers.AniListConfig
 import snd.komf.providers.BookMetadataConfig
@@ -220,21 +222,6 @@ class AppConfigUpdateMapper {
             links = patch.links.getOrNull() ?: config.links,
             books = patch.books.getOrNull() ?: config.books,
             useOriginalPublisher = patch.useOriginalPublisher.getOrNull() ?: config.useOriginalPublisher,
-            originalPublisherTagName = when (val value = patch.originalPublisherTagName) {
-                PatchValue.None -> null
-                is PatchValue.Some -> value.value
-                PatchValue.Unset -> config.originalPublisherTagName
-            },
-            englishPublisherTagName = when (val value = patch.englishPublisherTagName) {
-                PatchValue.None -> null
-                is PatchValue.Some -> value.value
-                PatchValue.Unset -> config.englishPublisherTagName
-            },
-            frenchPublisherTagName = when (val value = patch.frenchPublisherTagName) {
-                PatchValue.None -> null
-                is PatchValue.Some -> value.value
-                PatchValue.Unset -> config.frenchPublisherTagName
-            },
         )
     }
 
@@ -383,6 +370,20 @@ class AppConfigUpdateMapper {
                 PatchValue.Unset -> config.languageValue
             },
             fallbackToAltTitle = patch.fallbackToAltTitle.getOrNull() ?: config.fallbackToAltTitle,
+
+            scoreTagName = when (val tagName = patch.scoreTagName) {
+                PatchValue.None -> null
+                is PatchValue.Some -> tagName.value
+                PatchValue.Unset -> config.scoreTagName
+            },
+            originalPublisherTagName = when (val tagName = patch.originalPublisherTagName) {
+                PatchValue.None -> null
+                is PatchValue.Some -> tagName.value
+                PatchValue.Unset -> config.originalPublisherTagName
+            },
+            publisherTagNames = patch.publisherTagNames.getOrNull()
+                ?.map { PublisherTagNameConfig(it.tagName, it.language) }
+                ?: config.publisherTagNames,
         )
     }
 

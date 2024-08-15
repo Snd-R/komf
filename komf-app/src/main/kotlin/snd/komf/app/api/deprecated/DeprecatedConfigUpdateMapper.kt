@@ -268,9 +268,9 @@ class DeprecatedConfigUpdateMapper {
             links = config.links,
             books = config.books,
             useOriginalPublisher = config.useOriginalPublisher,
-            originalPublisherTagName = config.originalPublisherTagName ?: "",
-            englishPublisherTagName = config.englishPublisherTagName ?: "",
-            frenchPublisherTagName = config.frenchPublisherTagName ?: "",
+            originalPublisherTagName = "",
+            englishPublisherTagName = "",
+            frenchPublisherTagName = "",
         )
     }
 
@@ -435,21 +435,6 @@ class DeprecatedConfigUpdateMapper {
             links = patch.links ?: config.links,
             books = patch.books ?: config.books,
             useOriginalPublisher = patch.useOriginalPublisher ?: config.useOriginalPublisher,
-            originalPublisherTagName = when (val value = patch.originalPublisherTagName) {
-                PatchValue.None -> null
-                is PatchValue.Some -> value.value
-                PatchValue.Unset -> config.originalPublisherTagName
-            },
-            englishPublisherTagName = when (val value = patch.englishPublisherTagName) {
-                PatchValue.None -> null
-                is PatchValue.Some -> value.value
-                PatchValue.Unset -> config.englishPublisherTagName
-            },
-            frenchPublisherTagName = when (val value = patch.frenchPublisherTagName) {
-                PatchValue.None -> null
-                is PatchValue.Some -> value.value
-                PatchValue.Unset -> config.frenchPublisherTagName
-            },
         )
     }
 

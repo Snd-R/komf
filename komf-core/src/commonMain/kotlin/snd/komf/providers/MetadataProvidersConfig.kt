@@ -98,9 +98,6 @@ data class SeriesMetadataConfig(
     val score: Boolean = true,
 
     val useOriginalPublisher: Boolean = false,
-    val originalPublisherTagName: String? = null,
-    val englishPublisherTagName: String? = null,
-    val frenchPublisherTagName: String? = null,
 )
 
 @Serializable

@@ -1,9 +1,11 @@
 package snd.komf.mediaserver.metadata
 
+import kotlinx.serialization.Serializable
 import snd.komf.mediaserver.model.MediaServerBook
 import snd.komf.mediaserver.model.SeriesAndBookMetadata
 import snd.komf.model.BookMetadata
 import snd.komf.model.MediaType
+import snd.komf.model.PublisherType.ORIGINAL
 import snd.komf.model.ReadingDirection
 import snd.komf.model.SeriesMetadata
 import snd.komf.model.SeriesTitle
@@ -20,19 +22,21 @@ class MetadataPostProcessor(
     private val alternativeSeriesTitles: Boolean,
     private val alternativeSeriesTitleLanguages: List<String>,
     private val orderBooks: Boolean,
-    private val scoreTag: Boolean,
     private val readingDirectionValue: ReadingDirection?,
     private val languageValue: String?,
-    private val fallbackToAltTitle: Boolean
+    private val fallbackToAltTitle: Boolean,
+
+    private val scoreTag: Boolean,
+    private val scoreTagName: String?,
+    private val originalPublisherTagName: String?,
+    private val publisherTagNames: List<PublisherTagNameConfig>
 ) {
 
     fun process(metadata: SeriesAndBookMetadata): SeriesAndBookMetadata {
         val seriesMetadata = postProcessSeries(metadata.seriesMetadata)
         val bookMetadata = postProcessBooks(metadata.bookMetadata)
 
-        val updated = handleKomgaOneshot(seriesMetadata, bookMetadata)
-
-        return updated
+        return handleKomgaOneshot(seriesMetadata, bookMetadata)
     }
 
     private fun postProcessSeries(series: SeriesMetadata): SeriesMetadata {
@@ -52,9 +56,10 @@ class MetadataPostProcessor(
             if (seriesTitle != null) altTitles.filter { distinctName(it.name) != distinctName(seriesTitle.name) }
             else altTitles
 
-        val tags = if (scoreTag) {
-            series.score?.let { score -> series.tags.plus("score: ${score.toInt()}") } ?: series.tags
-        } else series.tags
+        val tags = series.tags.toMutableList()
+        tags.addScoreTag(series)
+        tags.addOriginalPublisherTag(series)
+        publisherTagNames.forEach { tags.addPublisherTag(series, it.tagName, it.language) }
 
         return series.copy(
             title = seriesTitle,
@@ -63,6 +68,33 @@ class MetadataPostProcessor(
             language = languageValue ?: series.language,
             tags = tags,
         )
+    }
+
+    private fun MutableList<String>.addScoreTag(series: SeriesMetadata) {
+        val seriesScore = series.score?.toInt()
+        if (scoreTagName != null && seriesScore != null) add("$scoreTagName: $seriesScore")
+        else if (scoreTag && seriesScore != null) add("score: $seriesScore")
+    }
+
+    private fun MutableList<String>.addOriginalPublisherTag(
+        series: SeriesMetadata,
+    ) {
+        val publishers = series.alternativePublishers + listOfNotNull(series.publisher)
+        if (originalPublisherTagName != null) {
+            publishers.firstOrNull { it.type == ORIGINAL }
+                ?.let { publisher -> add("${originalPublisherTagName}: ${publisher.name}") }
+        }
+    }
+
+    private fun MutableList<String>.addPublisherTag(
+        series: SeriesMetadata,
+        tagName: String,
+        language: String,
+    ) {
+        val publishers = series.alternativePublishers + listOfNotNull(series.publisher)
+        publishers.firstOrNull { it.languageTag.equals(language, true) }
+            ?.let { publisher -> add("${tagName}: ${publisher.name}") }
+
     }
 
     private fun postProcessBooks(books: Map<MediaServerBook, BookMetadata?>): Map<MediaServerBook, BookMetadata?> {
@@ -127,3 +159,9 @@ class MetadataPostProcessor(
         return SeriesAndBookMetadata(newSeriesMetadata, newBookMetadata)
     }
 }
+
+@Serializable
+data class PublisherTagNameConfig(
+    val tagName: String,
+    val language: String
+)

@@ -285,16 +285,20 @@ class MediaServerModule(
         bookThumbnailsRepository: BookThumbnailsRepository,
     ): MetadataUpdater {
         val postProcessor = MetadataPostProcessor(
-            config.libraryType,
-            config.postProcessing.seriesTitle,
-            config.postProcessing.seriesTitleLanguage,
-            config.postProcessing.alternativeSeriesTitles,
-            config.postProcessing.alternativeSeriesTitleLanguages,
-            config.postProcessing.orderBooks,
-            config.postProcessing.scoreTag,
-            config.postProcessing.readingDirectionValue,
-            config.postProcessing.languageValue,
-            config.postProcessing.fallbackToAltTitle,
+            libraryType = config.libraryType,
+            seriesTitle = config.postProcessing.seriesTitle,
+            seriesTitleLanguage = config.postProcessing.seriesTitleLanguage,
+            alternativeSeriesTitles = config.postProcessing.alternativeSeriesTitles,
+            alternativeSeriesTitleLanguages = config.postProcessing.alternativeSeriesTitleLanguages,
+            orderBooks = config.postProcessing.orderBooks,
+            readingDirectionValue = config.postProcessing.readingDirectionValue,
+            languageValue = config.postProcessing.languageValue,
+            fallbackToAltTitle = config.postProcessing.fallbackToAltTitle,
+
+            scoreTag = config.postProcessing.scoreTag,
+            scoreTagName = config.postProcessing.scoreTagName,
+            originalPublisherTagName = config.postProcessing.originalPublisherTagName,
+            publisherTagNames = config.postProcessing.publisherTagNames
         )
 
         return MetadataUpdater(

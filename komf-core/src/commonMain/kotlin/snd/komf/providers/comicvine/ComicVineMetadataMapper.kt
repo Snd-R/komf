@@ -20,6 +20,7 @@ import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
+import snd.komf.model.Publisher
 import snd.komf.model.ReleaseDate
 import snd.komf.model.SeriesBook
 import snd.komf.model.SeriesMetadata
@@ -56,7 +57,7 @@ class ComicVineMetadataMapper(
         val metadata = SeriesMetadata(
             titles = listOf(SeriesTitle(volume.name, null, null)),
             summary = volume.description?.let { parseDescription(it) },
-            publisher = volume.publisher?.name,
+            publisher = volume.publisher?.name?.let { Publisher(it) },
             releaseDate = ReleaseDate(volume.startYear?.toIntOrNull(), null, null),
             links = listOf(WebLink("ComicVine", volume.siteDetailUrl)),
             thumbnail = cover

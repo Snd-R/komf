@@ -9,6 +9,8 @@ import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
+import snd.komf.model.Publisher
+import snd.komf.model.PublisherType
 import snd.komf.model.ReleaseDate
 import snd.komf.model.SeriesBook
 import snd.komf.model.SeriesMetadata
@@ -50,7 +52,7 @@ class BookWalkerMapper(
         val metadata = SeriesMetadata(
             titles = titles,
             summary = book.synopsis,
-            publisher = book.publisher,
+            publisher = Publisher(book.publisher, PublisherType.LOCALIZED),
             genres = book.genres,
             tags = emptyList(),
             totalBookCount = allBooks.size.let { if (it < 1) null else it },

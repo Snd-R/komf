@@ -9,6 +9,8 @@ import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
+import snd.komf.model.Publisher
+import snd.komf.model.PublisherType
 import snd.komf.model.SeriesBook
 import snd.komf.model.SeriesMetadata
 import snd.komf.model.SeriesSearchResult
@@ -42,7 +44,7 @@ class VizMetadataMapper(
             status = if (allBooks.any { it.final }) ENDED else null,
             titles = listOf(SeriesTitle(book.seriesName, LOCALIZED, "en")),
             summary = book.description,
-            publisher = book.publisher,
+            publisher = Publisher(book.publisher, PublisherType.LOCALIZED),
             ageRating = book.ageRating?.age,
             genres = book.genres,
             tags = emptyList(),

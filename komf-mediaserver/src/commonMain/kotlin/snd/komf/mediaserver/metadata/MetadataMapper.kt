@@ -1,12 +1,12 @@
 package snd.komf.mediaserver.metadata
 
+import snd.komf.comicinfo.model.AgeRating
+import snd.komf.comicinfo.model.ComicInfo
 import snd.komf.mediaserver.model.MediaServerAuthor
 import snd.komf.mediaserver.model.MediaServerBook
 import snd.komf.mediaserver.model.MediaServerBookMetadataUpdate
 import snd.komf.mediaserver.model.MediaServerSeriesMetadata
 import snd.komf.mediaserver.model.MediaServerSeriesMetadataUpdate
-import snd.komf.comicinfo.model.AgeRating
-import snd.komf.comicinfo.model.ComicInfo
 import snd.komf.model.AuthorRole.COLORIST
 import snd.komf.model.AuthorRole.COVER
 import snd.komf.model.AuthorRole.EDITOR
@@ -26,7 +26,8 @@ class MetadataMapper {
         book: MediaServerBook
     ): MediaServerBookMetadataUpdate {
         return with(book.metadata) {
-            val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors } ?: seriesMetadata?.authors?.ifEmpty { null })
+            val authors = (bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }
+                ?: seriesMetadata?.authors?.ifEmpty { null })
                 ?.map { author -> MediaServerAuthor(author.name, author.role.name) }
 
             MediaServerBookMetadataUpdate(
@@ -48,7 +49,10 @@ class MetadataMapper {
         }
     }
 
-    fun toSeriesMetadataUpdate(patch: SeriesMetadata, metadata: MediaServerSeriesMetadata): MediaServerSeriesMetadataUpdate =
+    fun toSeriesMetadataUpdate(
+        patch: SeriesMetadata,
+        metadata: MediaServerSeriesMetadata
+    ): MediaServerSeriesMetadataUpdate =
         with(metadata) {
             val authors = (patch.authors.map { MediaServerAuthor(it.name, it.role.name) }.ifEmpty { null })
 
@@ -58,8 +62,10 @@ class MetadataMapper {
                 titleSort = getIfNotLockedOrEmpty(patch.title, titleSortLock),
                 alternativeTitles = getIfNotLockedOrEmpty(patch.titles.filter { it != patch.title }, titleSortLock),
                 summary = getIfNotLockedOrEmpty(patch.summary, summaryLock),
-                publisher = getIfNotLockedOrEmpty(patch.publisher, publisherLock),
-                alternativePublishers = getIfNotLockedOrEmpty(patch.alternativePublishers, publisherLock),
+                publisher = getIfNotLockedOrEmpty(patch.publisher?.name, publisherLock),
+                alternativePublishers = getIfNotLockedOrEmpty(
+                    patch.alternativePublishers.map { it.name }, publisherLock
+                ),
                 readingDirection = getIfNotLockedOrEmpty(patch.readingDirection, readingDirectionLock),
                 ageRating = getIfNotLockedOrEmpty(patch.ageRating, ageRatingLock),
                 language = getIfNotLockedOrEmpty(patch.language, languageLock),
@@ -74,7 +80,8 @@ class MetadataMapper {
 
     fun toComicInfo(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata?): ComicInfo? {
         if (bookMetadata == null && seriesMetadata == null) return null
-        val authors = ((bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }) ?: seriesMetadata?.authors)?.ifEmpty { null }
+        val authors =
+            ((bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }) ?: seriesMetadata?.authors)?.ifEmpty { null }
 
         return ComicInfo(
             series = seriesMetadata?.title?.name,
@@ -108,7 +115,7 @@ class MetadataMapper {
             translator = authors?.filter { it.role == TRANSLATOR }
                 ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
-            publisher = seriesMetadata?.publisher,
+            publisher = seriesMetadata?.publisher?.name,
             genre = seriesMetadata?.genres?.ifEmpty { null }?.joinToString(","),
             tags = bookMetadata?.tags?.ifEmpty { null }?.joinToString(","),
             ageRating = seriesMetadata?.ageRating
@@ -159,7 +166,7 @@ class MetadataMapper {
             translator = authors?.filter { it.role == TRANSLATOR }
                 ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },
-            publisher = seriesMetadata.publisher,
+            publisher = seriesMetadata.publisher?.name,
             genre = seriesMetadata.genres.ifEmpty { null }?.joinToString(","),
             tags = seriesMetadata.tags.ifEmpty { null }?.joinToString(","),
             ageRating = seriesMetadata.ageRating

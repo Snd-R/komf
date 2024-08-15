@@ -15,6 +15,7 @@ import snd.komf.api.config.MetadataUpdateConfigDto
 import snd.komf.api.config.NotificationConfigDto
 import snd.komf.api.config.ProviderConfigDto
 import snd.komf.api.config.ProvidersConfigDto
+import snd.komf.api.config.PublisherTagNameConfigDto
 import snd.komf.api.config.SeriesMetadataConfigDto
 import snd.komf.app.config.AppConfig
 import snd.komf.app.config.EventListenerConfig
@@ -101,7 +102,10 @@ class AppConfigMapper {
             orderBooks = config.orderBooks,
             readingDirectionValue = config.readingDirectionValue?.fromReadingDirection(),
             languageValue = config.languageValue,
-            fallbackToAltTitle = config.fallbackToAltTitle
+            fallbackToAltTitle = config.fallbackToAltTitle,
+            scoreTagName = config.scoreTagName,
+            originalPublisherTagName = config.originalPublisherTagName,
+            publisherTagNames = config.publisherTagNames.map { PublisherTagNameConfigDto(it.tagName, it.language) }
         )
     }
 
@@ -205,9 +209,9 @@ class AppConfigMapper {
             links = config.links,
             books = config.books,
             useOriginalPublisher = config.useOriginalPublisher,
-            originalPublisherTagName = config.originalPublisherTagName ?: "",
-            englishPublisherTagName = config.englishPublisherTagName ?: "",
-            frenchPublisherTagName = config.frenchPublisherTagName ?: "",
+            originalPublisherTagName = "",
+            englishPublisherTagName = "",
+            frenchPublisherTagName = "",
         )
     }
 

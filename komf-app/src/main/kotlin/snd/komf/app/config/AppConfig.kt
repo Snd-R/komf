@@ -3,6 +3,7 @@ package snd.komf.app.config
 import kotlinx.serialization.Serializable
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
+import snd.komf.mediaserver.metadata.PublisherTagNameConfig
 import snd.komf.model.MediaType
 import snd.komf.model.MediaType.MANGA
 import snd.komf.model.ReadingDirection
@@ -87,9 +88,14 @@ data class MetadataPostProcessingConfig(
     val fallbackToAltTitle: Boolean = false,
 
     val orderBooks: Boolean = false,
-    val scoreTag: Boolean = false,
     val readingDirectionValue: ReadingDirection? = null,
     val languageValue: String? = null,
+
+    @Deprecated("use scoreTagName instead")
+    val scoreTag: Boolean = false,
+    val scoreTagName: String? = null,
+    val originalPublisherTagName: String? = null,
+    val publisherTagNames: List<PublisherTagNameConfig> = emptyList(),
 )
 
 @Serializable

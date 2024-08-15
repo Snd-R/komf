@@ -9,6 +9,8 @@ import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
+import snd.komf.model.Publisher
+import snd.komf.model.PublisherType
 import snd.komf.model.SeriesBook
 import snd.komf.model.SeriesMetadata
 import snd.komf.model.SeriesSearchResult
@@ -54,7 +56,7 @@ class YenPressMetadataMapper(
             tags = emptyList(),
             releaseDate = book.releaseDate?.toReleaseDate(),
             ageRating = book.ageRating?.let { ageRating(it) },
-            publisher = book.imprint,
+            publisher = book.imprint?.let { Publisher(it, PublisherType.LOCALIZED) },
             thumbnail = thumbnail,
             totalBookCount = books.ifEmpty { null }?.size,
             links = listOf(

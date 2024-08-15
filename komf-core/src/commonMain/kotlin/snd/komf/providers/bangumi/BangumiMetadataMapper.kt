@@ -10,6 +10,9 @@ import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
+import snd.komf.model.Publisher
+import snd.komf.model.PublisherType.LOCALIZED
+import snd.komf.model.PublisherType.ORIGINAL
 import snd.komf.model.ReleaseDate
 import snd.komf.model.SeriesBook
 import snd.komf.model.SeriesMetadata
@@ -76,11 +79,11 @@ class BangumiMetadataMapper(
         val publishers = when (val publisherInfo = infoBox["出版社"]) {
             is Infobox.SingleValue -> publisherInfo.value.split(',', '，', '、')
             else -> emptyList()
-        }
+        }.map { Publisher(it, ORIGINAL) }
         val otherPublishers = when (val publisherInfo = infoBox["其他出版社"]) {
             is Infobox.SingleValue -> publisherInfo.value.split(',', '，', '、')
             else -> emptyList()
-        }
+        }.map { Publisher(it, LOCALIZED) }
 
         val altPublishers = publishers.drop(1).plus(otherPublishers)
 
@@ -90,7 +93,7 @@ class BangumiMetadataMapper(
             titles = titles,
             summary = subject.summary,
             publisher = publishers.firstOrNull(),
-            alternativePublishers = altPublishers.toSet(),
+            alternativePublishers = altPublishers.toSet() + publishers.drop(1),
             tags = tags,
             authors = getAuthors(infoBox),
             releaseDate = ReleaseDate(

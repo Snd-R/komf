@@ -11,7 +11,7 @@ import snd.komf.providers.nautiljon.model.NautiljonSeriesId
 import snd.komf.providers.nautiljon.model.NautiljonVolume
 import snd.komf.providers.nautiljon.model.NautiljonVolumeId
 
-const val nautiljonBaseUrl = "https://www.nautiljon.com/"
+const val nautiljonBaseUrl = "https://www.nautiljon.com"
 
 class NautiljonClient(
     private val ktor: HttpClient,

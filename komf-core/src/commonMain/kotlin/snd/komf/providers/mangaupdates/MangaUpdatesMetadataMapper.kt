@@ -1,13 +1,13 @@
 package snd.komf.providers.mangaupdates
 
 import com.fleeksoft.ksoup.parser.Parser.Companion.unescapeEntities
-import snd.komf.providers.MetadataConfigApplier
-import snd.komf.providers.CoreProviders
 import snd.komf.model.Author
 import snd.komf.model.AuthorRole
 import snd.komf.model.Image
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
+import snd.komf.model.Publisher
+import snd.komf.model.PublisherType
 import snd.komf.model.ReleaseDate
 import snd.komf.model.SeriesMetadata
 import snd.komf.model.SeriesSearchResult
@@ -15,6 +15,8 @@ import snd.komf.model.SeriesStatus
 import snd.komf.model.SeriesTitle
 import snd.komf.model.TitleType.ROMAJI
 import snd.komf.model.WebLink
+import snd.komf.providers.CoreProviders
+import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
 import snd.komf.providers.mangaupdates.model.MangaUpdatesSeries
 import snd.komf.providers.mangaupdates.model.SearchResult
@@ -41,27 +43,25 @@ class MangaUpdatesMetadataMapper(
             }
         }
 
-        val originalPublishers = series.publishers.filter { it.type == "Original" }.map { it.name }.toSet()
-        val englishPublishers = series.publishers.filter { it.type == "English" }.map { it.name }.toSet()
+        val originalPublishers = series.publishers.filter { it.type == "Original" }
+            .map { Publisher(it.name, PublisherType.ORIGINAL) }.toSet()
+        val englishPublishers = series.publishers.filter { it.type == "English" }
+            .map { Publisher(it.name, PublisherType.LOCALIZED, "en") }.toSet()
 
-        val originalPublisherTag = metadataConfig.originalPublisherTagName
-            ?.let { tag -> originalPublishers.firstOrNull()?.let { "$tag: $it" } }
-        val englishPublisherTag = metadataConfig.englishPublisherTagName
-            ?.let { tag -> englishPublishers.firstOrNull()?.let { "$tag: $it" } }
         val tags = series.categories.sortedByDescending { it.votes }.take(15)
-            .map { it.category } + listOfNotNull(originalPublisherTag, englishPublisherTag)
+            .map { it.category }
 
         val titles = listOf(SeriesTitle(series.title, ROMAJI, "ja-ro")) +
                 series.associated.map { SeriesTitle(it.title, null, null) }
 
+        val publisher = if (metadataConfig.useOriginalPublisher) originalPublishers.firstOrNull()
+        else englishPublishers.firstOrNull() ?: originalPublishers.firstOrNull()
         val metadata = SeriesMetadata(
             status = status,
             titles = titles,
             summary = series.description,
-            publisher = if (metadataConfig.useOriginalPublisher) originalPublishers.firstOrNull() else englishPublishers.firstOrNull()
-                ?: originalPublishers.firstOrNull(),
-            alternativePublishers = if (metadataConfig.useOriginalPublisher) englishPublishers
-            else englishPublishers,
+            publisher = publisher,
+            alternativePublishers = (originalPublishers + englishPublishers) - setOfNotNull(publisher),
             genres = series.genres.map { it.genre },
             tags = tags,
             authors = authors,
