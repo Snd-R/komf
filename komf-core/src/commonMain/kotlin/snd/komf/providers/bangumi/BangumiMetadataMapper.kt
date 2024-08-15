@@ -91,7 +91,7 @@ class BangumiMetadataMapper(
         val metadata = SeriesMetadata(
             status = status,
             titles = titles,
-            summary = subject.summary,
+            summary = subject.summary.trimIndent(),
             publisher = publishers.firstOrNull(),
             alternativePublishers = altPublishers.toSet() + publishers.drop(1),
             tags = tags,
@@ -148,7 +148,7 @@ class BangumiMetadataMapper(
         }
         val metadata = BookMetadata(
             title = book.name,
-            summary = book.summary,
+            summary = book.summary.trimIndent(),
             number = bookNumber,
             numberSort = bookNumber?.start,
             releaseDate = book.date?.let { LocalDate.parse(it) },
@@ -211,7 +211,10 @@ class BangumiMetadataMapper(
     }
 
     private fun isbn10ToIsbn13(isbn10: String): String {
-        val isbnIntermediate = "978" + isbn10.substring(0, 9)
+        val stripped = isbn10.replace("-", "")
+        if (stripped.length == 13) return stripped
+        require(isbn10.length == 10) { "Isbn-10 must have 10 characters. $isbn10" }
+        val isbnIntermediate = "978" + stripped.substring(0, 9)
 
         var sum = 0
         for (index in isbnIntermediate.indices) {
@@ -233,6 +236,7 @@ class BangumiMetadataMapper(
             title = searchData.nameCn.ifBlank { searchData.name },
         )
     }
+
 
     private fun subjectUrl(id: Long) = subjectBaseUrl + id
 }
