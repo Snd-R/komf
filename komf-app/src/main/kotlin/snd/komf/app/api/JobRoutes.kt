@@ -46,8 +46,6 @@ class JobRoutes(
     private val jobsRepository: KomfJobsRepository,
     private val json: Json
 ) {
-    private val sseScope = CoroutineScope(Dispatchers.Default)
-
     fun registerRoutes(routing: Route) {
         routing.route("/jobs") {
             getJobsRoute()
@@ -70,7 +68,6 @@ class JobRoutes(
             eventFlow
                 .takeWhile { it !is CompletionEvent }
                 .collect { event ->
-                    currentCoroutineContext()
                     when (event) {
                         is ProviderSeriesEvent -> send(
                             ServerSentEvent(json.encodeToString(event.toDto()), providerSeriesEventName)
