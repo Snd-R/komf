@@ -14,6 +14,7 @@ import snd.komf.app.AppContext
 import snd.komf.app.api.ConfigRoutes
 import snd.komf.app.api.JobRoutes
 import snd.komf.app.api.MetadataRoutes
+import snd.komf.app.api.NotificationRoutes
 import snd.komf.app.api.deprecated.DeprecatedConfigRoutes
 import snd.komf.app.api.deprecated.DeprecatedConfigUpdateMapper
 import snd.komf.app.api.deprecated.DeprecatedMetadataRoutes
@@ -23,6 +24,8 @@ import snd.komf.mediaserver.jobs.KomfJobTracker
 import snd.komf.mediaserver.jobs.KomfJobsRepository
 import snd.komf.mediaserver.model.MediaServer.KAVITA
 import snd.komf.mediaserver.model.MediaServer.KOMGA
+import snd.komf.notifications.discord.DiscordWebhookService
+import snd.komf.notifications.discord.VelocityTemplateService
 
 class ServerModule(
     private val appContext: AppContext,
@@ -32,7 +35,10 @@ class ServerModule(
     private val komgaMediaServerClient: StateFlow<MediaServerClient>,
     private val komgaMetadataServiceProvider: StateFlow<MetadataServiceProvider>,
     private val kavitaMetadataServiceProvider: StateFlow<MetadataServiceProvider>,
-    private val kavitaMediaServerClient: StateFlow<MediaServerClient>
+    private val kavitaMediaServerClient: StateFlow<MediaServerClient>,
+
+    private val notificationService: StateFlow<DiscordWebhookService?>,
+    private val velocityRenderer: StateFlow<VelocityTemplateService>,
 ) {
     private val configMapper = DeprecatedConfigUpdateMapper()
     private val json = Json {
@@ -57,7 +63,16 @@ class ServerModule(
 
             route("/api") {
                 ConfigRoutes(appContext = appContext).registerRoutes(this)
-                JobRoutes(jobTracker = jobTracker, jobsRepository = jobsRepository, json = json).registerRoutes(this)
+                JobRoutes(
+                    jobTracker = jobTracker,
+                    jobsRepository = jobsRepository,
+                    json = json
+                ).registerRoutes(this)
+
+                NotificationRoutes(
+                    notificationService = notificationService,
+                    templateRenderer = velocityRenderer
+                ).registerRoutes(this)
 
                 route("/komga") {
                     MetadataRoutes(

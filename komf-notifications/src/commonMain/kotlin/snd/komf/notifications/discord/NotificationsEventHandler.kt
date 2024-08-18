@@ -11,15 +11,15 @@ import snd.komf.mediaserver.model.MediaServerLibrary
 import snd.komf.mediaserver.model.MediaServerSeries
 import snd.komf.mediaserver.model.MediaServerSeriesId
 import snd.komf.mediaserver.model.MediaServerSeriesMetadata
-import snd.komf.notifications.discord.model.AlternativeTitleWebhookMessage
-import snd.komf.notifications.discord.model.AuthorWebhookMessage
-import snd.komf.notifications.discord.model.BookMetadataWebhookMessage
-import snd.komf.notifications.discord.model.BookWebhookMessage
-import snd.komf.notifications.discord.model.LibraryWebhookMessage
-import snd.komf.notifications.discord.model.SeriesMetadataWebhookMessage
-import snd.komf.notifications.discord.model.SeriesWebhookMessage
-import snd.komf.notifications.discord.model.WebLinkWebhookMessage
-import snd.komf.notifications.discord.model.WebhookMessage
+import snd.komf.notifications.discord.model.AlternativeTitleContext
+import snd.komf.notifications.discord.model.AuthorContext
+import snd.komf.notifications.discord.model.BookMetadataContext
+import snd.komf.notifications.discord.model.BookContext
+import snd.komf.notifications.discord.model.LibraryContext
+import snd.komf.notifications.discord.model.SeriesMetadataContext
+import snd.komf.notifications.discord.model.SeriesContext
+import snd.komf.notifications.discord.model.WebLinkContext
+import snd.komf.notifications.discord.model.NotificationContext
 import java.util.function.Predicate
 
 class NotificationsEventHandler(
@@ -36,7 +36,6 @@ class NotificationsEventHandler(
                 webhookMessage(
                     seriesId = seriesId,
                     bookIds = events.map { it.bookId },
-                    mediaServer = mediaServer
                 )
             }.forEach { discordWebhookService.send(it) }
 
@@ -45,14 +44,13 @@ class NotificationsEventHandler(
     private suspend fun webhookMessage(
         seriesId: MediaServerSeriesId,
         bookIds: Collection<MediaServerBookId>,
-        mediaServer: MediaServer
-    ): WebhookMessage? {
+    ): NotificationContext? {
         val series = mediaServerClient.getSeries(seriesId)
         val library = mediaServerClient.getLibrary(series.libraryId)
         if (!libraryFilter.test(library.id.value)) return null
         val books = bookIds.map { mediaServerClient.getBook(it) }
 
-        return WebhookMessage(
+        return NotificationContext(
             library = toWebhookMessage(library),
             series = toWebhookMessage(series),
             books = books.map { toWebhookMessage(it) },
@@ -61,23 +59,23 @@ class NotificationsEventHandler(
         )
     }
 
-    private fun toWebhookMessage(library: MediaServerLibrary) = LibraryWebhookMessage(
+    private fun toWebhookMessage(library: MediaServerLibrary) = LibraryContext(
         id = library.id.value,
         name = library.name
     )
 
-    private fun toWebhookMessage(series: MediaServerSeries) = SeriesWebhookMessage(
+    private fun toWebhookMessage(series: MediaServerSeries) = SeriesContext(
         id = series.id.value,
         name = series.name,
         bookCount = series.booksCount,
         metadata = toWebhookMessage(series.metadata)
     )
 
-    private fun toWebhookMessage(metadata: MediaServerSeriesMetadata) = SeriesMetadataWebhookMessage(
+    private fun toWebhookMessage(metadata: MediaServerSeriesMetadata) = SeriesMetadataContext(
         status = metadata.status.name,
         title = metadata.title,
         titleSort = metadata.titleSort,
-        alternativeTitles = metadata.alternativeTitles.map { AlternativeTitleWebhookMessage(it.label, it.title) },
+        alternativeTitles = metadata.alternativeTitles.map { AlternativeTitleContext(it.label, it.title) },
         summary = metadata.summary,
         readingDirection = metadata.readingDirection?.name,
         publisher = metadata.publisher,
@@ -87,28 +85,28 @@ class NotificationsEventHandler(
         genres = metadata.genres.toList(),
         tags = metadata.tags.toList(),
         totalBookCount = metadata.totalBookCount,
-        authors = metadata.authors.map { AuthorWebhookMessage(it.name, it.role) },
+        authors = metadata.authors.map { AuthorContext(it.name, it.role) },
         releaseYear = metadata.releaseYear,
-        links = metadata.links.map { WebLinkWebhookMessage(it.label, it.url) },
+        links = metadata.links.map { WebLinkContext(it.label, it.url) },
     )
 
 
-    private fun toWebhookMessage(book: MediaServerBook) = BookWebhookMessage(
+    private fun toWebhookMessage(book: MediaServerBook) = BookContext(
         id = book.id.value,
         name = book.name,
         number = book.number,
         metadata = toWebhookMessage(book.metadata)
     )
 
-    private fun toWebhookMessage(metadata: MediaServerBookMetadata) = BookMetadataWebhookMessage(
+    private fun toWebhookMessage(metadata: MediaServerBookMetadata) = BookMetadataContext(
         title = metadata.title,
         summary = metadata.summary,
         number = metadata.number,
         numberSort = metadata.numberSort,
         releaseDate = metadata.releaseDate?.toString(),
-        authors = metadata.authors.map { AuthorWebhookMessage(it.name, it.role) },
+        authors = metadata.authors.map { AuthorContext(it.name, it.role) },
         tags = metadata.tags.toList(),
         isbn = metadata.isbn,
-        links = metadata.links.map { WebLinkWebhookMessage(it.label, it.url) },
+        links = metadata.links.map { WebLinkContext(it.label, it.url) },
     )
 }

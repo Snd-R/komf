@@ -5,12 +5,10 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import org.apache.velocity.app.VelocityEngine
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import snd.komf.app.config.NotificationsConfig
 import snd.komf.ktor.komfUserAgent
 import snd.komf.notifications.discord.DiscordWebhookService
-import java.util.*
+import snd.komf.notifications.discord.VelocityTemplateService
 
 
 class NotificationsModule(
@@ -18,14 +16,6 @@ class NotificationsModule(
     ktorBaseClient: HttpClient,
 ) {
     private val discordConfig = komgaNotificationsConfig.discord
-    private val templateEngine: VelocityEngine = VelocityEngine().apply {
-        val p = Properties()
-        p.setProperty("resource.loaders", "file,class")
-        p.setProperty("resource.loader.class.class", ClasspathResourceLoader::class.java.name)
-        p.setProperty("resource.loader.file.path", discordConfig.templatesDirectory)
-
-        init(p)
-    }
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -40,19 +30,17 @@ class NotificationsModule(
         install(ContentNegotiation) { json(json) }
     }
 
+    val velocityRenderer = VelocityTemplateService(discordConfig.templatesDirectory)
     val discordWebhookService = discordConfig.webhooks?.let { webhooks ->
-        DiscordWebhookService(
-            ktor = discordKtorClient,
-            json = json,
-            seriesCover = discordConfig.seriesCover,
-            webhooks = webhooks,
-            title = discordConfig.title,
-            titleUrl = discordConfig.titleUrl,
-            descriptionTemplateName = discordConfig.descriptionTemplate,
-            fieldTemplateConfigs = discordConfig.fieldTemplates,
-            footerTemplateName = discordConfig.footerTemplate,
-            colorCode = discordConfig.colorCode,
-            velocityEngine = templateEngine
-        )
+        if (webhooks.isEmpty()) null
+        else
+            DiscordWebhookService(
+                ktor = discordKtorClient,
+                json = json,
+                templateRenderer = velocityRenderer,
+                seriesCover = discordConfig.seriesCover,
+                webhooks = webhooks,
+                embedColor = discordConfig.embedColor,
+            )
     }
 }
