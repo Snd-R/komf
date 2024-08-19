@@ -30,8 +30,11 @@ class DiscordWebhookService(
 ) {
     private val embedColor = embedColor.toInt(16)
 
-    suspend fun send(context: NotificationContext) {
-        val webhookRequest = toRequest(context) ?: return
+    suspend fun send(
+        context: NotificationContext,
+        templates: DiscordStringTemplates? = null,
+    ) {
+        val webhookRequest = toRequest(context, templates) ?: return
         webhooks.map { getWebhook(it) }.forEach { webhook ->
             executeWebhook(
                 webhook = webhook,
@@ -41,8 +44,12 @@ class DiscordWebhookService(
         }
     }
 
-    private fun toRequest(context: NotificationContext): WebhookExecuteRequest? {
-        val renderResult = templateRenderer.renderDiscord(context)
+    private fun toRequest(
+        context: NotificationContext,
+        templates: DiscordStringTemplates? = null,
+    ): WebhookExecuteRequest? {
+        val renderResult =
+            templates?.let { templateRenderer.renderDiscord(context, it) } ?: templateRenderer.renderDiscord(context)
         if (renderResult.description == null &&
             renderResult.fields.isEmpty() &&
             renderResult.footer == null &&

@@ -13,7 +13,8 @@ class KomfClientFactory private constructor(private val builder: Builder) {
 
     fun configClient() = KomfConfigClient(ktor)
     fun metadataClient(mediaServer: MediaServer) = KomfMetadataClient(ktor, mediaServer)
-    fun jobClient() = KomfJobClient(ktor = ktor, ktorSSE = ktor, json = json)
+    fun jobClient() = KomfJobClient(ktor = ktor, json = json)
+    fun notificationClient() = KomfNotificationClient(ktor = ktor)
 
     private val json = Json(builder.json) {
         ignoreUnknownKeys = true

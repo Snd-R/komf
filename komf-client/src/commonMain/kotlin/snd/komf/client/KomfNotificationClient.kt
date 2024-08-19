@@ -5,8 +5,8 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import snd.komf.api.notifications.KomfDiscordTemplates
-import snd.komf.api.notifications.KomfNotificationContext
-import snd.komf.api.notifications.KomfRenderRequest
+import snd.komf.api.notifications.KomfTemplateRenderResult
+import snd.komf.api.notifications.KomfTemplateRequest
 
 class KomfNotificationClient(
     private val ktor: HttpClient,
@@ -22,17 +22,17 @@ class KomfNotificationClient(
         }.body()
     }
 
-    suspend fun render(request: KomfRenderRequest) {
-        ktor.post("/api/notifications/discord/render") {
+    suspend fun render(request: KomfTemplateRequest): KomfTemplateRenderResult {
+        return ktor.post("/api/notifications/discord/render") {
             contentType(ContentType.Application.Json)
             setBody(request)
-        }
+        }.body()
     }
 
-    suspend fun send(context: KomfNotificationContext) {
+    suspend fun send(request: KomfTemplateRequest) {
         ktor.post("/api/notifications/discord/send") {
             contentType(ContentType.Application.Json)
-            setBody(context)
+            setBody(request)
         }
     }
 }

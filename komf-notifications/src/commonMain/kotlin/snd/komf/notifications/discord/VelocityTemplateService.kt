@@ -1,5 +1,6 @@
 package snd.komf.notifications.discord
 
+import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -12,13 +13,15 @@ import snd.komf.notifications.discord.model.NotificationContext
 import java.io.StringReader
 import java.io.StringWriter
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
 import java.util.*
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
 import kotlin.io.path.extension
-import kotlin.io.path.isWritable
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.nameWithoutExtension
@@ -72,25 +75,39 @@ class VelocityTemplateService(templateDirectory: String) {
         val properties = Properties()
         properties.setProperty("resource.loaders", "file,class")
         properties.setProperty("resource.loader.class.class", ClasspathResourceLoader::class.java.name)
-        properties.setProperty("resource.loader.file.path", templateDirectory)
+        properties.setProperty("resource.loader.file.path", discordDirectory.absolutePathString())
 
         init(properties)
     }
 
-    private val titleTemplate = atomic(loadTemplateByName(titleFileName))
-    private val titleUrlTemplate = atomic(loadTemplateByName(titleUrlFileName))
-    private val descriptionTemplate = atomic(loadTemplateByName(descriptionFileName))
-    private val footerTemplate = atomic(loadTemplateByName(footerFileName))
-    private val fieldTemplates = atomic(
-        getFieldTemplateFiles().map {
-            FieldTemplates(
-                name = templateFromString(it.nameTemplate.readText()),
-                value = templateFromString(it.valueTemplate.readText()),
-                inline = it.inline
-            )
-        }
-    )
     private val templateWriteMutex = Mutex()
+
+    private val titleTemplate: AtomicRef<Template?>
+    private val titleUrlTemplate: AtomicRef<Template?>
+    private val descriptionTemplate: AtomicRef<Template?>
+    private val footerTemplate: AtomicRef<Template?>
+    private val fieldTemplates: AtomicRef<List<FieldTemplates>>
+
+    init {
+        val titleTemplate = loadTemplateByName(titleFileName)
+        val titleUrlTemplate = loadTemplateByName(titleUrlFileName)
+        val descriptionTemplate = loadTemplateByName(descriptionFileName)
+        val footerTemplate = loadTemplateByName(footerFileName)
+        val fieldTemplates =
+            getFieldTemplateFiles().map {
+                FieldTemplates(
+                    name = templateFromString(it.nameTemplate.readText()),
+                    value = templateFromString(it.valueTemplate.readText()),
+                    inline = it.inline
+                )
+            }
+
+        this.titleTemplate = atomic(titleTemplate)
+        this.titleUrlTemplate = atomic(titleUrlTemplate)
+        this.descriptionTemplate = atomic(descriptionTemplate)
+        this.footerTemplate = atomic(footerTemplate)
+        this.fieldTemplates = atomic(fieldTemplates)
+    }
 
     fun renderDiscord(context: NotificationContext): DiscordRenderResult {
         return renderDiscord(
@@ -112,13 +129,13 @@ class VelocityTemplateService(templateDirectory: String) {
             titleTemplate = templates.titleTemplate?.let { templateFromString(it) },
             titleUrlTemplate = templates.titleUrlTemplate?.let { templateFromString(it) },
             descriptionTemplate = templates.descriptionTemplate?.let { templateFromString(it) },
-            fieldTemplates = templates.fieldTemplates?.map {
+            fieldTemplates = templates.fieldTemplates.map {
                 FieldTemplates(
                     name = templateFromString(it.nameTemplate),
                     value = templateFromString(it.valueTemplate),
                     inline = it.inline
                 )
-            } ?: emptyList(),
+            },
             footerTemplate = templates.footerTemplate?.let { templateFromString(it) }
         )
 
@@ -150,25 +167,27 @@ class VelocityTemplateService(templateDirectory: String) {
     }
 
     fun getCurrentTemplates(): DiscordStringTemplates {
+        val defaultTitleTemplate =
+            VelocityTemplateService::class.java.getResource("/${titleFileName}")?.readText()
         val defaultDescriptionTemplate =
             VelocityTemplateService::class.java.getResource("/${descriptionFileName}")?.readText()
         if (discordDirectory.notExists())
-            return DiscordStringTemplates(descriptionTemplate = defaultDescriptionTemplate)
+            return DiscordStringTemplates(
+                titleTemplate = defaultTitleTemplate,
+                descriptionTemplate = defaultDescriptionTemplate
+            )
 
         val titleTemplate = discordDirectory.resolve(titleFileName).let {
-            if (it.exists()) it.readText()
-            else null
+            if (it.exists()) it.readText() else null
         }
         val titleUrlTemplate = discordDirectory.resolve(titleUrlFileName).let {
-            if (it.exists()) it.readText()
-            else null
+            if (it.exists()) it.readText() else null
         }
-        val descriptionTemplate = discordDirectory.resolve(titleUrlFileName).let {
+        val descriptionTemplate = discordDirectory.resolve(descriptionFileName).let {
             if (it.exists()) it.readText() else null
         }
         val footerTemplate = discordDirectory.resolve(footerFileName).let {
-            if (it.exists()) it.readText()
-            else null
+            if (it.exists()) it.readText() else null
         }
         val fieldTemplates = getFieldTemplateFiles().map {
             FieldStringTemplates(
@@ -179,7 +198,7 @@ class VelocityTemplateService(templateDirectory: String) {
         }
 
         return DiscordStringTemplates(
-            titleTemplate = titleTemplate,
+            titleTemplate = titleTemplate ?: defaultTitleTemplate,
             titleUrlTemplate = titleUrlTemplate,
             descriptionTemplate = descriptionTemplate ?: defaultDescriptionTemplate,
             fieldTemplates = fieldTemplates,
@@ -190,46 +209,43 @@ class VelocityTemplateService(templateDirectory: String) {
 
     suspend fun updateTemplates(templates: DiscordStringTemplates) {
         templateWriteMutex.withLock {
-            require(discordDirectory.isWritable())
+            discordDirectory.createDirectories()
 
-            templates.titleTemplate?.let {
-                discordDirectory.resolve("title.vm").createFile().writeBytes(it.toByteArray(Charsets.UTF_8))
-            }
-            templates.titleUrlTemplate?.let {
-                discordDirectory.resolve("title_url.vm").createFile().writeBytes(it.toByteArray(Charsets.UTF_8))
-            }
-            templates.descriptionTemplate?.let {
-                discordDirectory.resolve("description.vm").createFile().writeBytes(it.toByteArray(Charsets.UTF_8))
-            }
+            val titleTemplate = templates.titleTemplate?.let { templateWriteAndGet(it, titleFileName) }
+                ?: loadTemplateByName(titleFileName)
 
-            templates.fieldTemplates?.let { fieldTemplates ->
+            val titleUrlTemplate = templates.titleUrlTemplate?.let { templateWriteAndGet(it, titleUrlFileName) }
+                ?: loadTemplateByName(descriptionFileName)
+            val descriptionTemplate = templates.descriptionTemplate
+                ?.let { templateWriteAndGet(it, descriptionFileName) }
+                ?: loadTemplateByName(descriptionFileName)
+            val footerTemplate = templates.footerTemplate?.let { templateWriteAndGet(it, footerFileName) }
+
+            val fieldTemplates = templates.fieldTemplates.let { fieldTemplates ->
                 discordDirectory.listDirectoryEntries()
                     .filter { it.name.startsWith("field_") && it.extension == "vm" }
                     .forEach { it.deleteExisting() }
 
-                fieldTemplates.forEachIndexed { index, value ->
+                fieldTemplates.mapIndexed { index, value ->
                     val inline = if (value.inline) "_inline" else ""
-                    discordDirectory.resolve("field_${index + 1}_name${inline}.vm")
-                    discordDirectory.resolve("field_${index + 1}_value.vm")
+                    discordDirectory.resolve("field_${index + 1}_name${inline}.vm").createFile()
+                        .writeBytes(value.nameTemplate.toByteArray(Charsets.UTF_8))
+                    discordDirectory.resolve("field_${index + 1}_value.vm").createFile()
+                        .writeBytes(value.valueTemplate.toByteArray(Charsets.UTF_8))
+
+                    FieldTemplates(
+                        name = templateFromString(value.nameTemplate),
+                        value = templateFromString(value.valueTemplate),
+                        inline = value.inline
+                    )
                 }
             }
 
-            templates.footerTemplate?.let {
-                discordDirectory.resolve("footer.vm").createFile().writeBytes(it.toByteArray(Charsets.UTF_8))
-            }
-
-            titleTemplate.value = templates.titleTemplate?.let { templateFromString(it) }
-            titleUrlTemplate.value = templates.titleUrlTemplate?.let { templateFromString(it) }
-            descriptionTemplate.value = templates.descriptionTemplate?.let { templateFromString(it) }
-                ?: loadTemplateByName(descriptionFileName)
-            footerTemplate.value = templates.footerTemplate?.let { templateFromString(it) }
-            fieldTemplates.value = templates.fieldTemplates?.map {
-                FieldTemplates(
-                    name = templateFromString(it.nameTemplate),
-                    value = templateFromString(it.valueTemplate),
-                    inline = it.inline
-                )
-            } ?: emptyList()
+            this.titleTemplate.value = titleTemplate
+            this.titleUrlTemplate.value = titleUrlTemplate
+            this.descriptionTemplate.value = descriptionTemplate
+            this.footerTemplate.value = footerTemplate
+            this.fieldTemplates.value = fieldTemplates
         }
     }
 
@@ -263,6 +279,14 @@ class VelocityTemplateService(templateDirectory: String) {
         } catch (e: Exception) {
             null
         }
+    }
+
+    private fun templateWriteAndGet(stringTemplate: String, filename: String): Template {
+        val file = discordDirectory.resolve(filename)
+        if (file.notExists()) file.createFile()
+        file.writeBytes(stringTemplate.toByteArray(Charsets.UTF_8), TRUNCATE_EXISTING)
+
+        return templateFromString(stringTemplate)
     }
 
     private fun getFieldTemplateFiles(): List<FieldTemplateFiles> {
@@ -307,6 +331,5 @@ class VelocityTemplateService(templateDirectory: String) {
             )
         }
     }
-
 }
 

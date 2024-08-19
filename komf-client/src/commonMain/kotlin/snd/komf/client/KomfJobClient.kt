@@ -28,7 +28,6 @@ import snd.komf.api.job.providerSeriesEventName
 
 class KomfJobClient(
     private val ktor: HttpClient,
-    private val ktorSSE: HttpClient,
     private val json: Json
 ) {
 
@@ -49,7 +48,7 @@ class KomfJobClient(
     }
 
     suspend fun getJobEvents(jobId: KomfMetadataJobId): Flow<KomfMetadataJobEvent> {
-        return ktorSSE.sseSession("/api/jobs/${jobId.value}/events").incoming
+        return ktor.sseSession("/api/jobs/${jobId.value}/events").incoming
             .map { json.toKomfEvent(it.event, it.data) }
     }
 

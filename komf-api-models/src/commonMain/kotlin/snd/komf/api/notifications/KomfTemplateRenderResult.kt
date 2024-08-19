@@ -15,5 +15,5 @@ data class KomfTemplateRenderResult(
 data class EmbedField(
     val name: String,
     val value: String,
-    val inline: Boolean?,
+    val inline: Boolean,
 )

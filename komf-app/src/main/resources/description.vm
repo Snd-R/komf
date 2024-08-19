@@ -1,9 +1,7 @@
-**$series.name**
-
 #if ($series.metadata.summary != "")
-    $series.metadata.summary
-
+$series.metadata.summary
 #end
+
 #if($books.size() == 1)
 ***new book was added to library $library.name:***
 #else

@@ -1,5 +1,7 @@
 package snd.komf.app.api
 
+import io.ktor.client.plugins.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -10,8 +12,8 @@ import snd.komf.api.notifications.EmbedField
 import snd.komf.api.notifications.EmbedFieldTemplate
 import snd.komf.api.notifications.KomfDiscordTemplates
 import snd.komf.api.notifications.KomfNotificationContext
-import snd.komf.api.notifications.KomfRenderRequest
 import snd.komf.api.notifications.KomfTemplateRenderResult
+import snd.komf.api.notifications.KomfTemplateRequest
 import snd.komf.notifications.discord.DiscordStringTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
 import snd.komf.notifications.discord.FieldStringTemplates
@@ -43,7 +45,14 @@ class NotificationRoutes(
     private fun Route.discordUpdateTemplatesRoute() {
         post("/templates") {
             val request = call.receive<KomfDiscordTemplates>()
-            templateRenderer.value.updateTemplates(request.toModel())
+            try {
+                templateRenderer.value.updateTemplates(request.toModel())
+            } catch (exception: Exception) {
+                call.respond(
+                    HttpStatusCode.UnprocessableEntity,
+                    KomfErrorResponse("${exception::class.simpleName} :${exception.message}")
+                )
+            }
 
             call.respond(HttpStatusCode.OK, request)
         }
@@ -76,8 +85,15 @@ class NotificationRoutes(
             if (service == null) {
                 call.respond(HttpStatusCode.UnprocessableEntity, KomfErrorResponse("No discord webhooks configured"))
             } else {
-                val request = call.receive<KomfNotificationContext>()
-                service.send(request.toModel())
+                val request = call.receive<KomfTemplateRequest>()
+                try {
+                    service.send(request.context.toModel(), request.templates.toModel())
+                } catch (exception: ResponseException) {
+                    call.respond(
+                        exception.response.status,
+                        KomfErrorResponse("${exception::class.simpleName} ${exception.response.bodyAsText()}")
+                    )
+                }
                 call.respond(HttpStatusCode.OK, "")
             }
         }
@@ -85,7 +101,7 @@ class NotificationRoutes(
 
     private fun Route.discordRenderRoute() {
         post("/render") {
-            val request = call.receive<KomfRenderRequest>()
+            val request = call.receive<KomfTemplateRequest>()
             val result = templateRenderer.value.renderDiscord(
                 context = request.context.toModel(),
                 templates = request.templates.toModel()
