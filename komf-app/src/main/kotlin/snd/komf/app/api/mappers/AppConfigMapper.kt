@@ -1,6 +1,7 @@
 package snd.komf.app.api.mappers
 
 import snd.komf.api.config.AniListConfigDto
+import snd.komf.api.config.AppriseConfigDto
 import snd.komf.api.config.BookMetadataConfigDto
 import snd.komf.api.config.DiscordConfigDto
 import snd.komf.api.config.EventListenerConfigDto
@@ -25,6 +26,7 @@ import snd.komf.app.config.MetadataPostProcessingConfig
 import snd.komf.app.config.MetadataProcessingConfig
 import snd.komf.app.config.MetadataUpdateConfig
 import snd.komf.app.config.NotificationsConfig
+import snd.komf.notifications.apprise.AppriseConfig
 import snd.komf.notifications.discord.DiscordConfig
 import snd.komf.providers.AniListConfig
 import snd.komf.providers.BookMetadataConfig
@@ -231,7 +233,10 @@ class AppConfigMapper {
     }
 
     private fun toDto(config: NotificationsConfig): NotificationConfigDto {
-        return NotificationConfigDto(toDto(config.discord))
+        return NotificationConfigDto(
+            apprise = toDto(config.apprise),
+            discord = toDto(config.discord),
+        )
     }
 
     private fun toDto(config: DiscordConfig): DiscordConfigDto {
@@ -242,6 +247,12 @@ class AppConfigMapper {
                     else it.replace("(?<=.{34}).(?=.{10})".toRegex(), "*")
                 },
             seriesCover = config.seriesCover,
+        )
+    }
+
+    private fun toDto(config: AppriseConfig): AppriseConfigDto {
+        return AppriseConfigDto(
+            urls = config.urls?.map { it.take(7) + "*".repeat(50)  }
         )
     }
 

@@ -10,14 +10,20 @@ import kotlinx.coroutines.flow.StateFlow
 import snd.komf.api.KomfErrorResponse
 import snd.komf.api.notifications.EmbedField
 import snd.komf.api.notifications.EmbedFieldTemplate
+import snd.komf.api.notifications.KomfAppriseRenderResult
+import snd.komf.api.notifications.KomfAppriseRequest
+import snd.komf.api.notifications.KomfAppriseTemplates
+import snd.komf.api.notifications.KomfDiscordRenderResult
+import snd.komf.api.notifications.KomfDiscordRequest
 import snd.komf.api.notifications.KomfDiscordTemplates
 import snd.komf.api.notifications.KomfNotificationContext
-import snd.komf.api.notifications.KomfTemplateRenderResult
-import snd.komf.api.notifications.KomfTemplateRequest
+import snd.komf.notifications.apprise.AppriseCliService
+import snd.komf.notifications.apprise.AppriseStringTemplates
+import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordStringTemplates
+import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
 import snd.komf.notifications.discord.FieldStringTemplates
-import snd.komf.notifications.discord.VelocityTemplateService
 import snd.komf.notifications.discord.model.AlternativeTitleContext
 import snd.komf.notifications.discord.model.AuthorContext
 import snd.komf.notifications.discord.model.BookContext
@@ -29,8 +35,11 @@ import snd.komf.notifications.discord.model.SeriesMetadataContext
 import snd.komf.notifications.discord.model.WebLinkContext
 
 class NotificationRoutes(
-    private val notificationService: StateFlow<DiscordWebhookService?>,
-    private val templateRenderer: StateFlow<VelocityTemplateService>
+    private val discordService: StateFlow<DiscordWebhookService>,
+    private val discordRenderer: StateFlow<DiscordVelocityTemplates>,
+
+    private val appriseService: StateFlow<AppriseCliService>,
+    private val appriseRenderer: StateFlow<AppriseVelocityTemplates>,
 ) {
 
     fun registerRoutes(routing: Route) {
@@ -40,13 +49,19 @@ class NotificationRoutes(
             discordSendRoute()
             discordRenderRoute()
         }
+        routing.route("/notifications/apprise") {
+            appriseGetTemplatesRoute()
+            appriseUpdateTemplatesRoute()
+            appriseSendRoute()
+            appriseRenderRoute()
+        }
     }
 
     private fun Route.discordUpdateTemplatesRoute() {
         post("/templates") {
             val request = call.receive<KomfDiscordTemplates>()
             try {
-                templateRenderer.value.updateTemplates(request.toModel())
+                discordRenderer.value.updateTemplates(request.toModel())
             } catch (exception: Exception) {
                 call.respond(
                     HttpStatusCode.UnprocessableEntity,
@@ -60,7 +75,7 @@ class NotificationRoutes(
 
     private fun Route.discordGetTemplatesRoute() {
         get("/templates") {
-            val templates = templateRenderer.value.getCurrentTemplates()
+            val templates = discordRenderer.value.getCurrentTemplates()
             call.respond(
                 HttpStatusCode.OK, KomfDiscordTemplates(
                     titleTemplate = templates.titleTemplate,
@@ -81,35 +96,30 @@ class NotificationRoutes(
 
     private fun Route.discordSendRoute() {
         post("/send") {
-            val service = notificationService.value
-            if (service == null) {
-                call.respond(HttpStatusCode.UnprocessableEntity, KomfErrorResponse("No discord webhooks configured"))
-            } else {
-                val request = call.receive<KomfTemplateRequest>()
-                try {
-                    service.send(request.context.toModel(), request.templates.toModel())
-                } catch (exception: ResponseException) {
-                    call.respond(
-                        exception.response.status,
-                        KomfErrorResponse("${exception::class.simpleName} ${exception.response.bodyAsText()}")
-                    )
-                }
-                call.respond(HttpStatusCode.OK, "")
+            val request = call.receive<KomfDiscordRequest>()
+            try {
+                discordService.value.send(request.context.toModel(), request.templates.toModel())
+            } catch (exception: ResponseException) {
+                call.respond(
+                    exception.response.status,
+                    KomfErrorResponse("${exception::class.simpleName} ${exception.response.bodyAsText()}")
+                )
             }
+            call.respond(HttpStatusCode.OK, "")
         }
     }
 
     private fun Route.discordRenderRoute() {
         post("/render") {
-            val request = call.receive<KomfTemplateRequest>()
-            val result = templateRenderer.value.renderDiscord(
+            val request = call.receive<KomfDiscordRequest>()
+            val result = discordRenderer.value.render(
                 context = request.context.toModel(),
                 templates = request.templates.toModel()
             )
 
             call.respond(
                 HttpStatusCode.OK,
-                KomfTemplateRenderResult(
+                KomfDiscordRenderResult(
                     title = result.title,
                     titleUrl = result.titleUrl,
                     description = result.description,
@@ -117,6 +127,67 @@ class NotificationRoutes(
                     footer = result.footer
                 )
             )
+        }
+    }
+
+
+    private fun Route.appriseUpdateTemplatesRoute() {
+        post("/templates") {
+            val request = call.receive<KomfAppriseTemplates>()
+            try {
+                appriseRenderer.value.updateTemplates(request.toModel())
+            } catch (exception: Exception) {
+                call.respond(
+                    HttpStatusCode.UnprocessableEntity,
+                    KomfErrorResponse("${exception::class.simpleName} :${exception.message}")
+                )
+            }
+
+            call.respond(HttpStatusCode.OK, request)
+        }
+    }
+
+    private fun Route.appriseGetTemplatesRoute() {
+        get("/templates") {
+            val templates = appriseRenderer.value.getCurrentTemplates()
+            call.respond(
+                HttpStatusCode.OK, KomfAppriseTemplates(
+                    titleTemplate = templates.titleTemplate,
+                    bodyTemplate = templates.bodyTemplate
+                )
+            )
+        }
+    }
+
+    private fun Route.appriseSendRoute() {
+        post("/send") {
+            val service = appriseService.value
+            val request = call.receive<KomfAppriseRequest>()
+            try {
+                service.send(
+                    request.context.toModel(),
+                    request.templates.toModel()
+                )
+            } catch (exception: Exception) {
+                call.respond(
+                    HttpStatusCode.UnprocessableEntity,
+                    KomfErrorResponse("${exception::class.simpleName} ${exception.message}")
+                )
+            }
+
+            call.respond(HttpStatusCode.OK, "")
+        }
+    }
+
+    private fun Route.appriseRenderRoute() {
+        post("/render") {
+            val request = call.receive<KomfAppriseRequest>()
+            val result = appriseRenderer.value.render(
+                context = request.context.toModel(),
+                templates = request.templates.toModel()
+            )
+
+            call.respond(HttpStatusCode.OK, KomfAppriseRenderResult(title = result.title, body = result.body))
         }
     }
 
@@ -182,5 +253,10 @@ class NotificationRoutes(
             )
         },
         footerTemplate = footerTemplate
+    )
+
+    private fun KomfAppriseTemplates.toModel() = AppriseStringTemplates(
+        titleTemplate = titleTemplate,
+        bodyTemplate = bodyTemplate,
     )
 }

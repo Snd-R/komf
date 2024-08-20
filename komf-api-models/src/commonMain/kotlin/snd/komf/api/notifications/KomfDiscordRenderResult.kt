@@ -3,7 +3,7 @@ package snd.komf.api.notifications
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class KomfTemplateRenderResult(
+data class KomfDiscordRenderResult(
     val title: String?,
     val titleUrl: String?,
     val description: String?,

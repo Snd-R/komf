@@ -29,8 +29,10 @@ import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.repository.Database
 import snd.komf.mediaserver.repository.DriverFactory
 import snd.komf.mediaserver.repository.createDatabase
+import snd.komf.notifications.apprise.AppriseCliService
+import snd.komf.notifications.apprise.AppriseVelocityTemplates
+import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
-import snd.komf.notifications.discord.VelocityTemplateService
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.createDirectories
@@ -57,8 +59,10 @@ class AppContext(private val configPath: Path? = null) {
     private val kavitaClient: MutableStateFlow<MediaServerClient>
     private val kavitaServiceProvider: MutableStateFlow<MetadataServiceProvider>
 
-    private val notificationService: MutableStateFlow<DiscordWebhookService?>
-    private val velocityRenderer: MutableStateFlow<VelocityTemplateService>
+    private val discordService: MutableStateFlow<DiscordWebhookService>
+    private val discordRenderer: MutableStateFlow<DiscordVelocityTemplates>
+    private val appriseService: MutableStateFlow<AppriseCliService>
+    private val appriseRenderer: MutableStateFlow<AppriseVelocityTemplates>
 
     private val yaml = Yaml(
         configuration = YamlConfiguration(
@@ -112,6 +116,7 @@ class AppContext(private val configPath: Path? = null) {
             jsonBase = jsonBase,
             ktorBaseClient = ktorBaseClient,
             mediaServerDatabase = mediaServerDatabase,
+            appriseService = notificationsModule.appriseService,
             discordWebhookService = notificationsModule.discordWebhookService,
             metadataProviders = providersModule.metadataProviders
         )
@@ -119,8 +124,10 @@ class AppContext(private val configPath: Path? = null) {
         komgaServiceProvider = MutableStateFlow(mediaServerModule.komgaMetadataServiceProvider)
         kavitaClient = MutableStateFlow(mediaServerModule.kavitaMediaServerClient)
         kavitaServiceProvider = MutableStateFlow(mediaServerModule.kavitaMetadataServiceProvider)
-        notificationService = MutableStateFlow(notificationsModule.discordWebhookService)
-        velocityRenderer = MutableStateFlow(notificationsModule.velocityRenderer)
+        discordService = MutableStateFlow(notificationsModule.discordWebhookService)
+        discordRenderer = MutableStateFlow(notificationsModule.discordVelocityRenderer)
+        appriseService = MutableStateFlow(notificationsModule.appriseService)
+        appriseRenderer = MutableStateFlow(notificationsModule.appriseVelocityRenderer)
 
         serverModule = ServerModule(
             appContext = this,
@@ -130,8 +137,10 @@ class AppContext(private val configPath: Path? = null) {
             komgaMetadataServiceProvider = komgaServiceProvider,
             kavitaMediaServerClient = kavitaClient,
             kavitaMetadataServiceProvider = kavitaServiceProvider,
-            notificationService = notificationService,
-            velocityRenderer = velocityRenderer
+            discordService = discordService,
+            discordRenderer = discordRenderer,
+            appriseService = appriseService,
+            appriseRenderer = appriseRenderer
         )
 
         serverModule.startServer()
@@ -148,6 +157,7 @@ class AppContext(private val configPath: Path? = null) {
             jsonBase = jsonBase,
             ktorBaseClient = ktorBaseClient,
             mediaServerDatabase = mediaServerDatabase,
+            appriseService = notificationsModule.appriseService,
             discordWebhookService = notificationsModule.discordWebhookService,
             metadataProviders = providersModule.metadataProviders
         )
@@ -163,8 +173,10 @@ class AppContext(private val configPath: Path? = null) {
         komgaServiceProvider.value = mediaServerModule.komgaMetadataServiceProvider
         kavitaClient.value = mediaServerModule.kavitaMediaServerClient
         kavitaServiceProvider.value = mediaServerModule.kavitaMetadataServiceProvider
-        notificationService.value = notificationsModule.discordWebhookService
-        velocityRenderer.value = notificationsModule.velocityRenderer
+        discordService.value = notificationsModule.discordWebhookService
+        discordRenderer.value = notificationsModule.discordVelocityRenderer
+        appriseService.value = notificationsModule.appriseService
+        appriseRenderer.value = notificationsModule.appriseVelocityRenderer
 
         withContext(Dispatchers.IO) {
             configPath?.let { path -> configWriter.writeConfig(newConfig, path) }

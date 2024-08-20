@@ -201,6 +201,7 @@ data class BookMetadataConfigDto(
 
 @Serializable
 data class NotificationConfigDto(
+    val apprise: AppriseConfigDto,
     val discord: DiscordConfigDto,
 )
 
@@ -210,3 +211,7 @@ data class DiscordConfigDto(
     val seriesCover: Boolean,
 )
 
+@Serializable
+data class AppriseConfigDto(
+    val urls: List<String>?,
+)

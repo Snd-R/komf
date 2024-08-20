@@ -42,8 +42,14 @@ class ConfigLoader(private val yaml: Yaml) {
     private fun overrideConfigDirAndEnvVars(config: AppConfig, configDirectory: String?): AppConfig {
         val databaseConfig = config.database
         val databaseFile = configDirectory?.let { "$it/database.sqlite" } ?: databaseConfig.file
+        val notificationConfig = config.notifications
+        val appriseConfig = config.notifications.apprise
         val discordConfig = config.notifications.discord
-        val discordTemplatesDirectory = configDirectory ?: discordConfig.templatesDirectory
+        val templatesDirectory = configDirectory ?: notificationConfig.templatesDirectory
+
+        val appriseUrls = System.getenv("KOMF_APPRISE_URLS")?.ifBlank { null }
+            ?.split(",")?.toList()
+            ?: appriseConfig.urls
         val discordWebhooks = System.getenv("KOMF_DISCORD_WEBHOOKS")?.ifBlank { null }
             ?.split(",")?.toList()
             ?: discordConfig.webhooks
@@ -86,8 +92,11 @@ class ConfigLoader(private val yaml: Yaml) {
                 comicVineApiKey = comicVineApiKey
             ),
             notifications = config.notifications.copy(
+                templatesDirectory = templatesDirectory,
+                apprise = config.notifications.apprise.copy(
+                    urls = appriseUrls
+                ),
                 discord = config.notifications.discord.copy(
-                    templatesDirectory = discordTemplatesDirectory,
                     webhooks = discordWebhooks
                 )
             ),

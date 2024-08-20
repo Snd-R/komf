@@ -186,12 +186,19 @@ data class BookMetadataConfigUpdateRequest(
 
 @Serializable
 data class NotificationConfigUpdateRequest(
+    val apprise: PatchValue<AppriseConfigUpdateRequest> = PatchValue.Unset,
     val discord: PatchValue<DiscordConfigUpdateRequest> = PatchValue.Unset,
 )
 
 @Serializable
 class DiscordConfigUpdateRequest(
-    val webhooks: PatchValue<List<String>> = PatchValue.Unset,
+    val webhooks: PatchValue<Map<Int, String?>> = PatchValue.Unset,
     val seriesCover: PatchValue<Boolean> = PatchValue.Unset,
 )
+
+@Serializable
+class AppriseConfigUpdateRequest(
+    val urls: PatchValue<Map<Int, String?>> = PatchValue.Unset,
+)
+
 

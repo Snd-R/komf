@@ -39,8 +39,9 @@ import snd.komf.mediaserver.metadata.repository.SeriesThumbnailsRepository
 import snd.komf.mediaserver.model.MediaServer.KAVITA
 import snd.komf.mediaserver.model.MediaServer.KOMGA
 import snd.komf.mediaserver.repository.Database
+import snd.komf.notifications.NotificationsEventHandler
+import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.discord.DiscordWebhookService
-import snd.komf.notifications.discord.NotificationsEventHandler
 import snd.komf.providers.ProviderFactory.MetadataProviders
 import snd.komga.client.KomgaClientFactory
 
@@ -50,7 +51,8 @@ class MediaServerModule(
     jsonBase: Json,
     ktorBaseClient: HttpClient,
     mediaServerDatabase: Database,
-    discordWebhookService: DiscordWebhookService?,
+    appriseService: AppriseCliService,
+    discordWebhookService: DiscordWebhookService,
     private val metadataProviders: MetadataProviders,
 ) {
     val jobRepository = KomfJobsRepository(mediaServerDatabase.komfJobRecordQueries)
@@ -122,14 +124,13 @@ class MediaServerModule(
             libraryFilter = { komgaConfig.eventListener.metadataLibraryFilter.contains(it) },
             seriesFilter = { seriesId -> komgaConfig.eventListener.metadataSeriesExcludeFilter.none { seriesId == it } },
         )
-        komgaNotificationsHandler = discordWebhookService?.let {
-            NotificationsEventHandler(
-                mediaServerClient = komgaClient,
-                discordWebhookService = discordWebhookService,
-                libraryFilter = { komgaConfig.eventListener.notificationsLibraryFilter.contains(it) },
-                mediaServer = KOMGA
-            )
-        }
+        komgaNotificationsHandler = NotificationsEventHandler(
+            mediaServerClient = komgaClient,
+            appriseService = appriseService,
+            discordWebhookService = discordWebhookService,
+            libraryFilter = { komgaConfig.eventListener.notificationsLibraryFilter.contains(it) },
+            mediaServer = KOMGA
+        )
 
         komgaEventHandler = KomgaEventHandler(
             eventSourceFactory = { komgaClientFactory.sseSession() },
@@ -182,14 +183,14 @@ class MediaServerModule(
             libraryFilter = { kavitaConfig.eventListener.metadataLibraryFilter.contains(it) },
             seriesFilter = { seriesId -> kavitaConfig.eventListener.metadataSeriesExcludeFilter.none { seriesId == it } },
         )
-        kavitaNotificationsHandler = discordWebhookService?.let {
-            NotificationsEventHandler(
-                mediaServerClient = kavitaMediaServerClient,
-                discordWebhookService = discordWebhookService,
-                libraryFilter = { kavitaConfig.eventListener.notificationsLibraryFilter.contains(it) },
-                mediaServer = KAVITA
-            )
-        }
+        kavitaNotificationsHandler = NotificationsEventHandler(
+            mediaServerClient = kavitaMediaServerClient,
+            appriseService = appriseService,
+            discordWebhookService = discordWebhookService,
+            libraryFilter = { kavitaConfig.eventListener.notificationsLibraryFilter.contains(it) },
+            mediaServer = KAVITA
+        )
+
         kavitaEventHandler = KavitaEventHandler(
             baseUrl = kavitaConfig.baseUri,
             kavitaClient = kavitaClient,

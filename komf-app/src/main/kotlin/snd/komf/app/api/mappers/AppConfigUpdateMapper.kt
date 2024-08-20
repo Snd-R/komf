@@ -3,6 +3,7 @@ package snd.komf.app.api.mappers
 import snd.komf.api.KomfNameMatchingMode
 import snd.komf.api.PatchValue
 import snd.komf.api.config.AniListConfigUpdateRequest
+import snd.komf.api.config.AppriseConfigUpdateRequest
 import snd.komf.api.config.BookMetadataConfigUpdateRequest
 import snd.komf.api.config.DiscordConfigUpdateRequest
 import snd.komf.api.config.EventListenerConfigUpdateRequest
@@ -26,7 +27,7 @@ import snd.komf.app.config.MetadataProcessingConfig
 import snd.komf.app.config.MetadataUpdateConfig
 import snd.komf.app.config.NotificationsConfig
 import snd.komf.mediaserver.metadata.PublisherTagNameConfig
-import snd.komf.model.ReadingDirection
+import snd.komf.notifications.apprise.AppriseConfig
 import snd.komf.notifications.discord.DiscordConfig
 import snd.komf.providers.AniListConfig
 import snd.komf.providers.BookMetadataConfig
@@ -47,6 +48,9 @@ class AppConfigUpdateMapper {
             komga = patch.komga.getOrNull()?.let { komgaConfig(config.komga, it) } ?: config.komga,
             kavita = patch.kavita.getOrNull()?.let { kavitaConfig(config.kavita, it) } ?: config.kavita,
             notifications = NotificationsConfig(
+                apprise = patch.notifications.getOrNull()?.apprise?.getOrNull()
+                    ?.let { apprise(config.notifications.apprise, it) }
+                    ?: config.notifications.apprise,
                 discord = patch.notifications.getOrNull()?.discord?.getOrNull()
                     ?.let { discord(config.notifications.discord, it) }
                     ?: config.notifications.discord
@@ -388,15 +392,27 @@ class AppConfigUpdateMapper {
     }
 
     private fun discord(config: DiscordConfig, patch: DiscordConfigUpdateRequest): DiscordConfig {
+        val oldWebhooks = config.webhooks?.mapIndexed { index, value -> index to value }?.toMap()
+        val newWebhooks = when (val patchWebhooks = patch.webhooks) {
+            is PatchValue.Some -> oldWebhooks?.let { it + patchWebhooks.value } ?: patchWebhooks.value
+            PatchValue.None, PatchValue.Unset -> oldWebhooks
+        }
+
         return config.copy(
-            webhooks = when (val webhooks = patch.webhooks) {
-                PatchValue.None -> null
-                is PatchValue.Some -> webhooks.value
-                PatchValue.Unset -> config.webhooks
-            },
+            webhooks = newWebhooks?.values?.filterNotNull(),
             seriesCover = patch.seriesCover.getOrNull() ?: config.seriesCover,
         )
     }
 
+    private fun apprise(config: AppriseConfig, patch: AppriseConfigUpdateRequest): AppriseConfig {
+        val oldUrls = config.urls?.mapIndexed { index, value -> index to value }?.toMap()
+        val newUrls = when (val patchWebhooks = patch.urls) {
+            is PatchValue.Some -> oldUrls?.let { it + patchWebhooks.value } ?: patchWebhooks.value
+            PatchValue.None, PatchValue.Unset -> oldUrls
+        }
 
+        return config.copy(
+            urls = newUrls?.values?.filterNotNull(),
+        )
+    }
 }

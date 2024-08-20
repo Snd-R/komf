@@ -24,8 +24,10 @@ import snd.komf.mediaserver.jobs.KomfJobTracker
 import snd.komf.mediaserver.jobs.KomfJobsRepository
 import snd.komf.mediaserver.model.MediaServer.KAVITA
 import snd.komf.mediaserver.model.MediaServer.KOMGA
+import snd.komf.notifications.apprise.AppriseCliService
+import snd.komf.notifications.apprise.AppriseVelocityTemplates
+import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
-import snd.komf.notifications.discord.VelocityTemplateService
 
 class ServerModule(
     private val appContext: AppContext,
@@ -37,8 +39,11 @@ class ServerModule(
     private val kavitaMetadataServiceProvider: StateFlow<MetadataServiceProvider>,
     private val kavitaMediaServerClient: StateFlow<MediaServerClient>,
 
-    private val notificationService: StateFlow<DiscordWebhookService?>,
-    private val velocityRenderer: StateFlow<VelocityTemplateService>,
+    private val discordService: StateFlow<DiscordWebhookService>,
+    private val discordRenderer: StateFlow<DiscordVelocityTemplates>,
+
+    private val appriseService: StateFlow<AppriseCliService>,
+    private val appriseRenderer: StateFlow<AppriseVelocityTemplates>,
 ) {
     private val configMapper = DeprecatedConfigUpdateMapper()
     private val json = Json {
@@ -70,8 +75,10 @@ class ServerModule(
                 ).registerRoutes(this)
 
                 NotificationRoutes(
-                    notificationService = notificationService,
-                    templateRenderer = velocityRenderer
+                    discordService = discordService,
+                    discordRenderer = discordRenderer,
+                    appriseService = appriseService,
+                    appriseRenderer = appriseRenderer
                 ).registerRoutes(this)
 
                 route("/komga") {

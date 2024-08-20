@@ -7,15 +7,17 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import snd.komf.app.config.NotificationsConfig
 import snd.komf.ktor.komfUserAgent
+import snd.komf.notifications.apprise.AppriseCliService
+import snd.komf.notifications.apprise.AppriseVelocityTemplates
+import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
-import snd.komf.notifications.discord.VelocityTemplateService
 
 
 class NotificationsModule(
-    komgaNotificationsConfig: NotificationsConfig,
+    notificationsConfig: NotificationsConfig,
     ktorBaseClient: HttpClient,
 ) {
-    private val discordConfig = komgaNotificationsConfig.discord
+    private val discordConfig = notificationsConfig.discord
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -30,17 +32,16 @@ class NotificationsModule(
         install(ContentNegotiation) { json(json) }
     }
 
-    val velocityRenderer = VelocityTemplateService(discordConfig.templatesDirectory)
-    val discordWebhookService = discordConfig.webhooks?.let { webhooks ->
-        if (webhooks.isEmpty()) null
-        else
-            DiscordWebhookService(
-                ktor = discordKtorClient,
-                json = json,
-                templateRenderer = velocityRenderer,
-                seriesCover = discordConfig.seriesCover,
-                webhooks = webhooks,
-                embedColor = discordConfig.embedColor,
-            )
-    }
+    val appriseVelocityRenderer = AppriseVelocityTemplates(notificationsConfig.templatesDirectory)
+    val appriseService = AppriseCliService(notificationsConfig.apprise.urls ?: emptyList(), appriseVelocityRenderer)
+
+    val discordVelocityRenderer = DiscordVelocityTemplates(notificationsConfig.templatesDirectory)
+    val discordWebhookService = DiscordWebhookService(
+        ktor = discordKtorClient,
+        json = json,
+        templateRenderer = discordVelocityRenderer,
+        seriesCover = discordConfig.seriesCover,
+        webhooks = discordConfig.webhooks ?: emptyList(),
+        embedColor = discordConfig.embedColor,
+    )
 }

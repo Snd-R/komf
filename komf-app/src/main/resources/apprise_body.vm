@@ -1,0 +1,7 @@
+#if (${series.metadata.summary} != "")
+${series.metadata.summary}
+#end
+new #if(${books.size()} == 1)book was #{else}books were #{end}added to library ${library.name}:
+#foreach ($book in $books)
+${book.name}
+#end

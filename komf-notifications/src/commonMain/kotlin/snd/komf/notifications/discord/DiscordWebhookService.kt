@@ -23,7 +23,7 @@ private const val baseUrl = "https://discord.com/api"
 class DiscordWebhookService(
     private val ktor: HttpClient,
     private val json: Json,
-    private val templateRenderer: VelocityTemplateService,
+    private val templateRenderer: DiscordVelocityTemplates,
     private val seriesCover: Boolean,
     private val webhooks: Collection<String>,
     embedColor: String,
@@ -34,6 +34,8 @@ class DiscordWebhookService(
         context: NotificationContext,
         templates: DiscordStringTemplates? = null,
     ) {
+        if(webhooks.isEmpty()) return
+
         val webhookRequest = toRequest(context, templates) ?: return
         webhooks.map { getWebhook(it) }.forEach { webhook ->
             executeWebhook(
@@ -49,7 +51,7 @@ class DiscordWebhookService(
         templates: DiscordStringTemplates? = null,
     ): WebhookExecuteRequest? {
         val renderResult =
-            templates?.let { templateRenderer.renderDiscord(context, it) } ?: templateRenderer.renderDiscord(context)
+            templates?.let { templateRenderer.render(context, it) } ?: templateRenderer.render(context)
         if (renderResult.description == null &&
             renderResult.fields.isEmpty() &&
             renderResult.footer == null &&

@@ -9,6 +9,7 @@ import snd.komf.model.MediaType.MANGA
 import snd.komf.model.ReadingDirection
 import snd.komf.model.UpdateMode
 import snd.komf.model.UpdateMode.API
+import snd.komf.notifications.apprise.AppriseConfig
 import snd.komf.notifications.discord.DiscordConfig
 import snd.komf.providers.MetadataProvidersConfig
 
@@ -118,7 +119,9 @@ data class EventListenerConfig(
 
 @Serializable
 data class NotificationsConfig(
+    val apprise: AppriseConfig = AppriseConfig(),
     val discord: DiscordConfig = DiscordConfig(),
+    val templatesDirectory: String = "./",
 )
 
 @Serializable

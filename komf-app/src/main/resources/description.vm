@@ -1,12 +1,7 @@
-#if ($series.metadata.summary != "")
-$series.metadata.summary
+#if (${series.metadata.summary} != "")
+${series.metadata.summary}
 #end
-
-#if($books.size() == 1)
-***new book was added to library $library.name:***
-#else
-***new books were added to library $library.name:***
-#end
+***new #if(${books.size()} == 1)book was #{else}books were #{end}added to library ${library.name}:***
 #foreach ($book in $books)
-**$book.name**
+**${book.name}**
 #end

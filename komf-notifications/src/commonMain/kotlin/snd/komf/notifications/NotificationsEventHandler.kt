@@ -1,5 +1,6 @@
-package snd.komf.notifications.discord
+package snd.komf.notifications
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import snd.komf.mediaserver.BookEvent
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MediaServerEventListener
@@ -11,19 +12,24 @@ import snd.komf.mediaserver.model.MediaServerLibrary
 import snd.komf.mediaserver.model.MediaServerSeries
 import snd.komf.mediaserver.model.MediaServerSeriesId
 import snd.komf.mediaserver.model.MediaServerSeriesMetadata
+import snd.komf.notifications.apprise.AppriseCliService
+import snd.komf.notifications.discord.DiscordWebhookService
 import snd.komf.notifications.discord.model.AlternativeTitleContext
 import snd.komf.notifications.discord.model.AuthorContext
-import snd.komf.notifications.discord.model.BookMetadataContext
 import snd.komf.notifications.discord.model.BookContext
+import snd.komf.notifications.discord.model.BookMetadataContext
 import snd.komf.notifications.discord.model.LibraryContext
-import snd.komf.notifications.discord.model.SeriesMetadataContext
-import snd.komf.notifications.discord.model.SeriesContext
-import snd.komf.notifications.discord.model.WebLinkContext
 import snd.komf.notifications.discord.model.NotificationContext
+import snd.komf.notifications.discord.model.SeriesContext
+import snd.komf.notifications.discord.model.SeriesMetadataContext
+import snd.komf.notifications.discord.model.WebLinkContext
 import java.util.function.Predicate
+
+private val logger = KotlinLogging.logger {}
 
 class NotificationsEventHandler(
     private val mediaServerClient: MediaServerClient,
+    private val appriseService: AppriseCliService,
     private val discordWebhookService: DiscordWebhookService,
     private val libraryFilter: Predicate<String>,
     private val mediaServer: MediaServer
@@ -37,8 +43,10 @@ class NotificationsEventHandler(
                     seriesId = seriesId,
                     bookIds = events.map { it.bookId },
                 )
-            }.forEach { discordWebhookService.send(it) }
-
+            }.forEach { context ->
+                runCatching { discordWebhookService.send(context) }.onFailure { logger.catching(it) }
+                runCatching { appriseService.send(context) }.onFailure { logger.catching(it) }
+            }
     }
 
     private suspend fun webhookMessage(
