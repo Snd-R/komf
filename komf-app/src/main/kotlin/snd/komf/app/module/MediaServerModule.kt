@@ -13,7 +13,7 @@ import snd.komf.app.config.KavitaConfig
 import snd.komf.app.config.KomgaConfig
 import snd.komf.app.config.MetadataProcessingConfig
 import snd.komf.app.config.MetadataUpdateConfig
-import snd.komf.comicinfo.JvmComicInfoWriter
+import snd.komf.comicinfo.ComicInfoWriter
 import snd.komf.ktor.komfUserAgent
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
@@ -308,7 +308,7 @@ class MediaServerModule(
             bookThumbnailsRepository = bookThumbnailsRepository,
             metadataUpdateMapper = MetadataMapper(),
             postProcessor = postProcessor,
-            comicInfoWriter = JvmComicInfoWriter.getInstance(config.overrideComicInfo),
+            comicInfoWriter = ComicInfoWriter.getInstance(config.overrideComicInfo),
 
             updateModes = config.updateModes.toSet(),
             uploadBookCovers = config.bookCovers,

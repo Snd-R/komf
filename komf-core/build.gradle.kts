@@ -2,8 +2,6 @@ import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinMultiplatform
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-
 
 plugins {
     alias(libs.plugins.androidLibrary)
@@ -32,10 +30,10 @@ kotlin {
         }
     }
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        moduleName = "komf-core"
-    }
+//    @OptIn(ExperimentalWasmDsl::class)
+//    wasmJs {
+//        moduleName = "komf-core"
+//    }
 
     sourceSets {
         commonMain.dependencies {
@@ -51,15 +49,17 @@ kotlin {
             implementation(libs.xmlutil.core)
             implementation(libs.xmlutil.serialization)
             implementation(libs.ksoup)
-        }
-        androidMain.dependencies {
+
+            implementation(libs.commons.compress)
             implementation(libs.commons.text)
         }
 
         val jvmMain by getting
         jvmMain.dependencies {
-            implementation(libs.commons.compress)
-            implementation(libs.commons.text)
+            implementation(libs.twelvemonkeys.imageio.core)
+            implementation(libs.twelvemonkeys.imageio.jpeg)
+            implementation(libs.twelvemonkeys.imageio.webp)
+
         }
     }
 

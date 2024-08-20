@@ -1,6 +1,5 @@
 package snd.komf.util
 
-import kotlinx.serialization.Serializable
 import snd.komf.util.NameSimilarityMatcher.NameMatchingMode.CLOSEST_MATCH
 import snd.komf.util.NameSimilarityMatcher.NameMatchingMode.EXACT
 import kotlin.math.min

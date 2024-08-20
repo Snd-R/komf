@@ -21,6 +21,7 @@ shadow = "8.1.1"
 slf4j = "2.0.16"
 signalr = "8.0.5"
 sqldelight = "2.0.2"
+twelveMonkeys = "3.11.0"
 velocity = "2.3"
 xmlutil = "0.90.1"
 
@@ -56,6 +57,9 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 signalr = { module = "com.microsoft.signalr:signalr", version.ref = "signalr" }
 sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+twelvemonkeys-imageio-core = { module = "com.twelvemonkeys.imageio:imageio-core", version.ref = "twelveMonkeys" }
+twelvemonkeys-imageio-jpeg = { module = "com.twelvemonkeys.imageio:imageio-jpeg", version.ref = "twelveMonkeys" }
+twelvemonkeys-imageio-webp = { module = "com.twelvemonkeys.imageio:imageio-webp", version.ref = "twelveMonkeys" }
 velocity-core = { module = "org.apache.velocity:velocity-engine-core", version.ref = "velocity" }
 xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "xmlutil" }
 xmlutil-serialization = { module = "io.github.pdvrieze.xmlutil:serialization", version.ref = "xmlutil" }

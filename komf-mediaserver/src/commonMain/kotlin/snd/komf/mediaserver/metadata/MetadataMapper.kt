@@ -1,7 +1,7 @@
 package snd.komf.mediaserver.metadata
 
-import snd.komf.comicinfo.model.AgeRating
-import snd.komf.comicinfo.model.ComicInfo
+import snd.komf.comicinfo.AgeRating
+import snd.komf.comicinfo.ComicInfo
 import snd.komf.mediaserver.model.MediaServerAuthor
 import snd.komf.mediaserver.model.MediaServerBook
 import snd.komf.mediaserver.model.MediaServerBookMetadataUpdate

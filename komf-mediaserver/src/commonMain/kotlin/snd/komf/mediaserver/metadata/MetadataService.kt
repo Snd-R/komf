@@ -360,21 +360,6 @@ class MetadataService(
         return MatchQuery(searchTitle, releaseYear, BookQualifier(firstBook.name, range, cover))
     }
 
-
-    private suspend fun matchSeriesMetadata(
-        provider: MetadataProvider,
-        matchQuery: MatchQuery,
-        eventFlow: MutableSharedFlow<MetadataJobEvent>
-    ): ProviderSeriesMetadata? {
-        eventFlow.emit(ProviderSeriesEvent(provider.providerName()))
-
-        return try {
-            provider.matchSeriesMetadata(matchQuery)
-        } catch (e: Exception) {
-            throw ProviderException(provider.providerName(), e)
-        }
-    }
-
     private suspend fun getSeriesMetadata(
         provider: MetadataProvider,
         providerSeriesId: ProviderSeriesId,

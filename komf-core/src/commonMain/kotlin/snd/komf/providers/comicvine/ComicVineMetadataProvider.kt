@@ -3,9 +3,7 @@ package snd.komf.providers.comicvine
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.plugins.*
 import io.ktor.http.*
-import snd.komf.providers.MetadataProvider
-import snd.komf.util.NameSimilarityMatcher
-import snd.komf.providers.CoreProviders.COMIC_VINE
+import snd.komf.model.BookQualifier
 import snd.komf.model.Image
 import snd.komf.model.MatchQuery
 import snd.komf.model.ProviderBookId
@@ -13,13 +11,18 @@ import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
 import snd.komf.model.SeriesSearchResult
+import snd.komf.providers.CoreProviders.COMIC_VINE
+import snd.komf.providers.MetadataProvider
 import snd.komf.providers.comicvine.model.ComicVineImage
+import snd.komf.providers.comicvine.model.ComicVineIssueId
 import snd.komf.providers.comicvine.model.ComicVineSearchResult
 import snd.komf.providers.comicvine.model.ComicVineStoryArcId
 import snd.komf.providers.comicvine.model.ComicVineVolumeId
 import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
 import snd.komf.providers.comicvine.model.toComicVineIssueId
 import snd.komf.providers.comicvine.model.toComicVineVolumeId
+import snd.komf.util.NameSimilarityMatcher
+import snd.komf.util.compareImages
 
 private val logger = KotlinLogging.logger {}
 
@@ -42,7 +45,7 @@ class ComicVineMetadataProvider(
         val issue = handleResult(client.getIssue(bookId.toComicVineIssueId()))
         val storyArcs = issue.storyArcCredits?.let { credits ->
             credits.map { arc -> client.getStoryArc(ComicVineStoryArcId(arc.id)).results }
-        }?: emptyList()
+        } ?: emptyList()
         val cover = issue.image?.let { getCover(it) }
         return mapper.toBookMetadata(issue, storyArcs, cover)
     }
@@ -62,32 +65,32 @@ class ComicVineMetadataProvider(
 
         if (results.size > 1) {
             logger.info { "Multiple series matches: ${results.joinToString { "\"${it.name}\" id=${it.id}" }}" }
-//            if (matchQuery.bookQualifier == null) return null
-//
-//            logger.info { "Attempting to match using cover of book number: ${matchQuery.bookQualifier.number} name: \"${matchQuery.bookQualifier.name}\"" }
-//            return results
-//                .firstOrNull { matchesBookCover(it, matchQuery.bookQualifier) }
-//                ?.let { handleResult(client.getVolume(ComicVineVolumeId(it.id))) }
-//                ?.let { mapper.toSeriesMetadata(it, null) }
+            if (matchQuery.bookQualifier == null) return null
+
+            logger.info { "Attempting to match using cover of book number: ${matchQuery.bookQualifier.number} name: \"${matchQuery.bookQualifier.name}\"" }
+            return results
+                .firstOrNull { matchesBookCover(it, matchQuery.bookQualifier) }
+                ?.let { handleResult(client.getVolume(ComicVineVolumeId(it.id))) }
+                ?.let { mapper.toSeriesMetadata(it, null) }
         }
         return results.firstOrNull()
             ?.let { handleResult(client.getVolume(ComicVineVolumeId(it.id))) }
             ?.let { mapper.toSeriesMetadata(it, null) }
     }
 
-//    private fun matchesBookCover(volume: ComicVineVolumeSearch, qualifier: BookQualifier): Boolean {
-//        val firstIssueNumber = volume.firstIssue?.issueNumber?.toDoubleOrNull() ?: return false
-//        val qualifierImage = qualifier.cover?.toBufferedImage() ?: return false
-//
-//        logger.info { "matching cover of volume \"${volume.name}\" ${volume.siteDetailUrl}" }
-//
-//        // TODO get issue list and find matching number
-//        if (qualifier.number.start != firstIssueNumber) return false
-//
-//        val issue = handleResult(client.getIssue(ComicVineIssueId(volume.firstIssue.id)))
-//        val issueCover = issue.image?.let { getCover(it) }?.toBufferedImage() ?: return false
-//        return ImageHashComparator.compareImages(qualifierImage, issueCover)
-//    }
+    private suspend fun matchesBookCover(volume: ComicVineVolumeSearch, qualifier: BookQualifier): Boolean {
+        val firstIssueNumber = volume.firstIssue?.issueNumber?.toDoubleOrNull() ?: return false
+        val qualifierImage = qualifier.cover ?: return false
+
+        logger.info { "matching cover of volume \"${volume.name}\" ${volume.siteDetailUrl}" }
+
+        // TODO get issue list and find matching number
+        if (qualifier.number.start != firstIssueNumber) return false
+
+        val issue = handleResult(client.getIssue(ComicVineIssueId(volume.firstIssue.id)))
+        val issueCover = issue.image?.let { getCover(it) } ?: return false
+        return compareImages(qualifierImage.image, issueCover.image)
+    }
 
     private fun extractYear(seriesName: String): Int? {
         return startYearRegex.find(seriesName)?.groups?.get("startYear")?.value?.toIntOrNull()
