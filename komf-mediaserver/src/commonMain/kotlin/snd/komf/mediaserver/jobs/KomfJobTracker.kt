@@ -7,14 +7,27 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import snd.komf.mediaserver.model.MediaServerSeriesId
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.days
 
 class KomfJobTracker(
     private val jobsRepository: KomfJobsRepository
 ) {
     private val activeJobs = ConcurrentHashMap<MetadataJobId, ActiveJob>()
-    private val listenerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
+    init {
+        coroutineScope.launch {
+            jobsRepository.cancelAllRunning()
+            val totalCount = jobsRepository.countAll()
+            if (totalCount > 10_000) {
+                jobsRepository.deleteAllBeforeDate(Clock.System.now().minus(30.days))
+            }
+        }
+    }
 
     fun registerMetadataJob(
         seriesId: MediaServerSeriesId,
@@ -48,7 +61,7 @@ class KomfJobTracker(
 
                     else -> {}
                 }
-            }.launchIn(listenerScope)
+            }.launchIn(coroutineScope)
 
         activeJobs[job.id] = ActiveJob(job, flow, listenerJob)
         return job.id

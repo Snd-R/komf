@@ -33,6 +33,11 @@ SELECT * FROM KomfJobRecord WHERE status=? ORDER BY startedAt DESC LIMIT ? OFFSE
 save:
 INSERT OR REPLACE INTO KomfJobRecord VALUES ?;
 
-
 deleteAll:
 DELETE FROM KomfJobRecord;
+
+cancellAllRunning:
+UPDATE KomfJobRecord SET status = 'FAILED', message = 'Cancelled' WHERE status = 'RUNNING';
+
+deleteAllBeforeDate:
+DELETE FROM KomfJobRecord WHERE startedAt <= ?;

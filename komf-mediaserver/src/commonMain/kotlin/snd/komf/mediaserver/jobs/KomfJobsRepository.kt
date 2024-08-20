@@ -1,5 +1,6 @@
 package snd.komf.mediaserver.jobs
 
+import kotlinx.datetime.Instant
 import snd.komf.mediaserver.repository.KomfJobRecord
 import snd.komf.mediaserver.repository.KomfJobRecordQueries
 
@@ -38,7 +39,15 @@ class KomfJobsRepository(
         queries.save(job.toRecord())
     }
 
-    fun deleteAll(){
+    fun cancelAllRunning() {
+        queries.cancellAllRunning()
+    }
+
+    fun deleteAllBeforeDate(instant: Instant) {
+        queries.deleteAllBeforeDate(instant)
+    }
+
+    fun deleteAll() {
         queries.deleteAll()
     }
 
