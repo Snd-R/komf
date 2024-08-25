@@ -1,6 +1,7 @@
 package snd.komf.providers.comicvine
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.reactivecircus.cache4k.Cache
 import io.ktor.client.plugins.*
 import io.ktor.http.*
 import snd.komf.model.BookQualifier
@@ -16,6 +17,7 @@ import snd.komf.providers.MetadataProvider
 import snd.komf.providers.comicvine.model.ComicVineImage
 import snd.komf.providers.comicvine.model.ComicVineIssueId
 import snd.komf.providers.comicvine.model.ComicVineSearchResult
+import snd.komf.providers.comicvine.model.ComicVineStoryArc
 import snd.komf.providers.comicvine.model.ComicVineStoryArcId
 import snd.komf.providers.comicvine.model.ComicVineVolumeId
 import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
@@ -23,6 +25,7 @@ import snd.komf.providers.comicvine.model.toComicVineIssueId
 import snd.komf.providers.comicvine.model.toComicVineVolumeId
 import snd.komf.util.NameSimilarityMatcher
 import snd.komf.util.compareImages
+import kotlin.time.Duration.Companion.minutes
 
 private val logger = KotlinLogging.logger {}
 
@@ -31,6 +34,9 @@ class ComicVineMetadataProvider(
     private val mapper: ComicVineMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
 ) : MetadataProvider {
+    private val storyArcCache = Cache.Builder<ComicVineStoryArcId, ComicVineStoryArc>()
+        .expireAfterWrite(30.minutes)
+        .build()
     private val startYearRegex = "\\((?<startYear>\\d{4})(-\\d{4})?\\)".toRegex()
 
     override fun providerName() = COMIC_VINE
@@ -44,7 +50,13 @@ class ComicVineMetadataProvider(
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val issue = handleResult(client.getIssue(bookId.toComicVineIssueId()))
         val storyArcs = issue.storyArcCredits?.let { credits ->
-            credits.map { arc -> client.getStoryArc(ComicVineStoryArcId(arc.id)).results }
+            credits.map { arc ->
+                val id = ComicVineStoryArcId(arc.id)
+                storyArcCache.get(id) {
+                    println("story arc cache miss")
+                    client.getStoryArc(id).results
+                }
+            }
         } ?: emptyList()
         val cover = issue.image?.let { getCover(it) }
         return mapper.toBookMetadata(issue, storyArcs, cover)

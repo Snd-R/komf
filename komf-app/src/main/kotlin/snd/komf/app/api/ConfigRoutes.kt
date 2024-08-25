@@ -1,5 +1,6 @@
 package snd.komf.app.api
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -12,6 +13,7 @@ import snd.komf.app.AppContext
 import snd.komf.app.api.mappers.AppConfigMapper
 import snd.komf.app.api.mappers.AppConfigUpdateMapper
 
+private val logger = KotlinLogging.logger {}
 
 class ConfigRoutes(
     private val appContext: AppContext,
@@ -41,6 +43,7 @@ class ConfigRoutes(
                 try {
                     appContext.refreshState(config)
                 } catch (e: Exception) {
+                    logger.catching(e)
                     call.respond(
                         HttpStatusCode.UnprocessableEntity,
                         KomfErrorResponse("${e::class.simpleName}: ${e.message}")

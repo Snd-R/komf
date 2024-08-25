@@ -37,6 +37,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(libs.cache4k)
+            implementation(libs.commons.compress)
+            implementation(libs.commons.text)
             implementation(libs.kotlin.logging)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
@@ -46,12 +49,10 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.encoding)
             implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ksoup)
             implementation(libs.xmlutil.core)
             implementation(libs.xmlutil.serialization)
-            implementation(libs.ksoup)
 
-            implementation(libs.commons.compress)
-            implementation(libs.commons.text)
         }
 
         val jvmMain by getting

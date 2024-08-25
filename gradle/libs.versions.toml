@@ -1,5 +1,6 @@
 [versions]
 agp = "8.2.0"
+cache4k = "0.13.0"
 commons-text = "1.12.0"
 commons-compress = "1.27.1"
 jose4j = "0.9.6"
@@ -26,6 +27,7 @@ velocity = "2.3"
 xmlutil = "0.90.1"
 
 [libraries]
+cache4k = { module = "io.github.reactivecircus.cache4k:cache4k", version.ref = "cache4k" }
 commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
 commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }
 jose4j = { module = "org.bitbucket.b_c:jose4j", version.ref = "jose4j" }

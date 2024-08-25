@@ -296,9 +296,9 @@ class DeprecatedConfigUpdateMapper {
         return config.copy(
             malClientId = patch.malClientId ?: config.malClientId,
             comicVineApiKey = when (val apiKey = patch.comicVineClientId) {
-                PatchValue.None -> config.comicVineApiKey
+                PatchValue.None -> null
                 is PatchValue.Some -> apiKey.value
-                PatchValue.Unset -> null
+                PatchValue.Unset -> config.comicVineApiKey
             },
             nameMatchingMode = patch.nameMatchingMode ?: config.nameMatchingMode,
             defaultProviders = patch.defaultProviders
@@ -369,9 +369,9 @@ class DeprecatedConfigUpdateMapper {
                 ?.let { bookMetadataConfig(config.bookMetadata, it) }
                 ?: config.bookMetadata,
             nameMatchingMode = when (val mode = patch.nameMatchingMode) {
-                PatchValue.None -> config.nameMatchingMode
+                PatchValue.None -> null
                 is PatchValue.Some -> mode.value
-                PatchValue.Unset -> null
+                PatchValue.Unset -> config.nameMatchingMode
             }
         )
     }
@@ -389,9 +389,9 @@ class DeprecatedConfigUpdateMapper {
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
             nameMatchingMode = when (val mode = patch.nameMatchingMode) {
-                PatchValue.None -> config.nameMatchingMode
+                PatchValue.None -> null
                 is PatchValue.Some -> mode.value
-                PatchValue.Unset -> null
+                PatchValue.Unset -> config.nameMatchingMode
             }
         )
     }
@@ -407,9 +407,9 @@ class DeprecatedConfigUpdateMapper {
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
             nameMatchingMode = when (val mode = patch.nameMatchingMode) {
-                PatchValue.None -> config.nameMatchingMode
+                PatchValue.None -> null
                 is PatchValue.Some -> mode.value
-                PatchValue.Unset -> null
+                PatchValue.Unset -> config.nameMatchingMode
             }
         )
     }
