@@ -161,7 +161,8 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
         thumbnail: Image,
         selected: Boolean
     ): MediaServerBookThumbnail? {
-        kavitaClient.uploadBookCover(bookId.toKavitaChapterId(), thumbnail)
+        val chapter = kavitaClient.getChapter(bookId.toKavitaChapterId())
+        kavitaClient.uploadVolumeCover(chapter.volumeId, thumbnail)
         return null
     }
 

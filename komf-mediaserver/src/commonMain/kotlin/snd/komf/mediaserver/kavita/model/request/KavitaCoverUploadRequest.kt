@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class KavitaCoverUploadRequest(
-    val url: String,
     val id: Int,
+    val url: String,
+    val lockCover: Boolean,
 )
