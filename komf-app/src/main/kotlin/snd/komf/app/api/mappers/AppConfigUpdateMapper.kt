@@ -249,7 +249,7 @@ class AppConfigUpdateMapper {
 
     private fun komgaConfig(config: KomgaConfig, patch: KomgaConfigUpdateRequest): KomgaConfig {
         return config.copy(
-            baseUri = patch.baseUri.getOrNull() ?: config.baseUri,
+            baseUri = (patch.baseUri.getOrNull() ?: config.baseUri).removeSuffix("/"),
             komgaUser = patch.komgaUser.getOrNull() ?: config.komgaUser,
             komgaPassword = patch.komgaPassword.getOrNull() ?: config.komgaPassword,
             eventListener = patch.eventListener.getOrNull()
@@ -263,7 +263,7 @@ class AppConfigUpdateMapper {
 
     private fun kavitaConfig(config: KavitaConfig, patch: KavitaConfigUpdateRequest): KavitaConfig {
         return config.copy(
-            baseUri = patch.baseUri.getOrNull() ?: config.baseUri,
+            baseUri = (patch.baseUri.getOrNull() ?: config.baseUri).removeSuffix("/"),
             apiKey = patch.apiKey.getOrNull() ?: config.apiKey,
             eventListener = patch.eventListener.getOrNull()
                 ?.let { eventListener(config.eventListener, it) }
