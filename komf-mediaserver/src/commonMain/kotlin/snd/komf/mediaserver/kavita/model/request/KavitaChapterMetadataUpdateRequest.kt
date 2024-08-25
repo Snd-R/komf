@@ -1,39 +1,23 @@
-package snd.komf.mediaserver.kavita.model
+package snd.komf.mediaserver.kavita.model.request
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
-import snd.komf.mediaserver.model.MediaServerBookId
-
-@JvmInline
-@Serializable
-value class KavitaChapterId(val value: Int) {
-    override fun toString() = value.toString()
-}
-
-fun MediaServerBookId.toKavitaChapterId() = KavitaChapterId(value.toInt())
+import snd.komf.mediaserver.kavita.model.KavitaAgeRating
+import snd.komf.mediaserver.kavita.model.KavitaAuthor
+import snd.komf.mediaserver.kavita.model.KavitaChapterId
+import snd.komf.mediaserver.kavita.model.KavitaGenre
+import snd.komf.mediaserver.kavita.model.KavitaTag
 
 @Serializable
-data class KavitaChapter(
+data class KavitaChapterMetadataUpdateRequest(
     val id: KavitaChapterId,
-    val range: String? = null,
-    val number: String? = null,
-    val pages: Int,
-    val isSpecial: Boolean,
-    val title: String,
-    val files: Collection<KavitaChapterFile>,
-    val pagesRead: Int,
-    val coverImageLocked: Boolean,
-    val volumeId: KavitaVolumeId,
-    val createdUtc: LocalDateTime,
-    val count: Int,
-    val totalCount: Int,
 
     val summary: String? = null,
     val genres: Collection<KavitaGenre>,
     val tags: Collection<KavitaTag>,
     val ageRating: KavitaAgeRating,
     val language: String? = null,
-    val webLinks: String,
+    val weblinks: String,
     val isbn: String,
     val releaseDate: LocalDateTime,
     val titleName: String,
@@ -54,6 +38,7 @@ data class KavitaChapter(
     val locations: Collection<KavitaAuthor>,
 
     val ageRatingLocked: Boolean,
+    val titleNameLocked: Boolean,
     val genresLocked: Boolean,
     val tagsLocked: Boolean,
     val writerLocked: Boolean,
@@ -71,17 +56,7 @@ data class KavitaChapter(
     val coverArtistLocked: Boolean,
     val languageLocked: Boolean,
     val summaryLocked: Boolean,
-//    val titleNameLocked: Boolean,
-//    val isbnLocked: Boolean,
-//    val releaseDateLocked: Boolean,
-//    val sortOrderLocked: Boolean,
-)
-
-@Serializable
-data class KavitaChapterFile(
-    val id: Int,
-    val filePath: String,
-    val pages: Int,
-    val format: Int,
-    val created: LocalDateTime
+    val isbnLocked: Boolean,
+    val releaseDateLocked: Boolean,
+    val sortOrderLocked: Boolean,
 )

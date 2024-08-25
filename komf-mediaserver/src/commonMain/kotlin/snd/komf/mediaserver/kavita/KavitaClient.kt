@@ -23,6 +23,7 @@ import snd.komf.mediaserver.kavita.model.request.KavitaSeriesMetadataUpdateReque
 import snd.komf.mediaserver.kavita.model.request.KavitaSeriesUpdateRequest
 import snd.komf.mediaserver.kavita.model.KavitaVolume
 import snd.komf.mediaserver.kavita.model.KavitaVolumeId
+import snd.komf.mediaserver.kavita.model.request.KavitaChapterMetadataUpdateRequest
 import snd.komf.model.Image
 import java.util.*
 
@@ -83,6 +84,13 @@ class KavitaClient(
 
     suspend fun updateSeriesMetadata(metadata: KavitaSeriesMetadataUpdateRequest) {
         ktor.post("/api/series/metadata") {
+            contentType(ContentType.Application.Json)
+            setBody(metadata)
+        }
+    }
+
+    suspend fun updateChapterMetadata(metadata: KavitaChapterMetadataUpdateRequest) {
+        ktor.post("/api/chapter/update") {
             contentType(ContentType.Application.Json)
             setBody(metadata)
         }
