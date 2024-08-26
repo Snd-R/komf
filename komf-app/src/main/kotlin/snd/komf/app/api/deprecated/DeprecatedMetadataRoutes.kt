@@ -7,9 +7,12 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.takeWhile
 import snd.komf.app.api.deprecated.dto.IdentifySeriesRequest
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
+import snd.komf.mediaserver.jobs.KomfJobTracker
+import snd.komf.mediaserver.jobs.MetadataJobEvent.CompletionEvent
 import snd.komf.mediaserver.model.MediaServer
 import snd.komf.mediaserver.model.MediaServerLibraryId
 import snd.komf.mediaserver.model.MediaServerSeriesId
@@ -19,6 +22,7 @@ import snd.komf.providers.CoreProviders
 class DeprecatedMetadataRoutes(
     private val metadataServiceProvider: StateFlow<MetadataServiceProvider>,
     private val mediaServerClient: StateFlow<MediaServerClient>,
+    private val jobTracker: KomfJobTracker,
     private val serverType: MediaServer,
 ) {
 
@@ -76,12 +80,15 @@ class DeprecatedMetadataRoutes(
             val libraryId = request.libraryId
                 ?: mediaServerClient.value.getSeries(MediaServerSeriesId(request.seriesId)).libraryId.value
 
-            metadataServiceProvider.value.fetcherServiceFor(libraryId).setSeriesMetadata(
+            val jobId = metadataServiceProvider.value.fetcherServiceFor(libraryId).setSeriesMetadata(
                 MediaServerSeriesId(request.seriesId),
                 CoreProviders.valueOf(request.provider.uppercase()),
                 ProviderSeriesId(request.providerSeriesId),
                 request.edition
             )
+            jobTracker.getMetadataJobEvents(jobId)
+                ?.takeWhile { it != CompletionEvent }
+                ?.collect {}
 
             call.response.status(HttpStatusCode.NoContent)
         }
@@ -92,7 +99,11 @@ class DeprecatedMetadataRoutes(
 
             val libraryId = call.parameters.getOrFail("libraryId")
             val seriesId = MediaServerSeriesId(call.parameters.getOrFail("seriesId"))
-            metadataServiceProvider.value.fetcherServiceFor(libraryId).matchSeriesMetadata(seriesId)
+            val jobId = metadataServiceProvider.value.fetcherServiceFor(libraryId).matchSeriesMetadata(seriesId)
+            jobTracker.getMetadataJobEvents(jobId)
+                ?.takeWhile { it != CompletionEvent }
+                ?.collect {}
+
             call.response.status(HttpStatusCode.NoContent)
         }
     }

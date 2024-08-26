@@ -108,11 +108,13 @@ class ServerModule(
         DeprecatedMetadataRoutes(
             metadataServiceProvider = komgaMetadataServiceProvider,
             mediaServerClient = komgaMediaServerClient,
+            jobTracker = jobTracker,
             serverType = KOMGA
         ).registerRoutes(application)
         DeprecatedMetadataRoutes(
             metadataServiceProvider = kavitaMetadataServiceProvider,
             mediaServerClient = kavitaMediaServerClient,
+            jobTracker = jobTracker,
             serverType = KAVITA
         ).registerRoutes(application)
     }
