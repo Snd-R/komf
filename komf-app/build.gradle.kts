@@ -23,8 +23,6 @@ java {
     }
 }
 
-val ktorVersion = "3.0.0-rc-1-eap-997"
-val exposedVersion = "0.52.0"
 dependencies {
     implementation(project(":komf-core"))
     implementation(project(":komf-mediaserver"))
@@ -42,6 +40,7 @@ dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.default.headers)
     implementation(libs.ktor.server.sse)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.core)

@@ -6,10 +6,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.server.util.*
 import io.ktor.sse.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -61,7 +58,7 @@ class JobRoutes(
 
             val eventFlow = jobTracker.getMetadataJobEvents(MetadataJobId(jobId))
             if (eventFlow == null) {
-                ServerSentEvent(null, eventsStreamNotFoundName)
+                send(ServerSentEvent("", eventsStreamNotFoundName))
                 return@sse
             }
 

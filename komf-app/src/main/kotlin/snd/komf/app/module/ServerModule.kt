@@ -4,8 +4,10 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.ktor.server.http.content.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import kotlinx.coroutines.flow.StateFlow
@@ -61,9 +63,18 @@ class ServerModule(
             allowNonSimpleContentTypes = true
         }
         install(SSE)
+        install(DefaultHeaders) {
+            header("Cross-Origin-Embedder-Policy", "require-corp")
+            header("Cross-Origin-Opener-Policy", "same-origin")
+        }
 
 
         routing {
+            staticResources(remotePath = "/", basePackage = "komelia", index = "index.html") {
+                default("index.html")
+                preCompressed(CompressedFileType.GZIP)
+            }
+
             registerDeprecatedRoutes(this@embeddedServer)
 
             route("/api") {
