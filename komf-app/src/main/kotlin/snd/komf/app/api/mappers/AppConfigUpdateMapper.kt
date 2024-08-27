@@ -36,6 +36,7 @@ import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProviderConfig
 import snd.komf.providers.ProvidersConfig
 import snd.komf.providers.SeriesMetadataConfig
+import snd.komf.providers.mangadex.model.MangaDexLink
 import snd.komf.util.NameSimilarityMatcher.NameMatchingMode
 
 class AppConfigUpdateMapper {
@@ -201,7 +202,8 @@ class AppConfigUpdateMapper {
                 is PatchValue.Some -> mode.value.toNameMatchingMode()
                 PatchValue.Unset -> config.nameMatchingMode
             },
-            coverLanguages = patch.coverLanguages.getOrNull() ?: config.coverLanguages
+            coverLanguages = patch.coverLanguages.getOrNull() ?: config.coverLanguages,
+            links = patch.links.getOrNull()?.map { MangaDexLink.valueOf(it.name) }?:config.links
         )
     }
 

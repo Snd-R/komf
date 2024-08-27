@@ -27,6 +27,19 @@ import snd.komf.providers.SeriesMetadataConfig
 import snd.komf.providers.mangadex.model.MangaDexArtist
 import snd.komf.providers.mangadex.model.MangaDexAuthor
 import snd.komf.providers.mangadex.model.MangaDexCoverArt
+import snd.komf.providers.mangadex.model.MangaDexLink
+import snd.komf.providers.mangadex.model.MangaDexLink.AMAZON
+import snd.komf.providers.mangadex.model.MangaDexLink.ANILIST
+import snd.komf.providers.mangadex.model.MangaDexLink.ANIME_PLANET
+import snd.komf.providers.mangadex.model.MangaDexLink.BOOKWALKER_JP
+import snd.komf.providers.mangadex.model.MangaDexLink.CD_JAPAN
+import snd.komf.providers.mangadex.model.MangaDexLink.EBOOK_JAPAN
+import snd.komf.providers.mangadex.model.MangaDexLink.ENGLISH_TL
+import snd.komf.providers.mangadex.model.MangaDexLink.KITSU
+import snd.komf.providers.mangadex.model.MangaDexLink.MANGA_UPDATES
+import snd.komf.providers.mangadex.model.MangaDexLink.MY_ANIME_LIST
+import snd.komf.providers.mangadex.model.MangaDexLink.NOVEL_UPDATES
+import snd.komf.providers.mangadex.model.MangaDexLink.RAW
 import snd.komf.providers.mangadex.model.MangaDexManga
 import snd.komf.providers.mangadex.model.MangaDexMangaId
 
@@ -36,6 +49,7 @@ class MangaDexMetadataMapper(
     private val authorRoles: Collection<AuthorRole>,
     private val artistRoles: Collection<AuthorRole>,
     private val coverLanguages: List<String>,
+    private val linksFilter: List<MangaDexLink>
 ) {
     private val mangaDexBaseUrl = "https://mangadex.org"
 
@@ -76,50 +90,42 @@ class MangaDexMetadataMapper(
                 }
             }
 
-        val links =
-            listOf(
-                WebLink("MangaDex", seriesUrl(manga.id))
-            ) +
-                    (manga.attributes.links?.mapNotNull { (key, value) ->
-                        when (key) {
-                            "al" -> WebLink("AniList", "https://anilist.co/manga/$value".encodeURLPath())
-                            "ap" -> WebLink(
-                                "Anime-Planet",
-                                "https://www.anime-planet.com/manga/$value".encodeURLPath()
-                            )
+        val links = mutableMapOf<MangaDexLink, WebLink>()
+        links[MangaDexLink.MANGA_DEX] = WebLink("MangaDex", seriesUrl(manga.id))
+        manga.attributes.links?.forEach { (key, value) ->
+            when (key) {
+                "al" -> links[ANILIST] =
+                    WebLink("AniList", "https://anilist.co/manga/$value".encodeURLPath())
 
-                            "bw" -> WebLink("BookWalkerJp", "https://bookwalker.jp/$value".encodeURLPath())
-                            "mu" -> WebLink(
-                                "MangaUpdates",
-                                "https://www.mangaupdates.com/series.html?id=$value".encodeURLPath()
-                            )
+                "ap" -> links[ANIME_PLANET] =
+                    WebLink("Anime-Planet", "https://www.anime-planet.com/manga/$value".encodeURLPath())
 
-                            "nu" -> WebLink(
-                                "NovelUpdates",
-                                "https://www.novelupdates.com/series/$value".encodeURLPath()
-                            )
+                "bw" -> links[BOOKWALKER_JP] =
+                    WebLink("BookWalkerJp", "https://bookwalker.jp/$value".encodeURLPath())
 
-                            "kt" -> WebLink("Kitsu", "https://kitsu.io/manga/$value".encodeURLPath())
-                            "amz" -> WebLink("Amazon", value)
-                            "ebj" -> WebLink(
-                                "eBookJapan",
-                                value.toIntOrNull()
-                                    ?.let { bookId -> "https://ebookjapan.yahoo.co.jp/books/$bookId".encodeURLPath() }
-                                    ?: value.encodeURLPath()
-                            )
+                "mu" -> links[MANGA_UPDATES] =
+                    WebLink("MangaUpdates", "https://www.mangaupdates.com/series.html?id=$value".encodeURLPath())
 
-                            "mal" -> WebLink(
-                                "MyAnimeList",
-                                "https://myanimelist.net/manga/$value".encodeURLPath()
-                            )
+                "nu" -> links[NOVEL_UPDATES] =
+                    WebLink("NovelUpdates", "https://www.novelupdates.com/series/$value".encodeURLPath())
 
-                            "cdj" -> WebLink("CDJapan", value.encodeURLPath())
-                            "raw" -> WebLink("Official Raw", value.encodeURLPath())
-                            "engtl" -> WebLink("Official English", value.encodeURLPath())
+                "kt" -> links[KITSU] = WebLink("Kitsu", "https://kitsu.app/manga/$value".encodeURLPath())
+                "amz" -> links[AMAZON] = WebLink("Amazon", value)
+                "ebj" -> links[EBOOK_JAPAN] = WebLink(
+                    "eBookJapan",
+                    value.toIntOrNull()
+                        ?.let { bookId -> "https://ebookjapan.yahoo.co.jp/books/$bookId".encodeURLPath() }
+                        ?: value.encodeURLPath()
+                )
 
-                            else -> null
-                        }
-                    } ?: emptyList())
+                "mal" -> links[MY_ANIME_LIST] =
+                    WebLink("MyAnimeList", "https://myanimelist.net/manga/$value".encodeURLPath())
+
+                "cdj" -> links[CD_JAPAN] = WebLink("CDJapan", value.encodeURLPath())
+                "raw" -> links[RAW] = WebLink("Official Raw", value.encodeURLPath())
+                "engtl" -> links[ENGLISH_TL] = WebLink("Official English", value.encodeURLPath())
+            }
+        }
 
         val metadata = SeriesMetadata(
             status = status,
@@ -132,7 +138,7 @@ class MangaDexMetadataMapper(
             authors = authors + artists,
             thumbnail = cover,
             releaseDate = ReleaseDate(manga.attributes.year, null, null),
-            links = links,
+            links = if (linksFilter.isNotEmpty()) links.filter { it.key in linksFilter }.values else links.values,
         )
 
         val books = covers

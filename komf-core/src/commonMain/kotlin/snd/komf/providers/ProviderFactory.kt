@@ -528,7 +528,8 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             bookMetadataConfig = config.bookMetadata,
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
-            coverLanguages = config.coverLanguages
+            coverLanguages = config.coverLanguages,
+            linksFilter = config.links
         )
 
         val mangaDexSimilarityMatcher: NameSimilarityMatcher =

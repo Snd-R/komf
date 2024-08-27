@@ -10,6 +10,7 @@ import snd.komf.model.AuthorRole.PENCILLER
 import snd.komf.model.AuthorRole.WRITER
 import snd.komf.model.MediaType
 import snd.komf.model.MediaType.MANGA
+import snd.komf.providers.mangadex.model.MangaDexLink
 import snd.komf.util.NameSimilarityMatcher.NameMatchingMode
 
 @Serializable
@@ -73,6 +74,8 @@ data class MangaDexConfig(
     val mediaType: MediaType = MANGA,
 
     val coverLanguages: List<String> = listOf("en", "ja"),
+    val links: List<MangaDexLink> = emptyList(),
+
     val authorRoles: Collection<AuthorRole> = listOf(WRITER),
     val artistRoles: Collection<AuthorRole> = listOf(PENCILLER, INKER, COLORIST, LETTERER, COVER),
 )

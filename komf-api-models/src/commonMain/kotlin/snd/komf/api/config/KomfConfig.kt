@@ -6,6 +6,7 @@ import snd.komf.api.KomfMediaType
 import snd.komf.api.KomfNameMatchingMode
 import snd.komf.api.KomfReadingDirection
 import snd.komf.api.KomfUpdateMode
+import snd.komf.api.MangaDexLink
 
 @Serializable
 data class KomfConfig(
@@ -160,6 +161,7 @@ data class MangaDexConfigDto(
     override val artistRoles: Collection<KomfAuthorRole>,
 
     val coverLanguages: List<String>,
+    val links: List<MangaDexLink>,
 ) : ProviderConf
 
 @Serializable

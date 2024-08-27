@@ -6,6 +6,7 @@ import snd.komf.api.KomfMediaType
 import snd.komf.api.KomfNameMatchingMode
 import snd.komf.api.KomfReadingDirection
 import snd.komf.api.KomfUpdateMode
+import snd.komf.api.MangaDexLink
 import snd.komf.api.PatchValue
 
 @Serializable
@@ -144,6 +145,7 @@ class MangaDexConfigUpdateRequest(
     val artistRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
 
     val coverLanguages: PatchValue<List<String>> = PatchValue.Unset,
+    val links: PatchValue<List<MangaDexLink>> = PatchValue.Unset,
 )
 
 @Serializable

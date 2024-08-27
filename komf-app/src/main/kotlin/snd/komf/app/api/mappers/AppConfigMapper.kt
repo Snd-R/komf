@@ -1,5 +1,6 @@
 package snd.komf.app.api.mappers
 
+import snd.komf.api.MangaDexLink
 import snd.komf.api.config.AniListConfigDto
 import snd.komf.api.config.AppriseConfigDto
 import snd.komf.api.config.BookMetadataConfigDto
@@ -189,7 +190,8 @@ class AppConfigMapper {
 
             authorRoles = config.authorRoles.map { it.fromAuthorRole() },
             artistRoles = config.artistRoles.map { it.fromAuthorRole() },
-            coverLanguages = config.coverLanguages
+            coverLanguages = config.coverLanguages,
+            links = config.links.map { MangaDexLink.valueOf(it.name) }
         )
     }
 
@@ -252,7 +254,7 @@ class AppConfigMapper {
 
     private fun toDto(config: AppriseConfig): AppriseConfigDto {
         return AppriseConfigDto(
-            urls = config.urls?.map { it.take(7) + "*".repeat(50)  }
+            urls = config.urls?.map { it.take(7) + "*".repeat(50) }
         )
     }
 
