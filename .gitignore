@@ -5,6 +5,9 @@ build/
 !src/**/build/
 
 ### intellij idea ###
+.idea/*
+!/.idea/codeStyles/
+!/.idea/runConfigurations/
 .idea/modules.xml
 .idea/jarrepositories.xml
 .idea/compiler.xml
