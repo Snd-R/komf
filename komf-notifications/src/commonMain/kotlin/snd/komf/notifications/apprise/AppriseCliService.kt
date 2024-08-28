@@ -1,42 +1,19 @@
 package snd.komf.notifications.apprise
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import snd.komf.notifications.discord.model.NotificationContext
-import java.nio.file.Path
-import kotlin.io.path.absolutePathString
+
+private val logger = KotlinLogging.logger {}
 
 class AppriseCliService(
     private val urls: Collection<String>,
     private val templateRenderer: AppriseVelocityTemplates,
 ) {
-    private val appriseExecutablePath: Path?
-
-    init {
-        appriseExecutablePath = runCatching {
-            val path = if (System.getProperty("os.name").startsWith("Win")) {
-                executeCommandAndReturnOutput("where", "apprise.exe")
-            } else {
-                executeCommandAndReturnOutput("which", "apprise")
-            }
-            path?.let { Path.of(it.trim()) }
-
-        }.getOrNull()
-    }
-
-    private fun executeCommandAndReturnOutput(vararg command: String) = runCatching {
-        val proc = ProcessBuilder(*command)
-            .redirectOutput(ProcessBuilder.Redirect.PIPE)
-            .redirectError(ProcessBuilder.Redirect.PIPE)
-            .start()
-        proc.waitFor()
-        proc.inputStream.bufferedReader().readText()
-    }.getOrNull()
-
     fun send(
         context: NotificationContext,
         templates: AppriseStringTemplates? = null,
     ) {
         if (urls.isEmpty()) return
-        requireNotNull(appriseExecutablePath) { "Could not find apprise executable" }
 
         val renderResult = templates
             ?.let { templateRenderer.render(context, it) }
@@ -50,10 +27,18 @@ class AppriseCliService(
             .plus(urls)
 
         val process = ProcessBuilder(
-            appriseExecutablePath.absolutePathString(),
+            "apprise",
             *arguments.toTypedArray()
-        ).inheritIO().start()
+        )
+            .redirectOutput(ProcessBuilder.Redirect.PIPE)
+            .redirectError(ProcessBuilder.Redirect.PIPE)
+            .start()
 
-        require(process.waitFor() == 0) { "Apprise returned non zero exit code" }
+        val statusCode = process.waitFor()
+        if (statusCode != 0) {
+            val errorMessage = process.errorStream.bufferedReader().readText()
+            logger.error { errorMessage }
+            error("Apprise returned non zero exit code: $errorMessage")
+        }
     }
 }
