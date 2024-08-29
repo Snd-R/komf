@@ -12,7 +12,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        mavenLocal()
         maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
     }

@@ -1,5 +1,3 @@
-import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.KotlinMultiplatform
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -8,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlinAtomicfu)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.mavenPublish)
     alias(libs.plugins.sqldelight)
 }
 
@@ -87,14 +84,4 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-}
-
-mavenPublishing {
-    configure(
-        KotlinMultiplatform(
-            javadocJar = JavadocJar.Empty(),
-            sourcesJar = true,
-            androidVariantsToPublish = listOf("debug", "release"),
-        )
-    )
 }

@@ -1,5 +1,3 @@
-import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.KotlinMultiplatform
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -8,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlinAtomicfu)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.mavenPublish)
 }
 
 group = "io.github.snd-r"
@@ -78,19 +75,4 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-}
-
-
-mavenPublishing {
-    configure(
-        KotlinMultiplatform(
-            // configures the -javadoc artifact, possible values:
-            // - `JavadocJar.None()` don't publish this artifact
-            // - `JavadocJar.Empty()` publish an emprt jar
-            // - `JavadocJar.Dokka("dokkaHtml")` when using Kotlin with Dokka, where `dokkaHtml` is the name of the Dokka task that should be used as input
-            javadocJar = JavadocJar.Empty(),
-            sourcesJar = true,
-            androidVariantsToPublish = listOf("debug", "release"),
-        )
-    )
 }
