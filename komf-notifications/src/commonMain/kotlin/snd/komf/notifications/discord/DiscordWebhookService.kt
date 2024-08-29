@@ -95,7 +95,7 @@ class DiscordWebhookService(
                     MultiPartFormDataContent(formData {
                         append(
                             "cover",
-                            image.image,
+                            image.bytes,
                             Headers.build { append(HttpHeaders.ContentDisposition, "filename=\"$filename\"") }
                         )
                         append("payload_json", json.encodeToString(webhookRequest))

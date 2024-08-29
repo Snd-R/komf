@@ -1,5 +1,6 @@
 package snd.komf.providers.mangaupdates
 
+import snd.komf.model.Image
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
 import snd.komf.providers.CoreProviders.MANGA_UPDATES
@@ -53,6 +54,11 @@ class MangaUpdatesMetadataProvider(
         val series = client.getSeries(seriesId.value.toLong())
         val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
         return metadataMapper.toSeriesMetadata(series, thumbnail)
+    }
+
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val series = client.getSeries(seriesId.value.toLong())
+        return client.getThumbnail(series)
     }
 
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {

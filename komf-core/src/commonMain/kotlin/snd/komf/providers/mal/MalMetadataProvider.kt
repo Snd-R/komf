@@ -1,6 +1,7 @@
 package snd.komf.providers.mal
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import snd.komf.model.Image
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
 import snd.komf.providers.CoreProviders.MAL
@@ -47,6 +48,11 @@ class MalMetadataProvider(
         return metadataMapper.toSeriesMetadata(series, thumbnail)
     }
 
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val series = malClient.getSeries(seriesId.value.toInt())
+        return malClient.getThumbnail(series)
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         throw UnsupportedOperationException()
     }
@@ -75,7 +81,11 @@ class MalMetadataProvider(
             .map { it.node }
             .filter { seriesTypes.contains(it.mediaType) }
             .firstOrNull {
-                val titles = listOfNotNull(it.title, it.alternativeTitles.en, it.alternativeTitles.ja) + it.alternativeTitles.synonyms
+                val titles = listOfNotNull(
+                    it.title,
+                    it.alternativeTitles.en,
+                    it.alternativeTitles.ja
+                ) + it.alternativeTitles.synonyms
                 nameMatcher.matches(seriesName, titles)
             }
 

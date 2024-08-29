@@ -33,6 +33,11 @@ class KodanshaMetadataProvider(
         return metadataMapper.toSeriesMetadata(series, bookList, thumbnail)
     }
 
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val series = client.getSeries(KodanshaSeriesId(seriesId.value.toInt())).response
+        return getThumbnail(series.thumbnails?.firstOrNull()?.url)
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(KodanshaBookId(bookId.id.toInt())).response
         val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.thumbnails.firstOrNull()?.url) else null

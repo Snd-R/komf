@@ -1,5 +1,6 @@
 package snd.komf.providers.yenpress
 
+import snd.komf.model.Image
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
 import snd.komf.providers.CoreProviders
@@ -43,6 +44,14 @@ class YenPressMetadataProvider(
         val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(seriesBook) else null
 
         return metadataMapper.toSeriesMetadata(seriesBook, allBooks, thumbnail)
+    }
+
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val allBooks = client.getBookList(YenPressSeriesId(seriesId.value))
+        return allBooks.firstOrNull()?.let { first->
+            val book = client.getBook(first.id)
+            client.getBookThumbnail(book)
+        }
     }
 
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {

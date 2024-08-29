@@ -85,3 +85,9 @@ value class KomfServerSeriesId(val value: String) {
 value class KomfServerLibraryId(val value: String) {
     override fun toString() = value
 }
+
+@JvmInline
+@Serializable
+value class KomfProviderSeriesId(val value: String) {
+    override fun toString() = value
+}

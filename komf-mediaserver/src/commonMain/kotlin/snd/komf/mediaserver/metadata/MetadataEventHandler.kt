@@ -26,7 +26,7 @@ class MetadataEventHandler(
             .map { (libraryId, events) ->
                 events.groupBy { MediaServerSeriesId(it.seriesId.value) }
                     .forEach { (seriesId, _) ->
-                        val metadataService = metadataServiceProvider.fetcherServiceFor(libraryId.value)
+                        val metadataService = metadataServiceProvider.metadataServiceFor(libraryId.value)
                         metadataService.matchSeriesMetadata(seriesId)
                     }
             }

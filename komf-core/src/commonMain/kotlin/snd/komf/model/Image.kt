@@ -6,12 +6,12 @@ import kotlinx.serialization.Transient
 @Serializable
 data class Image(
     @Transient
-    val image: ByteArray = byteArrayOf(),
+    val bytes: ByteArray = byteArrayOf(),
     val mimeType: String? = null
 ) {
 
     override fun hashCode(): Int {
-        return image.contentHashCode()
+        return bytes.contentHashCode()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -20,7 +20,7 @@ data class Image(
 
         other as Image
 
-        if (!image.contentEquals(other.image)) return false
+        if (!bytes.contentEquals(other.bytes)) return false
         if (mimeType != other.mimeType) return false
 
         return true

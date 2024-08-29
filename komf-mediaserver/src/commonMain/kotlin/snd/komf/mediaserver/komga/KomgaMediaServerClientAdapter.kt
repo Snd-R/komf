@@ -159,14 +159,14 @@ class KomgaMediaServerClientAdapter(
         thumbnail: Image,
         selected: Boolean
     ): MediaServerSeriesThumbnail? {
-        if (thumbnail.image.size > komgaCoverUploadLimit) {
+        if (thumbnail.bytes.size > komgaCoverUploadLimit) {
             logger.warn { "Thumbnail size is bigger than $komgaCoverUploadLimit bytes. Skipping thumbnail upload" }
             return null
         }
 
         val uploadedThumbnail = komgaSeriesClient.uploadSeriesThumbnail(
             seriesId = KomgaSeriesId(seriesId.value),
-            file = thumbnail.image,
+            file = thumbnail.bytes,
             selected = selected
         )
         return MediaServerSeriesThumbnail(
@@ -181,14 +181,14 @@ class KomgaMediaServerClientAdapter(
         bookId: MediaServerBookId,
         thumbnail: Image, selected: Boolean
     ): MediaServerBookThumbnail? {
-        if (thumbnail.image.size > komgaCoverUploadLimit) {
+        if (thumbnail.bytes.size > komgaCoverUploadLimit) {
             logger.warn { "Thumbnail size is bigger than $komgaCoverUploadLimit bytes. Skipping thumbnail upload" }
             return null
         }
 
         val uploadedThumbnail = komgaBookClient.uploadBookThumbnail(
             bookId = KomgaBookId(bookId.value),
-            file = thumbnail.image,
+            file = thumbnail.bytes,
             selected = selected
         )
 

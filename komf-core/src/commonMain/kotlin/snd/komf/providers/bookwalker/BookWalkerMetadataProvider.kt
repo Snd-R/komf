@@ -43,6 +43,12 @@ class BookWalkerMetadataProvider(
         return metadataMapper.toSeriesMetadata(BookWalkerSeriesId(seriesId.value), firstBook, books, thumbnail)
     }
 
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val books = getAllBooks(BookWalkerSeriesId(seriesId.value))
+        val firstBook = getFirstBook(books)
+        return getThumbnail(firstBook.imageUrl)
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(BookWalkerBookId(bookId.id))
         val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.imageUrl) else null

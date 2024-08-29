@@ -46,8 +46,8 @@ class DeprecatedMetadataRoutes(
 
             val providers = (
                     libraryId
-                        ?.let { metadataServiceProvider.value.fetcherServiceFor(it.value).availableProviders(it) }
-                        ?: metadataServiceProvider.value.defaultFetcherService().availableProviders()
+                        ?.let { metadataServiceProvider.value.metadataServiceFor(it.value).availableProviders(it) }
+                        ?: metadataServiceProvider.value.defaultMetadataService().availableProviders()
                     )
                 .map { it.providerName().name }
 
@@ -66,8 +66,8 @@ class DeprecatedMetadataRoutes(
                 ?: seriesId?.let { mediaServerClient.value.getSeries(it).libraryId }
 
             val searchResults = libraryId
-                ?.let { metadataServiceProvider.value.fetcherServiceFor(it.value).searchSeriesMetadata(seriesName, it) }
-                ?: metadataServiceProvider.value.defaultFetcherService().searchSeriesMetadata(seriesName)
+                ?.let { metadataServiceProvider.value.metadataServiceFor(it.value).searchSeriesMetadata(seriesName, it) }
+                ?: metadataServiceProvider.value.defaultMetadataService().searchSeriesMetadata(seriesName)
 
             call.respond(HttpStatusCode.OK, searchResults)
         }
@@ -80,7 +80,7 @@ class DeprecatedMetadataRoutes(
             val libraryId = request.libraryId
                 ?: mediaServerClient.value.getSeries(MediaServerSeriesId(request.seriesId)).libraryId.value
 
-            val jobId = metadataServiceProvider.value.fetcherServiceFor(libraryId).setSeriesMetadata(
+            val jobId = metadataServiceProvider.value.metadataServiceFor(libraryId).setSeriesMetadata(
                 MediaServerSeriesId(request.seriesId),
                 CoreProviders.valueOf(request.provider.uppercase()),
                 ProviderSeriesId(request.providerSeriesId),
@@ -99,7 +99,7 @@ class DeprecatedMetadataRoutes(
 
             val libraryId = call.parameters.getOrFail("libraryId")
             val seriesId = MediaServerSeriesId(call.parameters.getOrFail("seriesId"))
-            val jobId = metadataServiceProvider.value.fetcherServiceFor(libraryId).matchSeriesMetadata(seriesId)
+            val jobId = metadataServiceProvider.value.metadataServiceFor(libraryId).matchSeriesMetadata(seriesId)
             jobTracker.getMetadataJobEvents(jobId)
                 ?.takeWhile { it != CompletionEvent }
                 ?.collect {}
@@ -111,7 +111,7 @@ class DeprecatedMetadataRoutes(
     private fun Route.matchLibraryRoute() {
         post("/match/library/{libraryId}") {
             val libraryId = MediaServerLibraryId(call.parameters.getOrFail("libraryId"))
-            metadataServiceProvider.value.fetcherServiceFor(libraryId.value).matchLibraryMetadata(libraryId)
+            metadataServiceProvider.value.metadataServiceFor(libraryId.value).matchLibraryMetadata(libraryId)
             call.response.status(HttpStatusCode.Accepted)
         }
     }

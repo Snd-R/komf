@@ -40,6 +40,11 @@ class VizMetadataProvider(
         return metadataMapper.toSeriesMetadata(series, books, thumbnail)
     }
 
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val series = getBook(VizBookId(seriesId.value))
+        return getThumbnail(series.coverUrl)
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = getBook(VizBookId(bookId.id))
         val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.coverUrl) else null

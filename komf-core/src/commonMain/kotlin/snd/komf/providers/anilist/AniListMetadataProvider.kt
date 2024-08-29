@@ -1,5 +1,6 @@
 package snd.komf.providers.anilist
 
+import snd.komf.model.Image
 import snd.komf.model.MatchQuery
 import snd.komf.model.MediaType
 import snd.komf.model.ProviderBookId
@@ -34,6 +35,11 @@ class AniListMetadataProvider(
         val series = client.getMedia(seriesId.value.toInt())
         val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
         return metadataMapper.toSeriesMetadata(series, thumbnail)
+    }
+
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val series = client.getMedia(seriesId.value.toInt())
+        return client.getThumbnail(series)
     }
 
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {

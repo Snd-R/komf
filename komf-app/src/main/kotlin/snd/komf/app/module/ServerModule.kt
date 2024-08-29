@@ -1,5 +1,6 @@
 package snd.komf.app.module
 
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
@@ -8,10 +9,13 @@ import io.ktor.server.http.content.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json
+import snd.komf.api.KomfErrorResponse
 import snd.komf.app.AppContext
 import snd.komf.app.api.ConfigRoutes
 import snd.komf.app.api.JobRoutes
@@ -67,7 +71,20 @@ class ServerModule(
             header("Cross-Origin-Embedder-Policy", "require-corp")
             header("Cross-Origin-Opener-Policy", "same-origin")
         }
-
+        install(StatusPages) {
+            exception<IllegalStateException> { call, cause ->
+                call.respond(
+                    HttpStatusCode.UnprocessableEntity,
+                    KomfErrorResponse("${cause::class.simpleName} :${cause.message}")
+                )
+            }
+            exception<IllegalArgumentException> { call, cause ->
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    KomfErrorResponse("${cause::class.simpleName} :${cause.message}")
+                )
+            }
+        }
 
         routing {
             staticResources(remotePath = "/", basePackage = "komelia", index = "index.html") {

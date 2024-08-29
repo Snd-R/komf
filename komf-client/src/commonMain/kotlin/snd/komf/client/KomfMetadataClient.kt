@@ -2,8 +2,11 @@ package snd.komf.client
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import snd.komf.api.KomfProviderSeriesId
+import snd.komf.api.KomfProviders
 import snd.komf.api.KomfServerLibraryId
 import snd.komf.api.KomfServerSeriesId
 import snd.komf.api.MediaServer
@@ -31,6 +34,27 @@ class KomfMetadataClient(
             libraryId?.let { parameter("libraryId", libraryId) }
             seriesId?.let { parameter("seriesId", seriesId) }
         }.body()
+    }
+
+    suspend fun getSeriesCover(
+        libraryId: KomfServerLibraryId,
+        provider: KomfProviders,
+        providerSeriesId: KomfProviderSeriesId
+    ): ByteArray? {
+        return try {
+            ktor.get("$metadataApiPrefix/series-cover") {
+                parameter("libraryId", libraryId)
+                parameter("provider", provider)
+                parameter("providerSeriesId", providerSeriesId)
+            }.body()
+
+        } catch (exception: ClientRequestException) {
+            if (exception.response.status == HttpStatusCode.NotFound) {
+                null
+            } else {
+                throw exception
+            }
+        }
     }
 
     suspend fun identifySeries(request: KomfIdentifyRequest): KomfMetadataJobResponse {

@@ -1,5 +1,6 @@
 package snd.komf.providers.mangadex
 
+import snd.komf.model.Image
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
 import snd.komf.providers.CoreProviders.MANGADEX
@@ -29,6 +30,11 @@ class MangaDexMetadataProvider(
         } else null
 
         return metadataMapper.toSeriesMetadata(series, getAllCovers(series.id), cover)
+    }
+
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val series = client.getSeries(MangaDexMangaId(seriesId.value))
+        return series.getCoverArt()?.let { client.getCover(series.id, it.attributes.fileName) }
     }
 
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {

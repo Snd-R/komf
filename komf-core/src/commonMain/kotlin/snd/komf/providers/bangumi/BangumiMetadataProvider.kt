@@ -1,5 +1,6 @@
 package snd.komf.providers.bangumi
 
+import snd.komf.model.Image
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
 import snd.komf.providers.CoreProviders
@@ -38,6 +39,11 @@ class BangumiMetadataProvider(
 
         val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
         return metadataMapper.toSeriesMetadata(series, bookRelations, thumbnail)
+    }
+
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val series = client.getSubject(seriesId.value.toLong())
+        return client.getThumbnail(series)
     }
 
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {

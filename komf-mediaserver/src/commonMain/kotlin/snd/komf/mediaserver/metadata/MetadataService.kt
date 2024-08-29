@@ -31,6 +31,7 @@ import snd.komf.mediaserver.model.SeriesAndBookMetadata
 import snd.komf.model.BookMetadata
 import snd.komf.model.BookQualifier
 import snd.komf.model.BookRange
+import snd.komf.model.Image
 import snd.komf.model.MatchQuery
 import snd.komf.model.MatchType.MANUAL
 import snd.komf.model.MediaType
@@ -76,6 +77,17 @@ class MetadataService(
         return providers
             .map { coroutineScope.async { it.searchSeries(seriesName) } }
             .flatMap { it.await() }
+    }
+
+    suspend fun getSeriesCover(
+        libraryId: MediaServerLibraryId,
+        providerName: CoreProviders,
+        providerSeriesId: ProviderSeriesId,
+    ): Image? {
+        val provider = checkNotNull(metadataProviders.provider(libraryId.value, providerName)) {
+            "Provider $providerName is not enabled for library $libraryId"
+        }
+        return provider.getSeriesCover(providerSeriesId)
     }
 
     fun setSeriesMetadata(

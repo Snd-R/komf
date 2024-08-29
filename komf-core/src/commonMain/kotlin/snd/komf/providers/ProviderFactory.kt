@@ -595,9 +595,11 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
 
         return ComicVineMetadataProvider(
-            comicVineClient,
-            metadataMapper,
-            similarityMatcher,
+            client = comicVineClient,
+            mapper = metadataMapper,
+            nameMatcher = similarityMatcher,
+            fetchSeriesCovers = config.seriesMetadata.thumbnail,
+            fetchBookCovers = config.bookMetadata.thumbnail,
         )
     }
 

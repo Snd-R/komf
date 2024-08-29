@@ -33,6 +33,8 @@ class ComicVineMetadataProvider(
     private val client: ComicVineClient,
     private val mapper: ComicVineMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
+    private val fetchSeriesCovers: Boolean,
+    private val fetchBookCovers: Boolean,
 ) : MetadataProvider {
     private val storyArcCache = Cache.Builder<ComicVineStoryArcId, ComicVineStoryArc>()
         .expireAfterWrite(30.minutes)
@@ -43,8 +45,13 @@ class ComicVineMetadataProvider(
 
     override suspend fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val series = handleResult(client.getVolume(seriesId.toComicVineVolumeId()))
-        val cover = series.image?.let { getCover(it) }
+        val cover = if (fetchSeriesCovers) series.image?.let { getCover(it) } else null
         return mapper.toSeriesMetadata(series, cover)
+    }
+
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val series = handleResult(client.getVolume(seriesId.toComicVineVolumeId()))
+        return series.image?.let { getCover(it) }
     }
 
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
@@ -58,7 +65,7 @@ class ComicVineMetadataProvider(
                 }
             }
         } ?: emptyList()
-        val cover = issue.image?.let { getCover(it) }
+        val cover = if (fetchBookCovers) issue.image?.let { getCover(it) } else null
         return mapper.toBookMetadata(issue, storyArcs, cover)
     }
 
@@ -101,7 +108,7 @@ class ComicVineMetadataProvider(
 
         val issue = handleResult(client.getIssue(ComicVineIssueId(volume.firstIssue.id)))
         val issueCover = issue.image?.let { getCover(it) } ?: return false
-        return compareImages(qualifierImage.image, issueCover.image)
+        return compareImages(qualifierImage.bytes, issueCover.bytes)
     }
 
     private fun extractYear(seriesName: String): Int? {

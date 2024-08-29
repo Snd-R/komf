@@ -1,5 +1,6 @@
 package snd.komf.providers.nautiljon
 
+import snd.komf.model.Image
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
 import snd.komf.providers.CoreProviders
@@ -30,6 +31,11 @@ class NautiljonMetadataProvider(
         val thumbnail = if (fetchSeriesCovers) client.getSeriesThumbnail(series) else null
 
         return metadataMapper.toSeriesMetadata(series, thumbnail)
+    }
+
+    override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
+        val series = client.getSeries(NautiljonSeriesId(seriesId.value))
+        return client.getSeriesThumbnail(series)
     }
 
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {

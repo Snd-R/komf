@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.default.headers)
+    implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.sse)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.core)
