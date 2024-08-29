@@ -53,10 +53,9 @@ class MediaServerModule(
     mediaServerDatabase: Database,
     appriseService: AppriseCliService,
     discordWebhookService: DiscordWebhookService,
+    private val jobTracker: KomfJobTracker,
     private val metadataProviders: MetadataProviders,
 ) {
-    val jobRepository = KomfJobsRepository(mediaServerDatabase.komfJobRecordQueries)
-    val jobTracker = KomfJobTracker(jobRepository)
 
     val komgaClient: KomgaMediaServerClientAdapter
     val komgaMetadataServiceProvider: MetadataServiceProvider

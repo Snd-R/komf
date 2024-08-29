@@ -26,6 +26,8 @@ import snd.komf.app.module.ServerModule
 import snd.komf.ktor.komfUserAgent
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
+import snd.komf.mediaserver.jobs.KomfJobTracker
+import snd.komf.mediaserver.jobs.KomfJobsRepository
 import snd.komf.mediaserver.repository.Database
 import snd.komf.mediaserver.repository.DriverFactory
 import snd.komf.mediaserver.repository.createDatabase
@@ -50,6 +52,8 @@ class AppContext(private val configPath: Path? = null) {
     private val mediaServerDatabase: Database
     private val serverModule: ServerModule
 
+    private val jobRepository: KomfJobsRepository
+    private val jobTracker: KomfJobTracker
     private var providersModule: ProvidersModule
     private var mediaServerModule: MediaServerModule
     private var notificationsModule: NotificationsModule
@@ -107,6 +111,9 @@ class AppContext(private val configPath: Path? = null) {
             install(UserAgent) { agent = komfUserAgent }
         }
 
+        jobRepository = KomfJobsRepository(mediaServerDatabase.komfJobRecordQueries)
+        jobTracker = KomfJobTracker(jobRepository)
+
         providersModule = ProvidersModule(config.metadataProviders, ktorBaseClient)
         notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
 
@@ -118,6 +125,7 @@ class AppContext(private val configPath: Path? = null) {
             mediaServerDatabase = mediaServerDatabase,
             appriseService = notificationsModule.appriseService,
             discordWebhookService = notificationsModule.discordWebhookService,
+            jobTracker = jobTracker,
             metadataProviders = providersModule.metadataProviders
         )
         komgaClient = MutableStateFlow(mediaServerModule.komgaClient)
@@ -131,8 +139,8 @@ class AppContext(private val configPath: Path? = null) {
 
         serverModule = ServerModule(
             appContext = this,
-            jobTracker = mediaServerModule.jobTracker,
-            jobsRepository = mediaServerModule.jobRepository,
+            jobTracker = jobTracker,
+            jobsRepository = jobRepository,
             komgaMediaServerClient = komgaClient,
             komgaMetadataServiceProvider = komgaServiceProvider,
             kavitaMediaServerClient = kavitaClient,
@@ -159,6 +167,7 @@ class AppContext(private val configPath: Path? = null) {
             mediaServerDatabase = mediaServerDatabase,
             appriseService = notificationsModule.appriseService,
             discordWebhookService = notificationsModule.discordWebhookService,
+            jobTracker = jobTracker,
             metadataProviders = providersModule.metadataProviders
         )
 
