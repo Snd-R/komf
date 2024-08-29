@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y apprise \
 
 VOLUME /tmp
 WORKDIR /app
-COPY build/libs/komf-app-1.0.0-SNAPSHOT-all.jar ./
+COPY komf-app/build/libs/komf-app-1.0.0-SNAPSHOT-all.jar ./
 ENV LC_ALL=en_US.UTF-8
 ENV KOMF_CONFIG_DIR="/config"
 ENTRYPOINT ["java","-jar", "komf-app-1.0.0-SNAPSHOT-all.jar"]
