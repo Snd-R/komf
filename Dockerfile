@@ -9,7 +9,6 @@ FROM base-${TARGETARCH} AS build-final
 RUN apt-get update && apt-get install -y apprise \
     && rm -rf /var/lib/apt/lists/* \
 
-VOLUME /tmp
 WORKDIR /app
 COPY komf-app/build/libs/komf-app-1.0.0-SNAPSHOT-all.jar ./
 ENV LC_ALL=en_US.UTF-8
