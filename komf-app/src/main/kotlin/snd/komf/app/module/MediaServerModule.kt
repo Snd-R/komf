@@ -18,7 +18,6 @@ import snd.komf.ktor.komfUserAgent
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.jobs.KomfJobTracker
-import snd.komf.mediaserver.jobs.KomfJobsRepository
 import snd.komf.mediaserver.kavita.JvmJwtConsumer
 import snd.komf.mediaserver.kavita.KavitaAuthClient
 import snd.komf.mediaserver.kavita.KavitaClient
@@ -120,7 +119,11 @@ class MediaServerModule(
             bookThumbnailsRepository = komgaBookThumbnailRepository,
             seriesThumbnailsRepository = komgaSerThumbnailsRepository,
             seriesMatchRepository = komgaSeriesMatchRepository,
-            libraryFilter = { komgaConfig.eventListener.metadataLibraryFilter.contains(it) },
+            libraryFilter = {
+                val libraries = komgaConfig.eventListener.metadataLibraryFilter
+                if (libraries.isEmpty()) true
+                else libraries.contains(it)
+            },
             seriesFilter = { seriesId -> komgaConfig.eventListener.metadataSeriesExcludeFilter.none { seriesId == it } },
         )
         komgaNotificationsHandler = NotificationsEventHandler(
@@ -179,7 +182,11 @@ class MediaServerModule(
             bookThumbnailsRepository = kavitaBookThumbnailRepository,
             seriesThumbnailsRepository = kavitaSerThumbnailsRepository,
             seriesMatchRepository = kavitaSeriesMatchRepository,
-            libraryFilter = { kavitaConfig.eventListener.metadataLibraryFilter.contains(it) },
+            libraryFilter = {
+                val libraries = kavitaConfig.eventListener.metadataLibraryFilter
+                if (libraries.isEmpty()) true
+                else libraries.contains(it)
+            },
             seriesFilter = { seriesId -> kavitaConfig.eventListener.metadataSeriesExcludeFilter.none { seriesId == it } },
         )
         kavitaNotificationsHandler = NotificationsEventHandler(

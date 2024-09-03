@@ -81,7 +81,7 @@ class KomgaEventHandler(
         eventListeners.forEach { listener ->
             if (bookAddedEvents.isNotEmpty()) {
                 val bookEvents = bookAddedEvents.map { it.toMediaServerEvent() }
-                eventHandlerScope.launch { listener.onBooksDeleted(bookEvents) }
+                eventHandlerScope.launch { listener.onBooksAdded(bookEvents) }
 
             }
 
