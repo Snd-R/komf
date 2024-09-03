@@ -5,6 +5,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
+import io.ktor.http.HttpStatusCode.Companion.TooManyRequests
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -107,6 +108,16 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
     private val malRateLimiter = rateLimiter(60, 60.seconds)
     private val comicVineRateLimiter = intervalLimiter(60, 60.seconds)
 
+    private fun HttpRequestRetryConfig.defaultRetry() {
+        retryIf(3) { _, response ->
+            when (response.status.value) {
+                TooManyRequests.value -> true
+                in 500..599 -> true
+                else -> false
+            }
+        }
+    }
+
     private val mangaUpdatesClient = MangaUpdatesClient(
         baseHttpClientJson.config {
             install(HttpRequestRateLimiter) {
@@ -115,7 +126,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 allowBurst = true
             }
             install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
+                defaultRetry()
                 exponentialDelay(respectRetryAfterHeader = true)
             }
         }
@@ -129,7 +140,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 allowBurst = false
             }
             install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
+                defaultRetry()
                 exponentialDelay(respectRetryAfterHeader = true)
             }
         }
@@ -143,7 +154,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 allowBurst = true
             }
             install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
+                defaultRetry()
                 exponentialDelay(respectRetryAfterHeader = true)
             }
         }
@@ -156,7 +167,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 allowBurst = true
             }
             install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
+                defaultRetry()
                 exponentialDelay(respectRetryAfterHeader = true)
             }
         }
@@ -169,7 +180,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 allowBurst = true
             }
             install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
+                defaultRetry()
                 exponentialDelay(respectRetryAfterHeader = true)
             }
         }
@@ -182,7 +193,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 allowBurst = false
             }
             install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
+                defaultRetry()
                 exponentialDelay(respectRetryAfterHeader = true)
             }
         }
@@ -195,9 +206,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 allowBurst = true
             }
             install(HttpRequestRetry) {
-                retryIf(maxRetries = 3) { _, response ->
-                    response.status.value >= 500
-                }
+                defaultRetry()
                 exponentialDelay(respectRetryAfterHeader = true)
             }
 
@@ -215,7 +224,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 allowBurst = true
             }
             install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
+                defaultRetry()
                 exponentialDelay(respectRetryAfterHeader = true)
             }
         }
@@ -228,7 +237,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 allowBurst = true
             }
             install(HttpRequestRetry) {
-                retryOnServerErrors(maxRetries = 3)
+                defaultRetry()
                 exponentialDelay(respectRetryAfterHeader = true)
             }
         }
@@ -687,4 +696,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
         }
     }
+
+
 }
