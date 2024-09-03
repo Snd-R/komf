@@ -79,7 +79,7 @@ class YenPressMetadataProvider(
                     COMIC -> false
                 }
             }
-            .firstOrNull { nameMatcher.matches(seriesName, bookTitle(it.title.raw)) }
+            .firstOrNull { nameMatcher.matches(seriesName, seriesTitleFromBook(it.title.raw)) }
             ?.let { getSeriesMetadata(it.id) }
     }
 

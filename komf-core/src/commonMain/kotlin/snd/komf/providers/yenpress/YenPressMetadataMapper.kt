@@ -45,7 +45,7 @@ class YenPressMetadataMapper(
             status = null,
             titles = listOf(
                 SeriesTitle(
-                    bookTitle(book.name),
+                    seriesTitleFromBook(book.name),
                     LOCALIZED,
                     "en"
                 )
@@ -87,7 +87,7 @@ class YenPressMetadataMapper(
     fun toBookMetadata(book: YenPressBook, thumbnail: Image? = null): ProviderBookMetadata {
         val metadata = BookMetadata(
             number = book.number,
-            title = book.name,
+            title = bookTitle(book.name),
             authors = authors(book.authors),
             summary = book.description,
             releaseDate = book.releaseDate,
@@ -144,5 +144,8 @@ class YenPressMetadataMapper(
 
 fun bookTitle(name: String) = name
     .replace("(\\(light novel\\))|(\\(manga\\))".toRegex(), "")
+    .trim()
+
+fun seriesTitleFromBook(name: String) = bookTitle(name)
     .replace(", Vol. [0-9]+".toRegex(), "")
     .trim()
