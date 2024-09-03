@@ -7,14 +7,14 @@ import kotlin.jvm.JvmInline
 data class KodanshaSeries(
     val id: Int,
     val title: String,
-    val genres: List<KodanshaGenre>?,
-    val creators: List<KodanshaCreator>?,
-    val completionStatus: String?,
-    val description: String?,
-    val ageRating: String?,
-    val thumbnails: List<KodanshaThumbnail>?,
-    val publisher: String?,
-    val readableUrl: String?,
+    val genres: List<KodanshaGenre>? = null,
+    val creators: List<KodanshaCreator>? = null,
+    val completionStatus: String? = null,
+    val description: String? = null,
+    val ageRating: String? = null,
+    val thumbnails: List<KodanshaThumbnail>? = null,
+    val publisher: String? = null,
+    val readableUrl: String? = null,
 )
 
 @JvmInline

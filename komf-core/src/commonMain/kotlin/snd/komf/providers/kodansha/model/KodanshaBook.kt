@@ -8,21 +8,21 @@ import kotlin.jvm.JvmInline
 data class KodanshaBook(
     val id: Int,
     val name: String,
-    val volumeNumber: Int?,
-    val chapterNumber: Int?,
-    val description: String?,
+    val volumeNumber: Int? = null,
+    val chapterNumber: Int? = null,
+    val description: String? = null,
     val readable: KodanshaBookReadable,
-    val variants: List<KodanshaBookVariant>,
+    val variants: List<KodanshaBookVariant> = emptyList(),
 
-    val ageRating: String?,
-    val publishDate: LocalDateTime?,
+    val ageRating: String? = null,
+    val publishDate: LocalDateTime? = null,
     val categoryId: Int,
     val category: String,
     val subCategoryId: Int,
     val subCategory: String,
-    val thumbnails: List<KodanshaThumbnail>,
+    val thumbnails: List<KodanshaThumbnail> = emptyList(),
 
-    val creators: List<KodanshaCreator>?,
+    val creators: List<KodanshaCreator>? = null,
 
     val readableUrl: String?,
 )
@@ -33,28 +33,28 @@ value class KodanshaBookId(val id: Int)
 @Serializable
 data class KodanshaBookVariant(
     val type: String,
-    val price: Double?,
-    val fullPrice: Double?,
-    val isComingSoon: Boolean?,
-    val isPreorder: Boolean?,
-    val priceType: String?,
+    val price: Double? = null,
+    val fullPrice: Double? = null,
+    val isComingSoon: Boolean? = null,
+    val isPreorder: Boolean? = null,
+    val priceType: String? = null,
     val id: Int,
-    val description: String?,
-    val isOnSale: Boolean?,
-    val userDefaultProductImage: Boolean?,
+    val description: String? = null,
+    val isOnSale: Boolean? = null,
+    val userDefaultProductImage: Boolean? = null,
     val thumbnails: List<KodanshaThumbnail>,
 )
 
 @Serializable
 data class KodanshaBookReadable(
     val seriesId: String,
-    val genres: List<KodanshaGenre>?,
-    val isbn: String?,
-    val eisbn: String?,
-    val pageCount: Int?,
-    val coverType: String?,
-    val colorType: String?,
-    val printReleaseDate: LocalDateTime?,
-    val digitalReleaseDate: LocalDateTime?,
-    val releaseDate: LocalDateTime?
+    val genres: List<KodanshaGenre>? = null,
+    val isbn: String? = null,
+    val eisbn: String? = null,
+    val pageCount: Int? = null,
+    val coverType: String? = null,
+    val colorType: String? = null,
+    val printReleaseDate: LocalDateTime? = null,
+    val digitalReleaseDate: LocalDateTime? = null,
+    val releaseDate: LocalDateTime? = null
 )

@@ -162,7 +162,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         }
     )
     private val kodanshaClient = KodanshaClient(
-        baseHttpClient.config {
+        baseHttpClientJson.config {
             install(HttpRequestRateLimiter) {
                 interval = 60.seconds
                 eventsPerInterval = 60
