@@ -693,6 +693,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 CoreProviders.MANGADEX -> mangaDex
                 CoreProviders.BANGUMI -> bangumi
                 CoreProviders.COMIC_VINE -> comicVine
+                CoreProviders.HENTAG -> TODO()
             }
         }
     }
