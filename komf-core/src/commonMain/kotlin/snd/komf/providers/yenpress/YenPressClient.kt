@@ -52,11 +52,16 @@ class YenPressClient(
     suspend fun getBookList(id: YenPressSeriesId): List<YenPressBookShort> {
         val allBooks = mutableListOf<YenPressBookShort>()
 
-        var nextOrd: Int? = 99999
-        while (nextOrd != null) {
-            val batch = getMoreBooks(id, 99999)
+        val firstBatch = getMoreBooks(id, 99999)
+        allBooks.addAll(firstBatch.books)
+        var nextOrd = firstBatch.nextOrd
+        var requestCount = 0
+
+        while (nextOrd != null && requestCount < 50) {
+            val batch = getMoreBooks(id, nextOrd)
             allBooks.addAll(batch.books)
             nextOrd = batch.nextOrd
+            requestCount++
         }
         return allBooks
     }
