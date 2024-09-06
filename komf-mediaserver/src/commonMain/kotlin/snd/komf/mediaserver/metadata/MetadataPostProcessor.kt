@@ -65,7 +65,7 @@ class MetadataPostProcessor(
             title = seriesTitle,
             titles = altsWithoutSeriesTitle,
             readingDirection = readingDirectionValue ?: series.readingDirection,
-            language = languageValue ?: series.language,
+            language = series.language ?: languageValue,
             tags = tags,
         )
     }
