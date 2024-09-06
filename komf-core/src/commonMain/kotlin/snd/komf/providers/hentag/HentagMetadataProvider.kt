@@ -11,7 +11,7 @@ import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
 
-internal class HentagMetadataProvider(
+ class HentagMetadataProvider(
     private val hentagClient: HentagClient,
     private val metadataMapper: HentagMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,

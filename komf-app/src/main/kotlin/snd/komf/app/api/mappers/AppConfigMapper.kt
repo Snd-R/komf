@@ -147,6 +147,7 @@ class AppConfigMapper {
             mangaDex = toDto(config.mangaDex),
             bangumi = toDto(config.bangumi),
             comicVine = toDto(config.comicVine),
+            hentag = toDto(config.hentag),
         )
     }
 

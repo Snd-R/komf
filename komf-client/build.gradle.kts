@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "io.github.snd-r"
-version = "1.0.0-alpha01"
+version = "1.0.0-SNAPSHOT"
 
 kotlin {
     jvmToolchain(17)
@@ -59,7 +59,7 @@ android {
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = false)
-    coordinates("io.github.snd-r.komf", "client", "1.0.0-alpha01")
+    coordinates("io.github.snd-r.komf", "client", "1.0.0-SNAPSHOT")
     signAllPublications()
 
     pom {

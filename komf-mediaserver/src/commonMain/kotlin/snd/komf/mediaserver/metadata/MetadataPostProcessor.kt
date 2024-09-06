@@ -145,6 +145,7 @@ class MetadataPostProcessor(
 
         val newBookMetadata = bookMetadata.map { (book, metadata) ->
             book to BookMetadata(
+                title = metadata?.title,
                 summary = metadata?.summary?.ifBlank { null } ?: seriesMetadata.summary,
                 tags = metadata?.tags?.toSet()?.ifEmpty { null } ?: seriesMetadata.tags.toSet(),
                 links = metadata?.links?.toList()?.ifEmpty { null } ?: seriesMetadata.links.toList(),

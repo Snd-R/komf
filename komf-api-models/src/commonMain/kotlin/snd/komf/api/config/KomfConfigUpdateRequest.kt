@@ -103,6 +103,7 @@ data class ProvidersConfigUpdateRequest(
     val mangaDex: PatchValue<MangaDexConfigUpdateRequest> = PatchValue.Unset,
     val bangumi: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val comicVine: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val hentag: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
 )
 
 @Serializable

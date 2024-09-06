@@ -27,6 +27,9 @@ import snd.komf.providers.bookwalker.BookWalkerMetadataProvider
 import snd.komf.providers.comicvine.ComicVineClient
 import snd.komf.providers.comicvine.ComicVineMetadataMapper
 import snd.komf.providers.comicvine.ComicVineMetadataProvider
+import snd.komf.providers.hentag.HentagClient
+import snd.komf.providers.hentag.HentagMetadataMapper
+import snd.komf.providers.hentag.HentagMetadataProvider
 import snd.komf.providers.kodansha.KodanshaClient
 import snd.komf.providers.kodansha.KodanshaMetadataMapper
 import snd.komf.providers.kodansha.KodanshaMetadataProvider
@@ -243,6 +246,20 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         }
     )
 
+    private val hentagClient = HentagClient(
+        baseHttpClientJson.config {
+            install(HttpRequestRateLimiter) {
+                interval = 60.seconds
+                eventsPerInterval = 80
+                allowBurst = true
+            }
+            install(HttpRequestRetry) {
+                defaultRetry()
+                exponentialDelay(respectRetryAfterHeader = true)
+            }
+        }
+    )
+
     private fun createMetadataProviders(
         config: ProvidersConfig,
         defaultNameMatcher: NameSimilarityMatcher,
@@ -315,7 +332,13 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 comicVineClientId,
                 defaultNameMatcher
             ),
-            comicVinePriority = config.comicVine.priority
+            comicVinePriority = config.comicVine.priority,
+            hentag = createHentagMetadataProvider(
+                config.hentag,
+                hentagClient,
+                defaultNameMatcher
+            ),
+            hentagPriority = config.hentag.priority
         )
     }
 
@@ -612,6 +635,28 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         )
     }
 
+    private fun createHentagMetadataProvider(
+        config: ProviderConfig,
+        client: HentagClient,
+        defaultNameMatcher: NameSimilarityMatcher,
+    ): HentagMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val hentagMetadataMapper = HentagMetadataMapper(
+            metadataConfig = config.seriesMetadata,
+            authorRoles = config.authorRoles,
+        )
+
+        val hentagSimilarityMatcher: NameSimilarityMatcher =
+            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+        return HentagMetadataProvider(
+            client,
+            hentagMetadataMapper,
+            hentagSimilarityMatcher,
+            config.seriesMetadata.thumbnail,
+        )
+    }
+
     class MetadataProviders(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
@@ -660,7 +705,10 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         private val bangumiPriority: Int,
 
         private val comicVine: ComicVineMetadataProvider?,
-        private val comicVinePriority: Int
+        private val comicVinePriority: Int,
+
+        private val hentag: HentagMetadataProvider?,
+        private val hentagPriority: Int,
     ) {
 
         val providers = listOfNotNull(
@@ -674,7 +722,8 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             bookwalker?.let { it to bookwalkerPriority },
             mangaDex?.let { it to mangaDexPriority },
             bangumi?.let { it to bangumiPriority },
-            comicVine?.let { it to comicVinePriority }
+            comicVine?.let { it to comicVinePriority },
+            hentag?.let { it to hentagPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -693,7 +742,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 CoreProviders.MANGADEX -> mangaDex
                 CoreProviders.BANGUMI -> bangumi
                 CoreProviders.COMIC_VINE -> comicVine
-                CoreProviders.HENTAG -> TODO()
+                CoreProviders.HENTAG -> hentag
             }
         }
     }

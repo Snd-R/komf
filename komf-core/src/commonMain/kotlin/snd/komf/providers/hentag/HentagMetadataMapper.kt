@@ -17,7 +17,7 @@ import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
 
-internal class HentagMetadataMapper(
+class HentagMetadataMapper(
     private val metadataConfig: SeriesMetadataConfig,
     private val authorRoles: Collection<AuthorRole>,
 ) {
@@ -29,6 +29,9 @@ internal class HentagMetadataMapper(
 
         val language = when (book.language) {
             "english" -> "en"
+            "chinese" -> "zh"
+            "japanese" -> "ja"
+            "korean" -> "ko"
             else -> null
         }
         val parodyTags = book.parodies?.map { "parody:$it" } ?: emptyList()

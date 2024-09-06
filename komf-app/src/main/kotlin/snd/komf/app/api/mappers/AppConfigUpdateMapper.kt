@@ -135,6 +135,8 @@ class AppConfigUpdateMapper {
                 ?.let { providerConfig(config.bangumi, it) } ?: config.bangumi,
             comicVine = patch.comicVine.getOrNull()
                 ?.let { providerConfig(config.comicVine, it) } ?: config.comicVine,
+            hentag = patch.hentag.getOrNull()
+                ?.let { providerConfig(config.hentag, it) } ?: config.hentag,
         )
     }
 
@@ -203,7 +205,7 @@ class AppConfigUpdateMapper {
                 PatchValue.Unset -> config.nameMatchingMode
             },
             coverLanguages = patch.coverLanguages.getOrNull() ?: config.coverLanguages,
-            links = patch.links.getOrNull()?.map { MangaDexLink.valueOf(it.name) }?:config.links
+            links = patch.links.getOrNull()?.map { MangaDexLink.valueOf(it.name) } ?: config.links
         )
     }
 

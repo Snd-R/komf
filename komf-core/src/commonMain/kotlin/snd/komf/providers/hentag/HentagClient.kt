@@ -10,7 +10,7 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import snd.komf.model.Image
 
-internal class HentagClient(private val ktor: HttpClient) {
+ class HentagClient(private val ktor: HttpClient) {
     private val baseUrl = "https://hentag.com/api/v1"
 
     suspend fun searchByTitle(
@@ -30,7 +30,7 @@ internal class HentagClient(private val ktor: HttpClient) {
         urls: List<String>,
         language: String? = null
     ): List<HentagBook> {
-        return ktor.post("$baseUrl/search/vault/title") {
+        return ktor.post("$baseUrl/search/vault/url") {
             contentType(ContentType.Application.Json)
             setBody(buildJsonObject {
                 putJsonArray("urls") { urls.forEach { add(it) } }
@@ -43,7 +43,7 @@ internal class HentagClient(private val ktor: HttpClient) {
         ids: List<String>,
         language: String? = null
     ): List<HentagBook> {
-        return ktor.post("$baseUrl/search/vault/title") {
+        return ktor.post("$baseUrl/search/vault/id") {
             contentType(ContentType.Application.Json)
             setBody(buildJsonObject {
                 putJsonArray("ids") { ids.forEach { add(it) } }
