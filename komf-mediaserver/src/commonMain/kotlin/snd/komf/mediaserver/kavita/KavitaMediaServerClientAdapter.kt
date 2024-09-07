@@ -51,6 +51,7 @@ import snd.komf.model.Image
 import snd.komf.model.SeriesStatus
 import snd.komf.model.WebLink
 import java.nio.file.Path
+import kotlin.io.path.nameWithoutExtension
 
 class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : MediaServerClient {
 
@@ -194,7 +195,7 @@ private fun KavitaSeries.toMediaServerSeries(metadata: KavitaSeriesMetadata, boo
 
 private fun KavitaChapter.toMediaServerBook(volume: KavitaVolume): MediaServerBook {
     val filePath = Path.of(files.first().filePath)
-    val fileName = filePath.fileName.toString()
+    val fileName = filePath.fileName.nameWithoutExtension
 
     return MediaServerBook(
         id = MediaServerBookId(id.value.toString()),
