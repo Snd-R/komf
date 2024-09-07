@@ -2,9 +2,14 @@
 
 ## Overview
 
-Komga and Kavita Metadata Fetcher is a tool that fetches metadata and thumbnails for your digital comic book library. It can automatically pick up added series and update their metadata and thumbnail. You can also manually search and identify series, or match the entire library or a series. Additionally, you can install the [Komf userscript](https://github.com/Snd-R/komf-userscript) to add Komf integration directly to Komga and Kavita UI, allowing you to launch manual or automatic metadata identification.
+Komga and Kavita Metadata Fetcher is a tool that fetches metadata and thumbnails for your digital comic book library. It
+can automatically pick up added series and update their metadata and thumbnail. You can also manually search and
+identify series, or match the entire library or a series. Additionally, you can install
+the [Komf userscript](https://github.com/Snd-R/komf-userscript) to add Komf integration directly to Komga and Kavita UI,
+allowing you to launch manual or automatic metadata identification.
 
 ## Features
+
 - automatically pick up added series and update their metadata and thumbnail
 - manually search and identify series (http endpoints or cli commands)
 - match entire library or a series (http endpoints or cli commands)
@@ -13,8 +18,8 @@ Komga and Kavita Metadata Fetcher is a tool that fetches metadata and thumbnails
 
 To build the application, follow these steps:
 
-1. Run `./gradlew clean shadowjar`.
-2. The output will be in `/build/libs`.
+1. Run `./gradlew :komf-app:clean :komf-app:shadowjar`.
+2. The output will be in `komf-app/build/libs`.
 
 ## Running
 
@@ -47,7 +52,6 @@ services:
       - KOMF_KAVITA_BASE_URI=http://kavita:5000
       - KOMF_KAVITA_API_KEY=16707507-d05d-4696-b126-c3976ae14ffb
       - KOMF_LOG_LEVEL=INFO
-      - TZ=UTC # set the same timezone as your Kavita instance if you want Kavita event listener to work properly
       # optional jvm options. Example config for low memory usage. Runs guaranteed cleanup up every 3600000ms(1hour)
       - JAVA_TOOL_OPTIONS=-XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:ShenandoahGCHeuristics=compact -XX:ShenandoahGuaranteedGCInterval=3600000 -XX:TrimNativeHeapInterval=3600000
     volumes:
@@ -72,21 +76,22 @@ docker create \
   --restart unless-stopped \
   sndxr/komf:latest
 ```
+
 - if you don't already have a komga or kavita network you'll need to network create a new one
-  - `docker network create my_network`
+    - `docker network create my_network`
 - attach komf and media server to new network:
-  - `docker network connect my_network komga_or_kavita`
-  - `docker network connect my_network komf`
+    - `docker network connect my_network komga_or_kavita`
+    - `docker network connect my_network komf`
 - start the container `docker start komf`
 
 ## Example `application.yml` Config
 
 ### Important
+
 - Update modes is the way komf will update metadata.
 - If you're using anything other than API then your existing files might be modified with embedded metadata
 - Can use multiple options at once. available options are API, COMIC_INFO
 - Experimental OPF mode is available for epub books. This mode is using calibre system install to update metadate
-   
 
 ```yml
 komga:
@@ -95,9 +100,9 @@ komga:
   komgaPassword: admin #or env:KOMF_KOMGA_PASSWORD
   eventListener:
     enabled: false # if disabled will not connect to komga and won't pick up newly added entries
-    libraries: [ ]  # listen to all events if empty
-  notifications:
-    libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
+    metadataLibraryFilter: [ ]  # listen to all events if empty
+    metadataSeriesExcludeFilter: [ ]
+    notificationsLibraryFilter: [ ] # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
   metadataUpdate:
     default:
       libraryType: "MANGA" # Can be "MANGA", "NOVEL" or "COMIC". Hint to help better match book numbers
@@ -108,6 +113,7 @@ komga:
       bookCovers: false # update book thumbnails
       seriesCovers: false # update series thumbnails
       overrideExistingCovers: true # if false will upload but not select new cover if another cover already exists
+      overrideComicInfo: false # Replace existing ComicInfo file. If false, only append additional data
       postProcessing:
         seriesTitle: false # update series title
         seriesTitleLanguage: "en" # series title update language. If empty chose first matching title
@@ -118,18 +124,24 @@ komga:
           - "ja"
           - "ja-ro"
         orderBooks: false # will order books using parsed volume or chapter number
-        scoreTag: false # adds score tag of format "score: 8" only uses integer part of rating. Can be used in search using query: tag:"score: 8" in komga
+        scoreTagName: "score" # adds score tag of specified format e.g. "score: 8" only uses integer part of rating. Can be used in search using query: tag:"score: 8" in komga
         readingDirectionValue: # override reading direction for all series. should be one of these: LEFT_TO_RIGHT, RIGHT_TO_LEFT, VERTICAL, WEBTOON
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
+        #TagName: if specified and if provider has data about publisher in that language then additional tag will be added using format ({TagName}: publisherName)
+        #e.g. originalPublisherTagName: "Original Publisher" will add tag "Original Publisher: Shueisha"
+        originalPublisherTagName:
+        #publisherTagNames:
+        #  - tagName: "English Publisher"
+        #    language: "en"
 
 kavita:
   baseUri: "http://localhost:5000" #or env:KOMF_KAVITA_BASE_URI
   apiKey: "16707507-d05d-4696-b126-c3976ae14ffb" #or env:KOMF_KAVITA_API_KEY
   eventListener:
     enabled: false # if disabled will not connect to kavita and won't pick up newly added entries
-    libraries: [ ]  # listen to all events if empty
-  notifications:
-    libraries: [ ]  # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
+    metadataLibraryFilter: [ ]  # listen to all events if empty
+    metadataSeriesExcludeFilter: [ ]
+    notificationsLibraryFilter: [ ] # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
   metadataUpdate:
     default:
       libraryType: "MANGA" # Can be "MANGA", "NOVEL" or "COMIC". Hint to help better match book numbers
@@ -139,6 +151,7 @@ kavita:
       mergeGenres: false # if true and aggregate is enabled will merge genres from all providers
       bookCovers: false #update book thumbnails
       seriesCovers: false #update series thumbnails
+      overrideExistingCovers: true # if false will upload but not select new cover if another cover already exists
       postProcessing:
         seriesTitle: false #update series title
         seriesTitleLanguage: "en" # series title update language. If empty chose first matching title
@@ -148,12 +161,16 @@ kavita:
         orderBooks: false # will order books using parsed volume or chapter number. works only with COMIC_INFO
         languageValue: # set default language for series. Must use BCP 47 format e.g. "en"
 
-discord:
-  # List of discord webhook urls. Will call these webhooks after series or books were added. 
-  webhooks: # config example: webhooks: ["https://discord.com/api/webhooks/9..."] (env:KOMF_DISCORD_WEBHOOKS - comma separated list of webhooks)
-  descriptionTemplate: "discordWebhook.vm" # description template filename
-  seriesCover: false # include series cover in message. Requires imgurClientId
+notifications:
   templatesDirectory: "./" # path to a directory with templates
+  discord:
+    # List of discord webhook urls. Will call these webhooks after series or books were added. 
+    webhooks: # config example: webhooks: ["https://discord.com/api/webhooks/9..."] (env:KOMF_DISCORD_WEBHOOKS - comma separated list of webhooks)
+    seriesCover: false # include series cover in message. Requires imgurClientId
+    embedColor: "1F8B4C"
+  apprise:
+    # List of apprise urls. Will call these after series or books were added. 
+    urls:
 
 database:
   file: ./database.sqlite # database file location.
@@ -207,6 +224,9 @@ metadataProviders:
     comicVine: # https://comicvine.gamespot.com/ requires API key. Experimental provider, can mismatch issue numbers
       priority: 110
       enabled: false
+    hentag:
+      priority: 120
+      enabled: false
 
 server:
   port: 8085 # or env:KOMF_SERVER_PORT
@@ -216,7 +236,8 @@ logLevel: INFO # or env:KOMF_LOG_LEVEL
 
 ## Metadata update config for a library
 
-You can configure a set of metadata update options that will only be used with specified library. If no options are specified for a library
+You can configure a set of metadata update options that will only be used with specified library. If no options are
+specified for a library
 then default options will be used. kavita or komga library ids are used as library identifiers
 
 ```yaml
@@ -242,7 +263,8 @@ komga_or_kavita:
 
 ## Providers config for a library
 
-You can configure a set of metadata providers that will only be used with specified library. If no providers are specified for a library
+You can configure a set of metadata providers that will only be used with specified library. If no providers are
+specified for a library
 then default providers will be used. kavita or komga library ids are used as library identifiers
 
 ```yaml
@@ -308,11 +330,6 @@ metadataProviders:
         score: true
         books: true
         useOriginalPublisher: true # prefer original publisher and volume information if source has data about multiple providers. If false will use english or other available publisher
-        #TagName: if specified and if provider has data about publisher in that language then additional tag will be added using format ({TagName}: publisherName)
-        #e.g. originalPublisherTagName: "Original Publisher" will add tag "Original Publisher: Shueisha"
-        originalPublisherTagName:
-        englishPublisherTagName:
-        frenchPublisherTagName:
       bookMetadata:
         title: true
         summary: true
@@ -338,33 +355,21 @@ metadataProviders:
         thumbnail: false
 ```
 
-## Discord notifications
+## Notifications
 
 if any webhook urls are specified then after new book is added a call to webhooks will be triggered. You can change
-message format by providing your own template files and specifying directory path in `templatesDirectory` under discord configuration. For
-docker deployments templates should be
+message format by providing your own template files and specifying directory path in `templatesDirectory/discord` or
+`templatesDirectory/apprise`.
+For docker deployments templates should be
 placed in mounted `/config` directory without specifying `templatesDirectory`
 
 ```yaml
 # Example config
 discord:
-  title: # title string template
-  titleUrl: # title url string template
-  descriptionTemplate: "discordWebhook.vm" # description template filename
-  # list of field blocks.
-  #fieldTemplates:
-  #  - name: "field name" # string template
-  #    templateName: "field1.vm" # template filename
-  #    inline: true # if true sets multiple field blocks to the same row
-  fieldTemplates:
-  footerTemplate: # footer template filename
   seriesCover: false # include series cover in message
   colorCode: "1F8B4C" # hex color code for message sidebar
-
   webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
-  templatesDirectory: "./" # path to a directory with templates
 ```
-
 
 Templates are written using Apache Velocity ([link to docs](https://velocity.apache.org/engine/2.3/user-guide.html)).
 
@@ -435,34 +440,7 @@ interface Webhook {
 }
 ```
 
-
-## Command line options
-
-You can run komf as a daemon server or as a cli tool for one-off operation
-
-`java -jar komf.jar [OPTIONS]`
-
-### Options
-
-Use the following options when running Komf:
-
-- `--config-dir`: config directory that will be used for all external files including config file. Config file must be named `application.yml`. This option overrides all other config path options.
-- `--config-file`: path to config file.
-- `--verbose`: flag to enable debug messages.
-- `--media-server`: media server on which to execute subcommands. Available values are `komga` or `kavita`. Defaults to komga if not provided. Ignored in server mode.
-
-### Commands
-
-Use the following subcommands to perform operations:
-
-- `komf series search NAME`: searches series in Komga by specified name.
-- `komf series update ID`: launches metadata auto identification for provided series ID.
-- `komf series identify ID`: manual identification that allows you to choose from the list of metadata provider search results.
-- `komf series reset ID`: resets all metadata for provided series ID.
-- `komf library update ID`: launches metadata auto identification for provided library ID.
-- `komf library reset ID`: resets all metadata for provided library ID.
-
-## HTTP Endpoints
+## HTTP Endpoints (deprecated)
 
 Use Komga or Kavita in place of `{media-server}`.
 
@@ -470,13 +448,15 @@ Use Komga or Kavita in place of `{media-server}`.
 
 Use the following HTTP endpoints to get information about enabled metadata providers:
 
-- `GET /{media-server}/providers`: list of enabled metadata providers. Optional `libraryId` parameter can be used for library providers.
+- `GET /{media-server}/providers`: list of enabled metadata providers. Optional `libraryId` parameter can be used for
+  library providers.
 
 ### Search
 
 Use the following HTTP endpoint to search for metadata:
 
-- `GET /{media-server}/search?name=...`: search results from enabled metadata providers. Optional `libraryId` parameter can be used for library providers.
+- `GET /{media-server}/search?name=...`: search results from enabled metadata providers. Optional `libraryId` parameter
+  can be used for library providers.
 
 ### Identify
 
@@ -493,7 +473,10 @@ Use the following HTTP endpoint to set series metadata from specified provider:
 }
 
 ```
-- `POST /{media-server}/match/library/{libraryId}/series/{seriesId}`: Attempts to match the specified series in the specified library.
+
+- `POST /{media-server}/match/library/{libraryId}/series/{seriesId}`: Attempts to match the specified series in the
+  specified library.
 - `POST /{media-server}/match/library/{libraryId}`: Attempts to match all series in the specified library.
-- `POST /{media-server}/reset/library/{libraryId}/series/{seriesId}`: Resets all metadata for the specified series in the specified library.
+- `POST /{media-server}/reset/library/{libraryId}/series/{seriesId}`: Resets all metadata for the specified series in
+  the specified library.
 - `POST /{media-server}/reset/library/{libraryId}`: Resets all metadata for all series in the specified library.
