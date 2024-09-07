@@ -361,15 +361,21 @@ if any webhook urls are specified then after new book is added a call to webhook
 message format by providing your own template files and specifying directory path in `templatesDirectory/discord` or
 `templatesDirectory/apprise`.
 For docker deployments templates should be
-placed in mounted `/config` directory without specifying `templatesDirectory`
+placed in mounted `/config/<discord or apprise>` directory without specifying `templatesDirectory`
 
-```yaml
-# Example config
-discord:
-  seriesCover: false # include series cover in message
-  colorCode: "1F8B4C" # hex color code for message sidebar
-  webhooks: #list of discord webhook urls. Will call these webhooks after series or books were added
-```
+### Discord template file names:
+
+- title.vm
+- title_url.vm
+- description.vm
+- footer.vm
+- field_<index>_name<_inline>.vm
+- field_<index>_value.vm
+
+### Apprise template file names:
+
+- apprise_title.vm
+- apprise_body.vm
 
 Templates are written using Apache Velocity ([link to docs](https://velocity.apache.org/engine/2.3/user-guide.html)).
 
