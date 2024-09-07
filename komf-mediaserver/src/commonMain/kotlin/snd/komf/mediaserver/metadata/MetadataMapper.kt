@@ -132,9 +132,13 @@ class MetadataMapper {
                 },
             languageISO = seriesMetadata?.language,
             localizedSeries = seriesMetadata?.titles?.find { it.type != null }?.name,
-            storyArc = bookMetadata?.storyArcs?.joinToString(",") { it.name },
-            storyArcNumber = bookMetadata?.storyArcs?.joinToString(",") { it.number.toString() },
-            gtin = bookMetadata?.isbn
+            storyArc = bookMetadata?.storyArcs
+                ?.ifEmpty { null }
+                ?.joinToString(",") { it.name },
+            storyArcNumber = bookMetadata?.storyArcs
+                ?.ifEmpty { null }
+                ?.joinToString(",") { it.number.toString() },
+            gtin = bookMetadata?.isbn?.ifBlank { null }
         )
     }
 
