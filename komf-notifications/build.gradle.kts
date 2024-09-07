@@ -9,9 +9,8 @@ plugins {
 }
 
 group = "io.github.snd-r"
-version = "unspecified"
+version = libs.versions.app.version.get()
 
-val ktorVersion = "3.0.0-rc-1-eap-997"
 kotlin {
     jvmToolchain(17)
     jvm {

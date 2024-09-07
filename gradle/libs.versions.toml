@@ -1,4 +1,5 @@
 [versions]
+app-version = "1.0.0"
 agp = "8.2.0"
 cache4k = "0.13.0"
 commons-text = "1.12.0"

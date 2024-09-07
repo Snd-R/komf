@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "io.github.snd-r"
-version = "1.0.0-SNAPSHOT"
+version = libs.versions.app.version.get()
 
 kotlin {
     jvmToolchain(17)
@@ -52,7 +52,7 @@ android {
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = false)
-    coordinates("io.github.snd-r.komf", "api-models", "1.0.0-SNAPSHOT")
+    coordinates("io.github.snd-r.komf", "api-models", libs.versions.app.version.get())
     signAllPublications()
 
     pom {
