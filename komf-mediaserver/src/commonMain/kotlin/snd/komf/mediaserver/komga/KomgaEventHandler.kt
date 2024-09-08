@@ -73,7 +73,7 @@ class KomgaEventHandler(
         }
     }
 
-    private fun processEvents(
+    private suspend fun processEvents(
         bookAddedEvents: List<KomgaEvent.BookEvent>,
         seriesDeletedEvents: List<KomgaEvent.SeriesEvent>,
         bookDeletedEvents: List<KomgaEvent.BookEvent>,
@@ -81,18 +81,18 @@ class KomgaEventHandler(
         eventListeners.forEach { listener ->
             if (bookAddedEvents.isNotEmpty()) {
                 val bookEvents = bookAddedEvents.map { it.toMediaServerEvent() }
-                eventHandlerScope.launch { listener.onBooksAdded(bookEvents) }
+                listener.onBooksAdded(bookEvents)
 
             }
 
             if (bookDeletedEvents.isNotEmpty()) {
                 val bookEvents = bookDeletedEvents.map { it.toMediaServerEvent() }
-                eventHandlerScope.launch { listener.onBooksDeleted(bookEvents) }
+                listener.onBooksDeleted(bookEvents)
             }
 
             if (seriesDeletedEvents.isNotEmpty()) {
                 val seriesEvents = seriesDeletedEvents.map { it.toMediaServerEvent() }
-                eventHandlerScope.launch { listener.onSeriesDeleted(seriesEvents) }
+                listener.onSeriesDeleted(seriesEvents)
             }
         }
     }

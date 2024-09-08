@@ -91,7 +91,9 @@ class KavitaEventHandler(
             MediaServerLibraryId(event.body.libraryId.toString()),
             MediaServerSeriesId(event.body.seriesId.toString()),
         )
-        eventListeners.forEach { eventHandlerScope.launch { it.onSeriesDeleted(listOf(seriesEvent)) } }
+        eventHandlerScope.launch {
+            eventListeners.forEach { it.onSeriesDeleted(listOf(seriesEvent)) }
+        }
     }
 
     private fun processProgressNotification(notification: NotificationProgressEvent) {
@@ -146,7 +148,7 @@ class KavitaEventHandler(
             }
         }
 
-        eventListeners.forEach { eventHandlerScope.launch { it.onBooksAdded(bookEvents) } }
+        eventListeners.forEach { it.onBooksAdded(bookEvents) }
     }
 
     private fun registerInvocations(hubConnection: HubConnection) {
