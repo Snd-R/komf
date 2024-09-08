@@ -130,7 +130,11 @@ class MediaServerModule(
             mediaServerClient = komgaClient,
             appriseService = appriseService,
             discordWebhookService = discordWebhookService,
-            libraryFilter = { komgaConfig.eventListener.notificationsLibraryFilter.contains(it) },
+            libraryFilter = {
+                val libraries = komgaConfig.eventListener.notificationsLibraryFilter
+                if (libraries.isEmpty()) true
+                else libraries.contains(it)
+            },
             mediaServer = KOMGA
         )
 
@@ -193,7 +197,11 @@ class MediaServerModule(
             mediaServerClient = kavitaMediaServerClient,
             appriseService = appriseService,
             discordWebhookService = discordWebhookService,
-            libraryFilter = { kavitaConfig.eventListener.notificationsLibraryFilter.contains(it) },
+            libraryFilter = {
+                val libraries = kavitaConfig.eventListener.notificationsLibraryFilter
+                if (libraries.isEmpty()) true
+                else libraries.contains(it)
+            },
             mediaServer = KAVITA
         )
 
