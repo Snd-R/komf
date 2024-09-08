@@ -134,8 +134,9 @@ class MetadataService(
 
     suspend fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
         var errorCount = 0
+        var pageNumber = 1
         do {
-            val page = mediaServerClient.getSeries(libraryId, 1)
+            val page = mediaServerClient.getSeries(libraryId, pageNumber)
             page.content.forEach {
                 runCatching { matchSeriesMetadata(it.id) }
                     .onFailure {
@@ -143,6 +144,7 @@ class MetadataService(
                         errorCount += 1
                     }
             }
+            pageNumber++
         } while (page.pageNumber != page.totalPages || page.content.isNotEmpty())
         logger.info { "Finished library scan. Encountered $errorCount errors" }
     }
