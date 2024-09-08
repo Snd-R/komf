@@ -69,11 +69,13 @@ class MangaDexMetadataProvider(
     private suspend fun getAllCovers(mangaId: MangaDexMangaId): List<MangaDexCoverArt> {
         val covers = mutableListOf<MangaDexCoverArt>()
         var offset = 0
-        while (true) {
-            val page = client.getSeriesCovers(mangaId, 100, 0)
+        var requestCount = 0
+        while (requestCount < 100) {
+            val page = client.getSeriesCovers(mangaId, 100, offset)
             covers.addAll(page.data)
             if (page.offset + page.limit > page.total) break
             offset += page.limit
+            requestCount++
         }
         return covers
     }
