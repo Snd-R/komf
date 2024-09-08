@@ -119,6 +119,7 @@ class MediaServerModule(
             bookThumbnailsRepository = komgaBookThumbnailRepository,
             seriesThumbnailsRepository = komgaSerThumbnailsRepository,
             seriesMatchRepository = komgaSeriesMatchRepository,
+            jobTracker = jobTracker,
             libraryFilter = {
                 val libraries = komgaConfig.eventListener.metadataLibraryFilter
                 if (libraries.isEmpty()) true
@@ -186,6 +187,7 @@ class MediaServerModule(
             bookThumbnailsRepository = kavitaBookThumbnailRepository,
             seriesThumbnailsRepository = kavitaSerThumbnailsRepository,
             seriesMatchRepository = kavitaSeriesMatchRepository,
+            jobTracker = jobTracker,
             libraryFilter = {
                 val libraries = kavitaConfig.eventListener.metadataLibraryFilter
                 if (libraries.isEmpty()) true
