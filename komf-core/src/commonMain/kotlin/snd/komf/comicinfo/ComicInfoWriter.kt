@@ -13,6 +13,8 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.io.IOUtils
+import snd.komf.util.OsPlatform
+import snd.komf.util.OsPlatform.Windows
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.util.zip.Deflater
@@ -141,11 +143,13 @@ class ComicInfoWriter private constructor(private val overrideComicInfo: Boolean
 
     private fun validate(path: Path) {
         if (!supportedExtensions.contains(path.extension.lowercase())) {
-            throw ComicInfoWriter.ComicInfoException("Unsupported file extension $path")
+            throw ComicInfoException("Unsupported file extension $path")
         }
         if (!path.isWritable()) {
-            throw ComicInfoWriter.ComicInfoException("No write permission for file $path")
-
+            throw ComicInfoException("No write permission for file $path")
+        }
+        if (OsPlatform.Current != Windows && !path.parent.isWritable()) {
+            throw ComicInfoException("No write permission for directory ${path.parent}")
         }
     }
 
