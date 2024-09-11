@@ -109,12 +109,13 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
     }
 
     private val malRateLimiter = rateLimiter(60, 60.seconds)
-    private val comicVineRateLimiter = intervalLimiter(60, 60.seconds)
+    private val comicVineRateLimiter = rateLimiter(60, 60.seconds)
 
     private fun HttpRequestRetryConfig.defaultRetry() {
         retryIf(3) { _, response ->
             when (response.status.value) {
                 TooManyRequests.value -> true
+                420 -> true // ComicVine returns 420 response code
                 in 500..599 -> true
                 else -> false
             }
