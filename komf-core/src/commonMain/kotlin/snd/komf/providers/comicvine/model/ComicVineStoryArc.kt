@@ -27,7 +27,7 @@ data class ComicVineStoryArc(
 @Serializable
 data class ComicVineStoryArchIssue(
     val id: ComicVineIssueId,
-    val name: String,
+    val name: String? = null,
     @SerialName("api_detail_url")
     val apiDetailUrl: String,
 )
