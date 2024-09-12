@@ -10,6 +10,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.jobs.KomfJobTracker
@@ -132,21 +134,27 @@ class MetadataService(
         return jobId
     }
 
-    suspend fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
-        var errorCount = 0
-        var pageNumber = 1
-        do {
-            val page = mediaServerClient.getSeries(libraryId, pageNumber)
-            page.content.forEach {
-                runCatching { matchSeriesMetadata(it.id) }
-                    .onFailure {
-                        logger.error(it) { }
-                        errorCount += 1
+    fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
+        coroutineScope.launch {
+            var errorCount = 0
+            var pageNumber = 1
+            do {
+                val page = mediaServerClient.getSeries(libraryId, pageNumber)
+                page.content.forEach {
+                    runCatching {
+                        jobTracker.getMetadataJobEvents(matchSeriesMetadata(it.id))
+                            ?.takeWhile { it !is CompletionEvent }
+                            ?.collect()
                     }
-            }
-            pageNumber++
-        } while (page.pageNumber != page.totalPages || page.content.isNotEmpty())
-        logger.info { "Finished library scan. Encountered $errorCount errors" }
+                        .onFailure {
+                            logger.error(it) { }
+                            errorCount += 1
+                        }
+                }
+                pageNumber++
+            } while (page.pageNumber != page.totalPages || page.content.isNotEmpty())
+            logger.info { "Finished library scan. Encountered $errorCount errors" }
+        }
     }
 
     fun matchSeriesMetadata(

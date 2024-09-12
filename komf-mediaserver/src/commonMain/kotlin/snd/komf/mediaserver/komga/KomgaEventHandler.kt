@@ -56,9 +56,9 @@ class KomgaEventHandler(
 
                         mutex.withLock {
                             processEvents(
-                                bookAddedEvents,
-                                seriesDeletedEvents,
-                                bookDeletedEvents
+                                bookAddedEvents.toList(),
+                                seriesDeletedEvents.toList(),
+                                bookDeletedEvents.toList()
                             )
 
                             bookAddedEvents.clear()
@@ -73,26 +73,28 @@ class KomgaEventHandler(
         }
     }
 
-    private suspend fun processEvents(
+    private fun processEvents(
         bookAddedEvents: List<KomgaEvent.BookEvent>,
         seriesDeletedEvents: List<KomgaEvent.SeriesEvent>,
         bookDeletedEvents: List<KomgaEvent.BookEvent>,
     ) {
-        eventListeners.forEach { listener ->
-            if (bookAddedEvents.isNotEmpty()) {
-                val bookEvents = bookAddedEvents.map { it.toMediaServerEvent() }
-                listener.onBooksAdded(bookEvents)
+        eventHandlerScope.launch {
+            eventListeners.forEach { listener ->
+                if (bookAddedEvents.isNotEmpty()) {
+                    val bookEvents = bookAddedEvents.map { it.toMediaServerEvent() }
+                    listener.onBooksAdded(bookEvents)
 
-            }
+                }
 
-            if (bookDeletedEvents.isNotEmpty()) {
-                val bookEvents = bookDeletedEvents.map { it.toMediaServerEvent() }
-                listener.onBooksDeleted(bookEvents)
-            }
+                if (bookDeletedEvents.isNotEmpty()) {
+                    val bookEvents = bookDeletedEvents.map { it.toMediaServerEvent() }
+                    listener.onBooksDeleted(bookEvents)
+                }
 
-            if (seriesDeletedEvents.isNotEmpty()) {
-                val seriesEvents = seriesDeletedEvents.map { it.toMediaServerEvent() }
-                listener.onSeriesDeleted(seriesEvents)
+                if (seriesDeletedEvents.isNotEmpty()) {
+                    val seriesEvents = seriesDeletedEvents.map { it.toMediaServerEvent() }
+                    listener.onSeriesDeleted(seriesEvents)
+                }
             }
         }
     }
