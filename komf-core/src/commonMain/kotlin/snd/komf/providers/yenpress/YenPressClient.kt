@@ -63,7 +63,7 @@ class YenPressClient(
             nextOrd = batch.nextOrd
             requestCount++
         }
-        return allBooks
+        return allBooks.sortedBy { it.number?.start }
     }
 
     private suspend fun getMoreBooks(id: YenPressSeriesId, nextOrd: Int): YenPressMoreBooksResponse {
