@@ -34,7 +34,7 @@ class DiscordWebhookService(
         context: NotificationContext,
         templates: DiscordStringTemplates? = null,
     ) {
-        if(webhooks.isEmpty()) return
+        if (webhooks.isEmpty()) return
 
         val webhookRequest = toRequest(context, templates) ?: return
         webhooks.map { getWebhook(it) }.forEach { webhook ->
@@ -84,6 +84,8 @@ class DiscordWebhookService(
     }
 
     private suspend fun executeWebhook(webhook: Webhook, webhookRequest: WebhookExecuteRequest, image: Image? = null) {
+        val jsonPayload = json.encodeToString(webhookRequest)
+        logger.debug { "discord webhook body: $jsonPayload" }
         ktor.post("$baseUrl/webhooks/${webhook.id}/${webhook.token}") {
             if (image == null) {
                 contentType(ContentType.Application.Json)
@@ -98,7 +100,7 @@ class DiscordWebhookService(
                             image.bytes,
                             Headers.build { append(HttpHeaders.ContentDisposition, "filename=\"$filename\"") }
                         )
-                        append("payload_json", json.encodeToString(webhookRequest))
+                        append("payload_json", jsonPayload)
                     })
                 )
             }
