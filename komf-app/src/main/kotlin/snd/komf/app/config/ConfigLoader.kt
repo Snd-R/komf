@@ -75,12 +75,12 @@ class ConfigLoader(private val yaml: Yaml) {
 
         return config.copy(
             komga = komgaConfig.copy(
-                baseUri = komgaBaseUri.removeSuffix("/"),
+                baseUri = komgaBaseUri,
                 komgaUser = komgaUser,
                 komgaPassword = komgaPassword
             ),
             kavita = kavitaConfig.copy(
-                baseUri = kavitaBaseUri.removeSuffix("/"),
+                baseUri = kavitaBaseUri,
                 apiKey = kavitaApiKey,
             ),
 

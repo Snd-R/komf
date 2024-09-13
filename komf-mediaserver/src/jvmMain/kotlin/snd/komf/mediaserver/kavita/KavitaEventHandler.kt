@@ -3,6 +3,7 @@ package snd.komf.mediaserver.kavita
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.http.*
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit.SECONDS
 private val logger = KotlinLogging.logger {}
 
 class KavitaEventHandler(
-    private val baseUrl: String,
+    private val baseUrl: URLBuilder,
     private val kavitaClient: KavitaClient,
     private val tokenProvider: KavitaTokenProvider,
     private val clock: Clock,
@@ -49,8 +50,9 @@ class KavitaEventHandler(
     @Synchronized
     fun start() {
         isActive = true
+        val url = baseUrl.appendPathSegments("hubs", "messages")
         val hubConnection: HubConnection = HubConnectionBuilder
-            .create("$baseUrl/hubs/messages")
+            .create(url.buildString())
             .withAccessTokenProvider(Single.defer { Single.just(runBlocking { tokenProvider.getToken() }) })
             .build()
         hubConnection.on("NotificationProgress", ::processProgressNotification, NotificationProgressEvent::class.java)
@@ -66,6 +68,7 @@ class KavitaEventHandler(
                 .doOnError { logger.error(it) { } }
         }
             .retry().subscribeOn(Schedulers.io()).subscribe()
+        logger.info { "connecting to Kavita event listener ${url.buildString()}" }
         this.hubConnection = hubConnection
     }
 

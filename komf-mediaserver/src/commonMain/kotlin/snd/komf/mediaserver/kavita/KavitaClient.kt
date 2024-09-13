@@ -33,11 +33,11 @@ class KavitaClient(
     private val apiKey: String,
 ) {
     suspend fun getSeries(seriesId: KavitaSeriesId): KavitaSeries {
-        return ktor.get("/api/series/${seriesId.value}").body()
+        return ktor.get("api/series/${seriesId.value}").body()
     }
 
     suspend fun getSeries(libraryId: KavitaLibraryId, page: Int): KavitaPage<KavitaSeries> {
-        val response = ktor.post("/api/series/v2") {
+        val response = ktor.post("api/series/v2") {
             parameter("libraryId", libraryId.value)
             parameter("pageNumber", page)
             parameter("pageSize", "500")
@@ -67,7 +67,7 @@ class KavitaClient(
     }
 
     suspend fun getSeriesCover(seriesId: KavitaSeriesId): Image {
-        val response: HttpResponse = ktor.get("/api/image/series-cover") {
+        val response: HttpResponse = ktor.get("api/image/series-cover") {
             parameter("seriesId", seriesId.value)
             parameter("apiKey", apiKey)
         }
@@ -76,21 +76,21 @@ class KavitaClient(
     }
 
     suspend fun updateSeries(seriesUpdate: KavitaSeriesUpdateRequest) {
-        ktor.post("/api/series/update") {
+        ktor.post("api/series/update") {
             contentType(ContentType.Application.Json)
             setBody(seriesUpdate)
         }
     }
 
     suspend fun updateSeriesMetadata(metadata: KavitaSeriesMetadataUpdateRequest) {
-        ktor.post("/api/series/metadata") {
+        ktor.post("api/series/metadata") {
             contentType(ContentType.Application.Json)
             setBody(metadata)
         }
     }
 
     suspend fun updateChapterMetadata(metadata: KavitaChapterMetadataUpdateRequest) {
-        ktor.post("/api/chapter/update") {
+        ktor.post("api/chapter/update") {
             contentType(ContentType.Application.Json)
             setBody(metadata)
         }
@@ -98,25 +98,25 @@ class KavitaClient(
 
 
     suspend fun getSeriesMetadata(seriesId: KavitaSeriesId): KavitaSeriesMetadata {
-        return ktor.get("/api/series/metadata") {
+        return ktor.get("api/series/metadata") {
             parameter("seriesId", seriesId.value)
         }.body()
     }
 
     suspend fun getSeriesDetails(seriesId: KavitaSeriesId): KavitaSeriesDetails {
-        return ktor.get("/api/series/series-detail") {
+        return ktor.get("api/series/series-detail") {
             parameter("seriesId", seriesId.value)
         }.body()
     }
 
     suspend fun getVolumes(seriesId: KavitaSeriesId): Collection<KavitaVolume> {
-        return ktor.get("/api/series/volumes") {
+        return ktor.get("api/series/volumes") {
             parameter("seriesId", seriesId.value)
         }.body()
     }
 
     suspend fun getVolume(volumeId: KavitaVolumeId): KavitaVolume {
-        val response = ktor.get("/api/series/volume") {
+        val response = ktor.get("api/series/volume") {
             parameter("volumeId", volumeId.value)
         }
         if (response.status == HttpStatusCode.NoContent) throw snd.komf.mediaserver.kavita.KavitaResourceNotFoundException()
@@ -125,7 +125,7 @@ class KavitaClient(
     }
 
     suspend fun getChapter(chapterId: KavitaChapterId): KavitaChapter {
-        val response = ktor.get("/api/series/chapter") {
+        val response = ktor.get("api/series/chapter") {
             parameter("chapterId", chapterId.value)
         }
         if (response.status == HttpStatusCode.NoContent) throw snd.komf.mediaserver.kavita.KavitaResourceNotFoundException()
@@ -133,7 +133,7 @@ class KavitaClient(
     }
 
     suspend fun getChapterCover(chapterId: KavitaChapterId): Image {
-        val response = ktor.get("/api/image/chapter-cover") {
+        val response = ktor.get("api/image/chapter-cover") {
             parameter("chapterId", chapterId.value)
             parameter("apiKey", apiKey)
         }
@@ -144,7 +144,7 @@ class KavitaClient(
 
     suspend fun uploadSeriesCover(seriesId: KavitaSeriesId, cover: Image) {
         val base64Image = Base64.getEncoder().encodeToString(cover.bytes)
-        ktor.post("/api/upload/series") {
+        ktor.post("api/upload/series") {
             contentType(ContentType.Application.Json)
             setBody(KavitaCoverUploadRequest(id = seriesId.value, url = base64Image, lockCover = false))
         }
@@ -152,18 +152,18 @@ class KavitaClient(
 
     suspend fun uploadVolumeCover(volumeId: KavitaVolumeId, cover: Image) {
         val base64Image = Base64.getEncoder().encodeToString(cover.bytes)
-        ktor.post("/api/upload/volume") {
+        ktor.post("api/upload/volume") {
             contentType(ContentType.Application.Json)
             setBody(KavitaCoverUploadRequest(id = volumeId.value, url = base64Image, lockCover = false))
         }
     }
 
     suspend fun getLibraries(): Collection<KavitaLibrary> {
-        return ktor.get("/api/library/libraries").body()
+        return ktor.get("api/library/libraries").body()
     }
 
     suspend fun scanSeries(seriesId: KavitaSeriesId) {
-        ktor.post("/api/series/scan") {
+        ktor.post("api/series/scan") {
             contentType(ContentType.Application.Json)
             setBody(buildJsonObject { put("seriesId", seriesId.value) })
 
@@ -171,13 +171,13 @@ class KavitaClient(
     }
 
     suspend fun scanLibrary(libraryId: KavitaLibraryId) {
-        ktor.post("/api/library/scan") {
+        ktor.post("api/library/scan") {
             parameter("libraryId", libraryId.value)
         }
     }
 
     suspend fun resetChapterLock(chapterId: KavitaChapterId) {
-        ktor.post("/api/upload/reset-chapter-lock") {
+        ktor.post("api/upload/reset-chapter-lock") {
             contentType(ContentType.Application.Json)
             setBody(buildJsonObject {
                 put("id", chapterId.value)

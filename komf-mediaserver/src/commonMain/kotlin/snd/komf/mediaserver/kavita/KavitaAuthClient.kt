@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 class KavitaAuthClient(private val ktor: HttpClient) {
 
     suspend fun authenticate(apiKey: String): KavitaAuthenticateResponse {
-        return ktor.post("/api/plugin/authenticate") {
+        return ktor.post("api/plugin/authenticate") {
             parameter("apiKey", apiKey)
             parameter("pluginName", "Komf")
         }.body()

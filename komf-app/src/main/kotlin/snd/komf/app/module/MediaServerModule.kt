@@ -6,6 +6,7 @@ import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
@@ -85,7 +86,7 @@ class MediaServerModule(
             .cookieStorage(AcceptAllCookiesStorage())
             .username(komgaConfig.komgaUser)
             .password(komgaConfig.komgaPassword)
-            .baseUrl { komgaConfig.baseUri }
+            .baseUrlBuilder { URLBuilder(komgaConfig.baseUri).appendPathSegments("/") }
             .useragent(komfUserAgent)
             .build()
         komgaClient = KomgaMediaServerClientAdapter(
@@ -158,7 +159,11 @@ class MediaServerModule(
             KAVITA
         )
         kavitaKtorBase = ktorBaseClient.config {
-            defaultRequest { url(kavitaConfig.baseUri) }
+            defaultRequest {
+                url {
+                    this.takeFrom(URLBuilder(kavitaConfig.baseUri).appendPathSegments("/"))
+                }
+            }
             install(ContentNegotiation) { json(jsonBase) }
         }
         kavitaAuthClient = KavitaAuthClient(kavitaKtorBase)
@@ -208,7 +213,7 @@ class MediaServerModule(
         )
 
         kavitaEventHandler = KavitaEventHandler(
-            baseUrl = kavitaConfig.baseUri,
+            baseUrl = URLBuilder(kavitaConfig.baseUri),
             kavitaClient = kavitaClient,
             tokenProvider = kavitaTokenProvider,
             clock = Clock.System,
