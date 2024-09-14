@@ -43,7 +43,6 @@ class KomgaEventHandler(
         eventHandlerScope.launch {
             val eventSource = eventSourceFactory()
             this@KomgaEventHandler.eventSource = eventSource
-            logger.info { "Connected to Komga event source" }
 
             eventSource.incoming.onEach { event ->
                 logger.debug { event }
