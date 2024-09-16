@@ -93,12 +93,14 @@ class BookWalkerMetadataProvider(
     private suspend fun getAllBooks(series: BookWalkerSeriesId): Collection<BookWalkerSeriesBook> {
         val books = mutableListOf<BookWalkerSeriesBook>()
         var pageNumber = 1
-        while (true) {
+        var requestCount = 0
+        do {
             val page = client.getSeriesBooks(series, pageNumber)
             books.addAll(page.books)
-            if (page.page == page.totalPages) break
-            pageNumber += 1
-        }
+            pageNumber++
+            requestCount++
+        } while (page.page != page.totalPages || requestCount < 100)
+
         return books
     }
 

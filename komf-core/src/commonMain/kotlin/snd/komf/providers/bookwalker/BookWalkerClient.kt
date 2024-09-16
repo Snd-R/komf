@@ -38,7 +38,9 @@ class BookWalkerClient(
     }
 
     suspend fun getSeriesBooks(id: BookWalkerSeriesId, page: Int): BookWalkerBookListPage {
-        val document = ktor.get("$bookWalkerBaseUrl/series/${id.id}/").bodyAsText()
+        val document = ktor.get("$bookWalkerBaseUrl/series/${id.id}/") {
+            parameter("page", page)
+        }.bodyAsText()
         return parser.parseSeriesBooks(document)
     }
 
