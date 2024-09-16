@@ -11,11 +11,14 @@ import snd.komf.mediaserver.kavita.model.KavitaPersonRole.CHARACTER
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.COLORIST
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.COVER_ARTIST
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.EDITOR
+import snd.komf.mediaserver.kavita.model.KavitaPersonRole.IMPRINT
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.INKER
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.LETTERER
+import snd.komf.mediaserver.kavita.model.KavitaPersonRole.LOCATION
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.OTHER
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.PENCILLER
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.PUBLISHER
+import snd.komf.mediaserver.kavita.model.KavitaPersonRole.TEAM
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.TRANSLATOR
 import snd.komf.mediaserver.kavita.model.KavitaPersonRole.WRITER
 
@@ -39,7 +42,10 @@ enum class KavitaPersonRole(val id: Int) {
     EDITOR(9),
     PUBLISHER(10),
     CHARACTER(11),
-    TRANSLATOR(12)
+    TRANSLATOR(12),
+    IMPRINT(13),
+    TEAM(14),
+    LOCATION(15),
 }
 
 class KavitaPersonRoleSerializer : KSerializer<KavitaPersonRole> {
@@ -57,6 +63,9 @@ class KavitaPersonRoleSerializer : KSerializer<KavitaPersonRole> {
         10 -> PUBLISHER
         11 -> CHARACTER
         12 -> TRANSLATOR
+        13 -> IMPRINT
+        14 -> TEAM
+        15 -> LOCATION
         else -> error("Unsupported status code")
     }
 }
