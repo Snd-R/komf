@@ -99,7 +99,7 @@ class BookWalkerMetadataProvider(
             books.addAll(page.books)
             pageNumber++
             requestCount++
-        } while (page.page != page.totalPages || requestCount < 100)
+        } while (page.page != page.totalPages && requestCount < 100)
 
         return books
     }
