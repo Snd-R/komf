@@ -40,7 +40,7 @@ data class MangaDexAttributes(
     val createdAt: Instant,
     val updatedAt: Instant,
     val version: Int,
-    val availableTranslatedLanguages: List<String>,
+    val availableTranslatedLanguages: List<String?>? = null,
     val latestUploadedChapter: String?,
 )
 
