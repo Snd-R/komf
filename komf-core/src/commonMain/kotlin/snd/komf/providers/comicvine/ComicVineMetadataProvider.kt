@@ -70,14 +70,18 @@ class ComicVineMetadataProvider(
     }
 
     override suspend fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val result = handleResult(client.searchVolume(seriesName.take(400)))
+        val result = handleResult(
+            client.searchVolume(seriesName.replace("<", "").take(400))
+        )
 
         return result.map { mapper.toSeriesSearchResult(it) }
     }
 
     override suspend fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
         val seriesName = removeParentheses(matchQuery.seriesName)
-        val searchResults = handleResult(client.searchVolume(seriesName.take(400)))
+        val searchResults = handleResult(
+            client.searchVolume(seriesName.replace("<", "").take(400))
+        )
 
         val results = searchResults
             .filter { resultMatchFilter(matchQuery, it) }
