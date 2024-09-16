@@ -152,7 +152,7 @@ class MetadataService(
                         }
                 }
                 pageNumber++
-            } while (page.pageNumber != page.totalPages || page.content.isNotEmpty())
+            } while (page.pageNumber != page.totalPages && page.content.isNotEmpty())
             logger.info { "Finished library scan. Encountered $errorCount errors" }
         }
     }

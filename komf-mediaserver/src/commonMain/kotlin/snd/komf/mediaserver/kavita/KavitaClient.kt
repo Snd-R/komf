@@ -38,18 +38,19 @@ class KavitaClient(
 
     suspend fun getSeries(libraryId: KavitaLibraryId, page: Int): KavitaPage<KavitaSeries> {
         val response = ktor.post("api/series/v2") {
-            parameter("libraryId", libraryId.value)
             parameter("pageNumber", page)
             parameter("pageSize", "500")
             contentType(ContentType.Application.Json)
             setBody(
                 buildJsonObject {
                     putJsonArray("statements") {
-                        buildJsonObject {
-                            put("field", 19)
-                            put("value", libraryId.value)
-                            put("comparison", 0)
-                        }
+                        add(
+                            buildJsonObject {
+                                put("field", 19)
+                                put("value", libraryId.value.toString())
+                                put("comparison", 0)
+                            }
+                        )
                     }
 
                 }
