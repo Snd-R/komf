@@ -148,9 +148,6 @@ class ComicInfoWriter private constructor(private val overrideComicInfo: Boolean
         if (!path.isWritable()) {
             throw ComicInfoException("No write permission for file $path")
         }
-        if (OsPlatform.Current != Windows && !path.parent.isWritable()) {
-            throw ComicInfoException("No write permission for directory ${path.parent}")
-        }
     }
 
     private fun copyPermissions(from: Path, to: Path) {
