@@ -60,7 +60,7 @@ data class MetadataProcessingConfigUpdateDto(
     val mergeGenres: Boolean? = null,
     val seriesCovers: Boolean? = null,
     val overrideExistingCovers: Boolean? = null,
-
+    var lockCovers: Boolean? = null,
     val updateModes: List<UpdateMode>? = null,
     val postProcessing: MetadataPostProcessingConfigUpdateDto? = null
 )

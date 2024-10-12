@@ -157,7 +157,8 @@ class KomgaMediaServerClientAdapter(
     override suspend fun uploadSeriesThumbnail(
         seriesId: MediaServerSeriesId,
         thumbnail: Image,
-        selected: Boolean
+        selected: Boolean,
+        lock: Boolean
     ): MediaServerSeriesThumbnail? {
         if (thumbnail.bytes.size > komgaCoverUploadLimit) {
             logger.warn { "Thumbnail size is bigger than $komgaCoverUploadLimit bytes. Skipping thumbnail upload" }
@@ -179,7 +180,7 @@ class KomgaMediaServerClientAdapter(
 
     override suspend fun uploadBookThumbnail(
         bookId: MediaServerBookId,
-        thumbnail: Image, selected: Boolean
+        thumbnail: Image, selected: Boolean, lock: Boolean
     ): MediaServerBookThumbnail? {
         if (thumbnail.bytes.size > komgaCoverUploadLimit) {
             logger.warn { "Thumbnail size is bigger than $komgaCoverUploadLimit bytes. Skipping thumbnail upload" }

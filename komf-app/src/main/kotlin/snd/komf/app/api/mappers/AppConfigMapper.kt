@@ -91,6 +91,7 @@ class AppConfigMapper {
             bookCovers = config.bookCovers,
             seriesCovers = config.seriesCovers,
             overrideExistingCovers = config.overrideExistingCovers,
+            lockCovers = config.lockCovers,
             updateModes = config.updateModes.map { it.fromUpdateMode() },
             postProcessing = toDto(config.postProcessing),
         )

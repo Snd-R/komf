@@ -158,19 +158,21 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
     override suspend fun uploadSeriesThumbnail(
         seriesId: MediaServerSeriesId,
         thumbnail: Image,
-        selected: Boolean
+        selected: Boolean,
+        lock: Boolean
     ): MediaServerSeriesThumbnail? {
-        kavitaClient.uploadSeriesCover(seriesId.toKavitaSeriesId(), thumbnail)
+        kavitaClient.uploadSeriesCover(seriesId.toKavitaSeriesId(), thumbnail, lock)
         return null
     }
 
     override suspend fun uploadBookThumbnail(
         bookId: MediaServerBookId,
         thumbnail: Image,
-        selected: Boolean
+        selected: Boolean,
+        lock: Boolean
     ): MediaServerBookThumbnail? {
         val chapter = kavitaClient.getChapter(bookId.toKavitaChapterId())
-        kavitaClient.uploadVolumeCover(chapter.volumeId, thumbnail)
+        kavitaClient.uploadVolumeCover(chapter.volumeId, thumbnail, lock)
         return null
     }
 
