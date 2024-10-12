@@ -12,7 +12,6 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import snd.komf.ktor.HttpRequestRateLimiter
-import snd.komf.ktor.intervalLimiter
 import snd.komf.ktor.komfUserAgent
 import snd.komf.ktor.rateLimiter
 import snd.komf.providers.anilist.AniListClient
@@ -27,6 +26,7 @@ import snd.komf.providers.bookwalker.BookWalkerMetadataProvider
 import snd.komf.providers.comicvine.ComicVineClient
 import snd.komf.providers.comicvine.ComicVineMetadataMapper
 import snd.komf.providers.comicvine.ComicVineMetadataProvider
+import snd.komf.providers.comicvine.ComicVineRateLimiter
 import snd.komf.providers.hentag.HentagClient
 import snd.komf.providers.hentag.HentagMetadataMapper
 import snd.komf.providers.hentag.HentagMetadataProvider
@@ -109,7 +109,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
     }
 
     private val malRateLimiter = rateLimiter(60, 60.seconds)
-    private val comicVineRateLimiter = rateLimiter(60, 60.seconds)
+    private val comicVineRateLimiter = ComicVineRateLimiter()
 
     private fun HttpRequestRetryConfig.defaultRetry() {
         retryIf(3) { _, response ->
@@ -329,9 +329,10 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             ),
             bangumiPriority = config.bangumi.priority,
             comicVine = createComicVineMetadataProvider(
-                config.comicVine,
-                comicVineClientId,
-                defaultNameMatcher
+                config = config.comicVine,
+                apiKey = comicVineClientId,
+                rateLimiter = comicVineRateLimiter,
+                defaultNameMatcher = defaultNameMatcher,
             ),
             comicVinePriority = config.comicVine.priority,
             hentag = createHentagMetadataProvider(
@@ -603,6 +604,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
     private fun createComicVineMetadataProvider(
         config: ProviderConfig,
         apiKey: String?,
+        rateLimiter: ComicVineRateLimiter,
         defaultNameMatcher: NameSimilarityMatcher,
     ): ComicVineMetadataProvider? {
         if (config.enabled.not()) return null
@@ -610,15 +612,13 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
 
         val comicVineClient = ComicVineClient(
             ktor = baseHttpClientJson.config {
-                install(HttpRequestRateLimiter) {
-                    preconfigured = comicVineRateLimiter
-                }
                 install(HttpRequestRetry) {
                     retryOnServerErrors(maxRetries = 3)
                     exponentialDelay(respectRetryAfterHeader = true)
                 }
             },
-            apiKey = apiKey
+            apiKey = apiKey,
+            rateLimiter = rateLimiter
         )
         val metadataMapper = ComicVineMetadataMapper(
             seriesMetadataConfig = config.seriesMetadata,

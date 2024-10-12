@@ -20,9 +20,11 @@ private const val baseUrl = "https://comicvine.gamespot.com/api"
 class ComicVineClient(
     private val ktor: HttpClient,
     private val apiKey: String,
+    private val rateLimiter: ComicVineRateLimiter,
 ) {
 
     suspend fun searchVolume(name: String): ComicVineSearchResult<List<ComicVineVolumeSearch>> {
+        rateLimiter.searchAcquire()
         return ktor.get("$baseUrl/search/") {
             parameter("query", name)
             parameter("format", "json")
@@ -32,6 +34,7 @@ class ComicVineClient(
     }
 
     suspend fun getVolume(id: ComicVineVolumeId): ComicVineSearchResult<ComicVineVolume> {
+        rateLimiter.volumeAcquire()
         return ktor.get("$baseUrl/volume/${VOLUME.id}-${id.value}/") {
             parameter("format", "json")
             parameter("api_key", apiKey)
@@ -39,6 +42,7 @@ class ComicVineClient(
     }
 
     suspend fun getIssue(id: ComicVineIssueId): ComicVineSearchResult<ComicVineIssue> {
+        rateLimiter.issueAcquire()
         return ktor.get("$baseUrl/issue/${ISSUE.id}-${id.value}/") {
             parameter("format", "json")
             parameter("api_key", apiKey)
@@ -46,6 +50,7 @@ class ComicVineClient(
     }
 
     suspend fun getStoryArc(id: ComicVineStoryArcId): ComicVineSearchResult<ComicVineStoryArc> {
+        rateLimiter.storyArcAcquire()
         return ktor.get("$baseUrl/story_arc/${ComicVineTypeId.STORY_ARC.id}-${id.value}/") {
             parameter("format", "json")
             parameter("api_key", apiKey)
@@ -54,6 +59,7 @@ class ComicVineClient(
     }
 
     suspend fun getCover(url: String): Image {
+        rateLimiter.coverAcquire()
         val bytes: ByteArray = ktor.get(url).body()
         return Image(bytes)
     }
