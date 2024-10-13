@@ -542,7 +542,8 @@ class DeprecatedConfigUpdateMapper {
             updateModes = patch.updateModes ?: config.updateModes,
             postProcessing = patch.postProcessing
                 ?.let { metadataPostProcessingConfig(config.postProcessing, it) }
-                ?: config.postProcessing
+                ?: config.postProcessing,
+            lockCovers = patch.lockCovers ?: config.lockCovers
         )
     }
 
