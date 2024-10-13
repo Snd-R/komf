@@ -117,6 +117,7 @@ class DeprecatedConfigUpdateMapper {
             bookCovers = config.bookCovers,
             seriesCovers = config.seriesCovers,
             overrideExistingCovers = config.overrideExistingCovers,
+            lockCovers = config.lockCovers,
             updateModes = config.updateModes,
             postProcessing = toDto(config.postProcessing),
         )

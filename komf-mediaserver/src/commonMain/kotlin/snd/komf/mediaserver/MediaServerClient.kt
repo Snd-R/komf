@@ -36,13 +36,15 @@ interface MediaServerClient {
     suspend fun uploadSeriesThumbnail(
         seriesId: MediaServerSeriesId,
         thumbnail: Image,
-        selected: Boolean = false
+        selected: Boolean = false,
+        lock: Boolean = false
     ): MediaServerSeriesThumbnail?
 
     suspend fun uploadBookThumbnail(
         bookId: MediaServerBookId,
         thumbnail: Image,
-        selected: Boolean = false
+        selected: Boolean = false,
+        lock: Boolean = false
     ): MediaServerBookThumbnail?
 
     suspend fun refreshMetadata(libraryId: MediaServerLibraryId, seriesId: MediaServerSeriesId)

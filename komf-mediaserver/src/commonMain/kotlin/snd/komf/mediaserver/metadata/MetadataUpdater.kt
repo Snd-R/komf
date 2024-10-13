@@ -34,6 +34,7 @@ class MetadataUpdater(
     private val overrideExistingCovers: Boolean,
     private val uploadBookCovers: Boolean,
     private val uploadSeriesCovers: Boolean,
+    private val lockCovers: Boolean,
 ) {
     private val requireMetadataRefresh = setOf(UpdateMode.COMIC_INFO)
     private val natSortComparator: Comparator<String> = caseInsensitiveNatSortComparator()
@@ -186,7 +187,8 @@ class MetadataUpdater(
             mediaServerClient.uploadSeriesThumbnail(
                 seriesId = seriesId,
                 thumbnail = thumbnail,
-                selected = selectThumbnail
+                selected = selectThumbnail,
+                lock = lockCovers,
             )
         }
 

@@ -143,19 +143,19 @@ class KavitaClient(
         return Image(response.body(), contentType.toString())
     }
 
-    suspend fun uploadSeriesCover(seriesId: KavitaSeriesId, cover: Image) {
+    suspend fun uploadSeriesCover(seriesId: KavitaSeriesId, cover: Image, lockCover: Boolean) {
         val base64Image = Base64.getEncoder().encodeToString(cover.bytes)
         ktor.post("api/upload/series") {
             contentType(ContentType.Application.Json)
-            setBody(KavitaCoverUploadRequest(id = seriesId.value, url = base64Image, lockCover = false))
+            setBody(KavitaCoverUploadRequest(id = seriesId.value, url = base64Image, lockCover))
         }
     }
 
-    suspend fun uploadVolumeCover(volumeId: KavitaVolumeId, cover: Image) {
+    suspend fun uploadVolumeCover(volumeId: KavitaVolumeId, cover: Image, lockCover: Boolean) {
         val base64Image = Base64.getEncoder().encodeToString(cover.bytes)
         ktor.post("api/upload/volume") {
             contentType(ContentType.Application.Json)
-            setBody(KavitaCoverUploadRequest(id = volumeId.value, url = base64Image, lockCover = false))
+            setBody(KavitaCoverUploadRequest(id = volumeId.value, url = base64Image, lockCover))
         }
     }
 

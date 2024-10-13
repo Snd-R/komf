@@ -152,6 +152,7 @@ kavita:
       bookCovers: false #update book thumbnails
       seriesCovers: false #update series thumbnails
       overrideExistingCovers: true # if false will upload but not select new cover if another cover already exists
+      lockCovers: false # lock cover images so that kavita does not change them
       postProcessing:
         seriesTitle: false #update series title
         seriesTitleLanguage: "en" # series title update language. If empty chose first matching title

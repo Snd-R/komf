@@ -334,7 +334,8 @@ class MediaServerModule(
             updateModes = config.updateModes.toSet(),
             uploadBookCovers = config.bookCovers,
             uploadSeriesCovers = config.seriesCovers,
-            overrideExistingCovers = config.overrideExistingCovers
+            overrideExistingCovers = config.overrideExistingCovers,
+            lockCovers = config.lockCovers,
         )
     }
 }
