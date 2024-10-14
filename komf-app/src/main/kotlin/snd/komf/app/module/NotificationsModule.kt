@@ -3,6 +3,7 @@ package snd.komf.app.module
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.http.HttpStatusCode.Companion.TooManyRequests
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import snd.komf.app.config.NotificationsConfig
@@ -25,7 +26,13 @@ class NotificationsModule(
     }
     private val discordKtorClient = ktorBaseClient.config {
         install(HttpRequestRetry) {
-            retryOnServerErrors(maxRetries = 3)
+            retryIf(3) { _, response ->
+                when (response.status.value) {
+                    TooManyRequests.value -> true
+                    in 500..599 -> true
+                    else -> false
+                }
+            }
             exponentialDelay(respectRetryAfterHeader = true)
         }
         install(UserAgent) { agent = komfUserAgent }
