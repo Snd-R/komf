@@ -159,10 +159,15 @@ class DeprecatedConfigUpdateMapper {
             if (apiKey.length < 40) maskedPlaceholder
             else apiKey.replace("(?<=.{4}).".toRegex(), "*")
         }
+        val bangumiToken = config.bangumiToken?.let { apiKey ->
+            if (apiKey.length < 40) maskedPlaceholder
+            else apiKey.replace("(?<=.{4}).".toRegex(), "*")
+        }
 
         return MetadataProvidersConfigDto(
             malClientId = malClientId,
             comicVineClientId = comicVineClientId,
+            bangumiToken = bangumiToken,
             nameMatchingMode = config.nameMatchingMode,
             defaultProviders = toDto(config.defaultProviders),
             libraryProviders = config.libraryProviders
@@ -301,6 +306,7 @@ class DeprecatedConfigUpdateMapper {
                 is PatchValue.Some -> apiKey.value
                 PatchValue.Unset -> config.comicVineApiKey
             },
+            bangumiToken = patch.bangumiToken ?: config.bangumiToken,
             nameMatchingMode = patch.nameMatchingMode ?: config.nameMatchingMode,
             defaultProviders = patch.defaultProviders
                 ?.let { providersConfig(config.defaultProviders, it) } ?: config.defaultProviders,

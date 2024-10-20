@@ -179,6 +179,7 @@ database:
 metadataProviders:
   malClientId: "" # required for mal provider. See https://myanimelist.net/forum/?topicid=1973077 env:KOMF_METADATA_PROVIDERS_MAL_CLIENT_ID
   comicVineApiKey: # required for comicVine provider https://comicvine.gamespot.com/api/ env:KOMF_METADATA_PROVIDERS_COMIC_VINE_API_KEY
+  bangumiToken: # bangumi provider require a token to show nsfw items https://next.bgm.tv/demo/access-token  env:KOMF_METADATA_PROVIDERS_BANGUMI_TOKEN
   defaultProviders:
     mangaUpdates:
       priority: 10

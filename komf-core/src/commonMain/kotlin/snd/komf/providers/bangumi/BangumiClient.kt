@@ -16,23 +16,30 @@ import snd.komf.providers.bangumi.model.SubjectType
 
 class BangumiClient(
     private val ktor: HttpClient,
+    private val token: String? = null
 ) {
     private val apiV0Url = "https://api.bgm.tv/v0"
 
+    private fun addToken(builder: HttpMessageBuilder): HttpMessageBuilder {
+        if(!token.isNullOrBlank()) builder.header("Authorization", "Bearer $token")
+        return builder
+    }
     suspend fun searchSeries(
         keyword: String,
         rating: Collection<String> = listOf(">0.0"), // Use min rating to improve result quality
         rank: Collection<String> = listOf(">=0"), // Use ranked items to improve result quality
     ): SearchSubjectsResponse {
         return ktor.post("$apiV0Url/search/subjects") {
+            addToken(this)
             contentType(ContentType.Application.Json)
             setBody(
                 buildJsonObject {
                     put("keyword", keyword)
                     put("filter", buildJsonObject {
                         putJsonArray("type") { add(SubjectType.BOOK.value) }
-                        putJsonArray("rating") { rating.forEach { add(it) } }
-                        putJsonArray("rank") { rank.forEach { add(it) } }
+//                        putJsonArray("rating") { rating.forEach { add(it) } }
+//                        putJsonArray("rank") { rank.forEach { add(it) } }
+                        put("nsfw", true) // include NSFW content
                     })
                 }
             )
@@ -41,16 +48,22 @@ class BangumiClient(
     }
 
     suspend fun getSubject(subjectId: Long): BangumiSubject {
-        return ktor.get("$apiV0Url/subjects/$subjectId").body()
+        return ktor.get("$apiV0Url/subjects/$subjectId"){
+            addToken(this)
+        }.body()
     }
 
     suspend fun getSubjectRelations(subjectId: Long): Collection<SubjectRelation> {
-        return ktor.get("$apiV0Url/subjects/$subjectId/subjects").body()
+        return ktor.get("$apiV0Url/subjects/$subjectId/subjects"){
+            addToken(this)
+        }.body()
     }
 
     suspend fun getThumbnail(subject: BangumiSubject): Image? {
         return (subject.images.common ?: subject.images.medium)?.let {
-            val bytes: ByteArray = ktor.get(it).body()
+            val bytes: ByteArray = ktor.get(it){
+                addToken(this)
+            }.body()
             Image(bytes)
         }
     }

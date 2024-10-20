@@ -72,6 +72,8 @@ class ConfigLoader(private val yaml: Yaml) {
             ?: metadataProvidersConfig.malClientId
         val comicVineApiKey = System.getenv("KOMF_METADATA_PROVIDERS_COMIC_VINE_API_KEY")?.ifBlank { null }?.toString()
             ?: metadataProvidersConfig.comicVineApiKey
+        val bangumiToken = System.getenv("KOMF_METADATA_PROVIDERS_BANGUMI_TOKEN")?.ifBlank { null }?.toString()
+            ?: metadataProvidersConfig.bangumiToken
 
         return config.copy(
             komga = komgaConfig.copy(
@@ -89,7 +91,8 @@ class ConfigLoader(private val yaml: Yaml) {
             ),
             metadataProviders = metadataProvidersConfig.copy(
                 malClientId = malClientId,
-                comicVineApiKey = comicVineApiKey
+                comicVineApiKey = comicVineApiKey,
+                bangumiToken = bangumiToken
             ),
             notifications = config.notifications.copy(
                 templatesDirectory = templatesDirectory,

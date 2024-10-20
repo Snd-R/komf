@@ -86,6 +86,7 @@ data class EventListenerConfigDto(
 data class MetadataProvidersConfigDto(
     val malClientId: String,
     val comicVineClientId: String?,
+    val bangumiToken: String?,
     val nameMatchingMode: NameMatchingMode,
     val defaultProviders: ProvidersConfigDto,
     val libraryProviders: Map<String, ProvidersConfigDto>,
