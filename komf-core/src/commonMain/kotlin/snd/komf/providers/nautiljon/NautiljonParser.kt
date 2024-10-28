@@ -191,14 +191,18 @@ class NautiljonParser {
 
     private fun parseGenres(dataEntries: Elements): Collection<String> {
         return dataEntries
-            .firstOrNull { it.child(0).text().equals("Genres :") }
+            .firstOrNull {
+                it.child(0).text() == "Genres :" || it.child(0).text() == "Genre :"
+            }
             ?.getElementsByTag("a")?.map { it.text() }
             ?: emptyList()
     }
 
     private fun parseThemes(dataEntries: Elements): Collection<String> {
         return dataEntries
-            .firstOrNull { it.child(0).text().equals("Thèmes :") }
+            .firstOrNull {
+                it.child(0).text() == "Thèmes :"|| it.child(0).text() == "Thème :"
+            }
             ?.getElementsByTag("a")?.map { it.text() }
             ?: emptyList()
     }
@@ -249,7 +253,7 @@ class NautiljonParser {
             (dateElement?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
                 ?: dateElement?.textNodes()?.firstOrNull()?.text())
                 ?.trim()
-                ?.let { LocalDate.parse(it,dateFormat) }
+                ?.let { LocalDate.parse(it, dateFormat) }
         }.getOrNull()
     }
 
