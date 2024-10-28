@@ -20,7 +20,7 @@ import kotlin.time.TimeSource
 import kotlin.time.TimeSource.Monotonic.ValueTimeMark
 
 // Modified version of https://github.com/Kotlin/kotlinx.coroutines/pull/2799
-internal interface ThroughputLimiter {
+interface ThroughputLimiter {
     /**
      * Acquires a single permit, blocking until the request can be granted. Tells the amount of time slept, if any.
      */
@@ -64,21 +64,21 @@ internal interface ThroughputLimiter {
  * When the limit is passed, calls are suspended until the calculated point in time when it's
  * okay to pass the rate limiter.
  */
-internal interface IntervalLimiter : ThroughputLimiter
+interface IntervalLimiter : ThroughputLimiter
 
 /**
  * Limit throughput of events, per interval, to be at most equal to the argument eventsPerInterval.
  * When the limit is passed, calls are suspended until the calculated point in time when it's
  * okay to pass the rate limiter.
  */
-internal fun intervalLimiter(
+fun intervalLimiter(
     eventsPerInterval: Int,
     interval: Duration,
     warmupPeriod: Duration? = null
 ): IntervalLimiter =
     IntervalLimiterImpl(eventsPerInterval = eventsPerInterval, interval = interval, warmupPeriod = warmupPeriod)
 
-internal class IntervalLimiterImpl(
+class IntervalLimiterImpl(
     private val eventsPerInterval: Int,
     private val interval: Duration = 1.seconds,
 //    private val timeSource: NanoTimeSource = NanoTimeSourceImpl,
@@ -256,17 +256,17 @@ internal class IntervalLimiterImpl(
  * When the limit is passed, calls are suspended until the calculated point in time when it's
  * okay to pass the rate limiter.
  */
-internal interface RateLimiter : ThroughputLimiter
+interface RateLimiter : ThroughputLimiter
 
 /**
  * Limit throughput of events per interval to be at most equal to the argument eventsPerInterval.
  * When the limit is passed, calls are suspended until the calculated point in time when it's
  * okay to pass the rate limiter.
  */
-internal fun rateLimiter(eventsPerInterval: Int, interval: Duration, warmupPeriod: Duration? = null): RateLimiter =
+fun rateLimiter(eventsPerInterval: Int, interval: Duration, warmupPeriod: Duration? = null): RateLimiter =
     RateLimiterImpl(eventsPerInterval = eventsPerInterval, interval = interval, warmupPeriod = warmupPeriod)
 
-internal class RateLimiterImpl(
+class RateLimiterImpl(
     eventsPerInterval: Int,
     interval: Duration,
 //    private val timeSource: NanoTimeSource = NanoTimeSourceImpl,
@@ -397,7 +397,7 @@ internal data class ThroughputCounterMessage(
     val permits: Int
 )
 
-internal enum class ThroughputCounterEventType {
+enum class ThroughputCounterEventType {
     GRANTED_IMMEDIATE,
     GRANTED_DELAYED,
     DENIED,

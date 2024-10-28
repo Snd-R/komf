@@ -10,28 +10,32 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import snd.komf.ktor.rateLimiter
 import snd.komf.mediaserver.kavita.model.KavitaChapter
 import snd.komf.mediaserver.kavita.model.KavitaChapterId
-import snd.komf.mediaserver.kavita.model.request.KavitaCoverUploadRequest
 import snd.komf.mediaserver.kavita.model.KavitaLibrary
 import snd.komf.mediaserver.kavita.model.KavitaLibraryId
 import snd.komf.mediaserver.kavita.model.KavitaSeries
 import snd.komf.mediaserver.kavita.model.KavitaSeriesDetails
 import snd.komf.mediaserver.kavita.model.KavitaSeriesId
 import snd.komf.mediaserver.kavita.model.KavitaSeriesMetadata
-import snd.komf.mediaserver.kavita.model.request.KavitaSeriesMetadataUpdateRequest
-import snd.komf.mediaserver.kavita.model.request.KavitaSeriesUpdateRequest
 import snd.komf.mediaserver.kavita.model.KavitaVolume
 import snd.komf.mediaserver.kavita.model.KavitaVolumeId
 import snd.komf.mediaserver.kavita.model.request.KavitaChapterMetadataUpdateRequest
+import snd.komf.mediaserver.kavita.model.request.KavitaCoverUploadRequest
+import snd.komf.mediaserver.kavita.model.request.KavitaSeriesMetadataUpdateRequest
+import snd.komf.mediaserver.kavita.model.request.KavitaSeriesUpdateRequest
 import snd.komf.model.Image
 import java.util.*
+import kotlin.time.Duration.Companion.seconds
 
 class KavitaClient(
     private val ktor: HttpClient,
     private val json: Json,
     private val apiKey: String,
 ) {
+    private val updatesRateLimiter = rateLimiter(eventsPerInterval = 120, interval = 60.seconds)
+
     suspend fun getSeries(seriesId: KavitaSeriesId): KavitaSeries {
         return ktor.get("api/series/${seriesId.value}").body()
     }
@@ -77,6 +81,7 @@ class KavitaClient(
     }
 
     suspend fun updateSeries(seriesUpdate: KavitaSeriesUpdateRequest) {
+        updatesRateLimiter.acquire()
         ktor.post("api/series/update") {
             contentType(ContentType.Application.Json)
             setBody(seriesUpdate)
@@ -84,6 +89,7 @@ class KavitaClient(
     }
 
     suspend fun updateSeriesMetadata(metadata: KavitaSeriesMetadataUpdateRequest) {
+        updatesRateLimiter.acquire()
         ktor.post("api/series/metadata") {
             contentType(ContentType.Application.Json)
             setBody(metadata)
@@ -91,6 +97,7 @@ class KavitaClient(
     }
 
     suspend fun updateChapterMetadata(metadata: KavitaChapterMetadataUpdateRequest) {
+        updatesRateLimiter.acquire()
         ktor.post("api/chapter/update") {
             contentType(ContentType.Application.Json)
             setBody(metadata)
@@ -144,6 +151,7 @@ class KavitaClient(
     }
 
     suspend fun uploadSeriesCover(seriesId: KavitaSeriesId, cover: Image, lockCover: Boolean) {
+        updatesRateLimiter.acquire()
         val base64Image = Base64.getEncoder().encodeToString(cover.bytes)
         ktor.post("api/upload/series") {
             contentType(ContentType.Application.Json)
@@ -152,6 +160,7 @@ class KavitaClient(
     }
 
     suspend fun uploadVolumeCover(volumeId: KavitaVolumeId, cover: Image, lockCover: Boolean) {
+        updatesRateLimiter.acquire()
         val base64Image = Base64.getEncoder().encodeToString(cover.bytes)
         ktor.post("api/upload/volume") {
             contentType(ContentType.Application.Json)
