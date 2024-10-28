@@ -19,7 +19,7 @@ class ComicVineRateLimiter {
 
     private class LimiterInternal {
         private val burstingLimiter = intervalLimiter(50, 60.minutes)
-        private val regularLimiter = rateLimiter(150, 60.minutes)
+        private val regularLimiter = rateLimiter(144, 60.minutes)
 
         suspend fun acquire() {
             if (!burstingLimiter.tryAcquire()) {

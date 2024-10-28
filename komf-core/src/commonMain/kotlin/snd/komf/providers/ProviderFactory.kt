@@ -251,7 +251,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         baseHttpClientJson.config {
             install(HttpRequestRateLimiter) {
                 interval = 60.seconds
-                eventsPerInterval = 80
+                eventsPerInterval = 60
                 allowBurst = true
             }
             install(HttpRequestRetry) {
