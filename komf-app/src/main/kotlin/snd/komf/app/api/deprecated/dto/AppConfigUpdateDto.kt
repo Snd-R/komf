@@ -95,6 +95,7 @@ data class EventListenerConfigUpdateDto(
 class MetadataProvidersConfigUpdateDto(
     val comicVineClientId: PatchValue<String> = PatchValue.Unset,
     val malClientId: String? = null,
+    val bangumiToken: String? = null,
     val nameMatchingMode: NameMatchingMode? = null,
     val defaultProviders: ProvidersConfigUpdateDto? = null,
     val libraryProviders: Map<String, ProvidersConfigUpdateDto?>? = null,

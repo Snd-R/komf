@@ -69,6 +69,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             defaultNameMatcher = defaultNameMatcher,
             malClientId = config.malClientId,
             comicVineClientId = config.comicVineApiKey,
+            bangumiToken = config.bangumiToken,
         )
         val libraryProviders = config.libraryProviders
             .map { (libraryId, libraryConfig) ->
@@ -77,6 +78,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                     defaultNameMatcher = defaultNameMatcher,
                     malClientId = config.malClientId,
                     comicVineClientId = config.comicVineApiKey,
+                    bangumiToken = config.bangumiToken,
                 )
             }
             .toMap()
@@ -233,19 +235,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
         }
     )
-    private val bangumiClient = BangumiClient(
-        baseHttpClientJson.config {
-            install(HttpRequestRateLimiter) {
-                interval = 60.seconds
-                eventsPerInterval = 80
-                allowBurst = true
-            }
-            install(HttpRequestRetry) {
-                defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
-            }
-        }
-    )
 
     private val hentagClient = HentagClient(
         baseHttpClientJson.config {
@@ -265,7 +254,8 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         config: ProvidersConfig,
         defaultNameMatcher: NameSimilarityMatcher,
         malClientId: String?,
-        comicVineClientId: String?
+        comicVineClientId: String?,
+        bangumiToken: String?,
     ): MetadataProvidersContainer {
         return MetadataProvidersContainer(
             mangaupdates = createMangaUpdatesMetadataProvider(
@@ -324,8 +314,8 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             mangaDexPriority = config.mangaDex.priority,
             bangumi = createBangumiMetadataProvider(
                 config.bangumi,
-                bangumiClient,
-                defaultNameMatcher
+                defaultNameMatcher,
+                bangumiToken
             ),
             bangumiPriority = config.bangumi.priority,
             comicVine = createComicVineMetadataProvider(
@@ -579,11 +569,24 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
 
     private fun createBangumiMetadataProvider(
         config: ProviderConfig,
-        client: BangumiClient,
         defaultNameMatcher: NameSimilarityMatcher,
+        token:String?,
     ): BangumiMetadataProvider? {
         if (config.enabled.not()) return null
-
+        val client =     BangumiClient(
+            baseHttpClientJson.config {
+                install(HttpRequestRateLimiter) {
+                    interval = 60.seconds
+                    eventsPerInterval = 80
+                    allowBurst = true
+                }
+                install(HttpRequestRetry) {
+                    defaultRetry()
+                    exponentialDelay(respectRetryAfterHeader = true)
+                }
+            },
+            token = token
+        )
         val bangumiMetadataMapper = BangumiMetadataMapper(
             seriesMetadataConfig = config.seriesMetadata,
             bookMetadataConfig = config.bookMetadata,
