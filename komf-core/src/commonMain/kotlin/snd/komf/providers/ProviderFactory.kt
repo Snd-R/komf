@@ -12,6 +12,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import snd.komf.ktor.HttpRequestRateLimiter
+import snd.komf.ktor.intervalLimiter
 import snd.komf.ktor.komfUserAgent
 import snd.komf.ktor.rateLimiter
 import snd.komf.providers.anilist.AniListClient
@@ -112,6 +113,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
 
     private val malRateLimiter = rateLimiter(60, 60.seconds)
     private val comicVineRateLimiter = ComicVineRateLimiter()
+    private val bangumiRateLimiter = intervalLimiter(80, 60.seconds)
 
     private fun HttpRequestRetryConfig.defaultRetry() {
         retryIf(3) { _, response ->
@@ -570,22 +572,21 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
     private fun createBangumiMetadataProvider(
         config: ProviderConfig,
         defaultNameMatcher: NameSimilarityMatcher,
-        token:String?,
+        token: String?,
     ): BangumiMetadataProvider? {
         if (config.enabled.not()) return null
-        val client =     BangumiClient(
+        val client = BangumiClient(
             baseHttpClientJson.config {
                 install(HttpRequestRateLimiter) {
-                    interval = 60.seconds
-                    eventsPerInterval = 80
-                    allowBurst = true
+                    preconfigured = bangumiRateLimiter
                 }
                 install(HttpRequestRetry) {
                     defaultRetry()
                     exponentialDelay(respectRetryAfterHeader = true)
                 }
+
+                if (!token.isNullOrBlank()) defaultRequest { bearerAuth(token) }
             },
-            token = token
         )
         val bangumiMetadataMapper = BangumiMetadataMapper(
             seriesMetadataConfig = config.seriesMetadata,
