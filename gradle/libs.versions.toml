@@ -1,31 +1,31 @@
 [versions]
 app-version = "1.0.0"
-agp = "8.2.0"
+agp = "8.5.2"
 cache4k = "0.13.0"
 commons-text = "1.12.0"
 commons-compress = "1.27.1"
 jose4j = "0.9.6"
-kaml = "0.59.0"
-kotlin = "2.0.20"
-kotlin-atomicfu = "0.25.0"
+kaml = "0.62.2"
+kotlin = "2.0.21"
 kotlin-logging = "7.0.0"
-kotlinx-coroutines = "1.9.0-RC.2"
-kotlinx-datetime = "0.6.0"
-kotlinx-serialization = "1.7.1"
-kotlinx-io = "0.5.3"
-komga-client = "0.4.0"
-ktor = "3.0.0"
-ksoup = "0.1.6-alpha1"
-logback = "1.5.6"
-mavenPublish = "0.29.0"
+kotlinx-atomicfu = "0.26.0"
+kotlinx-coroutines = "1.9.0"
+kotlinx-datetime = "0.6.1"
+kotlinx-serialization = "1.7.3"
+kotlinx-io = "0.5.4"
+komga-client = "0.6.0"
+ktor = "3.0.1"
+ksoup = "0.2.0"
+logback = "1.5.12"
+mavenPublish = "0.30.0"
 okhttp = "4.12.0"
-shadow = "8.1.1"
+shadow = "8.3.5"
 slf4j = "2.0.16"
 signalr = "8.0.5"
 sqldelight = "2.0.2"
-twelveMonkeys = "3.11.0"
+twelveMonkeys = "3.12.0"
 velocity = "2.3"
-xmlutil = "0.90.1"
+xmlutil = "0.90.2"
 
 [libraries]
 cache4k = { module = "io.github.reactivecircus.cache4k:cache4k", version.ref = "cache4k" }
@@ -52,7 +52,7 @@ ktor-server-default-headers = { module = "io.ktor:ktor-server-default-headers", 
 ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktor-server-sse = { module = "io.ktor:ktor-server-sse", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
-ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
+ksoup = { module = "com.fleeksoft.ksoup:ksoup-lite", version.ref = "ksoup" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
@@ -72,10 +72,10 @@ xmlutil-serialization = { module = "io.github.pdvrieze.xmlutil:serialization", v
 [plugins]
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlinAtomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "kotlin-atomicfu" }
+kotlinAtomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "kotlinx-atomicfu" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
