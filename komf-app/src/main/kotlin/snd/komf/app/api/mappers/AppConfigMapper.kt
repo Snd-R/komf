@@ -256,7 +256,8 @@ class AppConfigMapper {
 
     private fun toDto(config: AppriseConfig): AppriseConfigDto {
         return AppriseConfigDto(
-            urls = config.urls?.map { it.take(7) + "*".repeat(50) }
+            urls = config.urls?.map { it.take(7) + "*".repeat(50) },
+            seriesCover = config.seriesCover,
         )
     }
 

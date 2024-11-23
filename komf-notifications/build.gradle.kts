@@ -41,6 +41,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
 
             api(libs.velocity.core)
+            api(libs.tika.core)
         }
     }
 }

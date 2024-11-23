@@ -418,6 +418,7 @@ class AppConfigUpdateMapper {
 
         return config.copy(
             urls = newUrls?.values?.filterNotNull(),
+            seriesCover = patch.seriesCover.getOrNull() ?: config.seriesCover,
         )
     }
 }

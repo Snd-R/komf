@@ -203,6 +203,5 @@ class DiscordConfigUpdateRequest(
 @Serializable
 class AppriseConfigUpdateRequest(
     val urls: PatchValue<Map<Int, String?>> = PatchValue.Unset,
+    val seriesCover: PatchValue<Boolean> = PatchValue.Unset,
 )
-
-

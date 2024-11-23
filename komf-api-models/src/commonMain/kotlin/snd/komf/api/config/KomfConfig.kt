@@ -218,4 +218,5 @@ data class DiscordConfigDto(
 @Serializable
 data class AppriseConfigDto(
     val urls: List<String>?,
+    val seriesCover: Boolean,
 )

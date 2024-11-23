@@ -19,6 +19,7 @@ class NotificationsModule(
     ktorBaseClient: HttpClient,
 ) {
     private val discordConfig = notificationsConfig.discord
+    private val appriseConfig = notificationsConfig.apprise
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -40,7 +41,11 @@ class NotificationsModule(
     }
 
     val appriseVelocityRenderer = AppriseVelocityTemplates(notificationsConfig.templatesDirectory)
-    val appriseService = AppriseCliService(notificationsConfig.apprise.urls ?: emptyList(), appriseVelocityRenderer)
+    val appriseService = AppriseCliService(
+        urls = notificationsConfig.apprise.urls ?: emptyList(),
+        templateRenderer = appriseVelocityRenderer,
+        seriesCover = appriseConfig.seriesCover,
+    )
 
     val discordVelocityRenderer = DiscordVelocityTemplates(notificationsConfig.templatesDirectory)
     val discordWebhookService = DiscordWebhookService(
