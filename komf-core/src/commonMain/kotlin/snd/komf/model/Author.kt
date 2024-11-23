@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Author(
     val name: String,
-    val role: AuthorRole? = null
+    val role: AuthorRole
 )
 enum class AuthorRole {
     WRITER,
