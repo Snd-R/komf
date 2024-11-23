@@ -31,12 +31,12 @@ class VizClient(
     }
 
     suspend fun getAllBooks(id: VizAllBooksId): Collection<VizSeriesBook> {
-        val document = ktor.get("$vizBaseUrl/read/manga/${id.id}/all").bodyAsText()
+        val document = ktor.get("$vizBaseUrl/manga-books/manga/${id.id}/all").bodyAsText()
         return parser.parseSeriesAllBooks(document)
     }
 
     suspend fun getBook(bookId: VizBookId, type: VizBookReleaseType): VizBook {
-        val document = ktor.get("$vizBaseUrl/read/manga/${bookId.value}/${type.name.lowercase()}").bodyAsText()
+        val document = ktor.get("$vizBaseUrl/manga-books/manga/${bookId.value}/${type.name.lowercase()}").bodyAsText()
         return parser.parseBook(document)
     }
 

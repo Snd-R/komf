@@ -41,7 +41,8 @@ class VizParser {
         val imageUrl = result.child(0).getElementsByTag("img").firstOrNull()?.attr("data-original")
         val titleElement = result.child(1).child(1)
         val id = titleElement.attr("href").decodeURLPart()
-            .removePrefix("/read/manga/")
+            .also { check(it.startsWith("/manga-books/manga/")) }
+            .removePrefix("/manga-books/manga/")
         val bookNumber = BookNameParser.getVolumes(titleElement.text())
         val final = result.child(0).child(0).text() == "Final Volume!"
 
@@ -117,7 +118,8 @@ class VizParser {
     private fun parseBookId(document: Document): VizBookId {
         val id = document.getElementsByTag("meta").first { it.attr("property") == "og:url" }
             .attr("content")
-            .removePrefix("$baseUrl/read/manga/")
+            .also { check(it.startsWith("$baseUrl/manga-books/manga/")) }
+            .removePrefix("$baseUrl/manga-books/manga/")
 
         return VizBookId(id.decodeURLPart())
     }
@@ -136,11 +138,12 @@ class VizParser {
         val prefixLink = titleElement.previousElementSibling()?.let { if (it.tagName() != "a") null else it }
         val link = (titleLink ?: prefixLink) ?: return null
 
-        return link
-            .attr("href")
-            .let { it.decodeURLPart() }
-            .removeSurrounding("/read/manga/", "/all")
-
+        return link.attr("href").decodeURLPart()
+            .also {
+                check(it.startsWith("/manga-books/manga/"))
+                check(it.endsWith("/all"))
+            }
+            .removeSurrounding("/manga-books/manga/", "/all")
     }
 
 }

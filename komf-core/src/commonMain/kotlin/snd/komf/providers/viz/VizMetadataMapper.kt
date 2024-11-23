@@ -105,8 +105,8 @@ class VizMetadataMapper(
         )
     }
 
-    private fun seriesUrl(id: VizAllBooksId) = vizBaseUrl + "/${id.id.encodeURLPath()}"
-    private fun bookUrl(id: VizBookId) = vizBaseUrl + "/read/manga/${id.value}"
+    private fun seriesUrl(id: VizAllBooksId) = "$vizBaseUrl/manga-books/manga/${id.id.encodeURLPath()}/all"
+    private fun bookUrl(id: VizBookId) = "$vizBaseUrl/manga-books/manga/${id.value}"
 
     private fun getAuthors(book: VizBook): List<Author> {
         val authorsArt = book.authorArt?.let { name ->
