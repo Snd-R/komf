@@ -167,11 +167,12 @@ notifications:
   discord:
     # List of discord webhook urls. Will call these webhooks after series or books were added. 
     webhooks: # config example: webhooks: ["https://discord.com/api/webhooks/9..."] (env:KOMF_DISCORD_WEBHOOKS - comma separated list of webhooks)
-    seriesCover: false # include series cover in message. Requires imgurClientId
+    seriesCover: false # include series cover in message
     embedColor: "1F8B4C"
   apprise:
     # List of apprise urls. Will call these after series or books were added. 
     urls:
+    seriesCover: false # include series cover as attachment
 
 database:
   file: ./database.sqlite # database file location.
