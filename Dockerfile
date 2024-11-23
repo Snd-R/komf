@@ -9,8 +9,8 @@ FROM base-${TARGETARCH} AS build-final
 RUN apt-get update && apt-get install -y pipx \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pipx install --include-deps apprise
-ENV PATH="$PATH:/root/.local/bin"
+RUN pipx install --include-deps pipx \
+    && /root/.local/bin/pipx install --global --include-deps apprise
 
 WORKDIR /app
 COPY komf-app/build/libs/komf-app-1.0.0-SNAPSHOT-all.jar ./
