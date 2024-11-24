@@ -48,7 +48,7 @@ class AppConfigUpdateMapper {
                 ?: config.metadataProviders,
             komga = patch.komga.getOrNull()?.let { komgaConfig(config.komga, it) } ?: config.komga,
             kavita = patch.kavita.getOrNull()?.let { kavitaConfig(config.kavita, it) } ?: config.kavita,
-            notifications = NotificationsConfig(
+            notifications = config.notifications.copy(
                 apprise = patch.notifications.getOrNull()?.apprise?.getOrNull()
                     ?.let { apprise(config.notifications.apprise, it) }
                     ?: config.notifications.apprise,
