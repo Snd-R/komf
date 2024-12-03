@@ -22,7 +22,6 @@ data class SubjectSearchData(
     @SerialName("name_cn")
     val nameCn: String,
     val tags: List<SubjectTag>,
-    val score: Double,
-    val rank: Int,
+    val rating: SubjectRating? = null,
     val type: SubjectType? = null
 )

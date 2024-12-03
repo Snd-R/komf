@@ -21,8 +21,6 @@ class BangumiClient(
 
     suspend fun searchSeries(
         keyword: String,
-        rating: Collection<String> = listOf(">0.0"), // Use min rating to improve result quality
-        rank: Collection<String> = listOf(">=0"), // Use ranked items to improve result quality
     ): SearchSubjectsResponse {
         return ktor.post("$apiV0Url/search/subjects") {
             contentType(ContentType.Application.Json)
@@ -31,8 +29,6 @@ class BangumiClient(
                     put("keyword", keyword)
                     put("filter", buildJsonObject {
                         putJsonArray("type") { add(SubjectType.BOOK.value) }
-                        putJsonArray("rating") { rating.forEach { add(it) } }
-                        putJsonArray("rank") { rank.forEach { add(it) } }
                         put("nsfw", true) // include NSFW content
                     })
                 }

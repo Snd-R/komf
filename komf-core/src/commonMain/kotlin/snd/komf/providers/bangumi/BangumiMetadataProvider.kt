@@ -1,9 +1,6 @@
 package snd.komf.providers.bangumi
 
 import snd.komf.model.Image
-import snd.komf.providers.MetadataProvider
-import snd.komf.util.NameSimilarityMatcher
-import snd.komf.providers.CoreProviders
 import snd.komf.model.MatchQuery
 import snd.komf.model.MediaType
 import snd.komf.model.ProviderBookId
@@ -11,9 +8,12 @@ import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
 import snd.komf.model.SeriesSearchResult
+import snd.komf.providers.CoreProviders
+import snd.komf.providers.MetadataProvider
 import snd.komf.providers.bangumi.model.BangumiSubject
 import snd.komf.providers.bangumi.model.SubjectSearchData
 import snd.komf.providers.bangumi.model.SubjectType
+import snd.komf.util.NameSimilarityMatcher
 
 // Manga and Novel are both considered book in Bangumi
 // For now, Novel just means "everything"
@@ -54,7 +54,6 @@ class BangumiMetadataProvider(
 
     override suspend fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
         return client.searchSeries(seriesName).data.asSequence()
-            .sortedWith(subjectRank())
             .filter { it.tags.none { tag -> tag.name == "漫画单行本" } }
             .take(limit)
             .map {
@@ -65,7 +64,6 @@ class BangumiMetadataProvider(
     override suspend fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
         val searchResults = client.searchSeries(matchQuery.seriesName)
         val matches = searchResults.data.asSequence()
-            .sortedWith(subjectRank())
             .filter { it.tags.none { tag -> tag.name == "漫画单行本" } }
             .filter { nameMatcher.matches(matchQuery.seriesName, listOfNotNull(it.nameCn, it.name)) }
             .toList()
@@ -101,14 +99,5 @@ class BangumiMetadataProvider(
             if (subject.platform == matchPlatform) return subject
         }
         return null
-    }
-
-    private fun subjectRank() = Comparator<SubjectSearchData> { a, b ->
-        when {
-            a.rank == b.rank -> 0
-            a.rank == 0 -> 1
-            b.rank == 0 -> -1
-            else -> compareValues(a.rank, b.rank)
-        }
     }
 }
