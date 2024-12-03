@@ -230,7 +230,7 @@ class BangumiMetadataMapper(
     fun toSearchResult(searchData: SubjectSearchData): SeriesSearchResult {
         return SeriesSearchResult(
             url = subjectUrl(searchData.id),
-            imageUrl = searchData.image,
+            imageUrl = searchData.image?.ifBlank { null },
             provider = CoreProviders.BANGUMI,
             resultId = searchData.id.toString(),
             title = searchData.nameCn?.ifBlank { searchData.name } ?: searchData.name,

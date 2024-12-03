@@ -48,7 +48,7 @@ class BangumiClient(
     }
 
     suspend fun getThumbnail(subject: BangumiSubject): Image? {
-        return (subject.images.common ?: subject.images.medium)?.let {
+        return (subject.images.common ?: subject.images.medium)?.ifBlank { null }?.let {
             val bytes: ByteArray = ktor.get(it) {
             }.body()
             Image(bytes)
