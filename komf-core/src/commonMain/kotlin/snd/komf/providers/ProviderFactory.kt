@@ -192,8 +192,8 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
     private val vizClient = VizClient(
         baseHttpClient.config {
             install(HttpRequestRateLimiter) {
-                interval = 2.seconds
-                eventsPerInterval = 1
+                interval = 10.seconds
+                eventsPerInterval = 5
                 allowBurst = false
             }
             install(HttpRequestRetry) {
