@@ -124,7 +124,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 else -> false
             }
         }
-        exponentialDelay(baseDelayMs = 5000, respectRetryAfterHeader = true)
+        exponentialDelay(baseDelayMs = 2000, respectRetryAfterHeader = true)
     }
 
     private val mangaUpdatesClient = MangaUpdatesClient(
