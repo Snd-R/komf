@@ -233,7 +233,7 @@ class BangumiMetadataMapper(
             imageUrl = searchData.image,
             provider = CoreProviders.BANGUMI,
             resultId = searchData.id.toString(),
-            title = searchData.nameCn.ifBlank { searchData.name },
+            title = searchData.nameCn?.ifBlank { searchData.name } ?: searchData.name,
         )
     }
 

@@ -16,7 +16,7 @@ data class SubjectSearchData(
     val id: Long,
     val image: String? = null,
     val summary: String? = null,
-    val name: String? = null,
+    val name: String,
 
     @SerialName("name_cn")
     val nameCn: String? = null,
