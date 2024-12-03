@@ -8,7 +8,7 @@ import kotlin.math.min
 class NameSimilarityMatcher private constructor(private val mode: NameMatchingMode) {
 
     fun matches(name: String, namesToMatch: Collection<String>): Boolean {
-        return namesToMatch.map { matches(name, it) }.any { it }
+        return namesToMatch.any { matches(name, it) }
     }
 
     fun matches(name: String, nameToMatch: String): Boolean {
