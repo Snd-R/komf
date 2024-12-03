@@ -1,5 +1,6 @@
 package snd.komf.providers.hentag
 
+import io.github.reactivecircus.cache4k.Cache
 import snd.komf.model.Image
 import snd.komf.model.MatchQuery
 import snd.komf.model.ProviderBookId
@@ -10,24 +11,29 @@ import snd.komf.model.SeriesSearchResult
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
+import kotlin.time.Duration.Companion.minutes
 
- class HentagMetadataProvider(
+class HentagMetadataProvider(
     private val hentagClient: HentagClient,
     private val metadataMapper: HentagMetadataMapper,
     private val nameMatcher: NameSimilarityMatcher,
     private val fetchSeriesCovers: Boolean,
 ) : MetadataProvider {
 
+    private val cache = Cache.Builder<ProviderSeriesId, HentagBook>()
+        .expireAfterWrite(5.minutes)
+        .build()
+
     override fun providerName() = CoreProviders.HENTAG
 
     override suspend fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val book = hentagClient.searchByIds(listOf(seriesId.value)).first()
+        val book = cache.get(seriesId) { hentagClient.searchByIds(listOf(seriesId.value)).first() }
         val cover = if (fetchSeriesCovers) hentagClient.getCover(book) else null
         return metadataMapper.toSeriesMetadata(book, cover)
     }
 
     override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
-        val book = hentagClient.searchByIds(listOf(seriesId.value)).first()
+        val book = cache.get(seriesId) { hentagClient.searchByIds(listOf(seriesId.value)).first() }
         return hentagClient.getCover(book)
     }
 
@@ -37,7 +43,10 @@ import snd.komf.util.NameSimilarityMatcher
 
     override suspend fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
         return hentagClient.searchByTitle(seriesName)
-            .map { metadataMapper.toSeriesSearchResult(it) }
+            .map { result ->
+                metadataMapper.toSeriesSearchResult(result)
+                    .also { cache.put(ProviderSeriesId(it.resultId), result) }
+            }
     }
 
     override suspend fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
@@ -48,7 +57,7 @@ import snd.komf.util.NameSimilarityMatcher
             .firstOrNull { matchesName(seriesName, it.title) }
             ?.let { series ->
                 val cover = if (fetchSeriesCovers) hentagClient.getCover(series) else null
-                metadataMapper.toSeriesMetadata(series, cover)
+                metadataMapper.toSeriesMetadata(series, cover).also { cache.put(it.id, series) }
             }
     }
 

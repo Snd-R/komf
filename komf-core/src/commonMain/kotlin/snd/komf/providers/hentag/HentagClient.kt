@@ -10,7 +10,7 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import snd.komf.model.Image
 
- class HentagClient(private val ktor: HttpClient) {
+class HentagClient(private val ktor: HttpClient) {
     private val baseUrl = "https://hentag.com/api/v1"
 
     suspend fun searchByTitle(
