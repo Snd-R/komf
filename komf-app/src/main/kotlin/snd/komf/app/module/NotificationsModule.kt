@@ -7,11 +7,13 @@ import io.ktor.http.HttpStatusCode.Companion.TooManyRequests
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import snd.komf.app.config.NotificationsConfig
+import snd.komf.ktor.HttpRequestRateLimiter
 import snd.komf.ktor.komfUserAgent
 import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
+import kotlin.time.Duration.Companion.seconds
 
 
 class NotificationsModule(
@@ -35,6 +37,11 @@ class NotificationsModule(
                 }
             }
             exponentialDelay(respectRetryAfterHeader = true)
+        }
+        install(HttpRequestRateLimiter) {
+            interval = 2.seconds
+            eventsPerInterval = 4
+            allowBurst = false
         }
         install(UserAgent) { agent = komfUserAgent }
         install(ContentNegotiation) { json(json) }

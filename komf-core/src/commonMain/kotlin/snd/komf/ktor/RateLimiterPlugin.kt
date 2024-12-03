@@ -4,14 +4,14 @@ import io.ktor.client.plugins.api.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-internal class RateLimiterPluginConfig {
+class RateLimiterPluginConfig {
     var eventsPerInterval: Int = 60
     var interval: Duration = 1.minutes
     var allowBurst = true
     var preconfigured: ThroughputLimiter? = null
 }
 
-internal val HttpRequestRateLimiter = createClientPlugin("RateLimiter", ::RateLimiterPluginConfig) {
+val HttpRequestRateLimiter = createClientPlugin("RateLimiter", ::RateLimiterPluginConfig) {
 
     val limiter = pluginConfig.preconfigured
         ?: if (pluginConfig.allowBurst) {
