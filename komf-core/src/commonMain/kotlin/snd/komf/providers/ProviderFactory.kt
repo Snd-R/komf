@@ -124,6 +124,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 else -> false
             }
         }
+        exponentialDelay(baseDelayMs = 5000, respectRetryAfterHeader = true)
     }
 
     private val mangaUpdatesClient = MangaUpdatesClient(
@@ -135,7 +136,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
             install(HttpRequestRetry) {
                 defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
             }
         }
     )
@@ -149,7 +149,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
             install(HttpRequestRetry) {
                 defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
             }
         }
     )
@@ -163,7 +162,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
             install(HttpRequestRetry) {
                 defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
             }
         }
     )
@@ -176,7 +174,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
             install(HttpRequestRetry) {
                 defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
             }
         }
     )
@@ -189,7 +186,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
             install(HttpRequestRetry) {
                 defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
             }
         }
     )
@@ -202,7 +198,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
             install(HttpRequestRetry) {
                 defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
             }
         }
     )
@@ -215,7 +210,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
             install(HttpRequestRetry) {
                 defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
             }
 
             defaultRequest {
@@ -233,7 +227,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
             install(HttpRequestRetry) {
                 defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
             }
         }
     )
@@ -247,7 +240,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             }
             install(HttpRequestRetry) {
                 defaultRetry()
-                exponentialDelay(respectRetryAfterHeader = true)
             }
         }
     )
@@ -582,7 +574,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 }
                 install(HttpRequestRetry) {
                     defaultRetry()
-                    exponentialDelay(respectRetryAfterHeader = true)
                 }
 
                 if (!token.isNullOrBlank()) defaultRequest { bearerAuth(token) }
