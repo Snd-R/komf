@@ -1,7 +1,6 @@
 package snd.komf.providers.kodansha
 
 import com.fleeksoft.ksoup.Ksoup
-import snd.komf.providers.MetadataConfigApplier
 import snd.komf.model.Author
 import snd.komf.model.AuthorRole
 import snd.komf.model.BookMetadata
@@ -22,10 +21,13 @@ import snd.komf.model.TitleType
 import snd.komf.model.WebLink
 import snd.komf.providers.BookMetadataConfig
 import snd.komf.providers.CoreProviders
+import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
 import snd.komf.providers.kodansha.model.KodanshaBook
 import snd.komf.providers.kodansha.model.KodanshaSearchResult
 import snd.komf.providers.kodansha.model.KodanshaSeries
+
+const val kodanshaBaseUrl = "https://kodansha.us"
 
 class KodanshaMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
@@ -117,7 +119,7 @@ class KodanshaMetadataMapper(
         return Ksoup.parse(description).wholeText().replace("\n\n", "\n")
     }
 
-    private fun seriesUrl(bookUrlPath: String) = kodanshaBaseUrl + "product/${bookUrlPath}"
-    private fun bookUrl(productUrlPath: String) = kodanshaBaseUrl + "series/${productUrlPath}"
+    private fun seriesUrl(bookUrlPath: String) = "${kodanshaBaseUrl}/series/${bookUrlPath}"
+    private fun bookUrl(productUrlPath: String) = "${kodanshaBaseUrl}/product/${productUrlPath}"
 
 }

@@ -11,8 +11,6 @@ import snd.komf.providers.kodansha.model.KodanshaSearchResult
 import snd.komf.providers.kodansha.model.KodanshaSeries
 import snd.komf.providers.kodansha.model.KodanshaSeriesId
 
-const val kodanshaBaseUrl = "https://kodansha.us/"
-
 class KodanshaClient(private val ktor: HttpClient) {
     private val apiUrl = "https://api.kodansha.us"
 
