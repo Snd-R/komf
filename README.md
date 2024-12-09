@@ -400,6 +400,7 @@ Templates are written using Apache Velocity ([link to docs](https://velocity.apa
 #end
 ```
 
+### Template variables
 ```typescript
 // Variables available in templates:
 interface Webhook {
@@ -449,7 +450,7 @@ interface Webhook {
 }
 ```
 
-## HTTP Endpoints (deprecated)
+## HTTP Endpoints
 
 Use Komga or Kavita in place of `{media-server}`.
 
