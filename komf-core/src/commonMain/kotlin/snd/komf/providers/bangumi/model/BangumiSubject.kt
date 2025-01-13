@@ -29,7 +29,7 @@ data class BangumiSubject(
     val locked: Boolean,
 
     /* TV, Web, 欧美剧, PS4... */
-    val platform: String,
+    val platform: String?,
     val images: Images,
 
     /* 书籍条目的册数，由旧服务端从wiki中解析 */

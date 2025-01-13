@@ -112,7 +112,14 @@ class KomgaMediaServerClientAdapter(
         return komgaLibraryClient.getLibrary(KomgaLibraryId(libraryId.value)).toMediaServerLibrary()
     }
 
-    override suspend fun updateSeriesMetadata(seriesId: MediaServerSeriesId, metadata: MediaServerSeriesMetadataUpdate) {
+    override suspend fun getLibraries(): List<MediaServerLibrary> {
+        return komgaLibraryClient.getLibraries().map { it.toMediaServerLibrary() }
+    }
+
+    override suspend fun updateSeriesMetadata(
+        seriesId: MediaServerSeriesId,
+        metadata: MediaServerSeriesMetadataUpdate
+    ) {
         komgaSeriesClient.updateSeries(
             seriesId = KomgaSeriesId(seriesId.value),
             request = metadata.toMetadataUpdateRequest()

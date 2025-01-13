@@ -19,6 +19,7 @@ import snd.komf.api.KomfErrorResponse
 import snd.komf.app.AppContext
 import snd.komf.app.api.ConfigRoutes
 import snd.komf.app.api.JobRoutes
+import snd.komf.app.api.MediaServerRoutes
 import snd.komf.app.api.MetadataRoutes
 import snd.komf.app.api.NotificationRoutes
 import snd.komf.app.api.deprecated.DeprecatedConfigRoutes
@@ -74,7 +75,7 @@ class ServerModule(
         install(StatusPages) {
             exception<IllegalStateException> { call, cause ->
                 call.respond(
-                    HttpStatusCode.UnprocessableEntity,
+                    HttpStatusCode.InternalServerError,
                     KomfErrorResponse("${cause::class.simpleName} :${cause.message}")
                 )
             }
@@ -114,6 +115,10 @@ class ServerModule(
                         metadataServiceProvider = komgaMetadataServiceProvider,
                         mediaServerClient = komgaMediaServerClient,
                     ).registerRoutes(this)
+
+                    MediaServerRoutes(
+                        mediaServerClient = komgaMediaServerClient
+                    ).registerRoutes(this)
                 }
 
                 route("/kavita") {
@@ -121,8 +126,11 @@ class ServerModule(
                         metadataServiceProvider = kavitaMetadataServiceProvider,
                         mediaServerClient = kavitaMediaServerClient,
                     ).registerRoutes(this)
-                }
 
+                    MediaServerRoutes(
+                        mediaServerClient = kavitaMediaServerClient
+                    ).registerRoutes(this)
+                }
             }
         }
     }

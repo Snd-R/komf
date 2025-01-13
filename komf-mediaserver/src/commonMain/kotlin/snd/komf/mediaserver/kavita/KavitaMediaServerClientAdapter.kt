@@ -103,6 +103,10 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
             .toMediaServerLibrary()
     }
 
+    override suspend fun getLibraries(): List<MediaServerLibrary> {
+        return kavitaClient.getLibraries().map { it.toMediaServerLibrary() }
+    }
+
     override suspend fun updateSeriesMetadata(
         seriesId: MediaServerSeriesId,
         metadata: MediaServerSeriesMetadataUpdate

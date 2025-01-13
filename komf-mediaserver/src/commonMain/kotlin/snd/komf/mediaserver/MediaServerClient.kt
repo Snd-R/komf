@@ -24,6 +24,7 @@ interface MediaServerClient {
     suspend fun getBookThumbnails(bookId: MediaServerBookId): Collection<MediaServerBookThumbnail>
     suspend fun getBookThumbnail(bookId: MediaServerBookId): Image?
     suspend fun getLibrary(libraryId: MediaServerLibraryId): MediaServerLibrary
+    suspend fun getLibraries(): List<MediaServerLibrary>
 
     suspend fun updateSeriesMetadata(seriesId: MediaServerSeriesId, metadata: MediaServerSeriesMetadataUpdate)
     suspend fun deleteSeriesThumbnail(seriesId: MediaServerSeriesId, thumbnailId: MediaServerThumbnailId)

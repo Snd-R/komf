@@ -13,6 +13,7 @@ class KomfClientFactory private constructor(private val builder: Builder) {
 
     fun configClient() = KomfConfigClient(ktor)
     fun metadataClient(mediaServer: MediaServer) = KomfMetadataClient(ktor, mediaServer)
+    fun mediaServerClient(mediaServer: MediaServer) = KomfMediaServerClient(ktor, mediaServer)
     fun jobClient() = KomfJobClient(ktor = ktor, json = json)
     fun notificationClient() = KomfNotificationClient(ktor = ktor)
 

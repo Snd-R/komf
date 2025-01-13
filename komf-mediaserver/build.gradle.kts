@@ -73,7 +73,7 @@ sqldelight {
 
 android {
     namespace = "snd.komf"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26

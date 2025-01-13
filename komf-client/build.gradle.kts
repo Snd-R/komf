@@ -25,9 +25,11 @@ kotlin {
     jvm {
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
     }
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         moduleName = "komf-client"
+        browser()
     }
 
     sourceSets {
@@ -46,7 +48,7 @@ kotlin {
 }
 android {
     namespace = "snd.komf"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
