@@ -103,8 +103,15 @@ class MangaDexMetadataMapper(
                 "bw" -> links[BOOKWALKER_JP] =
                     WebLink("BookWalkerJp", "https://bookwalker.jp/$value".encodeURLPath())
 
-                "mu" -> links[MANGA_UPDATES] =
-                    WebLink("MangaUpdates", "https://www.mangaupdates.com/series.html?id=$value".encodeURLPath())
+                "mu" -> {
+                    if (value.toLongOrNull() != null) {
+                        links[MANGA_UPDATES] =
+                            WebLink("MangaUpdates", "https://www.mangaupdates.com/series.html?id=$value")
+                    } else {
+                        links[MANGA_UPDATES] =
+                            WebLink("MangaUpdates", "https://www.mangaupdates.com/series/$value")
+                    }
+                }
 
                 "nu" -> links[NOVEL_UPDATES] =
                     WebLink("NovelUpdates", "https://www.novelupdates.com/series/$value".encodeURLPath())
