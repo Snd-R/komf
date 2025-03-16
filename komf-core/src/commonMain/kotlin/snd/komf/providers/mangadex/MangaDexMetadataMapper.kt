@@ -95,42 +95,46 @@ class MangaDexMetadataMapper(
         manga.attributes.links?.forEach { (key, value) ->
             when (key) {
                 "al" -> links[ANILIST] =
-                    WebLink("AniList", "https://anilist.co/manga/$value".encodeURLPath())
+                    WebLink("AniList", "https://anilist.co/manga/${value.encodeURLPath()}")
 
                 "ap" -> links[ANIME_PLANET] =
-                    WebLink("Anime-Planet", "https://www.anime-planet.com/manga/$value".encodeURLPath())
+                    WebLink("Anime-Planet", "https://www.anime-planet.com/manga/${value.encodeURLPath()}")
 
-                "bw" -> links[BOOKWALKER_JP] =
-                    WebLink("BookWalkerJp", "https://bookwalker.jp/$value".encodeURLPath())
-
-                "mu" -> {
-                    if (value.toLongOrNull() != null) {
-                        links[MANGA_UPDATES] =
-                            WebLink("MangaUpdates", "https://www.mangaupdates.com/series.html?id=$value")
-                    } else {
-                        links[MANGA_UPDATES] =
-                            WebLink("MangaUpdates", "https://www.mangaupdates.com/series/$value")
-                    }
+                "bw" -> parseUrl("https://bookwalker.jp/$value")?.let { url ->
+                    links[BOOKWALKER_JP] = WebLink("BookWalkerJp", url.toString())
                 }
 
-                "nu" -> links[NOVEL_UPDATES] =
-                    WebLink("NovelUpdates", "https://www.novelupdates.com/series/$value".encodeURLPath())
+                "mu" -> {
+                    val url = if (value.toLongOrNull() != null)
+                        "https://www.mangaupdates.com/series.html?id=$value"
+                    else "https://www.mangaupdates.com/series/${value.encodeURLPath()}"
+                    links[MANGA_UPDATES] = WebLink("MangaUpdates", url)
+                }
 
-                "kt" -> links[KITSU] = WebLink("Kitsu", "https://kitsu.app/manga/$value".encodeURLPath())
-                "amz" -> links[AMAZON] = WebLink("Amazon", value)
-                "ebj" -> links[EBOOK_JAPAN] = WebLink(
-                    "eBookJapan",
-                    value.toIntOrNull()
-                        ?.let { bookId -> "https://ebookjapan.yahoo.co.jp/books/$bookId".encodeURLPath() }
-                        ?: value.encodeURLPath()
+                "nu" -> links[NOVEL_UPDATES] = WebLink(
+                    "NovelUpdates",
+                    "https://www.novelupdates.com/series/${value.encodeURLPath()}"
                 )
 
-                "mal" -> links[MY_ANIME_LIST] =
-                    WebLink("MyAnimeList", "https://myanimelist.net/manga/$value".encodeURLPath())
+                "kt" -> links[KITSU] = WebLink("Kitsu", "https://kitsu.app/manga/${value.encodeURLPath()}")
+                "amz" -> parseUrl(value)?.let { url -> links[AMAZON] = WebLink("Amazon", url.toString()) }
+                "ebj" -> {
+                    val url = if (value.toIntOrNull() != null) {
+                        "https://ebookjapan.yahoo.co.jp/books/${value}}"
+                    } else {
+                        parseUrl(value)?.toString()
+                    }
+                    url?.let { links[EBOOK_JAPAN] = WebLink("eBookJapan", it) }
+                }
 
-                "cdj" -> links[CD_JAPAN] = WebLink("CDJapan", value.encodeURLPath())
-                "raw" -> links[RAW] = WebLink("Official Raw", value.encodeURLPath())
-                "engtl" -> links[ENGLISH_TL] = WebLink("Official English", value.encodeURLPath())
+                "mal" -> links[MY_ANIME_LIST] =
+                    WebLink("MyAnimeList", "https://myanimelist.net/manga/${value.encodeURLPath()}")
+
+                "cdj" -> parseUrl(value)?.let { url -> links[CD_JAPAN] = WebLink("CDJapan", url.toString()) }
+                "raw" -> parseUrl(value)?.let { url -> links[RAW] = WebLink("Official Raw", url.toString()) }
+                "engtl" -> parseUrl(value)?.let { url ->
+                    links[ENGLISH_TL] = WebLink("Official English", url.toString())
+                }
             }
         }
 
