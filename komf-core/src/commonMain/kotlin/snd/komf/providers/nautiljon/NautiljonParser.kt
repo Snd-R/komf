@@ -288,7 +288,7 @@ class NautiljonParser {
         val volumesBlock = document.getElementsByClass("top_bloc")
             .firstOrNull { it.child(0).text() == "Volumes" }
             ?.child(1)?.children()
-            ?.filter { element -> element.tag().name == "h2" || element.tag().name == "div" }
+            ?.filter { element -> element.tag().name() == "h2" || element.tag().name() == "div" }
             ?: emptyList()
 
         return if (volumesBlock.size == 1) {
@@ -303,7 +303,7 @@ class NautiljonParser {
 
     private fun parseEditionVolumes(edition: Element?, volumes: Element): List<NautiljonSeriesVolume> {
         val volumeElements = volumes.children()
-            .filter { element -> element.tag().name == "h3" || element.tag().name == "div" }
+            .filter { element -> element.tag().name() == "h3" || element.tag().name() == "div" }
         if (volumeElements.isEmpty()) return emptyList()
 
         return volumeElements.asSequence().chunked(2)

@@ -145,7 +145,7 @@ class ComicVineMetadataMapper(
     }
 
     private fun parseDescriptionElement(element: Element): String {
-        val prependText = when (element.tag().name) {
+        val prependText = when (element.tag().name()) {
             "br", "p", "h2", "h3", "h4" -> "\n\n"
             "li" -> "\n  - "
             else -> ""

@@ -92,7 +92,7 @@ class MangaUpdatesClient(
     }
 
     private fun parseDescriptionPart(element: Element): String {
-        return if (element.tag().name == "br") "\n"
+        return if (element.tag().name() == "br") "\n"
         else element.text()
     }
 
