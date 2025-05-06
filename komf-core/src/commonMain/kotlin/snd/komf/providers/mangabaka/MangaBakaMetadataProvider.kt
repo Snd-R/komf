@@ -69,17 +69,20 @@ class MangaBakaMetadataProvider(
         seriesName: String,
         limit: Int
     ): Collection<SeriesSearchResult> {
-        return client.searchSeries(
+        val results = client.searchSeries(
             title = seriesName,
             types = seriesTypes,
             page = 1,
-        ).results.take(limit)
-            .map { metadataMapper.toSeriesSearchResult(it) }
+        ).results
+        results.forEach { cache.put(it.id, it) }
+
+        return results.take(limit).map { metadataMapper.toSeriesSearchResult(it) }
     }
 
     override suspend fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
         val seriesName = matchQuery.seriesName
         val searchResults = client.searchSeries(seriesName.take(400), seriesTypes).results
+        searchResults.forEach { cache.put(it.id, it) }
 
         val match = searchResults.firstOrNull { series ->
             val titles = listOfNotNull(
