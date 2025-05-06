@@ -1,6 +1,12 @@
 package snd.komf.api
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.nullable
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlin.jvm.JvmInline
 
 enum class KomfAuthorRole {
@@ -43,7 +49,9 @@ enum class MediaServer {
 }
 
 
-enum class KomfProviders {
+@Serializable(with = KomfProvidersSerializer::class)
+sealed interface KomfProviders
+enum class KomfCoreProviders : KomfProviders {
     ANILIST,
     BANGUMI,
     BOOK_WALKER,
@@ -51,11 +59,31 @@ enum class KomfProviders {
     HENTAG,
     KODANSHA,
     MAL,
+    MANGA_BAKA,
     MANGA_UPDATES,
     MANGADEX,
     NAUTILJON,
     YEN_PRESS,
     VIZ,
+}
+
+data class UnknownKomfProvider(val name: String) : KomfProviders
+
+class KomfProvidersSerializer : KSerializer<KomfProviders> {
+    override val descriptor = PrimitiveSerialDescriptor("KomfProviders", PrimitiveKind.STRING).nullable
+
+    override fun serialize(encoder: Encoder, value: KomfProviders) {
+        when (value) {
+            is KomfCoreProviders -> encoder.encodeString(value.name)
+            is UnknownKomfProvider -> encoder.encodeString(value.name)
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): KomfProviders {
+        val name = decoder.decodeString()
+        return runCatching { KomfCoreProviders.valueOf(name) }
+            .getOrElse { UnknownKomfProvider(name) }
+    }
 }
 
 enum class MangaDexLink {

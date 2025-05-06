@@ -85,7 +85,7 @@ class MangaDexMetadataMapper(
             .map { (lang, name) ->
                 when (lang) {
                     originalLang -> SeriesTitle(name, NATIVE, lang)
-                    "ja-ro" -> SeriesTitle(name, ROMAJI, lang)
+                    "ja-ro", "ko-ro", "zh-ro" -> SeriesTitle(name, ROMAJI, lang)
                     else -> SeriesTitle(name, LOCALIZED, lang)
                 }
             }

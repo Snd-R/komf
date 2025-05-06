@@ -37,6 +37,9 @@ import snd.komf.providers.kodansha.KodanshaMetadataProvider
 import snd.komf.providers.mal.MalClient
 import snd.komf.providers.mal.MalMetadataMapper
 import snd.komf.providers.mal.MalMetadataProvider
+import snd.komf.providers.mangabaka.MangaBakaMetadataMapper
+import snd.komf.providers.mangabaka.MangaBakaMetadataProvider
+import snd.komf.providers.mangabaka.MangaBakaClient
 import snd.komf.providers.mangadex.MangaDexClient
 import snd.komf.providers.mangadex.MangaDexMetadataMapper
 import snd.komf.providers.mangadex.MangaDexMetadataProvider
@@ -244,6 +247,19 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         }
     )
 
+    private val mangaBakaClient = MangaBakaClient(
+        baseHttpClientJson.config {
+            install(HttpRequestRateLimiter) {
+                interval = 1.seconds
+                eventsPerInterval = 1
+                allowBurst = false
+            }
+            install(HttpRequestRetry) {
+                defaultRetry()
+            }
+        }
+    )
+
     private fun createMetadataProviders(
         config: ProvidersConfig,
         defaultNameMatcher: NameSimilarityMatcher,
@@ -324,7 +340,13 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 hentagClient,
                 defaultNameMatcher
             ),
-            hentagPriority = config.hentag.priority
+            hentagPriority = config.hentag.priority,
+            mangaBaka = createMangaBakaMetadataProvider(
+                config = config.mangaBaka,
+                client = mangaBakaClient,
+                defaultNameMatcher = defaultNameMatcher
+            ),
+            mangaBakaPriority = config.mangaBaka.priority
         )
     }
 
@@ -653,6 +675,27 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         )
     }
 
+
+    private fun createMangaBakaMetadataProvider(
+        config: ProviderConfig,
+        client: MangaBakaClient,
+        defaultNameMatcher: NameSimilarityMatcher,
+    ): MangaBakaMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        return MangaBakaMetadataProvider(
+            client = client,
+            metadataMapper = MangaBakaMetadataMapper(
+                metadataConfig = config.seriesMetadata,
+                authorRoles = config.authorRoles,
+                artistRoles = config.artistRoles,
+            ),
+            nameMatcher = config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher,
+            fetchSeriesCovers = config.seriesMetadata.thumbnail,
+            mediaType = config.mediaType
+        )
+    }
+
     class MetadataProviders(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
@@ -705,6 +748,9 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
 
         private val hentag: HentagMetadataProvider?,
         private val hentagPriority: Int,
+
+        private val mangaBaka: MangaBakaMetadataProvider?,
+        private val mangaBakaPriority: Int,
     ) {
 
         val providers = listOfNotNull(
@@ -719,7 +765,8 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             mangaDex?.let { it to mangaDexPriority },
             bangumi?.let { it to bangumiPriority },
             comicVine?.let { it to comicVinePriority },
-            hentag?.let { it to hentagPriority }
+            hentag?.let { it to hentagPriority },
+            mangaBaka?.let { it to mangaBakaPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -739,6 +786,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 CoreProviders.BANGUMI -> bangumi
                 CoreProviders.COMIC_VINE -> comicVine
                 CoreProviders.HENTAG -> hentag
+                CoreProviders.MANGA_BAKA -> mangaBaka
             }
         }
     }

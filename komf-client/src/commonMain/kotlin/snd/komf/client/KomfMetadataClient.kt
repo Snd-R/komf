@@ -5,11 +5,13 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import snd.komf.api.KomfCoreProviders
 import snd.komf.api.KomfProviderSeriesId
 import snd.komf.api.KomfProviders
 import snd.komf.api.KomfServerLibraryId
 import snd.komf.api.KomfServerSeriesId
 import snd.komf.api.MediaServer
+import snd.komf.api.UnknownKomfProvider
 import snd.komf.api.metadata.KomfIdentifyRequest
 import snd.komf.api.metadata.KomfMetadataJobResponse
 import snd.komf.api.metadata.KomfMetadataSeriesSearchResult
@@ -44,7 +46,12 @@ class KomfMetadataClient(
         return try {
             ktor.get("$metadataApiPrefix/series-cover") {
                 parameter("libraryId", libraryId)
-                parameter("provider", provider)
+                parameter(
+                    "provider", when (provider) {
+                        is UnknownKomfProvider -> provider.name
+                        else -> provider.toString()
+                    }
+                )
                 parameter("providerSeriesId", providerSeriesId)
             }.body()
 

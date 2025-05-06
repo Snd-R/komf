@@ -1,11 +1,13 @@
 package snd.komf.app.api.mappers
 
 import snd.komf.api.KomfAuthorRole
+import snd.komf.api.KomfCoreProviders
 import snd.komf.api.KomfMediaType
 import snd.komf.api.KomfNameMatchingMode
 import snd.komf.api.KomfProviders
 import snd.komf.api.KomfReadingDirection
 import snd.komf.api.KomfUpdateMode
+import snd.komf.api.UnknownKomfProvider
 import snd.komf.model.AuthorRole
 import snd.komf.model.MediaType
 import snd.komf.model.ReadingDirection
@@ -83,31 +85,34 @@ fun ReadingDirection.fromReadingDirection() = when (this) {
 }
 
 fun CoreProviders.fromProvider() = when (this) {
-    CoreProviders.ANILIST -> KomfProviders.ANILIST
-    CoreProviders.BANGUMI -> KomfProviders.BANGUMI
-    CoreProviders.BOOK_WALKER -> KomfProviders.BOOK_WALKER
-    CoreProviders.COMIC_VINE -> KomfProviders.COMIC_VINE
-    CoreProviders.HENTAG -> KomfProviders.HENTAG
-    CoreProviders.KODANSHA -> KomfProviders.KODANSHA
-    CoreProviders.MAL -> KomfProviders.MAL
-    CoreProviders.MANGA_UPDATES -> KomfProviders.MANGA_UPDATES
-    CoreProviders.MANGADEX -> KomfProviders.MANGADEX
-    CoreProviders.NAUTILJON -> KomfProviders.NAUTILJON
-    CoreProviders.YEN_PRESS -> KomfProviders.YEN_PRESS
-    CoreProviders.VIZ -> KomfProviders.VIZ
+    CoreProviders.ANILIST -> KomfCoreProviders.ANILIST
+    CoreProviders.BANGUMI -> KomfCoreProviders.BANGUMI
+    CoreProviders.BOOK_WALKER -> KomfCoreProviders.BOOK_WALKER
+    CoreProviders.COMIC_VINE -> KomfCoreProviders.COMIC_VINE
+    CoreProviders.HENTAG -> KomfCoreProviders.HENTAG
+    CoreProviders.KODANSHA -> KomfCoreProviders.KODANSHA
+    CoreProviders.MAL -> KomfCoreProviders.MAL
+    CoreProviders.MANGA_BAKA -> KomfCoreProviders.MANGA_BAKA
+    CoreProviders.MANGA_UPDATES -> KomfCoreProviders.MANGA_UPDATES
+    CoreProviders.MANGADEX -> KomfCoreProviders.MANGADEX
+    CoreProviders.NAUTILJON -> KomfCoreProviders.NAUTILJON
+    CoreProviders.YEN_PRESS -> KomfCoreProviders.YEN_PRESS
+    CoreProviders.VIZ -> KomfCoreProviders.VIZ
 }
 
 fun KomfProviders.toProvider() = when (this) {
-    KomfProviders.ANILIST -> CoreProviders.ANILIST
-    KomfProviders.BANGUMI -> CoreProviders.BANGUMI
-    KomfProviders.BOOK_WALKER -> CoreProviders.BOOK_WALKER
-    KomfProviders.COMIC_VINE -> CoreProviders.COMIC_VINE
-    KomfProviders.HENTAG -> CoreProviders.HENTAG
-    KomfProviders.KODANSHA -> CoreProviders.KODANSHA
-    KomfProviders.MAL -> CoreProviders.MAL
-    KomfProviders.MANGA_UPDATES -> CoreProviders.MANGA_UPDATES
-    KomfProviders.MANGADEX -> CoreProviders.MANGADEX
-    KomfProviders.NAUTILJON -> CoreProviders.NAUTILJON
-    KomfProviders.YEN_PRESS -> CoreProviders.YEN_PRESS
-    KomfProviders.VIZ -> CoreProviders.VIZ
+    KomfCoreProviders.ANILIST -> CoreProviders.ANILIST
+    KomfCoreProviders.BANGUMI -> CoreProviders.BANGUMI
+    KomfCoreProviders.BOOK_WALKER -> CoreProviders.BOOK_WALKER
+    KomfCoreProviders.COMIC_VINE -> CoreProviders.COMIC_VINE
+    KomfCoreProviders.HENTAG -> CoreProviders.HENTAG
+    KomfCoreProviders.KODANSHA -> CoreProviders.KODANSHA
+    KomfCoreProviders.MAL -> CoreProviders.MAL
+    KomfCoreProviders.MANGA_BAKA -> CoreProviders.MANGA_BAKA
+    KomfCoreProviders.MANGA_UPDATES -> CoreProviders.MANGA_UPDATES
+    KomfCoreProviders.MANGADEX -> CoreProviders.MANGADEX
+    KomfCoreProviders.NAUTILJON -> CoreProviders.NAUTILJON
+    KomfCoreProviders.YEN_PRESS -> CoreProviders.YEN_PRESS
+    KomfCoreProviders.VIZ -> CoreProviders.VIZ
+    is UnknownKomfProvider -> CoreProviders.valueOf(this.name)
 }

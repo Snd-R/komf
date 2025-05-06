@@ -37,6 +37,7 @@ data class ProvidersConfig(
     val bangumi: ProviderConfig = ProviderConfig(),
     val comicVine: ProviderConfig = ProviderConfig(),
     val hentag: ProviderConfig = ProviderConfig(),
+    val mangaBaka: ProviderConfig = ProviderConfig(),
 )
 
 @Serializable
