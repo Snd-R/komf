@@ -237,8 +237,8 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
     private val hentagClient = HentagClient(
         baseHttpClientJson.config {
             install(HttpRequestRateLimiter) {
-                interval = 10.seconds
-                eventsPerInterval = 10
+                interval = 5.seconds
+                eventsPerInterval = 1
                 allowBurst = false
             }
             install(HttpRequestRetry) {
