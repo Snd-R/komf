@@ -127,7 +127,7 @@ class DeprecatedMetadataRoutes(
     }
 
     private fun Route.resetLibraryRoute() {
-        post("/reset/library") {
+        post("/reset/library/{libraryId}") {
             val libraryId = MediaServerLibraryId(call.parameters.getOrFail("libraryId"))
             val removeComicInfo = call.queryParameters["removeComicInfo"].toBoolean()
             metadataServiceProvider.value.updateServiceFor(libraryId.value)
