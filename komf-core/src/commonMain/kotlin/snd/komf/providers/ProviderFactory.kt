@@ -5,6 +5,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.TooManyRequests
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
@@ -40,6 +41,9 @@ import snd.komf.providers.mal.MalMetadataProvider
 import snd.komf.providers.mangabaka.MangaBakaMetadataMapper
 import snd.komf.providers.mangabaka.MangaBakaMetadataProvider
 import snd.komf.providers.mangabaka.MangaBakaClient
+import snd.komf.providers.webtoons.WebtoonsClient
+import snd.komf.providers.webtoons.WebtoonsMetadataMapper
+import snd.komf.providers.webtoons.WebtoonsMetadataProvider
 import snd.komf.providers.mangadex.MangaDexClient
 import snd.komf.providers.mangadex.MangaDexMetadataMapper
 import snd.komf.providers.mangadex.MangaDexMetadataProvider
@@ -260,6 +264,41 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         }
     )
 
+    private val webtoonsClient = WebtoonsClient(
+        baseHttpClientJson.config {
+            install(HttpRequestRateLimiter) {
+                interval = 1.seconds
+                eventsPerInterval = 1
+                allowBurst = false
+            }
+            install(HttpRequestRetry) {
+                defaultRetry()
+            }
+            install(HttpCookies) {
+                storage = ConstantCookiesStorage(
+                    Cookie(
+                        name = "ageGatePass",
+                        value = "true",
+                        domain = "www.webtoons.com",
+                        path = "/"
+                    ),
+                    Cookie(
+                        name = "locale",
+                        value = "en", // Fixed to "en", maybe should be configurable?
+                        domain = "www.webtoons.com",
+                        path = "/"
+                    ),
+                    Cookie(
+                        name = "needGDPR",
+                        value = "false",
+                        domain = "www.webtoons.com",
+                        path = "/"
+                    )
+                )
+            }
+        }
+    )
+
     private fun createMetadataProviders(
         config: ProvidersConfig,
         defaultNameMatcher: NameSimilarityMatcher,
@@ -346,7 +385,13 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 client = mangaBakaClient,
                 defaultNameMatcher = defaultNameMatcher
             ),
-            mangaBakaPriority = config.mangaBaka.priority
+            mangaBakaPriority = config.mangaBaka.priority,
+            webtoons = createWebtoonsMetadataProvider(
+                config = config.webtoons,
+                client = webtoonsClient,
+                defaultNameMatcher = defaultNameMatcher
+            ),
+            webtoonsPriority = config.webtoons.priority
         )
     }
 
@@ -696,6 +741,27 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         )
     }
 
+    private fun createWebtoonsMetadataProvider(
+        config: ProviderConfig,
+        client: WebtoonsClient,
+        defaultNameMatcher: NameSimilarityMatcher,
+    ): WebtoonsMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        return WebtoonsMetadataProvider(
+            client = client,
+            metadataMapper = WebtoonsMetadataMapper(
+                metadataConfig = config.seriesMetadata,
+                authorRoles = config.authorRoles,
+                artistRoles = config.artistRoles,
+            ),
+            nameMatcher = config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher,
+            fetchSeriesCovers = config.seriesMetadata.thumbnail,
+            fetchBookCovers = config.bookMetadata.thumbnail,
+            mediaType = config.mediaType
+        )
+    }
+
     class MetadataProviders(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
@@ -751,6 +817,9 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
 
         private val mangaBaka: MangaBakaMetadataProvider?,
         private val mangaBakaPriority: Int,
+
+        private val webtoons: WebtoonsMetadataProvider?,
+        private val webtoonsPriority: Int,
     ) {
 
         val providers = listOfNotNull(
@@ -766,7 +835,8 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             bangumi?.let { it to bangumiPriority },
             comicVine?.let { it to comicVinePriority },
             hentag?.let { it to hentagPriority },
-            mangaBaka?.let { it to mangaBakaPriority }
+            mangaBaka?.let { it to mangaBakaPriority },
+            webtoons?.let { it to webtoonsPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -787,6 +857,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 CoreProviders.COMIC_VINE -> comicVine
                 CoreProviders.HENTAG -> hentag
                 CoreProviders.MANGA_BAKA -> mangaBaka
+                CoreProviders.WEBTOOONS -> webtoons
             }
         }
     }

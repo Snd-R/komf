@@ -63,6 +63,7 @@ enum class KomfCoreProviders : KomfProviders {
     MANGA_UPDATES,
     MANGADEX,
     NAUTILJON,
+    WEBTOONS,
     YEN_PRESS,
     VIZ,
 }
