@@ -12,6 +12,7 @@ enum class CoreProviders {
     MANGADEX,
     MANGA_BAKA,
     NAUTILJON,
+    WEBTOOONS,
     YEN_PRESS,
     VIZ,
 }
