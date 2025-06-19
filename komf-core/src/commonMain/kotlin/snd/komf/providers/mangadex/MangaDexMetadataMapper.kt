@@ -80,7 +80,35 @@ class MangaDexMetadataMapper(
                     .mapNotNull { it.attributes.name["en"] ?: it.attributes.name.values.firstOrNull() }
 
         val originalLang = manga.attributes.originalLanguage
-        val titles = manga.attributes.altTitles
+        val originalRomaji = "${manga.attributes.originalLanguage}-ro"
+        // search altTitles for given key
+        var originalRomajiFound = false
+        for (altTitle in manga.attributes.altTitles) {
+            if (altTitle.keys.contains(originalRomaji)) {
+                originalRomajiFound = true
+                break
+            }
+        }
+
+        var title = manga.attributes.title
+        if (title.keys.contains("en")) {
+            // if original romaji was not found in altTitle, assume "en" title is original
+            // romaji irrespective of what its language indicator says.
+            if (!originalRomajiFound) {
+                val name = title["en"]
+                name?.let { title = mapOf( originalRomaji to it) }
+            }
+        }
+
+        // combine title and altTitle into 1 list.
+        val titleList = buildList {
+            add(title)
+            manga.attributes.altTitles.forEach {
+                add(it)
+            }
+        }
+
+        val titles = titleList
             .map { it.entries.first() }
             .map { (lang, name) ->
                 when (lang) {
