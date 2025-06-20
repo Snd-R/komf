@@ -85,6 +85,9 @@ class MangaDexMetadataMapper(
         var originalRomajiFound = false
         val titleLang = manga.attributes.title.keys.first()
         var titleLangDuped = false
+
+        // also check altTitles for native that's wrongly marked as "en"
+        var incorrectAltTitle : Map<String, String>? = null
         for (altTitle in manga.attributes.altTitles) {
             if (altTitle.keys.contains(originalRomaji)) {
                 originalRomajiFound = true
@@ -92,6 +95,15 @@ class MangaDexMetadataMapper(
 
             if (altTitle.keys.contains(titleLang)) {
                 titleLangDuped = true
+            }
+
+            if (altTitle.keys.contains("en")) {
+                altTitle["en"]?.let {
+                    val detectedLanguages = LanguageCharType.detect(it)
+                    if ((detectedLanguages.size == 1) && (detectedLanguages.contains(originalLang))) {
+                        incorrectAltTitle = altTitle
+                    }
+                }
             }
         }
 
@@ -110,7 +122,11 @@ class MangaDexMetadataMapper(
         val titleList = buildList {
             add(title)
             manga.attributes.altTitles.forEach {
-                add(it)
+                if ((incorrectAltTitle != null) && (it == incorrectAltTitle)) {
+                    mapOf(originalLang to incorrectAltTitle!!["en"])
+                } else {
+                    add(it)
+                }
             }
         }
 
