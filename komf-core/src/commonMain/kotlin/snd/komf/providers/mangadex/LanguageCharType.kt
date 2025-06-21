@@ -89,7 +89,16 @@ enum class LanguageCharType(
     }
 
     fun includes(lct: LanguageCharType): Boolean {
-        return this == lct || includedLct.contains(lct)
+        if (this == lct) {
+            return true
+        } else {
+            for (iLct in includedLct) {
+                if (iLct.includes(lct)) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     data class UnicodeRange(val start: Char, val end: Char)
