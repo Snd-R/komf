@@ -49,14 +49,17 @@ enum class LanguageCharType(
         setOf(
             UnicodeRange(0x3040.toChar(), 0x309f.toChar()), // hiragana
             UnicodeRange(0x30A0.toChar(), 0x30FF.toChar()), // katakana
+            UnicodeRange(0x31F0.toChar(), 0x31FF.toChar()), // katakana extension
+            UnicodeRange(0x3200.toChar(), 0x33FF.toChar()), // Compatibility
+            UnicodeRange(0xFF00.toChar(), 0xFF0F.toChar()), // half width
         ),
         setOf(Chinese, English), // include chinese for kanji
     ),
     Korean(
         "ko",
         setOf(
-            UnicodeRange(0x3130.toChar(), 0x318F.toChar()), // Compatibility Elements
             UnicodeRange(0x1100.toChar(), 0x11FF.toChar()), // 자모
+            UnicodeRange(0x3130.toChar(), 0x318F.toChar()), // Compatibility Elements
             UnicodeRange(0xA960.toChar(), 0xA97F.toChar()), // 초성
             UnicodeRange(0xAC00.toChar(), 0xD7AF.toChar()), // Syllables
             UnicodeRange(0xD7B0.toChar(), 0xD7FF.toChar()), // 중성, 종성
