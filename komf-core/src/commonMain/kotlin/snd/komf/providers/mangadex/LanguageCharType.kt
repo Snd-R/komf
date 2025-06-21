@@ -76,7 +76,7 @@ enum class LanguageCharType(
 
     fun secondary(c: Char): Boolean {
         for (i in includedLct) {
-            if (i.primary(c)) {
+            if (i.includes(c)) {
                 return true
             }
         }
