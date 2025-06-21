@@ -108,7 +108,7 @@ class MangaDexMetadataMapper(
         }
 
         var title = manga.attributes.title
-        if (titleLangDuped) {
+        if (titleLangDuped && (originalLang == "ja")) {
             // if original romaji was not found in altTitle and title lang is duped, assume
             // title is original
             // romaji irrespective of what its language indicator says.
@@ -123,7 +123,8 @@ class MangaDexMetadataMapper(
             add(title)
             manga.attributes.altTitles.forEach {
                 if ((incorrectAltTitle != null) && (it == incorrectAltTitle)) {
-                    mapOf(originalLang to incorrectAltTitle!!["en"])
+                    // We know incorrectAltTitle["en"] isn't null here because we checked it above.
+                    add(mapOf(originalLang to incorrectAltTitle["en"]!!))
                 } else {
                     add(it)
                 }
