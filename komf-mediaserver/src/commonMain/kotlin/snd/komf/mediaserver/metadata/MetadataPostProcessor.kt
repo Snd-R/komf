@@ -112,6 +112,9 @@ class MetadataPostProcessor(
                 ?: BookNameParser.getBookNumber(book.name)
 
             MediaType.NOVEL, MediaType.COMIC -> BookNameParser.getBookNumber(book.name)
+
+            MediaType.WEBTOON -> BookNameParser.getChapters(book.name)
+                ?: BookNameParser.getBookNumber(book.name)
         }
 
         return metadata.copy(

@@ -24,7 +24,7 @@ class AniListMetadataProvider(
     mediaType: MediaType,
 ) : MetadataProvider {
     private val seriesFormats = when (mediaType) {
-        MediaType.MANGA -> mangaMediaFormats
+        MediaType.MANGA, MediaType.WEBTOON -> mangaMediaFormats
         MediaType.NOVEL -> novelMediaFormats
         MediaType.COMIC -> throw IllegalStateException("Comics media type is not supported")
     }

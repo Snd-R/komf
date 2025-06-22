@@ -24,6 +24,7 @@ enum class KomfMediaType {
     MANGA,
     NOVEL,
     COMIC,
+    WEBTOON,
 }
 
 enum class KomfNameMatchingMode {

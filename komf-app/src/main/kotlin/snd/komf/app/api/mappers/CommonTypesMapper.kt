@@ -42,12 +42,14 @@ fun KomfMediaType.toMediaType() = when (this) {
     KomfMediaType.MANGA -> MediaType.MANGA
     KomfMediaType.NOVEL -> MediaType.NOVEL
     KomfMediaType.COMIC -> MediaType.COMIC
+    KomfMediaType.WEBTOON -> MediaType.WEBTOON
 }
 
 fun MediaType.fromMediaType() = when (this) {
     MediaType.MANGA -> KomfMediaType.MANGA
     MediaType.NOVEL -> KomfMediaType.NOVEL
     MediaType.COMIC -> KomfMediaType.COMIC
+    MediaType.WEBTOON -> KomfMediaType.WEBTOON
 }
 
 fun KomfNameMatchingMode.toNameMatchingMode() = when (this) {

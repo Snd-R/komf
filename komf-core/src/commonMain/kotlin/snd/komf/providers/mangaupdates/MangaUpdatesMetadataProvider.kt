@@ -1,9 +1,6 @@
 package snd.komf.providers.mangaupdates
 
 import snd.komf.model.Image
-import snd.komf.providers.MetadataProvider
-import snd.komf.util.NameSimilarityMatcher
-import snd.komf.providers.CoreProviders.MANGA_UPDATES
 import snd.komf.model.MatchQuery
 import snd.komf.model.MediaType
 import snd.komf.model.ProviderBookId
@@ -11,6 +8,8 @@ import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
 import snd.komf.model.SeriesSearchResult
+import snd.komf.providers.CoreProviders.MANGA_UPDATES
+import snd.komf.providers.MetadataProvider
 import snd.komf.providers.mangaupdates.model.SeriesType.ARTBOOK
 import snd.komf.providers.mangaupdates.model.SeriesType.DOUJINSHI
 import snd.komf.providers.mangaupdates.model.SeriesType.FILIPINO
@@ -26,6 +25,7 @@ import snd.komf.providers.mangaupdates.model.SeriesType.OEL
 import snd.komf.providers.mangaupdates.model.SeriesType.SPANISH
 import snd.komf.providers.mangaupdates.model.SeriesType.THAI
 import snd.komf.providers.mangaupdates.model.SeriesType.VIETNAMESE
+import snd.komf.util.NameSimilarityMatcher
 
 private val mangaTypes = listOf(
     MANGA, MANHWA, MANHUA, ARTBOOK, DOUJINSHI,
@@ -33,6 +33,11 @@ private val mangaTypes = listOf(
     OEL, NORDIC, FRENCH, SPANISH
 )
 private val novelTypes = listOf(NOVEL)
+private val webtoonTypes = listOf(
+    MANHWA, MANHUA,
+    FILIPINO, INDONESIAN, THAI, VIETNAMESE, MALAYSIAN,
+    OEL, NORDIC, FRENCH, SPANISH
+)
 
 class MangaUpdatesMetadataProvider(
     private val client: MangaUpdatesClient,
@@ -46,6 +51,7 @@ class MangaUpdatesMetadataProvider(
         MediaType.MANGA -> mangaTypes
         MediaType.NOVEL -> novelTypes
         MediaType.COMIC -> throw IllegalStateException("Comics media type is not supported")
+        MediaType.WEBTOON -> webtoonTypes
     }
 
     override fun providerName() = MANGA_UPDATES

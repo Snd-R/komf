@@ -10,6 +10,7 @@ import snd.komf.model.MediaType
 import snd.komf.model.MediaType.COMIC
 import snd.komf.model.MediaType.MANGA
 import snd.komf.model.MediaType.NOVEL
+import snd.komf.model.MediaType.WEBTOON
 import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
@@ -76,7 +77,7 @@ class YenPressMetadataProvider(
                 when (mediaType) {
                     MANGA -> !it.title.raw.contains("(light novel)")
                     NOVEL -> !it.title.raw.contains("(manga)")
-                    COMIC -> false
+                    COMIC, WEBTOON -> false
                 }
             }
             .firstOrNull { nameMatcher.matches(seriesName, seriesTitleFromBook(it.title.raw)) }
