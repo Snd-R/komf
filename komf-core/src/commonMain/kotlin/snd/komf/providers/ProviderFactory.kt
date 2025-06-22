@@ -296,6 +296,9 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                     )
                 )
             }
+            install(ContentNegotiation) {
+                json()
+            }
         }
     )
 
@@ -857,7 +860,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 CoreProviders.COMIC_VINE -> comicVine
                 CoreProviders.HENTAG -> hentag
                 CoreProviders.MANGA_BAKA -> mangaBaka
-                CoreProviders.WEBTOOONS -> webtoons
+                CoreProviders.WEBTOONS -> webtoons
             }
         }
     }
