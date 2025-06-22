@@ -54,10 +54,10 @@ class WebtoonsMetadataMapper(
     }
 
     fun toSeriesMetadata(series: WebtoonsSeries, thumbnail: Image? = null): ProviderSeriesMetadata {
-        val authors = listOfNotNull(
-            series.author?.let { Author(it.name, AuthorRole.WRITER) },
+        val author = series.author?.let { authorRoles.map { role -> Author(it.name, role) } } ?: emptyList()
+        val artist = series.artist?.let { artistRoles.map { role -> Author(it.name, role ) } } ?: emptyList()
+        val authors =  author + artist + listOfNotNull(
             series.adaptedBy?.let { Author(it.name, AuthorRole.EDITOR) },
-            series.artist?.let { Author(it.name, AuthorRole.COLORIST) },
         )
 
         val titles = listOfNotNull(SeriesTitle(series.title, TitleType.LOCALIZED, "en"))

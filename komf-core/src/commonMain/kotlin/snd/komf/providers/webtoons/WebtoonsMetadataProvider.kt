@@ -3,7 +3,6 @@ package snd.komf.providers.webtoons
 import io.github.reactivecircus.cache4k.Cache
 import snd.komf.model.Image
 import snd.komf.model.MatchQuery
-import snd.komf.model.MediaType
 import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
@@ -24,7 +23,6 @@ class WebtoonsMetadataProvider(
     private val nameMatcher: NameSimilarityMatcher,
     private val fetchSeriesCovers: Boolean,
     private val fetchBookCovers: Boolean,
-    mediaType: MediaType,
 ) : MetadataProvider {
     override fun providerName() = CoreProviders.WEBTOONS
 

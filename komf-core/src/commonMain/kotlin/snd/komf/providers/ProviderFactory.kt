@@ -761,7 +761,6 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             nameMatcher = config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher,
             fetchSeriesCovers = config.seriesMetadata.thumbnail,
             fetchBookCovers = config.bookMetadata.thumbnail,
-            mediaType = config.mediaType
         )
     }
 
