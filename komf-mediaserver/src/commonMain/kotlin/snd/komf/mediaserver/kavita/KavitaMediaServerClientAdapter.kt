@@ -506,7 +506,7 @@ private fun KavitaSeriesMetadata.toMediaServerSeriesMetadata(series: KavitaSerie
         links = webLinks?.split(",")?.map { WebLink(it, it) } ?: emptyList(),
 
         statusLock = publicationStatusLocked,
-        titleLock = series.nameLocked,
+        titleLock = false,
         titleSortLock = series.sortNameLocked,
         summaryLock = summaryLocked,
         readingDirectionLock = false,
