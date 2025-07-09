@@ -42,12 +42,14 @@ fun KomfMediaType.toMediaType() = when (this) {
     KomfMediaType.MANGA -> MediaType.MANGA
     KomfMediaType.NOVEL -> MediaType.NOVEL
     KomfMediaType.COMIC -> MediaType.COMIC
+    KomfMediaType.WEBTOON -> MediaType.WEBTOON
 }
 
 fun MediaType.fromMediaType() = when (this) {
     MediaType.MANGA -> KomfMediaType.MANGA
     MediaType.NOVEL -> KomfMediaType.NOVEL
     MediaType.COMIC -> KomfMediaType.COMIC
+    MediaType.WEBTOON -> KomfMediaType.WEBTOON
 }
 
 fun KomfNameMatchingMode.toNameMatchingMode() = when (this) {
@@ -96,6 +98,7 @@ fun CoreProviders.fromProvider() = when (this) {
     CoreProviders.MANGA_UPDATES -> KomfCoreProviders.MANGA_UPDATES
     CoreProviders.MANGADEX -> KomfCoreProviders.MANGADEX
     CoreProviders.NAUTILJON -> KomfCoreProviders.NAUTILJON
+    CoreProviders.WEBTOONS -> KomfCoreProviders.WEBTOONS
     CoreProviders.YEN_PRESS -> KomfCoreProviders.YEN_PRESS
     CoreProviders.VIZ -> KomfCoreProviders.VIZ
 }
@@ -112,6 +115,7 @@ fun KomfProviders.toProvider() = when (this) {
     KomfCoreProviders.MANGA_UPDATES -> CoreProviders.MANGA_UPDATES
     KomfCoreProviders.MANGADEX -> CoreProviders.MANGADEX
     KomfCoreProviders.NAUTILJON -> CoreProviders.NAUTILJON
+    KomfCoreProviders.WEBTOONS -> CoreProviders.WEBTOONS
     KomfCoreProviders.YEN_PRESS -> CoreProviders.YEN_PRESS
     KomfCoreProviders.VIZ -> CoreProviders.VIZ
     is UnknownKomfProvider -> CoreProviders.valueOf(this.name)

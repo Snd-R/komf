@@ -35,6 +35,7 @@ class MangaBakaMetadataProvider(
 
         MediaType.NOVEL -> listOf(MangaBakaType.NOVEL)
         MediaType.COMIC -> listOf(MangaBakaType.OEL, MangaBakaType.OTHER)
+        MediaType.WEBTOON -> listOf(MangaBakaType.MANHUA, MangaBakaType.MANHWA)
     }
 
     private val cache = Cache.Builder<MangaBakaSeriesId, MangaBakaSeries>()

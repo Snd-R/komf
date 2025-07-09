@@ -105,7 +105,7 @@ komga:
     notificationsLibraryFilter: [ ] # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
   metadataUpdate:
     default:
-      libraryType: "MANGA" # Can be "MANGA", "NOVEL" or "COMIC". Hint to help better match book numbers
+      libraryType: "MANGA" # Can be "MANGA", "NOVEL", "COMIC" or "WEBTOON". Hint to help better match book numbers
       updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
       aggregate: false # if enabled will search and aggregate metadata from all configured providers
       mergeTags: false # if true and aggregate is enabled will merge tags from all providers
@@ -144,7 +144,7 @@ kavita:
     notificationsLibraryFilter: [ ] # Will send notifications if any notification source is enabled. If empty will send notifications for all libraries
   metadataUpdate:
     default:
-      libraryType: "MANGA" # Can be "MANGA", "NOVEL" or "COMIC". Hint to help better match book numbers
+      libraryType: "MANGA" # Can be "MANGA", "NOVEL", "COMIC" or "WEBTOON". Hint to help better match book numbers
       updateModes: [ API ] # can use multiple options at once. available options are API, COMIC_INFO
       aggregate: false # if enabled will search and aggregate metadata from all configured providers
       mergeTags: false # if true and aggregate is enabled will merge tags from all providers
@@ -185,20 +185,20 @@ metadataProviders:
     mangaUpdates:
       priority: 10
       enabled: true
-      mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
+      mediaType: "MANGA" # filter used in matching. Can be NOVEL, MANGA or WEBTOON. MANGA type includes everything except novels
       authorRoles: [ "WRITER" ] # roles that will be mapped to author role
       artistRoles: [ "PENCILLER","INKER","COLORIST","LETTERER","COVER" ] # roles that will be mapped to artist role
     mal:
       priority: 20
       enabled: false
-      mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
+      mediaType: "MANGA" # filter used in matching. Can be NOVEL, MANGA or WEBTOON. MANGA type includes everything except novels
     nautiljon:
       priority: 30
       enabled: false
     aniList:
       priority: 40
       enabled: false
-      mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA. MANGA type includes everything except novels
+      mediaType: "MANGA" # filter used in matching. Can be NOVEL, MANGA or WEBTOON. MANGA type includes everything except novels
       tagsScoreThreshold: 60 # tags with this score or higher will be included
       tagsSizeLimit: 15 # amount of tags that will be included
     yenPress:
@@ -214,7 +214,7 @@ metadataProviders:
     bookWalker:
       priority: 80
       enabled: false
-      mediaType: "MANGA" # filter used in matching. Can be NOVEL or MANGA.
+      mediaType: "MANGA" # filter used in matching. Can be NOVEL, MANGA or WEBTOON.
     mangaDex:
       priority: 90
       enabled: false
@@ -230,6 +230,9 @@ metadataProviders:
     hentag:
       priority: 120
       enabled: false
+    webtoons:
+      priority: 130
+      enabled: true
 
 server:
   port: 8085 # or env:KOMF_SERVER_PORT

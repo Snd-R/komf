@@ -29,7 +29,8 @@ class BookWalkerMetadataProvider(
     mediaType: MediaType,
 ) : MetadataProvider {
     private val category = when (mediaType) {
-        MediaType.MANGA -> MANGA
+        // Webtoon "V-Scroll" is a genre inside MANGA https://global.bookwalker.jp/genre/7411/
+        MediaType.MANGA, MediaType.WEBTOON -> MANGA
         MediaType.NOVEL -> LIGHT_NOVELS
         MediaType.COMIC -> throw IllegalStateException("Comics media type is not supported")
     }

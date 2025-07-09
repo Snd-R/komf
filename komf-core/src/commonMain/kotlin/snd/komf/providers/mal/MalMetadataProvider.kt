@@ -25,6 +25,7 @@ private val logger = KotlinLogging.logger {}
 
 private val mangaMediaTypes = listOf(MANGA, ONE_SHOT, DOUJINSHI, MANHWA, MANHUA, OEL)
 private val novelMediaTypes = listOf(NOVEL, LIGHT_NOVEL)
+private val webtoonMediaTypes = listOf(MANHUA, MANHWA)
 
 class MalMetadataProvider(
     private val malClient: MalClient,
@@ -37,6 +38,7 @@ class MalMetadataProvider(
         MediaType.MANGA -> mangaMediaTypes
         MediaType.NOVEL -> novelMediaTypes
         MediaType.COMIC -> throw IllegalStateException("Comics media type is not supported")
+        MediaType.WEBTOON -> webtoonMediaTypes
     }
 
     override fun providerName() = MAL

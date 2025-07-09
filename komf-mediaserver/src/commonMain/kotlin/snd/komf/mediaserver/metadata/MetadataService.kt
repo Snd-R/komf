@@ -311,6 +311,8 @@ class MetadataService(
         return when (libraryType) {
             MediaType.MANGA -> BookNameParser.getVolumes(bookName)
             MediaType.NOVEL, MediaType.COMIC -> BookNameParser.getBookNumber(bookName)
+            MediaType.WEBTOON -> BookNameParser.getChapters(bookName)
+                ?: BookNameParser.getBookNumber(bookName)
         }
     }
 

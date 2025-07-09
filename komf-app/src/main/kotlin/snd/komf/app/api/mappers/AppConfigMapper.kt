@@ -150,6 +150,7 @@ class AppConfigMapper {
             comicVine = toDto(config.comicVine),
             hentag = toDto(config.hentag),
             mangaBaka = toDto(config.mangaBaka),
+            webtoons = toDto(config.webtoons),
         )
     }
 
