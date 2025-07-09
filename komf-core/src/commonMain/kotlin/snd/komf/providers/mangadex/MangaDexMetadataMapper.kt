@@ -80,7 +80,58 @@ class MangaDexMetadataMapper(
                     .mapNotNull { it.attributes.name["en"] ?: it.attributes.name.values.firstOrNull() }
 
         val originalLang = manga.attributes.originalLanguage
-        val titles = manga.attributes.altTitles
+        val originalRomaji = "${manga.attributes.originalLanguage}-ro"
+        // search altTitles for given key
+        var originalRomajiFound = false
+        val titleLang = manga.attributes.title.keys.first()
+        var titleLangDuped = false
+
+        // also check altTitles for native that's wrongly marked as "en"
+        var incorrectAltTitle : Map<String, String>? = null
+        for (altTitle in manga.attributes.altTitles) {
+            if (altTitle.keys.contains(originalRomaji)) {
+                originalRomajiFound = true
+            }
+
+            if (altTitle.keys.contains(titleLang)) {
+                titleLangDuped = true
+            }
+
+            if (altTitle.keys.contains("en")) {
+                altTitle["en"]?.let {
+                    val detectedLanguages = LanguageCharType.detect(it)
+                    if ((detectedLanguages.size == 1) && (detectedLanguages.contains(originalLang))) {
+                        incorrectAltTitle = altTitle
+                    }
+                }
+            }
+        }
+
+        var title = manga.attributes.title
+        if (titleLangDuped && (originalLang == "ja")) {
+            // if original romaji was not found in altTitle and title lang is duped, assume
+            // title is original
+            // romaji irrespective of what its language indicator says.
+            if (!originalRomajiFound) {
+                val name = title[titleLang]
+                name?.let { title = mapOf(originalRomaji to it) }
+            }
+        }
+
+        // combine title and altTitle into 1 list.
+        val titleList = buildList {
+            add(title)
+            manga.attributes.altTitles.forEach {
+                if ((incorrectAltTitle != null) && (it == incorrectAltTitle)) {
+                    // We know incorrectAltTitle["en"] isn't null here because we checked it above.
+                    add(mapOf(originalLang to incorrectAltTitle["en"]!!))
+                } else {
+                    add(it)
+                }
+            }
+        }
+
+        val titles = titleList
             .map { it.entries.first() }
             .map { (lang, name) ->
                 when (lang) {
