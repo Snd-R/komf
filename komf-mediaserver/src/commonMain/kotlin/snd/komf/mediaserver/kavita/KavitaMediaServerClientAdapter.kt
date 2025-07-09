@@ -112,11 +112,10 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
         metadata: MediaServerSeriesMetadataUpdate
     ) {
         val localizedName = metadata.alternativeTitles?.find { it.language != null }
-        if (metadata.title != null || localizedName != null) {
+        if (metadata.titleSort != null || localizedName != null) {
             val series = kavitaClient.getSeries(seriesId.toKavitaSeriesId())
             kavitaClient.updateSeries(
                 series.toKavitaTitleUpdate(
-                    metadata.title?.name,
                     metadata.titleSort?.name,
                     localizedName?.name
                 )
@@ -305,7 +304,7 @@ private fun KavitaSeriesMetadata.toMediaServerSeriesMetadata(series: KavitaSerie
         links = webLinks?.split(",")?.map { WebLink(it, it) } ?: emptyList(),
 
         statusLock = publicationStatusLocked,
-        titleLock = series.nameLocked,
+        titleLock = false,
         titleSortLock = series.sortNameLocked,
         summaryLock = summaryLocked,
         readingDirectionLock = false,
@@ -477,13 +476,11 @@ private fun kavitaSeriesResetRequest(seriesId: KavitaSeriesId): KavitaSeriesMeta
     return KavitaSeriesMetadataUpdateRequest(metadata)
 }
 
-private fun KavitaSeries.toKavitaTitleUpdate(newName: String?, newSortName: String?, newLocalizedName: String?) =
+private fun KavitaSeries.toKavitaTitleUpdate(newSortName: String?, newLocalizedName: String?) =
     KavitaSeriesUpdateRequest(
         id = id,
-        name = newName?.trim() ?: name,
         sortName = newSortName?.trim() ?: sortName,
         localizedName = newLocalizedName?.trim() ?: localizedName,
-        nameLocked = nameLocked,
         sortNameLocked = sortNameLocked,
         localizedNameLocked = localizedNameLocked,
 
@@ -492,10 +489,8 @@ private fun KavitaSeries.toKavitaTitleUpdate(newName: String?, newSortName: Stri
 
 private fun KavitaSeries.toKavitaCoverResetRequest() = KavitaSeriesUpdateRequest(
     id = id,
-    name = name,
     localizedName = localizedName,
     sortName = sortName,
-    nameLocked = false,
     sortNameLocked = false,
     localizedNameLocked = false,
 

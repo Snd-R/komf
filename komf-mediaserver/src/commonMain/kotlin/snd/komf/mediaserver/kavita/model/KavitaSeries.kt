@@ -27,14 +27,12 @@ class KavitaSeries(
     val originalName: String,
     val localizedName: String? = null,
     val sortName: String,
-    val summary: String? = null,
     val pages: Int,
     val format: Int,
     val created: LocalDateTime,
     val folderPath: String,
     val coverImageLocked: Boolean,
     val localizedNameLocked: Boolean,
-    val nameLocked: Boolean,
     val sortNameLocked: Boolean,
 )
 
