@@ -232,7 +232,7 @@ metadataProviders:
       enabled: false
     webtoons:
       priority: 130
-      enabled: true
+      enabled: false
 
 server:
   port: 8085 # or env:KOMF_SERVER_PORT
