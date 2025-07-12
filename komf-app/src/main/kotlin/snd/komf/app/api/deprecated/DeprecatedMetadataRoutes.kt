@@ -1,12 +1,17 @@
 package snd.komf.app.api.deprecated
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
-import kotlinx.coroutines.flow.StateFlow
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.route
+import io.ktor.server.routing.routing
+import io.ktor.server.util.getOrFail
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.takeWhile
 import snd.komf.app.api.deprecated.dto.IdentifySeriesRequest
 import snd.komf.mediaserver.MediaServerClient
@@ -20,8 +25,8 @@ import snd.komf.model.ProviderSeriesId
 import snd.komf.providers.CoreProviders
 
 class DeprecatedMetadataRoutes(
-    private val metadataServiceProvider: StateFlow<MetadataServiceProvider>,
-    private val mediaServerClient: StateFlow<MediaServerClient>,
+    private val metadataServiceProvider: Flow<MetadataServiceProvider>,
+    private val mediaServerClient: Flow<MediaServerClient>,
     private val jobTracker: KomfJobTracker,
     private val serverType: MediaServer,
 ) {
@@ -46,8 +51,8 @@ class DeprecatedMetadataRoutes(
 
             val providers = (
                     libraryId
-                        ?.let { metadataServiceProvider.value.metadataServiceFor(it.value).availableProviders(it) }
-                        ?: metadataServiceProvider.value.defaultMetadataService().availableProviders()
+                        ?.let { metadataServiceProvider.first().metadataServiceFor(it.value).availableProviders(it) }
+                        ?: metadataServiceProvider.first().defaultMetadataService().availableProviders()
                     )
                 .map { it.providerName().name }
 
@@ -63,11 +68,13 @@ class DeprecatedMetadataRoutes(
             val seriesId = call.request.queryParameters["seriesId"]?.let { MediaServerSeriesId(it) }
             val libraryId = call.request.queryParameters["libraryId"]
                 ?.let { MediaServerLibraryId(it) }
-                ?: seriesId?.let { mediaServerClient.value.getSeries(it).libraryId }
+                ?: seriesId?.let { mediaServerClient.first().getSeries(it).libraryId }
 
             val searchResults = libraryId
-                ?.let { metadataServiceProvider.value.metadataServiceFor(it.value).searchSeriesMetadata(seriesName, it) }
-                ?: metadataServiceProvider.value.defaultMetadataService().searchSeriesMetadata(seriesName)
+                ?.let {
+                    metadataServiceProvider.first().metadataServiceFor(it.value).searchSeriesMetadata(seriesName, it)
+                }
+                ?: metadataServiceProvider.first().defaultMetadataService().searchSeriesMetadata(seriesName)
 
             call.respond(HttpStatusCode.OK, searchResults)
         }
@@ -78,9 +85,9 @@ class DeprecatedMetadataRoutes(
             val request = call.receive<IdentifySeriesRequest>()
 
             val libraryId = request.libraryId
-                ?: mediaServerClient.value.getSeries(MediaServerSeriesId(request.seriesId)).libraryId.value
+                ?: mediaServerClient.first().getSeries(MediaServerSeriesId(request.seriesId)).libraryId.value
 
-            val jobId = metadataServiceProvider.value.metadataServiceFor(libraryId).setSeriesMetadata(
+            val jobId = metadataServiceProvider.first().metadataServiceFor(libraryId).setSeriesMetadata(
                 MediaServerSeriesId(request.seriesId),
                 CoreProviders.valueOf(request.provider.uppercase()),
                 ProviderSeriesId(request.providerSeriesId),
@@ -99,7 +106,7 @@ class DeprecatedMetadataRoutes(
 
             val libraryId = call.parameters.getOrFail("libraryId")
             val seriesId = MediaServerSeriesId(call.parameters.getOrFail("seriesId"))
-            val jobId = metadataServiceProvider.value.metadataServiceFor(libraryId).matchSeriesMetadata(seriesId)
+            val jobId = metadataServiceProvider.first().metadataServiceFor(libraryId).matchSeriesMetadata(seriesId)
             jobTracker.getMetadataJobEvents(jobId)
                 ?.takeWhile { it != CompletionEvent }
                 ?.collect {}
@@ -111,7 +118,7 @@ class DeprecatedMetadataRoutes(
     private fun Route.matchLibraryRoute() {
         post("/match/library/{libraryId}") {
             val libraryId = MediaServerLibraryId(call.parameters.getOrFail("libraryId"))
-            metadataServiceProvider.value.metadataServiceFor(libraryId.value).matchLibraryMetadata(libraryId)
+            metadataServiceProvider.first().metadataServiceFor(libraryId.value).matchLibraryMetadata(libraryId)
             call.response.status(HttpStatusCode.Accepted)
         }
     }
@@ -121,7 +128,7 @@ class DeprecatedMetadataRoutes(
             val libraryId = call.parameters.getOrFail("libraryId")
             val seriesId = MediaServerSeriesId(call.parameters.getOrFail("seriesId"))
             val removeComicInfo = call.queryParameters["removeComicInfo"].toBoolean()
-            metadataServiceProvider.value.updateServiceFor(libraryId).resetSeriesMetadata(seriesId, removeComicInfo)
+            metadataServiceProvider.first().updateServiceFor(libraryId).resetSeriesMetadata(seriesId, removeComicInfo)
             call.response.status(HttpStatusCode.NoContent)
         }
     }
@@ -130,7 +137,7 @@ class DeprecatedMetadataRoutes(
         post("/reset/library/{libraryId}") {
             val libraryId = MediaServerLibraryId(call.parameters.getOrFail("libraryId"))
             val removeComicInfo = call.queryParameters["removeComicInfo"].toBoolean()
-            metadataServiceProvider.value.updateServiceFor(libraryId.value)
+            metadataServiceProvider.first().updateServiceFor(libraryId.value)
                 .resetLibraryMetadata(libraryId, removeComicInfo)
             call.response.status(HttpStatusCode.NoContent)
         }

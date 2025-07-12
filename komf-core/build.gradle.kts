@@ -26,16 +26,16 @@ kotlin {
         }
     }
 
-//    @OptIn(ExperimentalWasmDsl::class)
-//    wasmJs {
-//        moduleName = "komf-core"
-//    }
-
     sourceSets {
         commonMain.dependencies {
             implementation(libs.cache4k)
             implementation(libs.commons.compress)
             implementation(libs.commons.text)
+            api(libs.exposed.core)
+            implementation(libs.exposed.jdbc)
+            implementation(libs.exposed.json)
+            implementation(libs.exposed.migration)
+            implementation(libs.exposed.kotlin.datetime)
             implementation(libs.kotlin.logging)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)

@@ -1,17 +1,20 @@
 package snd.komf.app.api
 
-import io.ktor.client.plugins.*
-import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import kotlinx.coroutines.flow.StateFlow
+import io.ktor.client.plugins.ResponseException
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.route
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import snd.komf.api.mediaserver.KomfMediaServerConnectionResponse
 import snd.komf.api.mediaserver.KomfMediaServerLibrary
 import snd.komf.api.mediaserver.KomfMediaServerLibraryId
 import snd.komf.mediaserver.MediaServerClient
 
 class MediaServerRoutes(
-    private val mediaServerClient: StateFlow<MediaServerClient>,
+    private val mediaServerClient: Flow<MediaServerClient>,
 ) {
 
     fun registerRoutes(routing: Route) {
@@ -24,7 +27,7 @@ class MediaServerRoutes(
     private fun Route.checkConnectionRoute() {
         get("/connected") {
             try {
-                mediaServerClient.value.getLibraries()
+                mediaServerClient.first().getLibraries()
                 call.respond(
                     HttpStatusCode.OK,
                     KomfMediaServerConnectionResponse(
@@ -62,7 +65,7 @@ class MediaServerRoutes(
 
     private fun Route.getLibrariesRoute() {
         get("/libraries") {
-            val libraries = mediaServerClient.value.getLibraries().map {
+            val libraries = mediaServerClient.first().getLibraries().map {
                 KomfMediaServerLibrary(
                     id = KomfMediaServerLibraryId(it.id.value),
                     name = it.name,

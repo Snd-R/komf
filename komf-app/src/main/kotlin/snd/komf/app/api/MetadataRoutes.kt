@@ -1,14 +1,19 @@
 package snd.komf.app.api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.client.plugins.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
-import kotlinx.coroutines.flow.StateFlow
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.route
+import io.ktor.server.util.getOrFail
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import snd.komf.api.KomfErrorResponse
 import snd.komf.api.KomfProviderSeriesId
 import snd.komf.api.job.KomfMetadataJobId
@@ -28,8 +33,8 @@ import snd.komf.providers.CoreProviders
 private val logger = KotlinLogging.logger {}
 
 class MetadataRoutes(
-    private val metadataServiceProvider: StateFlow<MetadataServiceProvider>,
-    private val mediaServerClient: StateFlow<MediaServerClient>,
+    private val metadataServiceProvider: Flow<MetadataServiceProvider>,
+    private val mediaServerClient: Flow<MediaServerClient>,
 ) {
 
     fun registerRoutes(routing: Route) {
@@ -53,8 +58,8 @@ class MetadataRoutes(
 
             val providers = (
                     libraryId
-                        ?.let { metadataServiceProvider.value.metadataServiceFor(it.value).availableProviders(it) }
-                        ?: metadataServiceProvider.value.defaultMetadataService().availableProviders()
+                        ?.let { metadataServiceProvider.first().metadataServiceFor(it.value).availableProviders(it) }
+                        ?: metadataServiceProvider.first().defaultMetadataService().availableProviders()
                     )
                 .map { it.providerName().name }
 
@@ -70,14 +75,14 @@ class MetadataRoutes(
             val seriesId = call.request.queryParameters["seriesId"]?.let { MediaServerSeriesId(it) }
             val libraryId = call.request.queryParameters["libraryId"]
                 ?.let { MediaServerLibraryId(it) }
-                ?: seriesId?.let { mediaServerClient.value.getSeries(it).libraryId }
+                ?: seriesId?.let { mediaServerClient.first().getSeries(it).libraryId }
 
             try {
                 val searchResults = libraryId
                     ?.let {
-                        metadataServiceProvider.value.metadataServiceFor(it.value).searchSeriesMetadata(seriesName, it)
+                        metadataServiceProvider.first().metadataServiceFor(it.value).searchSeriesMetadata(seriesName, it)
                     }
-                    ?: metadataServiceProvider.value.defaultMetadataService().searchSeriesMetadata(seriesName)
+                    ?: metadataServiceProvider.first().defaultMetadataService().searchSeriesMetadata(seriesName)
 
                 call.respond(HttpStatusCode.OK, searchResults.map {
                     KomfMetadataSeriesSearchResult(
@@ -107,7 +112,7 @@ class MetadataRoutes(
             val provider = CoreProviders.valueOf(call.request.queryParameters.getOrFail("provider"))
             val providerSeriesId = ProviderSeriesId(call.request.queryParameters.getOrFail("providerSeriesId"))
 
-            val metadataService = metadataServiceProvider.value.metadataServiceFor(libraryId.value)
+            val metadataService = metadataServiceProvider.first().metadataServiceFor(libraryId.value)
             val image = metadataService.getSeriesCover(
                 libraryId = libraryId,
                 providerName = provider,
@@ -124,9 +129,9 @@ class MetadataRoutes(
             val request = call.receive<KomfIdentifyRequest>()
 
             val libraryId = request.libraryId?.value
-                ?: mediaServerClient.value.getSeries(MediaServerSeriesId(request.seriesId.value)).libraryId.value
+                ?: mediaServerClient.first().getSeries(MediaServerSeriesId(request.seriesId.value)).libraryId.value
 
-            val jobId = metadataServiceProvider.value.metadataServiceFor(libraryId).setSeriesMetadata(
+            val jobId = metadataServiceProvider.first().metadataServiceFor(libraryId).setSeriesMetadata(
                 MediaServerSeriesId(request.seriesId.value),
                 request.provider.toProvider(),
                 ProviderSeriesId(request.providerSeriesId.value),
@@ -144,7 +149,7 @@ class MetadataRoutes(
 
             val libraryId = call.parameters.getOrFail("libraryId")
             val seriesId = MediaServerSeriesId(call.parameters.getOrFail("seriesId"))
-            val jobId = metadataServiceProvider.value.metadataServiceFor(libraryId).matchSeriesMetadata(seriesId)
+            val jobId = metadataServiceProvider.first().metadataServiceFor(libraryId).matchSeriesMetadata(seriesId)
 
             call.respond(
                 KomfMetadataJobResponse(KomfMetadataJobId(jobId.value.toString()))
@@ -155,7 +160,7 @@ class MetadataRoutes(
     private fun Route.matchLibraryRoute() {
         post("/match/library/{libraryId}") {
             val libraryId = MediaServerLibraryId(call.parameters.getOrFail("libraryId"))
-            metadataServiceProvider.value.metadataServiceFor(libraryId.value).matchLibraryMetadata(libraryId)
+            metadataServiceProvider.first().metadataServiceFor(libraryId.value).matchLibraryMetadata(libraryId)
             call.response.status(HttpStatusCode.Accepted)
         }
     }
@@ -166,7 +171,7 @@ class MetadataRoutes(
             val seriesId = MediaServerSeriesId(call.parameters.getOrFail("seriesId"))
             val removeComicInfo = call.queryParameters["removeComicInfo"].toBoolean()
             try {
-                metadataServiceProvider.value.updateServiceFor(libraryId).resetSeriesMetadata(seriesId, removeComicInfo)
+                metadataServiceProvider.first().updateServiceFor(libraryId).resetSeriesMetadata(seriesId, removeComicInfo)
             } catch (e: ComicInfoException) {
                 call.respond(HttpStatusCode.UnprocessableEntity, KomfErrorResponse(e.message))
                 return@post
@@ -179,7 +184,7 @@ class MetadataRoutes(
         post("/reset/library/{libraryId}") {
             val libraryId = MediaServerLibraryId(call.parameters.getOrFail("libraryId"))
             val removeComicInfo = call.queryParameters["removeComicInfo"].toBoolean()
-            metadataServiceProvider.value.updateServiceFor(libraryId.value)
+            metadataServiceProvider.first().updateServiceFor(libraryId.value)
                 .resetLibraryMetadata(libraryId, removeComicInfo)
             call.response.status(HttpStatusCode.NoContent)
         }

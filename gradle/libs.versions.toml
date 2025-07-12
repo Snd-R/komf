@@ -4,6 +4,7 @@ agp = "8.7.3"
 cache4k = "0.14.0"
 commons-text = "1.12.0"
 commons-compress = "1.27.1"
+exposed = "0.61.0"
 jose4j = "0.9.6"
 kaml = "0.77.1"
 kotlin = "2.1.20"
@@ -32,6 +33,11 @@ xmlutil = "0.91.0"
 cache4k = { module = "io.github.reactivecircus.cache4k:cache4k", version.ref = "cache4k" }
 commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
 commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
+exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
+exposed-migration = { module = "org.jetbrains.exposed:exposed-migration", version.ref = "exposed" }
 jose4j = { module = "org.bitbucket.b_c:jose4j", version.ref = "jose4j" }
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }

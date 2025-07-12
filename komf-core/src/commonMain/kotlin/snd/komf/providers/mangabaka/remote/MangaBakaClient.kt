@@ -1,14 +1,14 @@
-package snd.komf.providers.mangabaka
+package snd.komf.providers.mangabaka.remote
 
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import snd.komf.model.Image
-import snd.komf.providers.mangabaka.model.MangaBakaSearchResponse
-import snd.komf.providers.mangabaka.model.MangaBakaSeries
-import snd.komf.providers.mangabaka.model.MangaBakaSeriesId
-import snd.komf.providers.mangabaka.model.MangaBakaType
+import snd.komf.providers.mangabaka.remote.model.MangaBakaSearchResponse
+import snd.komf.providers.mangabaka.remote.model.MangaBakaSeries
+import snd.komf.providers.mangabaka.remote.model.MangaBakaSeriesId
+import snd.komf.providers.mangabaka.remote.model.MangaBakaType
 
 class MangaBakaClient(private val ktor: HttpClient) {
     private val baseUrl = "https://mangabaka.dev"

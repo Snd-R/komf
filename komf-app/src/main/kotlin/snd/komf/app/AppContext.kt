@@ -5,11 +5,13 @@ import ch.qos.logback.classic.Logger
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.plugins.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.UserAgent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
@@ -19,22 +21,17 @@ import org.slf4j.LoggerFactory
 import snd.komf.app.config.AppConfig
 import snd.komf.app.config.ConfigLoader
 import snd.komf.app.config.ConfigWriter
+import snd.komf.app.module.ApiDynamicDependencies
 import snd.komf.app.module.MediaServerModule
 import snd.komf.app.module.NotificationsModule
 import snd.komf.app.module.ProvidersModule
 import snd.komf.app.module.ServerModule
 import snd.komf.ktor.komfUserAgent
-import snd.komf.mediaserver.MediaServerClient
-import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.jobs.KomfJobTracker
 import snd.komf.mediaserver.jobs.KomfJobsRepository
 import snd.komf.mediaserver.repository.Database
 import snd.komf.mediaserver.repository.DriverFactory
 import snd.komf.mediaserver.repository.createDatabase
-import snd.komf.notifications.apprise.AppriseCliService
-import snd.komf.notifications.apprise.AppriseVelocityTemplates
-import snd.komf.notifications.discord.DiscordVelocityTemplates
-import snd.komf.notifications.discord.DiscordWebhookService
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.createDirectories
@@ -47,6 +44,8 @@ class AppContext(private val configPath: Path? = null) {
     var appConfig: AppConfig
         private set
 
+    private val reloadMutex = Mutex()
+
     private val ktorBaseClient: HttpClient
     private val jsonBase: Json
     private val mediaServerDatabase: Database
@@ -58,15 +57,7 @@ class AppContext(private val configPath: Path? = null) {
     private var mediaServerModule: MediaServerModule
     private var notificationsModule: NotificationsModule
 
-    private val komgaClient: MutableStateFlow<MediaServerClient>
-    private val komgaServiceProvider: MutableStateFlow<MetadataServiceProvider>
-    private val kavitaClient: MutableStateFlow<MediaServerClient>
-    private val kavitaServiceProvider: MutableStateFlow<MetadataServiceProvider>
-
-    private val discordService: MutableStateFlow<DiscordWebhookService>
-    private val discordRenderer: MutableStateFlow<DiscordVelocityTemplates>
-    private val appriseService: MutableStateFlow<AppriseCliService>
-    private val appriseRenderer: MutableStateFlow<AppriseVelocityTemplates>
+    private var apiRoutesDependencies: MutableStateFlow<ApiDynamicDependencies>
 
     private val yaml = Yaml(
         configuration = YamlConfiguration(
@@ -128,40 +119,43 @@ class AppContext(private val configPath: Path? = null) {
             jobTracker = jobTracker,
             metadataProviders = providersModule.metadataProviders
         )
-        komgaClient = MutableStateFlow(mediaServerModule.komgaClient)
-        komgaServiceProvider = MutableStateFlow(mediaServerModule.komgaMetadataServiceProvider)
-        kavitaClient = MutableStateFlow(mediaServerModule.kavitaMediaServerClient)
-        kavitaServiceProvider = MutableStateFlow(mediaServerModule.kavitaMetadataServiceProvider)
-        discordService = MutableStateFlow(notificationsModule.discordWebhookService)
-        discordRenderer = MutableStateFlow(notificationsModule.discordVelocityRenderer)
-        appriseService = MutableStateFlow(notificationsModule.appriseService)
-        appriseRenderer = MutableStateFlow(notificationsModule.appriseVelocityRenderer)
+        this.apiRoutesDependencies = MutableStateFlow(createApiRoutesDependencies())
 
         serverModule = ServerModule(
-            appContext = this,
+            serverPort = config.server.port,
+            onConfigUpdate = this::refreshState,
+            onStateReload = this::refreshState,
             jobTracker = jobTracker,
             jobsRepository = jobRepository,
-            komgaMediaServerClient = komgaClient,
-            komgaMetadataServiceProvider = komgaServiceProvider,
-            kavitaMediaServerClient = kavitaClient,
-            kavitaMetadataServiceProvider = kavitaServiceProvider,
-            discordService = discordService,
-            discordRenderer = discordRenderer,
-            appriseService = appriseService,
-            appriseRenderer = appriseRenderer
+            dynamicDependencies = apiRoutesDependencies,
         )
 
         serverModule.startServer()
     }
 
+
+    suspend fun refreshState() {
+        reloadMutex.withLock {
+            reloadModules(this.appConfig)
+        }
+    }
+
     suspend fun refreshState(newConfig: AppConfig) {
+        reloadMutex.withLock {
+            reloadModules(newConfig)
+            appConfig = newConfig
+            writeConfig(newConfig)
+        }
+    }
+
+    private fun reloadModules(config: AppConfig) {
         logger.info { "Reconfiguring application state" }
 
-        val providersModule = ProvidersModule(newConfig.metadataProviders, ktorBaseClient)
-        val notificationsModule = NotificationsModule(newConfig.notifications, ktorBaseClient)
+        val providersModule = ProvidersModule(config.metadataProviders, ktorBaseClient)
+        val notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
         val mediaServerModule = MediaServerModule(
-            komgaConfig = newConfig.komga,
-            kavitaConfig = newConfig.kavita,
+            komgaConfig = config.komga,
+            kavitaConfig = config.kavita,
             jsonBase = jsonBase,
             ktorBaseClient = ktorBaseClient,
             mediaServerDatabase = mediaServerDatabase,
@@ -171,25 +165,32 @@ class AppContext(private val configPath: Path? = null) {
             metadataProviders = providersModule.metadataProviders
         )
 
-        close()
-        appConfig = newConfig
+        this.close()
 
         this.providersModule = providersModule
         this.notificationsModule = notificationsModule
         this.mediaServerModule = mediaServerModule
+        apiRoutesDependencies.value = createApiRoutesDependencies()
+    }
 
-        komgaClient.value = mediaServerModule.komgaClient
-        komgaServiceProvider.value = mediaServerModule.komgaMetadataServiceProvider
-        kavitaClient.value = mediaServerModule.kavitaMediaServerClient
-        kavitaServiceProvider.value = mediaServerModule.kavitaMetadataServiceProvider
-        discordService.value = notificationsModule.discordWebhookService
-        discordRenderer.value = notificationsModule.discordVelocityRenderer
-        appriseService.value = notificationsModule.appriseService
-        appriseRenderer.value = notificationsModule.appriseVelocityRenderer
+    private fun createApiRoutesDependencies() = ApiDynamicDependencies(
+        config = this.appConfig,
+        komgaMediaServerClient = mediaServerModule.komgaClient,
+        komgaMetadataServiceProvider = mediaServerModule.komgaMetadataServiceProvider,
+        kavitaMediaServerClient = mediaServerModule.kavitaMediaServerClient,
+        kavitaMetadataServiceProvider = mediaServerModule.kavitaMetadataServiceProvider,
+        discordService = notificationsModule.discordWebhookService,
+        discordRenderer = notificationsModule.discordVelocityRenderer,
+        appriseService = notificationsModule.appriseService,
+        appriseRenderer = notificationsModule.appriseVelocityRenderer,
+        mangaBakaDbAvailable = providersModule.mangaBakaDatabase != null,
+        mangaBakaDownloader = providersModule.mangaBakaDatabaseDownloader,
+    )
 
+    private suspend fun writeConfig(config: AppConfig) {
         withContext(Dispatchers.IO) {
-            configPath?.let { path -> configWriter.writeConfig(newConfig, path) }
-                ?: configWriter.writeConfigToDefaultPath(newConfig)
+            configPath?.let { path -> configWriter.writeConfig(config, path) }
+                ?: configWriter.writeConfigToDefaultPath(config)
         }
     }
 

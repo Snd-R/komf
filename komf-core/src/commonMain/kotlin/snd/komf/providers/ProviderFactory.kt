@@ -1,17 +1,25 @@
 package snd.komf.providers
 
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.cookies.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpRequestRetryConfig
+import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.ConstantCookiesStorage
+import io.ktor.client.plugins.cookies.HttpCookies
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.cookie
+import io.ktor.client.request.header
+import io.ktor.http.Cookie
 import io.ktor.http.HttpStatusCode.Companion.TooManyRequests
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import org.jetbrains.exposed.sql.Database
 import snd.komf.ktor.HttpRequestRateLimiter
 import snd.komf.ktor.intervalLimiter
 import snd.komf.ktor.komfUserAgent
@@ -38,12 +46,11 @@ import snd.komf.providers.kodansha.KodanshaMetadataProvider
 import snd.komf.providers.mal.MalClient
 import snd.komf.providers.mal.MalMetadataMapper
 import snd.komf.providers.mal.MalMetadataProvider
-import snd.komf.providers.mangabaka.MangaBakaMetadataMapper
-import snd.komf.providers.mangabaka.MangaBakaMetadataProvider
-import snd.komf.providers.mangabaka.MangaBakaClient
-import snd.komf.providers.webtoons.WebtoonsClient
-import snd.komf.providers.webtoons.WebtoonsMetadataMapper
-import snd.komf.providers.webtoons.WebtoonsMetadataProvider
+import snd.komf.providers.mangabaka.local.MangaBakaDBMetadataProvider
+import snd.komf.providers.mangabaka.local.MangaBakaRepository
+import snd.komf.providers.mangabaka.remote.MangaBakaClient
+import snd.komf.providers.mangabaka.remote.MangaBakaMetadataMapper
+import snd.komf.providers.mangabaka.remote.MangaBakaMetadataProvider
 import snd.komf.providers.mangadex.MangaDexClient
 import snd.komf.providers.mangadex.MangaDexMetadataMapper
 import snd.komf.providers.mangadex.MangaDexMetadataProvider
@@ -61,6 +68,9 @@ import snd.komf.providers.nautiljon.NautiljonSeriesMetadataMapper
 import snd.komf.providers.viz.VizClient
 import snd.komf.providers.viz.VizMetadataMapper
 import snd.komf.providers.viz.VizMetadataProvider
+import snd.komf.providers.webtoons.WebtoonsClient
+import snd.komf.providers.webtoons.WebtoonsMetadataMapper
+import snd.komf.providers.webtoons.WebtoonsMetadataProvider
 import snd.komf.providers.yenpress.YenPressClient
 import snd.komf.providers.yenpress.YenPressMetadataMapper
 import snd.komf.providers.yenpress.YenPressMetadataProvider
@@ -68,9 +78,14 @@ import snd.komf.util.NameSimilarityMatcher
 import snd.komf.util.NameSimilarityMatcher.Companion.nameSimilarityMatcher
 import kotlin.time.Duration.Companion.seconds
 
+private val logger = KotlinLogging.logger { }
+
 class ProviderFactory(providedHttpClient: HttpClient?) {
 
-    fun getMetadataProviders(config: MetadataProvidersConfig): MetadataProviders {
+    fun getMetadataProviders(
+        config: MetadataProvidersConfig,
+        mangaBakaDatabase: Database?
+    ): MetadataProviders {
         val defaultNameMatcher = nameSimilarityMatcher(config.nameMatchingMode)
         val defaultProviders = createMetadataProviders(
             config = config.defaultProviders,
@@ -78,6 +93,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             malClientId = config.malClientId,
             comicVineClientId = config.comicVineApiKey,
             bangumiToken = config.bangumiToken,
+            mangaBakaDatabase = mangaBakaDatabase,
         )
         val libraryProviders = config.libraryProviders
             .map { (libraryId, libraryConfig) ->
@@ -87,6 +103,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                     malClientId = config.malClientId,
                     comicVineClientId = config.comicVineApiKey,
                     bangumiToken = config.bangumiToken,
+                    mangaBakaDatabase = mangaBakaDatabase,
                 )
             }
             .toMap()
@@ -308,6 +325,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         malClientId: String?,
         comicVineClientId: String?,
         bangumiToken: String?,
+        mangaBakaDatabase: Database?
     ): MetadataProvidersContainer {
         return MetadataProvidersContainer(
             mangaupdates = createMangaUpdatesMetadataProvider(
@@ -389,6 +407,13 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 defaultNameMatcher = defaultNameMatcher
             ),
             mangaBakaPriority = config.mangaBaka.priority,
+            mangaBakaLocal =
+                createMangaBakaLocalMetadataProvider(
+                    config = config.mangaBakaLocal,
+                    defaultNameMatcher = defaultNameMatcher,
+                    database = mangaBakaDatabase
+                ),
+            mangaBakaLocalPriority = config.mangaBakaLocal.priority,
             webtoons = createWebtoonsMetadataProvider(
                 config = config.webtoons,
                 client = webtoonsClient,
@@ -744,6 +769,25 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         )
     }
 
+    private fun createMangaBakaLocalMetadataProvider(
+        config: ProviderConfig,
+        defaultNameMatcher: NameSimilarityMatcher,
+        database: Database?
+    ): MangaBakaDBMetadataProvider? {
+        if (config.enabled.not()) return null
+        if (database == null) {
+            logger.warn { "MangaBaka database file not found. MangaBaka local provider will be disabled" }
+            return null
+        }
+        return MangaBakaDBMetadataProvider(
+            repository = MangaBakaRepository(database),
+            nameMatcher = config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher,
+            ktor = baseHttpClient,
+            fetchSeriesCovers = config.seriesMetadata.thumbnail,
+            mediaType = config.mediaType
+        )
+    }
+
     private fun createWebtoonsMetadataProvider(
         config: ProviderConfig,
         client: WebtoonsClient,
@@ -820,6 +864,9 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
         private val mangaBaka: MangaBakaMetadataProvider?,
         private val mangaBakaPriority: Int,
 
+        private val mangaBakaLocal: MangaBakaDBMetadataProvider?,
+        private val mangaBakaLocalPriority: Int,
+
         private val webtoons: WebtoonsMetadataProvider?,
         private val webtoonsPriority: Int,
     ) {
@@ -838,6 +885,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
             comicVine?.let { it to comicVinePriority },
             hentag?.let { it to hentagPriority },
             mangaBaka?.let { it to mangaBakaPriority },
+            mangaBakaLocal?.let { it to mangaBakaLocalPriority },
             webtoons?.let { it to webtoonsPriority }
         )
             .sortedBy { (_, priority) -> priority }
@@ -859,6 +907,7 @@ class ProviderFactory(providedHttpClient: HttpClient?) {
                 CoreProviders.COMIC_VINE -> comicVine
                 CoreProviders.HENTAG -> hentag
                 CoreProviders.MANGA_BAKA -> mangaBaka
+                CoreProviders.MANGA_BAKA_LOCAL -> mangaBakaLocal
                 CoreProviders.WEBTOONS -> webtoons
             }
         }

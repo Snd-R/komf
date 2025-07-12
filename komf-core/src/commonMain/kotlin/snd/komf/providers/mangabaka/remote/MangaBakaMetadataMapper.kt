@@ -1,4 +1,4 @@
-package snd.komf.providers.mangabaka
+package snd.komf.providers.mangabaka.remote
 
 import com.fleeksoft.ksoup.Ksoup
 import io.ktor.http.*
@@ -20,9 +20,9 @@ import snd.komf.model.WebLink
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
-import snd.komf.providers.mangabaka.model.MangaBakaSeries
-import snd.komf.providers.mangabaka.model.MangaBakaStatus
-import snd.komf.providers.mangabaka.model.MangaBakaType
+import snd.komf.providers.mangabaka.remote.model.MangaBakaSeries
+import snd.komf.providers.mangabaka.remote.model.MangaBakaStatus
+import snd.komf.providers.mangabaka.remote.model.MangaBakaType
 
 
 class MangaBakaMetadataMapper(

@@ -1,4 +1,4 @@
-package snd.komf.providers.mangabaka.model
+package snd.komf.providers.mangabaka.remote.model
 
 import kotlinx.serialization.Serializable
 

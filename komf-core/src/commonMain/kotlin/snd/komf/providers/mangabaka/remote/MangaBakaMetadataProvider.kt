@@ -1,4 +1,4 @@
-package snd.komf.providers.mangabaka
+package snd.komf.providers.mangabaka.remote
 
 import io.github.reactivecircus.cache4k.Cache
 import snd.komf.model.Image
@@ -11,9 +11,9 @@ import snd.komf.model.ProviderSeriesMetadata
 import snd.komf.model.SeriesSearchResult
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
-import snd.komf.providers.mangabaka.model.MangaBakaSeries
-import snd.komf.providers.mangabaka.model.MangaBakaSeriesId
-import snd.komf.providers.mangabaka.model.MangaBakaType
+import snd.komf.providers.mangabaka.remote.model.MangaBakaSeries
+import snd.komf.providers.mangabaka.remote.model.MangaBakaSeriesId
+import snd.komf.providers.mangabaka.remote.model.MangaBakaType
 import snd.komf.util.NameSimilarityMatcher
 import kotlin.time.Duration.Companion.minutes
 

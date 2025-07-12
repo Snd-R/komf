@@ -21,6 +21,7 @@ data class MetadataProvidersConfig(
     val nameMatchingMode: NameMatchingMode = NameMatchingMode.CLOSEST_MATCH,
     val defaultProviders: ProvidersConfig = ProvidersConfig(),
     val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
+    val mangabakaDatabaseDir: String = "./mangabaka",
 )
 
 @Serializable
@@ -38,6 +39,7 @@ data class ProvidersConfig(
     val comicVine: ProviderConfig = ProviderConfig(),
     val hentag: ProviderConfig = ProviderConfig(),
     val mangaBaka: ProviderConfig = ProviderConfig(),
+    val mangaBakaLocal: ProviderConfig = ProviderConfig(),
     val webtoons: ProviderConfig = ProviderConfig(),
 )
 

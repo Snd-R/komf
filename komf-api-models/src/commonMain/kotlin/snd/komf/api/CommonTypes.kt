@@ -61,6 +61,7 @@ enum class KomfCoreProviders : KomfProviders {
     KODANSHA,
     MAL,
     MANGA_BAKA,
+    MANGA_BAKA_LOCAL,
     MANGA_UPDATES,
     MANGADEX,
     NAUTILJON,

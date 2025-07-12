@@ -1,22 +1,25 @@
 package snd.komf.app.module
 
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
-import io.ktor.server.cio.*
-import io.ktor.server.engine.*
-import io.ktor.server.http.content.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.plugins.defaultheaders.*
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.sse.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.cio.CIO
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.http.content.CompressedFileType
+import io.ktor.server.http.content.staticResources
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
+import io.ktor.server.routing.route
+import io.ktor.server.routing.routing
+import io.ktor.server.sse.SSE
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import snd.komf.api.KomfErrorResponse
-import snd.komf.app.AppContext
 import snd.komf.app.api.ConfigRoutes
 import snd.komf.app.api.JobRoutes
 import snd.komf.app.api.MediaServerRoutes
@@ -25,6 +28,7 @@ import snd.komf.app.api.NotificationRoutes
 import snd.komf.app.api.deprecated.DeprecatedConfigRoutes
 import snd.komf.app.api.deprecated.DeprecatedConfigUpdateMapper
 import snd.komf.app.api.deprecated.DeprecatedMetadataRoutes
+import snd.komf.app.config.AppConfig
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.jobs.KomfJobTracker
@@ -35,29 +39,23 @@ import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
+import snd.komf.providers.mangabaka.local.MangaBakaDbDownloader
 
 class ServerModule(
-    private val appContext: AppContext,
+    serverPort: Int,
+    private val onConfigUpdate: suspend (AppConfig) -> Unit,
+    private val onStateReload: suspend () -> Unit,
     private val jobTracker: KomfJobTracker,
     private val jobsRepository: KomfJobsRepository,
-
-    private val komgaMediaServerClient: StateFlow<MediaServerClient>,
-    private val komgaMetadataServiceProvider: StateFlow<MetadataServiceProvider>,
-    private val kavitaMetadataServiceProvider: StateFlow<MetadataServiceProvider>,
-    private val kavitaMediaServerClient: StateFlow<MediaServerClient>,
-
-    private val discordService: StateFlow<DiscordWebhookService>,
-    private val discordRenderer: StateFlow<DiscordVelocityTemplates>,
-
-    private val appriseService: StateFlow<AppriseCliService>,
-    private val appriseRenderer: StateFlow<AppriseVelocityTemplates>,
+    private val dynamicDependencies: StateFlow<ApiDynamicDependencies>,
 ) {
+
     private val configMapper = DeprecatedConfigUpdateMapper()
     private val json = Json {
         ignoreUnknownKeys = true
     }
 
-    private val server = embeddedServer(CIO, port = appContext.appConfig.server.port) {
+    private val server = embeddedServer(CIO, port = serverPort) {
         install(ContentNegotiation) {
             json(json)
         }
@@ -96,7 +94,14 @@ class ServerModule(
             registerDeprecatedRoutes(this@embeddedServer)
 
             route("/api") {
-                ConfigRoutes(appContext = appContext).registerRoutes(this)
+                ConfigRoutes(
+                    config = dynamicDependencies.map { it.config },
+                    onConfigUpdate = onConfigUpdate,
+                    onStateReload = onStateReload,
+                    mangaBakaDbAvailable = dynamicDependencies.map { it.mangaBakaDbAvailable },
+                    mangaBakaDownloader = dynamicDependencies.map { it.mangaBakaDownloader },
+                    json = json,
+                ).registerRoutes(this)
                 JobRoutes(
                     jobTracker = jobTracker,
                     jobsRepository = jobsRepository,
@@ -104,31 +109,31 @@ class ServerModule(
                 ).registerRoutes(this)
 
                 NotificationRoutes(
-                    discordService = discordService,
-                    discordRenderer = discordRenderer,
-                    appriseService = appriseService,
-                    appriseRenderer = appriseRenderer
+                    discordService = dynamicDependencies.map { it.discordService },
+                    discordRenderer = dynamicDependencies.map { it.discordRenderer },
+                    appriseService = dynamicDependencies.map { it.appriseService },
+                    appriseRenderer = dynamicDependencies.map { it.appriseRenderer }
                 ).registerRoutes(this)
 
                 route("/komga") {
                     MetadataRoutes(
-                        metadataServiceProvider = komgaMetadataServiceProvider,
-                        mediaServerClient = komgaMediaServerClient,
+                        metadataServiceProvider = dynamicDependencies.map { it.komgaMetadataServiceProvider },
+                        mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient },
                     ).registerRoutes(this)
 
                     MediaServerRoutes(
-                        mediaServerClient = komgaMediaServerClient
+                        mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient }
                     ).registerRoutes(this)
                 }
 
                 route("/kavita") {
                     MetadataRoutes(
-                        metadataServiceProvider = kavitaMetadataServiceProvider,
-                        mediaServerClient = kavitaMediaServerClient,
+                        metadataServiceProvider = dynamicDependencies.map { it.kavitaMetadataServiceProvider },
+                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient },
                     ).registerRoutes(this)
 
                     MediaServerRoutes(
-                        mediaServerClient = kavitaMediaServerClient
+                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient }
                     ).registerRoutes(this)
                 }
             }
@@ -137,19 +142,20 @@ class ServerModule(
 
     private fun registerDeprecatedRoutes(application: Application) {
         DeprecatedConfigRoutes(
-            appContext = appContext,
+            config = dynamicDependencies.map { it.config },
+            onConfigUpdate = onConfigUpdate,
             configMapper = configMapper
         ).registerRoutes(application)
 
         DeprecatedMetadataRoutes(
-            metadataServiceProvider = komgaMetadataServiceProvider,
-            mediaServerClient = komgaMediaServerClient,
+            metadataServiceProvider = dynamicDependencies.map { it.komgaMetadataServiceProvider },
+            mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient },
             jobTracker = jobTracker,
             serverType = KOMGA
         ).registerRoutes(application)
         DeprecatedMetadataRoutes(
-            metadataServiceProvider = kavitaMetadataServiceProvider,
-            mediaServerClient = kavitaMediaServerClient,
+            metadataServiceProvider = dynamicDependencies.map { it.kavitaMetadataServiceProvider },
+            mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient },
             jobTracker = jobTracker,
             serverType = KAVITA
         ).registerRoutes(application)
@@ -159,3 +165,17 @@ class ServerModule(
         server.start(wait = true)
     }
 }
+
+class ApiDynamicDependencies(
+    val config: AppConfig,
+    val komgaMediaServerClient: MediaServerClient,
+    val komgaMetadataServiceProvider: MetadataServiceProvider,
+    val kavitaMediaServerClient: MediaServerClient,
+    val kavitaMetadataServiceProvider: MetadataServiceProvider,
+    val discordService: DiscordWebhookService,
+    val discordRenderer: DiscordVelocityTemplates,
+    val appriseService: AppriseCliService,
+    val appriseRenderer: AppriseVelocityTemplates,
+    val mangaBakaDbAvailable: Boolean,
+    val mangaBakaDownloader: MangaBakaDbDownloader,
+)
