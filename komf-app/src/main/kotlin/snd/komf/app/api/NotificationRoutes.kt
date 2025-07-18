@@ -28,15 +28,15 @@ import snd.komf.notifications.discord.DiscordStringTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
 import snd.komf.notifications.discord.FieldStringTemplates
-import snd.komf.notifications.discord.model.AlternativeTitleContext
-import snd.komf.notifications.discord.model.AuthorContext
-import snd.komf.notifications.discord.model.BookContext
-import snd.komf.notifications.discord.model.BookMetadataContext
-import snd.komf.notifications.discord.model.LibraryContext
-import snd.komf.notifications.discord.model.NotificationContext
-import snd.komf.notifications.discord.model.SeriesContext
-import snd.komf.notifications.discord.model.SeriesMetadataContext
-import snd.komf.notifications.discord.model.WebLinkContext
+import snd.komf.notifications.AlternativeTitleContext
+import snd.komf.notifications.AuthorContext
+import snd.komf.notifications.BookContext
+import snd.komf.notifications.BookMetadataContext
+import snd.komf.notifications.LibraryContext
+import snd.komf.notifications.NotificationContext
+import snd.komf.notifications.SeriesContext
+import snd.komf.notifications.SeriesMetadataContext
+import snd.komf.notifications.WebLinkContext
 
 class NotificationRoutes(
     private val discordService: Flow<DiscordWebhookService>,

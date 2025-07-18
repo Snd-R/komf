@@ -1,4 +1,4 @@
-package snd.komf.notifications.discord.model
+package snd.komf.notifications
 
 import snd.komf.model.Image
 

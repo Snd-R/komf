@@ -43,14 +43,14 @@ import snd.komf.model.SeriesBook
 import snd.komf.model.SeriesSearchResult
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
-import snd.komf.providers.ProviderFactory
+import snd.komf.providers.ProvidersModule
 import snd.komf.util.BookNameParser
 
 private val logger = KotlinLogging.logger {}
 
 class MetadataService(
     private val mediaServerClient: MediaServerClient,
-    private val metadataProviders: ProviderFactory.MetadataProviders,
+    private val metadataProviders: ProvidersModule.MetadataProviders,
     private val aggregateMetadata: Boolean,
     private val metadataMerger: MetadataMerger,
     private val metadataUpdateService: MetadataUpdater,

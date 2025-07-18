@@ -26,7 +26,6 @@ class MetadataPostProcessor(
     private val languageValue: String?,
     private val fallbackToAltTitle: Boolean,
 
-    private val scoreTag: Boolean,
     private val scoreTagName: String?,
     private val originalPublisherTagName: String?,
     private val publisherTagNames: List<PublisherTagNameConfig>
@@ -73,7 +72,6 @@ class MetadataPostProcessor(
     private fun MutableList<String>.addScoreTag(series: SeriesMetadata) {
         val seriesScore = series.score?.toInt()
         if (scoreTagName != null && seriesScore != null) add("$scoreTagName: $seriesScore")
-        else if (scoreTag && seriesScore != null) add("score: $seriesScore")
     }
 
     private fun MutableList<String>.addOriginalPublisherTag(

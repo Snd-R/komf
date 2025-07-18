@@ -24,6 +24,7 @@ shadow = "8.3.5"
 slf4j = "2.0.17"
 signalr = "8.0.5"
 sqldelight = "2.0.2"
+sqlite-jdbc = "3.49.1.0"
 tika = "3.0.0"
 twelveMonkeys = "3.12.0"
 velocity = "2.3"
@@ -69,6 +70,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 signalr = { module = "com.microsoft.signalr:signalr", version.ref = "signalr" }
 sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
 tika-core = { module = "org.apache.tika:tika-core", version.ref = "tika" }
 twelvemonkeys-imageio-core = { module = "com.twelvemonkeys.imageio:imageio-core", version.ref = "twelveMonkeys" }
 twelvemonkeys-imageio-jpeg = { module = "com.twelvemonkeys.imageio:imageio-jpeg", version.ref = "twelveMonkeys" }

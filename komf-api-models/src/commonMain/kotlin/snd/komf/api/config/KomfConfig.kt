@@ -106,7 +106,7 @@ data class ProvidersConfigDto(
     val bangumi: ProviderConfigDto,
     val comicVine: ProviderConfigDto,
     val hentag: ProviderConfigDto,
-    val mangaBaka: ProviderConfigDto,
+    val mangaBaka: MangaBakaConfigDto,
     val webtoons: ProviderConfigDto,
 )
 
@@ -167,6 +167,20 @@ data class MangaDexConfigDto(
     val coverLanguages: List<String>,
     val links: List<MangaDexLink>,
 ) : ProviderConf
+
+@Serializable
+data class MangaBakaConfigDto(
+    override val priority: Int,
+    override val enabled: Boolean,
+    override val seriesMetadata: SeriesMetadataConfigDto,
+    override val nameMatchingMode: KomfNameMatchingMode?,
+    override val mediaType: KomfMediaType,
+
+    override val authorRoles: Collection<KomfAuthorRole>,
+    override val artistRoles: Collection<KomfAuthorRole>,
+) : ProviderConf {
+    override val bookMetadata: BookMetadataConfigDto? = null
+}
 
 @Serializable
 data class SeriesMetadataConfigDto(

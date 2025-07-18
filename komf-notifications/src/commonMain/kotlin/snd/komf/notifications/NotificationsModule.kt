@@ -1,12 +1,12 @@
-package snd.komf.app.module
+package snd.komf.notifications
 
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.http.HttpStatusCode.Companion.TooManyRequests
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import snd.komf.app.config.NotificationsConfig
 import snd.komf.ktor.HttpRequestRateLimiter
 import snd.komf.ktor.komfUserAgent
 import snd.komf.notifications.apprise.AppriseCliService
@@ -14,7 +14,6 @@ import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
 import kotlin.time.Duration.Companion.seconds
-
 
 class NotificationsModule(
     notificationsConfig: NotificationsConfig,
@@ -31,7 +30,7 @@ class NotificationsModule(
         install(HttpRequestRetry) {
             retryIf(3) { _, response ->
                 when (response.status.value) {
-                    TooManyRequests.value -> true
+                    HttpStatusCode.Companion.TooManyRequests.value -> true
                     in 500..599 -> true
                     else -> false
                 }

@@ -6,13 +6,12 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import snd.komf.model.Image
 import snd.komf.notifications.discord.model.Embed
 import snd.komf.notifications.discord.model.EmbedFooter
 import snd.komf.notifications.discord.model.EmbedImage
-import snd.komf.notifications.discord.model.NotificationContext
+import snd.komf.notifications.NotificationContext
 import snd.komf.notifications.discord.model.Webhook
 import snd.komf.notifications.discord.model.WebhookExecuteRequest
 

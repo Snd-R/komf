@@ -105,7 +105,7 @@ data class ProvidersConfigUpdateRequest(
     val bangumi: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val comicVine: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val hentag: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
-    val mangaBaka: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val mangaBaka: PatchValue<MangaBakaConfigUpdateRequest> = PatchValue.Unset,
     val webtoons: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
 )
 
@@ -150,6 +150,18 @@ class MangaDexConfigUpdateRequest(
 
     val coverLanguages: PatchValue<List<String>> = PatchValue.Unset,
     val links: PatchValue<List<MangaDexLink>> = PatchValue.Unset,
+)
+
+@Serializable
+class MangaBakaConfigUpdateRequest(
+    val priority: PatchValue<Int> = PatchValue.Unset,
+    val enabled: PatchValue<Boolean> = PatchValue.Unset,
+    val seriesMetadata: PatchValue<SeriesMetadataConfigUpdateRequest> = PatchValue.Unset,
+    val nameMatchingMode: PatchValue<KomfNameMatchingMode> = PatchValue.Unset,
+    val mediaType: PatchValue<KomfMediaType> = PatchValue.Unset,
+
+    val authorRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
+    val artistRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
 )
 
 @Serializable

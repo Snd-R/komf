@@ -1,9 +1,6 @@
-package snd.komf.notifications
+package snd.komf.mediaserver
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import snd.komf.mediaserver.BookEvent
-import snd.komf.mediaserver.MediaServerClient
-import snd.komf.mediaserver.MediaServerEventListener
 import snd.komf.mediaserver.model.MediaServer
 import snd.komf.mediaserver.model.MediaServerBook
 import snd.komf.mediaserver.model.MediaServerBookId
@@ -14,15 +11,15 @@ import snd.komf.mediaserver.model.MediaServerSeriesId
 import snd.komf.mediaserver.model.MediaServerSeriesMetadata
 import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.discord.DiscordWebhookService
-import snd.komf.notifications.discord.model.AlternativeTitleContext
-import snd.komf.notifications.discord.model.AuthorContext
-import snd.komf.notifications.discord.model.BookContext
-import snd.komf.notifications.discord.model.BookMetadataContext
-import snd.komf.notifications.discord.model.LibraryContext
-import snd.komf.notifications.discord.model.NotificationContext
-import snd.komf.notifications.discord.model.SeriesContext
-import snd.komf.notifications.discord.model.SeriesMetadataContext
-import snd.komf.notifications.discord.model.WebLinkContext
+import snd.komf.notifications.AlternativeTitleContext
+import snd.komf.notifications.AuthorContext
+import snd.komf.notifications.BookContext
+import snd.komf.notifications.BookMetadataContext
+import snd.komf.notifications.LibraryContext
+import snd.komf.notifications.NotificationContext
+import snd.komf.notifications.SeriesContext
+import snd.komf.notifications.SeriesMetadataContext
+import snd.komf.notifications.WebLinkContext
 import java.util.function.Predicate
 
 private val logger = KotlinLogging.logger {}

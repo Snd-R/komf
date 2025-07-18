@@ -1,4 +1,4 @@
-package snd.komf.app.module
+package snd.komf.app
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -39,14 +39,12 @@ import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
-import snd.komf.providers.mangabaka.local.MangaBakaDbDownloader
+import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
 
 class ServerModule(
     serverPort: Int,
     private val onConfigUpdate: suspend (AppConfig) -> Unit,
     private val onStateReload: suspend () -> Unit,
-    private val jobTracker: KomfJobTracker,
-    private val jobsRepository: KomfJobsRepository,
     private val dynamicDependencies: StateFlow<ApiDynamicDependencies>,
 ) {
 
@@ -103,8 +101,8 @@ class ServerModule(
                     json = json,
                 ).registerRoutes(this)
                 JobRoutes(
-                    jobTracker = jobTracker,
-                    jobsRepository = jobsRepository,
+                    jobTracker = dynamicDependencies.map { it.jobTracker },
+                    jobsRepository = dynamicDependencies.map { it.jobsRepository },
                     json = json
                 ).registerRoutes(this)
 
@@ -150,13 +148,13 @@ class ServerModule(
         DeprecatedMetadataRoutes(
             metadataServiceProvider = dynamicDependencies.map { it.komgaMetadataServiceProvider },
             mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient },
-            jobTracker = jobTracker,
+            jobTracker = dynamicDependencies.map { it.jobTracker },
             serverType = KOMGA
         ).registerRoutes(application)
         DeprecatedMetadataRoutes(
             metadataServiceProvider = dynamicDependencies.map { it.kavitaMetadataServiceProvider },
             mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient },
-            jobTracker = jobTracker,
+            jobTracker = dynamicDependencies.map { it.jobTracker },
             serverType = KAVITA
         ).registerRoutes(application)
     }
@@ -178,4 +176,6 @@ class ApiDynamicDependencies(
     val appriseRenderer: AppriseVelocityTemplates,
     val mangaBakaDbAvailable: Boolean,
     val mangaBakaDownloader: MangaBakaDbDownloader,
+    val jobTracker: KomfJobTracker,
+    val jobsRepository: KomfJobsRepository,
 )

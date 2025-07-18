@@ -11,7 +11,7 @@ import snd.komf.notifications.VelocityTemplates.loadTemplateByName
 import snd.komf.notifications.VelocityTemplates.renderTemplate
 import snd.komf.notifications.VelocityTemplates.templateFromString
 import snd.komf.notifications.VelocityTemplates.toVelocityContext
-import snd.komf.notifications.discord.model.NotificationContext
+import snd.komf.notifications.NotificationContext
 import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
 import java.util.*
 import kotlin.io.path.Path

@@ -95,7 +95,6 @@ fun CoreProviders.fromProvider() = when (this) {
     CoreProviders.KODANSHA -> KomfCoreProviders.KODANSHA
     CoreProviders.MAL -> KomfCoreProviders.MAL
     CoreProviders.MANGA_BAKA -> KomfCoreProviders.MANGA_BAKA
-    CoreProviders.MANGA_BAKA_LOCAL -> KomfCoreProviders.MANGA_BAKA_LOCAL
     CoreProviders.MANGA_UPDATES -> KomfCoreProviders.MANGA_UPDATES
     CoreProviders.MANGADEX -> KomfCoreProviders.MANGADEX
     CoreProviders.NAUTILJON -> KomfCoreProviders.NAUTILJON
@@ -113,7 +112,6 @@ fun KomfProviders.toProvider() = when (this) {
     KomfCoreProviders.KODANSHA -> CoreProviders.KODANSHA
     KomfCoreProviders.MAL -> CoreProviders.MAL
     KomfCoreProviders.MANGA_BAKA -> CoreProviders.MANGA_BAKA
-    KomfCoreProviders.MANGA_BAKA_LOCAL -> CoreProviders.MANGA_BAKA_LOCAL
     KomfCoreProviders.MANGA_UPDATES -> CoreProviders.MANGA_UPDATES
     KomfCoreProviders.MANGADEX -> CoreProviders.MANGADEX
     KomfCoreProviders.NAUTILJON -> CoreProviders.NAUTILJON

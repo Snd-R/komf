@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.tika.config.TikaConfig
 import org.apache.tika.metadata.Metadata
 import snd.komf.model.Image
-import snd.komf.notifications.discord.model.NotificationContext
+import snd.komf.notifications.NotificationContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createTempFile

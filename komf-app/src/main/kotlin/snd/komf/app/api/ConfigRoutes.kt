@@ -21,7 +21,7 @@ import snd.komf.api.config.KomfConfigUpdateRequest
 import snd.komf.app.api.mappers.AppConfigMapper
 import snd.komf.app.api.mappers.AppConfigUpdateMapper
 import snd.komf.app.config.AppConfig
-import snd.komf.providers.mangabaka.local.MangaBakaDbDownloader
+import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
 
 private val logger = KotlinLogging.logger {}
 

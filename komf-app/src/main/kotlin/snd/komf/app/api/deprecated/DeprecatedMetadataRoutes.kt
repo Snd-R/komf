@@ -27,7 +27,7 @@ import snd.komf.providers.CoreProviders
 class DeprecatedMetadataRoutes(
     private val metadataServiceProvider: Flow<MetadataServiceProvider>,
     private val mediaServerClient: Flow<MediaServerClient>,
-    private val jobTracker: KomfJobTracker,
+    private val jobTracker: Flow<KomfJobTracker>,
     private val serverType: MediaServer,
 ) {
 
@@ -93,7 +93,7 @@ class DeprecatedMetadataRoutes(
                 ProviderSeriesId(request.providerSeriesId),
                 request.edition
             )
-            jobTracker.getMetadataJobEvents(jobId)
+            jobTracker.first().getMetadataJobEvents(jobId)
                 ?.takeWhile { it != CompletionEvent }
                 ?.collect {}
 
@@ -107,7 +107,7 @@ class DeprecatedMetadataRoutes(
             val libraryId = call.parameters.getOrFail("libraryId")
             val seriesId = MediaServerSeriesId(call.parameters.getOrFail("seriesId"))
             val jobId = metadataServiceProvider.first().metadataServiceFor(libraryId).matchSeriesMetadata(seriesId)
-            jobTracker.getMetadataJobEvents(jobId)
+            jobTracker.first().getMetadataJobEvents(jobId)
                 ?.takeWhile { it != CompletionEvent }
                 ?.collect {}
 

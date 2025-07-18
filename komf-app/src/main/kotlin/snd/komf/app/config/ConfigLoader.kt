@@ -32,9 +32,8 @@ class ConfigLoader(private val yaml: Yaml) {
     }
 
     private fun postProcessConfig(config: AppConfig, configDirectory: Path?): AppConfig {
-        val processedConfig = overrideDeprecatedOptions(
-            overrideConfigDirAndEnvVars(config, configDirectory?.toString())
-        )
+        val processedConfig = overrideConfigDirAndEnvVars(config, configDirectory?.toString())
+
         warnAboutDisabledProviders(processedConfig)
         return processedConfig
     }
@@ -105,42 +104,6 @@ class ConfigLoader(private val yaml: Yaml) {
             ),
             server = serverConfig.copy(port = serverPort),
             logLevel = logLevel
-        )
-    }
-
-    @Suppress("DEPRECATION")
-    private fun overrideDeprecatedOptions(config: AppConfig): AppConfig {
-        return config.copy(
-            notifications = config.notifications.copy(
-                discord = config.discord ?: config.notifications.discord
-            ),
-            discord = null,
-
-            komga = config.komga.copy(
-                eventListener = config.komga.eventListener.copy(
-                    notificationsLibraryFilter = config.komga.notifications.libraries
-                        ?: config.komga.eventListener.notificationsLibraryFilter,
-                    metadataLibraryFilter = config.komga.eventListener.libraries
-                        ?: config.komga.eventListener.metadataLibraryFilter,
-                    metadataSeriesExcludeFilter = config.komga.eventListener.excludeSeries
-                        ?: config.komga.eventListener.metadataSeriesExcludeFilter,
-                    libraries = null,
-                    excludeSeries = null,
-                )
-            ),
-
-            kavita = config.kavita.copy(
-                eventListener = config.kavita.eventListener.copy(
-                    notificationsLibraryFilter = config.kavita.notifications.libraries
-                        ?: config.kavita.eventListener.notificationsLibraryFilter,
-                    metadataLibraryFilter = config.kavita.eventListener.libraries
-                        ?: config.kavita.eventListener.metadataLibraryFilter,
-                    metadataSeriesExcludeFilter = config.kavita.eventListener.excludeSeries
-                        ?: config.kavita.eventListener.metadataSeriesExcludeFilter,
-                    libraries = null,
-                    excludeSeries = null,
-                )
-            )
         )
     }
 

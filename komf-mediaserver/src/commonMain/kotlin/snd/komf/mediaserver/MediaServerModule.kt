@@ -1,24 +1,33 @@
-package snd.komf.app.module
+package snd.komf.mediaserver
 
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.cookies.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import app.cash.sqldelight.ColumnAdapter
+import app.cash.sqldelight.EnumColumnAdapter
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.AcceptAllCookiesStorage
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.http.URLBuilder
+import io.ktor.http.appendPathSegments
+import io.ktor.http.takeFrom
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
-import snd.komf.app.config.KavitaConfig
-import snd.komf.app.config.KomgaConfig
-import snd.komf.app.config.MetadataProcessingConfig
-import snd.komf.app.config.MetadataUpdateConfig
 import snd.komf.comicinfo.ComicInfoWriter
 import snd.komf.ktor.komfUserAgent
-import snd.komf.mediaserver.MediaServerClient
-import snd.komf.mediaserver.MetadataServiceProvider
+import snd.komf.mediaserver.config.DatabaseConfig
+import snd.komf.mediaserver.config.KavitaConfig
+import snd.komf.mediaserver.config.KomgaConfig
+import snd.komf.mediaserver.config.MetadataProcessingConfig
+import snd.komf.mediaserver.config.MetadataUpdateConfig
 import snd.komf.mediaserver.jobs.KomfJobTracker
+import snd.komf.mediaserver.jobs.KomfJobsRepository
+import snd.komf.mediaserver.jobs.MetadataJobId
 import snd.komf.mediaserver.kavita.JvmJwtConsumer
 import snd.komf.mediaserver.kavita.KavitaAuthClient
 import snd.komf.mediaserver.kavita.KavitaClient
@@ -36,26 +45,36 @@ import snd.komf.mediaserver.metadata.MetadataUpdater
 import snd.komf.mediaserver.metadata.repository.BookThumbnailsRepository
 import snd.komf.mediaserver.metadata.repository.SeriesMatchRepository
 import snd.komf.mediaserver.metadata.repository.SeriesThumbnailsRepository
-import snd.komf.mediaserver.model.MediaServer.KAVITA
-import snd.komf.mediaserver.model.MediaServer.KOMGA
+import snd.komf.mediaserver.model.MediaServer
+import snd.komf.mediaserver.model.MediaServerBookId
+import snd.komf.mediaserver.model.MediaServerSeriesId
+import snd.komf.mediaserver.model.MediaServerThumbnailId
+import snd.komf.mediaserver.repository.BookThumbnail
 import snd.komf.mediaserver.repository.Database
-import snd.komf.notifications.NotificationsEventHandler
+import snd.komf.mediaserver.repository.KomfJobRecord
+import snd.komf.mediaserver.repository.SeriesMatch
+import snd.komf.mediaserver.repository.SeriesThumbnail
+import snd.komf.model.ProviderSeriesId
 import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.discord.DiscordWebhookService
-import snd.komf.providers.ProviderFactory.MetadataProviders
+import snd.komf.providers.ProvidersModule
 import snd.komga.client.KomgaClientFactory
+import java.nio.file.Path
+import java.util.*
 
 class MediaServerModule(
     komgaConfig: KomgaConfig,
     kavitaConfig: KavitaConfig,
+    databaseConfig: DatabaseConfig,
     jsonBase: Json,
     ktorBaseClient: HttpClient,
-    mediaServerDatabase: Database,
     appriseService: AppriseCliService,
     discordWebhookService: DiscordWebhookService,
-    private val jobTracker: KomfJobTracker,
-    private val metadataProviders: MetadataProviders,
+    private val metadataProviders: ProvidersModule.MetadataProviders,
 ) {
+    private val mediaServerDatabase = createDatabase(Path.of(databaseConfig.file))
+    val jobRepository = KomfJobsRepository(mediaServerDatabase.komfJobRecordQueries)
+    val jobTracker = KomfJobTracker(jobRepository)
 
     val komgaClient: KomgaMediaServerClientAdapter
     val komgaMetadataServiceProvider: MetadataServiceProvider
@@ -97,15 +116,15 @@ class MediaServerModule(
         )
         komgaBookThumbnailRepository = BookThumbnailsRepository(
             mediaServerDatabase.bookThumbnailQueries,
-            KOMGA
+            MediaServer.KOMGA
         )
         komgaSerThumbnailsRepository = SeriesThumbnailsRepository(
             mediaServerDatabase.seriesThumbnailQueries,
-            KOMGA
+            MediaServer.KOMGA
         )
         komgaSeriesMatchRepository = SeriesMatchRepository(
             mediaServerDatabase.seriesMatchQueries,
-            KOMGA
+            MediaServer.KOMGA
         )
         komgaMetadataServiceProvider = createMetadataServiceProvider(
             config = komgaConfig.metadataUpdate,
@@ -137,7 +156,7 @@ class MediaServerModule(
                 if (libraries.isEmpty()) true
                 else libraries.contains(it)
             },
-            mediaServer = KOMGA
+            mediaServer = MediaServer.KOMGA
         )
 
         komgaEventHandler = KomgaEventHandler(
@@ -148,20 +167,20 @@ class MediaServerModule(
 
         kavitaBookThumbnailRepository = BookThumbnailsRepository(
             mediaServerDatabase.bookThumbnailQueries,
-            KAVITA
+            MediaServer.KAVITA
         )
         kavitaSerThumbnailsRepository = SeriesThumbnailsRepository(
             mediaServerDatabase.seriesThumbnailQueries,
-            KAVITA
+            MediaServer.KAVITA
         )
         kavitaSeriesMatchRepository = SeriesMatchRepository(
             mediaServerDatabase.seriesMatchQueries,
-            KAVITA
+            MediaServer.KAVITA
         )
         kavitaKtorBase = ktorBaseClient.config {
             defaultRequest {
                 url {
-                    this.takeFrom(URLBuilder(kavitaConfig.baseUri).appendPathSegments("/"))
+                    this.takeFrom(io.ktor.http.URLBuilder(kavitaConfig.baseUri).appendPathSegments("/"))
                 }
             }
             install(ContentNegotiation) { json(jsonBase) }
@@ -209,11 +228,11 @@ class MediaServerModule(
                 if (libraries.isEmpty()) true
                 else libraries.contains(it)
             },
-            mediaServer = KAVITA
+            mediaServer = MediaServer.KAVITA
         )
 
         kavitaEventHandler = KavitaEventHandler(
-            baseUrl = URLBuilder(kavitaConfig.baseUri),
+            baseUrl = io.ktor.http.URLBuilder(kavitaConfig.baseUri),
             kavitaClient = kavitaClient,
             tokenProvider = kavitaTokenProvider,
             clock = Clock.System,
@@ -317,7 +336,6 @@ class MediaServerModule(
             languageValue = config.postProcessing.languageValue,
             fallbackToAltTitle = config.postProcessing.fallbackToAltTitle,
 
-            scoreTag = config.postProcessing.scoreTag,
             scoreTagName = config.postProcessing.scoreTagName,
             originalPublisherTagName = config.postProcessing.originalPublisherTagName,
             publisherTagNames = config.postProcessing.publisherTagNames
@@ -329,7 +347,7 @@ class MediaServerModule(
             bookThumbnailsRepository = bookThumbnailsRepository,
             metadataUpdateMapper = MetadataMapper(),
             postProcessor = postProcessor,
-            comicInfoWriter = ComicInfoWriter.getInstance(config.overrideComicInfo),
+            comicInfoWriter = ComicInfoWriter.Companion.getInstance(config.overrideComicInfo),
 
             updateModes = config.updateModes.toSet(),
             uploadBookCovers = config.bookCovers,
@@ -337,5 +355,74 @@ class MediaServerModule(
             overrideExistingCovers = config.overrideExistingCovers,
             lockCovers = config.lockCovers,
         )
+    }
+
+    fun createDatabase(file: Path): Database {
+
+        val dbDriver: SqlDriver =
+            JdbcSqliteDriver(
+                url = "jdbc:sqlite:${file}",
+                schema = Database.Companion.Schema,
+                migrateEmptySchema = true
+            )
+        val database = Database(
+            dbDriver,
+            BookThumbnailAdapter = BookThumbnail.Adapter(
+                bookIdAdapter = BookIdAdapter,
+                seriesIdAdapter = SeriesIdAdapter,
+                thumbnailIdAdapter = ThumbnailIdAdapter,
+                mediaServerAdapter = EnumColumnAdapter()
+            ),
+            KomfJobRecordAdapter = KomfJobRecord.Adapter(
+                idAdapter = MetadataJobIdAdapter,
+                seriesIdAdapter = SeriesIdAdapter,
+                statusAdapter = EnumColumnAdapter(),
+                startedAtAdapter = InstantAdapter,
+                finishedAtAdapter = InstantAdapter,
+            ),
+            SeriesMatchAdapter = SeriesMatch.Adapter(
+                seriesIdAdapter = SeriesIdAdapter,
+                typeAdapter = EnumColumnAdapter(),
+                mediaServerAdapter = EnumColumnAdapter(),
+                providerAdapter = EnumColumnAdapter(),
+                providerSeriesIdAdapter = ProviderSeriesIdIdAdapter,
+            ),
+            SeriesThumbnailAdapter = SeriesThumbnail.Adapter(
+                seriesIdAdapter = SeriesIdAdapter,
+                thumbnailIdAdapter = ThumbnailIdAdapter,
+                mediaServerAdapter = EnumColumnAdapter()
+            ),
+        )
+        return database
+    }
+
+    private object SeriesIdAdapter : ColumnAdapter<MediaServerSeriesId, String> {
+        override fun decode(databaseValue: String) = MediaServerSeriesId(databaseValue)
+        override fun encode(value: MediaServerSeriesId) = value.value
+    }
+
+    private object BookIdAdapter : ColumnAdapter<MediaServerBookId, String> {
+        override fun decode(databaseValue: String) = MediaServerBookId(databaseValue)
+        override fun encode(value: MediaServerBookId) = value.value
+    }
+
+    private object ThumbnailIdAdapter : ColumnAdapter<MediaServerThumbnailId, String> {
+        override fun decode(databaseValue: String) = MediaServerThumbnailId(databaseValue)
+        override fun encode(value: MediaServerThumbnailId) = value.value
+    }
+
+    private object ProviderSeriesIdIdAdapter : ColumnAdapter<ProviderSeriesId, String> {
+        override fun decode(databaseValue: String) = ProviderSeriesId(databaseValue)
+        override fun encode(value: ProviderSeriesId) = value.value
+    }
+
+    private object MetadataJobIdAdapter : ColumnAdapter<MetadataJobId, String> {
+        override fun decode(databaseValue: String) = MetadataJobId(UUID.fromString(databaseValue))
+        override fun encode(value: MetadataJobId) = value.value.toString()
+    }
+
+    private object InstantAdapter : ColumnAdapter<Instant, Long> {
+        override fun decode(databaseValue: Long) = Instant.fromEpochMilliseconds(databaseValue)
+        override fun encode(value: Instant) = value.toEpochMilliseconds()
     }
 }

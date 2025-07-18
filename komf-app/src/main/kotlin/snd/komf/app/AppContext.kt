@@ -18,20 +18,13 @@ import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.slf4j.LoggerFactory
+import snd.komf.CoreModule
 import snd.komf.app.config.AppConfig
 import snd.komf.app.config.ConfigLoader
 import snd.komf.app.config.ConfigWriter
-import snd.komf.app.module.ApiDynamicDependencies
-import snd.komf.app.module.MediaServerModule
-import snd.komf.app.module.NotificationsModule
-import snd.komf.app.module.ProvidersModule
-import snd.komf.app.module.ServerModule
 import snd.komf.ktor.komfUserAgent
-import snd.komf.mediaserver.jobs.KomfJobTracker
-import snd.komf.mediaserver.jobs.KomfJobsRepository
-import snd.komf.mediaserver.repository.Database
-import snd.komf.mediaserver.repository.DriverFactory
-import snd.komf.mediaserver.repository.createDatabase
+import snd.komf.mediaserver.MediaServerModule
+import snd.komf.notifications.NotificationsModule
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.createDirectories
@@ -48,12 +41,9 @@ class AppContext(private val configPath: Path? = null) {
 
     private val ktorBaseClient: HttpClient
     private val jsonBase: Json
-    private val mediaServerDatabase: Database
     private val serverModule: ServerModule
 
-    private val jobRepository: KomfJobsRepository
-    private val jobTracker: KomfJobTracker
-    private var providersModule: ProvidersModule
+    private var providersModule: CoreModule
     private var mediaServerModule: MediaServerModule
     private var notificationsModule: NotificationsModule
 
@@ -72,7 +62,6 @@ class AppContext(private val configPath: Path? = null) {
         val config = loadConfig()
         setLogLevel(config)
         appConfig = config
-        mediaServerDatabase = createDatabase(DriverFactory(Path.of(appConfig.database.file)))
 
         val httpLogger = KotlinLogging.logger("http.logging")
         val baseOkHttpClient = OkHttpClient.Builder()
@@ -102,21 +91,17 @@ class AppContext(private val configPath: Path? = null) {
             install(UserAgent) { agent = komfUserAgent }
         }
 
-        jobRepository = KomfJobsRepository(mediaServerDatabase.komfJobRecordQueries)
-        jobTracker = KomfJobTracker(jobRepository)
-
-        providersModule = ProvidersModule(config.metadataProviders, ktorBaseClient)
+        providersModule = CoreModule(config.metadataProviders, ktorBaseClient)
         notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
 
         mediaServerModule = MediaServerModule(
             komgaConfig = config.komga,
             kavitaConfig = config.kavita,
+            databaseConfig = config.database,
             jsonBase = jsonBase,
             ktorBaseClient = ktorBaseClient,
-            mediaServerDatabase = mediaServerDatabase,
             appriseService = notificationsModule.appriseService,
             discordWebhookService = notificationsModule.discordWebhookService,
-            jobTracker = jobTracker,
             metadataProviders = providersModule.metadataProviders
         )
         this.apiRoutesDependencies = MutableStateFlow(createApiRoutesDependencies())
@@ -125,14 +110,11 @@ class AppContext(private val configPath: Path? = null) {
             serverPort = config.server.port,
             onConfigUpdate = this::refreshState,
             onStateReload = this::refreshState,
-            jobTracker = jobTracker,
-            jobsRepository = jobRepository,
             dynamicDependencies = apiRoutesDependencies,
         )
 
         serverModule.startServer()
     }
-
 
     suspend fun refreshState() {
         reloadMutex.withLock {
@@ -151,17 +133,16 @@ class AppContext(private val configPath: Path? = null) {
     private fun reloadModules(config: AppConfig) {
         logger.info { "Reconfiguring application state" }
 
-        val providersModule = ProvidersModule(config.metadataProviders, ktorBaseClient)
+        val providersModule = CoreModule(config.metadataProviders, ktorBaseClient)
         val notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
         val mediaServerModule = MediaServerModule(
             komgaConfig = config.komga,
             kavitaConfig = config.kavita,
+            databaseConfig = config.database,
             jsonBase = jsonBase,
             ktorBaseClient = ktorBaseClient,
-            mediaServerDatabase = mediaServerDatabase,
             appriseService = notificationsModule.appriseService,
             discordWebhookService = notificationsModule.discordWebhookService,
-            jobTracker = jobTracker,
             metadataProviders = providersModule.metadataProviders
         )
 
@@ -185,6 +166,8 @@ class AppContext(private val configPath: Path? = null) {
         appriseRenderer = notificationsModule.appriseVelocityRenderer,
         mangaBakaDbAvailable = providersModule.mangaBakaDatabase != null,
         mangaBakaDownloader = providersModule.mangaBakaDatabaseDownloader,
+        jobTracker = mediaServerModule.jobTracker,
+        jobsRepository = mediaServerModule.jobRepository,
     )
 
     private suspend fun writeConfig(config: AppConfig) {

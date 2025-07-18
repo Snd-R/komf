@@ -9,6 +9,7 @@ import snd.komf.api.config.EventListenerConfigDto
 import snd.komf.api.config.KavitaConfigDto
 import snd.komf.api.config.KomfConfig
 import snd.komf.api.config.KomgaConfigDto
+import snd.komf.api.config.MangaBakaConfigDto
 import snd.komf.api.config.MangaDexConfigDto
 import snd.komf.api.config.MetadataPostProcessingConfigDto
 import snd.komf.api.config.MetadataProcessingConfigDto
@@ -20,17 +21,18 @@ import snd.komf.api.config.ProvidersConfigDto
 import snd.komf.api.config.PublisherTagNameConfigDto
 import snd.komf.api.config.SeriesMetadataConfigDto
 import snd.komf.app.config.AppConfig
-import snd.komf.app.config.EventListenerConfig
-import snd.komf.app.config.KavitaConfig
-import snd.komf.app.config.KomgaConfig
-import snd.komf.app.config.MetadataPostProcessingConfig
-import snd.komf.app.config.MetadataProcessingConfig
-import snd.komf.app.config.MetadataUpdateConfig
-import snd.komf.app.config.NotificationsConfig
+import snd.komf.mediaserver.config.EventListenerConfig
+import snd.komf.mediaserver.config.KavitaConfig
+import snd.komf.mediaserver.config.KomgaConfig
+import snd.komf.mediaserver.config.MetadataPostProcessingConfig
+import snd.komf.mediaserver.config.MetadataProcessingConfig
+import snd.komf.mediaserver.config.MetadataUpdateConfig
+import snd.komf.notifications.NotificationsConfig
 import snd.komf.notifications.apprise.AppriseConfig
 import snd.komf.notifications.discord.DiscordConfig
 import snd.komf.providers.AniListConfig
 import snd.komf.providers.BookMetadataConfig
+import snd.komf.providers.MangaBakaConfig
 import snd.komf.providers.MangaDexConfig
 import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProviderConfig
@@ -196,6 +198,18 @@ class AppConfigMapper {
             artistRoles = config.artistRoles.map { it.fromAuthorRole() },
             coverLanguages = config.coverLanguages,
             links = config.links.map { MangaDexLink.valueOf(it.name) }
+        )
+    }
+
+    private fun toDto(config: MangaBakaConfig): MangaBakaConfigDto {
+        return MangaBakaConfigDto(
+            nameMatchingMode = config.nameMatchingMode?.fromNameMatchingMode(),
+            priority = config.priority,
+            enabled = config.enabled,
+            mediaType = config.mediaType.fromMediaType(),
+            authorRoles = config.authorRoles.map { it.fromAuthorRole() },
+            artistRoles = config.artistRoles.map { it.fromAuthorRole() },
+            seriesMetadata = toDto(config.seriesMetadata),
         )
     }
 

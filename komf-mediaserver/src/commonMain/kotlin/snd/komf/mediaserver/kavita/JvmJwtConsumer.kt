@@ -11,6 +11,6 @@ class JvmJwtConsumer : JwtConsumer {
 
     override fun processToExpirationDateClaim(jwt: String): Instant {
         val claims = jwtConsumer.processToClaims(jwt)
-        return Instant.fromEpochMilliseconds(claims.expirationTime.valueInMillis)
+        return Instant.Companion.fromEpochMilliseconds(claims.expirationTime.valueInMillis)
     }
 }
