@@ -8,7 +8,7 @@ import snd.komf.ktor.komfUserAgent
 import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProvidersModule
 import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
-import java.nio.file.Path
+import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 import kotlin.io.path.Path
 import kotlin.io.path.notExists
 
@@ -22,17 +22,23 @@ class CoreModule(
         install(UserAgent) { agent = komfUserAgent }
 
     }
-    val mangaBakaDir = Path(config.mangabakaDatabaseDir)
-    val mangaBakaDatabaseDownloader = MangaBakaDbDownloader(baseHttpClient, mangaBakaDir)
-    val mangaBakaDatabase = createMangaBakaDatabase(Path.of(config.mangabakaDatabaseDir))
+
+    private val mangaBakaDir = Path(config.mangabakaDatabaseDir)
+    private val mangaBakaDatabaseFile = mangaBakaDir.resolve("mangabaka.sqlite")
+    val mangaBakaDbMetadata = MangaBakaDbMetadata(
+        mangaBakaDir.resolve("timestamp"),
+        mangaBakaDir.resolve("checksum.sha1")
+    )
+    val mangaBakaDatabaseDownloader = MangaBakaDbDownloader(
+        baseHttpClient,
+        databaseArchive = mangaBakaDir.resolve("mangabaka.tar.gz"),
+        databaseFile = mangaBakaDatabaseFile,
+        dbMetadata = mangaBakaDbMetadata,
+    )
+
+    val mangaBakaDatabase =
+        if (mangaBakaDatabaseFile.notExists()) null
+        else Database.connect("jdbc:sqlite:$mangaBakaDatabaseFile")
 
     val metadataProviders = ProvidersModule(config, baseHttpClient, mangaBakaDatabase).getMetadataProviders()
-
-    private fun createMangaBakaDatabase(baseDir: Path): Database? {
-        val databaseFile = baseDir.resolve("mangabaka.sqlite")
-        if (databaseFile.notExists()) {
-            return null
-        }
-        return Database.connect("jdbc:sqlite:$databaseFile")
-    }
 }

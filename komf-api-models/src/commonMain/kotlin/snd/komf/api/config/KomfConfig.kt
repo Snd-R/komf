@@ -1,5 +1,6 @@
 package snd.komf.api.config
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import snd.komf.api.KomfAuthorRole
 import snd.komf.api.KomfMediaType
@@ -89,9 +90,15 @@ data class MetadataProvidersConfigDto(
     val malClientId: String?,
     val comicVineClientId: String?,
     val nameMatchingMode: KomfNameMatchingMode,
-    val mangaBakaDbAvailable: Boolean,
     val defaultProviders: ProvidersConfigDto,
     val libraryProviders: Map<String, ProvidersConfigDto>,
+    val mangaBakaDatabase: MangaBakaDatabaseDto?,
+)
+
+@Serializable
+data class MangaBakaDatabaseDto(
+    val downloadTimestamp: Instant,
+    val checksum: String,
 )
 
 @Serializable

@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.datetime.Clock
 import kotlinx.io.readByteArray
 import kotlinx.serialization.Serializable
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
@@ -27,24 +28,21 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import snd.komf.providers.mangabaka.db.MangaBakaDownloadProgress.FinishedEvent
 import snd.komf.providers.mangabaka.db.MangaBakaDownloadProgress.ProgressEvent
 import java.io.BufferedInputStream
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.inputStream
 import kotlin.io.path.outputStream
-import kotlin.io.path.readText
 
 private const val DOWNLOAD_BUFFER_SIZE = 1024L * 1024L
 private val logger = KotlinLogging.logger { }
 
 class MangaBakaDbDownloader(
     private val ktor: HttpClient,
-    downloadDirectory: Path,
+    private val databaseArchive: Path,
+    private val databaseFile: Path,
+    private val dbMetadata: MangaBakaDbMetadata,
 ) {
-    private val databaseArchive = downloadDirectory.resolve("mangabaka.tar.gz")
-    private val databaseFile = downloadDirectory.resolve("mangabaka.sqlite")
-    private val checksumFile = downloadDirectory.resolve("checksum.sha1")
     private val databaseUrl = "https://api.mangabaka.dev/v1/database/series.sqlite.tar.gz"
     private val checksumUrl = "https://api.mangabaka.dev/v1/database/series.sqlite.tar.gz.sha1"
 
@@ -70,11 +68,11 @@ class MangaBakaDbDownloader(
         try {
             progressFlow.emit(ProgressEvent(0, 0, checksumUrl))
             val newChecksum = ktor.get(checksumUrl).bodyAsText()
-            if (databaseFile.exists() && checksumFile.exists() && checksumFile.readText() == newChecksum) {
+            if (databaseFile.exists() && dbMetadata.isValid() && dbMetadata.checksum == newChecksum) {
                 progressFlow.emit(FinishedEvent)
                 return
             }
-            checksumFile.deleteIfExists()
+            dbMetadata.delete()
             databaseFile.deleteIfExists()
             databaseArchive.deleteIfExists()
 
@@ -82,15 +80,16 @@ class MangaBakaDbDownloader(
             extractDatabaseFile()
             createSearchIndex()
 
-            Files.writeString(checksumFile, newChecksum)
+            dbMetadata.setTimestamp(Clock.System.now())
+            dbMetadata.setChecksum(newChecksum)
             databaseArchive.deleteIfExists()
             progressFlow.emit(FinishedEvent)
 
         } catch (e: Exception) {
             logger.catching(e)
             databaseArchive.deleteIfExists()
-            checksumFile.deleteIfExists()
             databaseFile.deleteIfExists()
+            dbMetadata.delete()
             progressFlow.emit(
                 MangaBakaDownloadProgress.ErrorEvent(
                     e.message ?: "Encountered unexpected error during database download"

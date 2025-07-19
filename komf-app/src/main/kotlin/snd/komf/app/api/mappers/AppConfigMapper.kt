@@ -11,6 +11,7 @@ import snd.komf.api.config.KavitaConfigDto
 import snd.komf.api.config.KomfConfig
 import snd.komf.api.config.KomgaConfigDto
 import snd.komf.api.config.MangaBakaConfigDto
+import snd.komf.api.config.MangaBakaDatabaseDto
 import snd.komf.api.config.MangaDexConfigDto
 import snd.komf.api.config.MetadataPostProcessingConfigDto
 import snd.komf.api.config.MetadataProcessingConfigDto
@@ -39,16 +40,17 @@ import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProviderConfig
 import snd.komf.providers.ProvidersConfig
 import snd.komf.providers.SeriesMetadataConfig
+import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 
 class AppConfigMapper {
     private val maskedPlaceholder = "********"
 
     fun toDto(
         config: AppConfig,
-        mangaBakaDbAvailable: Boolean,
+        mangaBakaDbMetadata: MangaBakaDbMetadata
     ): KomfConfig {
         return KomfConfig(
-            metadataProviders = toDto(config.metadataProviders, mangaBakaDbAvailable),
+            metadataProviders = toDto(config.metadataProviders, mangaBakaDbMetadata),
             komga = toDto(config.komga),
             kavita = toDto(config.kavita),
             notifications = toDto(config.notifications),
@@ -121,7 +123,7 @@ class AppConfigMapper {
 
     private fun toDto(
         config: MetadataProvidersConfig,
-        mangaBakaDbAvailable: Boolean,
+        mangaBakaDbMetadata: MangaBakaDbMetadata
     ): MetadataProvidersConfigDto {
         val malClientId = config.malClientId?.let { clientId ->
             if (clientId.length < 32) maskedPlaceholder
@@ -141,7 +143,17 @@ class AppConfigMapper {
             libraryProviders = config.libraryProviders
                 .map { (libraryId, config) -> libraryId to toDto(config) }
                 .toMap(),
-            mangaBakaDbAvailable = mangaBakaDbAvailable
+            mangaBakaDatabase = toDto(mangaBakaDbMetadata),
+        )
+    }
+
+    fun toDto(metadata: MangaBakaDbMetadata): MangaBakaDatabaseDto? {
+        val timestamp = metadata.timestamp
+        val checksum = metadata.checksum
+        return if (timestamp == null || checksum == null) null
+        else MangaBakaDatabaseDto(
+            downloadTimestamp = timestamp,
+            checksum = checksum
         )
     }
 

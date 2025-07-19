@@ -156,6 +156,8 @@ class AppContext(private val configPath: Path? = null) {
 
     private fun createApiRoutesDependencies() = ApiDynamicDependencies(
         config = this.appConfig,
+        jobTracker = mediaServerModule.jobTracker,
+        jobsRepository = mediaServerModule.jobRepository,
         komgaMediaServerClient = mediaServerModule.komgaClient,
         komgaMetadataServiceProvider = mediaServerModule.komgaMetadataServiceProvider,
         kavitaMediaServerClient = mediaServerModule.kavitaMediaServerClient,
@@ -164,10 +166,8 @@ class AppContext(private val configPath: Path? = null) {
         discordRenderer = notificationsModule.discordVelocityRenderer,
         appriseService = notificationsModule.appriseService,
         appriseRenderer = notificationsModule.appriseVelocityRenderer,
-        mangaBakaDbAvailable = providersModule.mangaBakaDatabase != null,
         mangaBakaDownloader = providersModule.mangaBakaDatabaseDownloader,
-        jobTracker = mediaServerModule.jobTracker,
-        jobsRepository = mediaServerModule.jobRepository,
+        mangaBakaDbMetadata = providersModule.mangaBakaDbMetadata
     )
 
     private suspend fun writeConfig(config: AppConfig) {

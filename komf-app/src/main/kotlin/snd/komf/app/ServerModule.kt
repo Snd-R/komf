@@ -40,6 +40,7 @@ import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
 import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
+import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 
 class ServerModule(
     serverPort: Int,
@@ -96,8 +97,8 @@ class ServerModule(
                     config = dynamicDependencies.map { it.config },
                     onConfigUpdate = onConfigUpdate,
                     onStateReload = onStateReload,
-                    mangaBakaDbAvailable = dynamicDependencies.map { it.mangaBakaDbAvailable },
                     mangaBakaDownloader = dynamicDependencies.map { it.mangaBakaDownloader },
+                    mangaBakaDbMetadata = dynamicDependencies.map { it.mangaBakaDbMetadata },
                     json = json,
                 ).registerRoutes(this)
                 JobRoutes(
@@ -166,6 +167,8 @@ class ServerModule(
 
 class ApiDynamicDependencies(
     val config: AppConfig,
+    val jobTracker: KomfJobTracker,
+    val jobsRepository: KomfJobsRepository,
     val komgaMediaServerClient: MediaServerClient,
     val komgaMetadataServiceProvider: MetadataServiceProvider,
     val kavitaMediaServerClient: MediaServerClient,
@@ -174,8 +177,6 @@ class ApiDynamicDependencies(
     val discordRenderer: DiscordVelocityTemplates,
     val appriseService: AppriseCliService,
     val appriseRenderer: AppriseVelocityTemplates,
-    val mangaBakaDbAvailable: Boolean,
     val mangaBakaDownloader: MangaBakaDbDownloader,
-    val jobTracker: KomfJobTracker,
-    val jobsRepository: KomfJobsRepository,
+    val mangaBakaDbMetadata: MangaBakaDbMetadata
 )
