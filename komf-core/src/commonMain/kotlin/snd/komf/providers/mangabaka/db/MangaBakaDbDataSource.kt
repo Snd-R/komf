@@ -1,5 +1,6 @@
 package snd.komf.providers.mangabaka.db
 
+import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
@@ -37,7 +38,7 @@ class MangaBakaDbDataSource(
                 "SELECT * FROM series_fts WHERE title MATCH ? ORDER BY rank limit 10",
                 false
             )
-            ftsStatement[0] = title
+            ftsStatement[1] = title
             val resultSet = ftsStatement.executeQuery()
             val ids = buildList {
                 while (resultSet.next()) add(resultSet.getInt("id"))
@@ -87,7 +88,7 @@ class MangaBakaDbDataSource(
             finalChapter = this[MangaBakaSeriesTable.finalChapter]?.toString(),
             totalChapter = this[MangaBakaSeriesTable.totalChapters]?.toString(),
             links = this[MangaBakaSeriesTable.links],
-            publishers = this[MangaBakaSeriesTable.publishers].map {
+            publishers = this[MangaBakaSeriesTable.publishers]?.map {
                 MangaBakaPublisher(
                     name = it.name,
                     note = it.note,
@@ -96,7 +97,7 @@ class MangaBakaDbDataSource(
             },
             genres = this[MangaBakaSeriesTable.genres],
             tags = this[MangaBakaSeriesTable.tags],
-            lastUpdatedAt = this[MangaBakaSeriesTable.lastUpdatedAt],
+            lastUpdatedAt = Instant.parse(this[MangaBakaSeriesTable.lastUpdatedAt]),
             relationships = this.mapRelationships(),
             source = MangaBakaSources(
                 anilist = MangaBakaAnilistSource(

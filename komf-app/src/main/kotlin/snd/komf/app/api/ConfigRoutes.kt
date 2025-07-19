@@ -22,6 +22,9 @@ import snd.komf.app.api.mappers.AppConfigMapper
 import snd.komf.app.api.mappers.AppConfigUpdateMapper
 import snd.komf.app.config.AppConfig
 import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
+import snd.komf.providers.mangabaka.db.MangaBakaDownloadProgress.ErrorEvent
+import snd.komf.providers.mangabaka.db.MangaBakaDownloadProgress.FinishedEvent
+import snd.komf.providers.mangabaka.db.MangaBakaDownloadProgress.ProgressEvent
 
 private val logger = KotlinLogging.logger {}
 
@@ -41,63 +44,70 @@ class ConfigRoutes(
         with(routing) {
             getConfigRoute()
             updateConfigRoute()
-            checkMangaBakDb()
             updateMangaBakaDB()
         }
     }
 
     private fun Route.getConfigRoute() {
         get("/config") {
-            call.respond(configMapper.toDto(config.first()))
+            call.respond(
+                configMapper.toDto(
+                    config = config.first(),
+                    mangaBakaDbAvailable = mangaBakaDbAvailable.first()
+                )
+            )
         }
     }
 
     private fun Route.updateConfigRoute() {
         patch("/config") {
-            val request = call.receive<KomfConfigUpdateRequest>()
-            val updatedConfig = updateConfigMapper.patch(config.first(), request)
-            try {
-                onConfigUpdate(updatedConfig)
-            } catch (e: Exception) {
-                logger.catching(e)
-                call.respond(
-                    HttpStatusCode.UnprocessableEntity,
-                    KomfErrorResponse("${e::class.simpleName}: ${e.message}")
-                )
-                return@patch
-            }
+            mutex.withLock {
+                val request = call.receive<KomfConfigUpdateRequest>()
+                val updatedConfig = updateConfigMapper.patch(config.first(), request)
+                try {
+                    onConfigUpdate(updatedConfig)
+                } catch (e: Exception) {
+                    logger.catching(e)
+                    call.respond(
+                        HttpStatusCode.UnprocessableEntity,
+                        KomfErrorResponse("${e::class.simpleName}: ${e.message}")
+                    )
+                    return@patch
+                }
 
+            }
             call.response.status(HttpStatusCode.NoContent)
         }
     }
 
-    private fun Route.checkMangaBakDb() {
-        get("/manga-baka-db") {
-            if (mangaBakaDbAvailable.first()) call.response.status(HttpStatusCode.OK)
-            else call.response.status(HttpStatusCode.NotFound)
-        }
-    }
-
     private fun Route.updateMangaBakaDB() {
-        post("/manga-baka-db") {
-            mutex.withLock {
-                val downloader = mangaBakaDownloader.first()
+        post("/update-manga-baka-db") {
+            val downloader = mangaBakaDownloader.first()
 
-                // keep going even if connection is closed
-                var closed = false
-                call.respondBytesWriter(contentType = ContentType("application", "jsonl")) {
-                    downloader.launchDownload().collect { progress ->
-                        runCatching {
-                            if (!closed) {
-                                writeStringUtf8(json.encodeToString(progress) + "\n")
-                                flush()
-                            }
-                        }.onFailure { closed = true }
+            // keep going even if connection is closed
+            var closed = false
+            call.respondBytesWriter(contentType = ContentType("application", "jsonl")) {
+                downloader.launchDownload().collect { event ->
+                    val mappedEvent = when (event) {
+                        is ProgressEvent -> snd.komf.api.config.MangaBakaDownloadProgress.ProgressEvent(
+                            event.total,
+                            event.completed,
+                            event.info
+                        )
+
+                        is ErrorEvent -> snd.komf.api.config.MangaBakaDownloadProgress.ErrorEvent(event.message)
+                        FinishedEvent -> snd.komf.api.config.MangaBakaDownloadProgress.FinishedEvent
                     }
+                    runCatching {
+                        if (!closed) {
+                            writeStringUtf8(json.encodeToString(mappedEvent) + "\n")
+                            flush()
+                        }
+                    }.onFailure { closed = true }
                 }
-                onStateReload()
-                if (!closed) call.respond(HttpStatusCode.OK)
             }
+            onStateReload()
+            if (!closed) call.respond(HttpStatusCode.OK)
         }
     }
 }

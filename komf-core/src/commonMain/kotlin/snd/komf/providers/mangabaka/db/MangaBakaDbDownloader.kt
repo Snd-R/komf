@@ -68,9 +68,10 @@ class MangaBakaDbDownloader(
 
     private suspend fun doDownload(lockedMutex: Mutex) {
         try {
-            progressFlow.emit(ProgressEvent(0, 0, "downloading $checksumUrl"))
+            progressFlow.emit(ProgressEvent(0, 0, checksumUrl))
             val newChecksum = ktor.get(checksumUrl).bodyAsText()
             if (databaseFile.exists() && checksumFile.exists() && checksumFile.readText() == newChecksum) {
+                progressFlow.emit(FinishedEvent)
                 return
             }
             checksumFile.deleteIfExists()
@@ -101,11 +102,10 @@ class MangaBakaDbDownloader(
     }
 
     private suspend fun downloadDatabaseArchive() {
-        val downloadText = "downloading $databaseUrl"
-        progressFlow.emit(ProgressEvent(0, 0, downloadText))
+        progressFlow.emit(ProgressEvent(0, 0, databaseUrl))
         ktor.prepareGet(databaseUrl).execute { response ->
             val length = response.headers["Content-Length"]?.toLong() ?: 0L
-            progressFlow.emit(ProgressEvent(length, 0, downloadText))
+            progressFlow.emit(ProgressEvent(length, 0, databaseUrl))
             val channel = response.bodyAsChannel().counted()
 
             databaseArchive.outputStream().buffered().use { outputStream ->
@@ -114,7 +114,7 @@ class MangaBakaDbDownloader(
                     while (!packet.exhausted()) {
                         outputStream.write(packet.readByteArray())
                     }
-                    progressFlow.emit(ProgressEvent(length, channel.totalBytesRead, downloadText))
+                    progressFlow.emit(ProgressEvent(length, channel.totalBytesRead, databaseUrl))
                 }
                 outputStream.flush()
             }

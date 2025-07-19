@@ -1,5 +1,6 @@
 package snd.komf.app.api.mappers
 
+import snd.komf.api.MangaBakaMode
 import snd.komf.api.MangaDexLink
 import snd.komf.api.config.AniListConfigDto
 import snd.komf.api.config.AppriseConfigDto
@@ -42,9 +43,12 @@ import snd.komf.providers.SeriesMetadataConfig
 class AppConfigMapper {
     private val maskedPlaceholder = "********"
 
-    fun toDto(config: AppConfig): KomfConfig {
+    fun toDto(
+        config: AppConfig,
+        mangaBakaDbAvailable: Boolean,
+    ): KomfConfig {
         return KomfConfig(
-            metadataProviders = toDto(config.metadataProviders),
+            metadataProviders = toDto(config.metadataProviders, mangaBakaDbAvailable),
             komga = toDto(config.komga),
             kavita = toDto(config.kavita),
             notifications = toDto(config.notifications),
@@ -115,7 +119,10 @@ class AppConfigMapper {
         )
     }
 
-    private fun toDto(config: MetadataProvidersConfig): MetadataProvidersConfigDto {
+    private fun toDto(
+        config: MetadataProvidersConfig,
+        mangaBakaDbAvailable: Boolean,
+    ): MetadataProvidersConfigDto {
         val malClientId = config.malClientId?.let { clientId ->
             if (clientId.length < 32) maskedPlaceholder
             else clientId.replace("(?<=.{4}).".toRegex(), "*")
@@ -133,7 +140,8 @@ class AppConfigMapper {
             defaultProviders = toDto(config.defaultProviders),
             libraryProviders = config.libraryProviders
                 .map { (libraryId, config) -> libraryId to toDto(config) }
-                .toMap()
+                .toMap(),
+            mangaBakaDbAvailable = mangaBakaDbAvailable
         )
     }
 
@@ -210,6 +218,7 @@ class AppConfigMapper {
             authorRoles = config.authorRoles.map { it.fromAuthorRole() },
             artistRoles = config.artistRoles.map { it.fromAuthorRole() },
             seriesMetadata = toDto(config.seriesMetadata),
+            mode = MangaBakaMode.valueOf(config.mode.name)
         )
     }
 

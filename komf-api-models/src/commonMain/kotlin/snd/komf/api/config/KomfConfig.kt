@@ -6,6 +6,7 @@ import snd.komf.api.KomfMediaType
 import snd.komf.api.KomfNameMatchingMode
 import snd.komf.api.KomfReadingDirection
 import snd.komf.api.KomfUpdateMode
+import snd.komf.api.MangaBakaMode
 import snd.komf.api.MangaDexLink
 
 @Serializable
@@ -88,6 +89,7 @@ data class MetadataProvidersConfigDto(
     val malClientId: String?,
     val comicVineClientId: String?,
     val nameMatchingMode: KomfNameMatchingMode,
+    val mangaBakaDbAvailable: Boolean,
     val defaultProviders: ProvidersConfigDto,
     val libraryProviders: Map<String, ProvidersConfigDto>,
 )
@@ -178,6 +180,7 @@ data class MangaBakaConfigDto(
 
     override val authorRoles: Collection<KomfAuthorRole>,
     override val artistRoles: Collection<KomfAuthorRole>,
+    val mode: MangaBakaMode,
 ) : ProviderConf {
     override val bookMetadata: BookMetadataConfigDto? = null
 }

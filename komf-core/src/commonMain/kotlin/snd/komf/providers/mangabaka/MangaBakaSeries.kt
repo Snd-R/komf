@@ -227,9 +227,15 @@ enum class MangaBakaSeriesState {
 
 @Serializable
 enum class MangaBakaContentRating {
-    @SerialName("active")
-    ACTIVE,
+    @SerialName("safe")
+    SAFE,
 
-    @SerialName("merged")
-    MERGED
+    @SerialName("suggestive")
+    SUGGESTIVE,
+
+    @SerialName("erotica")
+    EROTICA,
+
+    @SerialName("pornographic")
+    PORNOGRAPHIC,
 }

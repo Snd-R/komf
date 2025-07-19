@@ -4,8 +4,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import io.ktor.http.contentType
-import snd.komf.model.Image
 import snd.komf.providers.mangabaka.MangaBakaDataSource
 import snd.komf.providers.mangabaka.MangaBakaSeries
 import snd.komf.providers.mangabaka.MangaBakaSeriesId
@@ -22,6 +20,6 @@ class MangaBakaApiClient(private val ktor: HttpClient) : MangaBakaDataSource {
     }
 
     override suspend fun getSeries(id: MangaBakaSeriesId): MangaBakaSeries {
-        return ktor.get("${baseUrl}/v1/series/${id}.json").body<MangaBakaSeries>()
+        return ktor.get("${baseUrl}/v1/series/${id}").body<MangaBakaResponse>().data
     }
 }

@@ -1,7 +1,7 @@
 package snd.komf.providers.mangabaka
 
 import com.fleeksoft.ksoup.Ksoup
-import io.ktor.http.*
+import io.ktor.http.parseUrl
 import snd.komf.model.Author
 import snd.komf.model.AuthorRole
 import snd.komf.model.Image
@@ -79,9 +79,10 @@ class MangaBakaMetadataMapper(
                 link.startsWith("https://myanimelist.net") -> WebLink("MyAnimeList", link)
                 link.startsWith("https://www.anime-planet.com") -> WebLink("Anime-Planet", link)
                 link.startsWith("https://www.novelupdates.com") -> WebLink("NovelUpdates", link)
-                else -> parseUrl(link)?.host?.let { WebLink(it, link) }
+                link.startsWith("https://mangabaka.dev") -> WebLink("MangaBaka", link)
+                else -> parseUrl(link)?.host?.let { WebLink(it.removePrefix("www."), link) }
             }
-        } + WebLink("MangaBaka", series.url())
+        }.sortedBy { it.label }
 
         val metadata = SeriesMetadata(
             status = status,
@@ -89,6 +90,9 @@ class MangaBakaMetadataMapper(
             summary = series.description?.let { Ksoup.parse(it).wholeText() },
             publisher = publisher,
             alternativePublishers = (originalPublishers + englishPublishers) - setOfNotNull(publisher),
+            genres = series.genres?.sorted() ?: emptyList(),
+            tags = series.tags?.sorted() ?: emptyList(),
+            totalBookCount = series.finalChapter?.toIntOrNull(),
             authors = authors + artists,
             thumbnail = thumbnail,
             releaseDate = ReleaseDate(series.year, null, null),

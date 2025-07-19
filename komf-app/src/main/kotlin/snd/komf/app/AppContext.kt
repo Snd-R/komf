@@ -124,8 +124,8 @@ class AppContext(private val configPath: Path? = null) {
 
     suspend fun refreshState(newConfig: AppConfig) {
         reloadMutex.withLock {
-            reloadModules(newConfig)
             appConfig = newConfig
+            reloadModules(newConfig)
             writeConfig(newConfig)
         }
     }

@@ -229,6 +229,7 @@ class AppConfigUpdateMapper {
                 is PatchValue.Some -> mode.value.toNameMatchingMode()
                 PatchValue.Unset -> config.nameMatchingMode
             },
+            mode = patch.mode.getOrNull()?.toMangaBakaMode() ?: config.mode
         )
     }
 

@@ -104,6 +104,10 @@ enum class MangaDexLink {
     ENGLISH_TL,
 }
 
+enum class MangaBakaMode{
+    API, DATABASE
+}
+
 
 @JvmInline
 @Serializable

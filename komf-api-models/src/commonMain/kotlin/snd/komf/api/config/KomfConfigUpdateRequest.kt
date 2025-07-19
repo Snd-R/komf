@@ -6,6 +6,7 @@ import snd.komf.api.KomfMediaType
 import snd.komf.api.KomfNameMatchingMode
 import snd.komf.api.KomfReadingDirection
 import snd.komf.api.KomfUpdateMode
+import snd.komf.api.MangaBakaMode
 import snd.komf.api.MangaDexLink
 import snd.komf.api.PatchValue
 
@@ -162,6 +163,7 @@ class MangaBakaConfigUpdateRequest(
 
     val authorRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
     val artistRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
+    val mode: PatchValue<MangaBakaMode> = PatchValue.Unset,
 )
 
 @Serializable

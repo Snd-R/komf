@@ -41,7 +41,7 @@ object MangaBakaSeriesTable : Table("series") {
     val finalChapter = integer("final_chapter").nullable()
     val totalChapters = integer("total_chapters").nullable()
     val links = json<List<String>>("links", json)
-    val publishers = json<List<MangaBakaDbPublisher>>("publishers", json)
+    val publishers = json<List<MangaBakaDbPublisher>>("publishers", json).nullable()
     val genres = json<List<String>>("genres", json).nullable()
     val tags = json<List<String>>("tags", json).nullable()
 
@@ -70,7 +70,7 @@ object MangaBakaSeriesTable : Table("series") {
     val relationshipsAdaptation = json<List<Int>>("relationships_adaptation", json).nullable()
     val relationshipsSpinOff = json<List<Int>>("relationships_spin_off", json).nullable()
 
-    val lastUpdatedAt = timestamp("last_updated_at")
+    val lastUpdatedAt = text("last_updated_at")
 
     @Serializable
     data class MangaBakaDbSecondaryTitle(

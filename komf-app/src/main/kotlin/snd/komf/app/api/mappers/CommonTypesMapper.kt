@@ -13,6 +13,7 @@ import snd.komf.model.MediaType
 import snd.komf.model.ReadingDirection
 import snd.komf.model.UpdateMode
 import snd.komf.providers.CoreProviders
+import snd.komf.providers.MangaBakaMode
 import snd.komf.util.NameSimilarityMatcher.NameMatchingMode
 
 
@@ -119,4 +120,9 @@ fun KomfProviders.toProvider() = when (this) {
     KomfCoreProviders.YEN_PRESS -> CoreProviders.YEN_PRESS
     KomfCoreProviders.VIZ -> CoreProviders.VIZ
     is UnknownKomfProvider -> CoreProviders.valueOf(this.name)
+}
+
+fun snd.komf.api.MangaBakaMode.toMangaBakaMode() = when (this) {
+    snd.komf.api.MangaBakaMode.API -> MangaBakaMode.API
+    snd.komf.api.MangaBakaMode.DATABASE -> MangaBakaMode.DATABASE
 }
