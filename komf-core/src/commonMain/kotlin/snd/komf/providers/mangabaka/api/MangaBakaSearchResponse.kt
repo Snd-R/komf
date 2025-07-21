@@ -6,5 +6,5 @@ import snd.komf.providers.mangabaka.MangaBakaSeries
 @Serializable
 data class MangaBakaSearchResponse(
     val status: Int,
-    val results: List<MangaBakaSeries>
+    val data: List<MangaBakaSeries>
 )
