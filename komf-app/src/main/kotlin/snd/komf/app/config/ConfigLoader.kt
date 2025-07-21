@@ -120,6 +120,9 @@ class ConfigLoader(private val yaml: Yaml) {
             config.metadataProviders.defaultProviders.mangaDex.enabled.not() &&
             config.metadataProviders.defaultProviders.bangumi.enabled.not() &&
             config.metadataProviders.defaultProviders.comicVine.enabled.not() &&
+            config.metadataProviders.defaultProviders.hentag.enabled.not() &&
+            config.metadataProviders.defaultProviders.mangaBaka.enabled.not() &&
+            config.metadataProviders.defaultProviders.webtoons.enabled.not() &&
             config.metadataProviders.libraryProviders.isEmpty()
         ) {
             logger.warn { "No metadata providers enabled. You will not be able to get new metadata" }

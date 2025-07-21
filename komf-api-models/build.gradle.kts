@@ -1,6 +1,5 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -25,7 +24,7 @@ kotlin {
     jvm { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "komf-api-models"
+        outputModuleName = "komf-api-models"
         browser()
     }
 
@@ -52,7 +51,7 @@ android {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = false)
+    publishToMavenCentral( automaticRelease = false)
     coordinates("io.github.snd-r.komf", "api-models", libs.versions.app.version.get())
     signAllPublications()
 
