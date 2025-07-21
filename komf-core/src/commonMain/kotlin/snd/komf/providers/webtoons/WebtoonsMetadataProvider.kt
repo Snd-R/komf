@@ -35,14 +35,18 @@ class WebtoonsMetadataProvider(
         .build()
 
     override suspend fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-        val seriesWithChapters = seriesCache.get(seriesId) { client.getSeriesWithChapters(WebtoonsSeriesId(seriesId.value)) }
+        val seriesWithChapters = seriesCache.get(seriesId) {
+            client.getSeriesWithChapters(WebtoonsSeriesId(seriesId.value))
+        }
         val thumbnail = if (fetchSeriesCovers) client.getSeriesThumbnail(seriesWithChapters) else null
 
         return metadataMapper.toSeriesMetadata(seriesWithChapters, thumbnail)
     }
 
     override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
-        val series = client.getSeries(WebtoonsSeriesId(seriesId.value))
+        val series = seriesCache.get(seriesId) {
+            client.getSeries(WebtoonsSeriesId(seriesId.value))
+        }
         return client.getSeriesThumbnail(series)
     }
 
@@ -71,7 +75,8 @@ class WebtoonsMetadataProvider(
         val match = searchResults.firstOrNull { nameMatcher.matches(seriesName, listOfNotNull(it.title)) }
 
         return match?.let {
-            val series = seriesCache.get(ProviderSeriesId(it.resultId)) { client.getSeriesWithChapters(WebtoonsSeriesId(it.resultId)) }
+            val series =
+                seriesCache.get(ProviderSeriesId(it.resultId)) { client.getSeriesWithChapters(WebtoonsSeriesId(it.resultId)) }
             val thumbnail = if (fetchSeriesCovers) client.getSeriesThumbnail(series) else null
             metadataMapper.toSeriesMetadata(series, thumbnail)
         }

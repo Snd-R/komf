@@ -32,11 +32,11 @@ data class WebtoonResult(
 data class Title(
     val titleNo: Int,
     val title: String,
-    val titleGroupName: String?,
-    val representGenre: String,
+    val titleGroupName: String? = null,
+    val representGenre: String? = null,
     val thumbnailMobile: String,
     val unsuitableForChildren: Boolean,
-    val pictureAuthorName: String,
+    val pictureAuthorName: String? = null,
     val writingAuthorName: String,
     val lastEpisodeRegisterYmdt: Long,
     val readCount: Int
