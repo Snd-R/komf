@@ -54,7 +54,7 @@ class MetadataUpdater(
             val page = mediaServerClient.getSeries(libraryId, pageNumber)
             page.content.forEach { resetSeriesMetadata(it, removeComicInfo) }
             pageNumber++
-        } while (page.pageNumber != page.totalPages || page.content.isNotEmpty())
+        } while (page.pageNumber != page.totalPages && page.content.isNotEmpty())
     }
 
     suspend fun resetSeriesMetadata(seriesId: MediaServerSeriesId, removeComicInfo: Boolean) {
