@@ -7,14 +7,14 @@ import kotlinx.coroutines.sync.withLock
 import org.apache.velocity.Template
 import org.apache.velocity.runtime.RuntimeInstance
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import snd.komf.notifications.NotificationContext
 import snd.komf.notifications.VelocityTemplates.loadTemplateByName
 import snd.komf.notifications.VelocityTemplates.renderTemplate
 import snd.komf.notifications.VelocityTemplates.templateFromString
+import snd.komf.notifications.VelocityTemplates.templateWriteAndGet
 import snd.komf.notifications.VelocityTemplates.toVelocityContext
 import snd.komf.notifications.discord.model.EmbedField
-import snd.komf.notifications.NotificationContext
 import java.nio.file.Path
-import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -212,15 +212,18 @@ class DiscordVelocityTemplates(templateDirectory: String) {
         templateWriteMutex.withLock {
             discordDirectory.createDirectories()
 
-            val titleTemplate = templates.titleTemplate?.let { templateWriteAndGet(it, titleFileName) }
+            val titleTemplate = templates.titleTemplate
+                ?.let { velocityEngine.templateWriteAndGet(it, discordDirectory.resolve(titleFileName)) }
                 ?: velocityEngine.loadTemplateByName(titleFileName)
 
-            val titleUrlTemplate = templates.titleUrlTemplate?.let { templateWriteAndGet(it, titleUrlFileName) }
+            val titleUrlTemplate = templates.titleUrlTemplate
+                ?.let { velocityEngine.templateWriteAndGet(it, discordDirectory.resolve(titleUrlFileName)) }
                 ?: velocityEngine.loadTemplateByName(descriptionFileName)
             val descriptionTemplate = templates.descriptionTemplate
-                ?.let { templateWriteAndGet(it, descriptionFileName) }
+                ?.let { velocityEngine.templateWriteAndGet(it, discordDirectory.resolve(descriptionFileName)) }
                 ?: velocityEngine.loadTemplateByName(descriptionFileName)
-            val footerTemplate = templates.footerTemplate?.let { templateWriteAndGet(it, footerFileName) }
+            val footerTemplate = templates.footerTemplate
+                ?.let { velocityEngine.templateWriteAndGet(it, discordDirectory.resolve(footerFileName)) }
 
             val fieldTemplates = templates.fieldTemplates.let { fieldTemplates ->
                 discordDirectory.listDirectoryEntries()
@@ -248,15 +251,6 @@ class DiscordVelocityTemplates(templateDirectory: String) {
             this.footerTemplate.value = footerTemplate
             this.fieldTemplates.value = fieldTemplates
         }
-    }
-
-
-    private fun templateWriteAndGet(stringTemplate: String, filename: String): Template {
-        val file = discordDirectory.resolve(filename)
-        if (file.notExists()) file.createFile()
-        file.writeBytes(stringTemplate.toByteArray(Charsets.UTF_8), TRUNCATE_EXISTING)
-
-        return velocityEngine.templateFromString(stringTemplate)
     }
 
     private fun getFieldTemplateFiles(): List<FieldTemplateFiles> {
