@@ -212,18 +212,25 @@ class DiscordVelocityTemplates(templateDirectory: String) {
         templateWriteMutex.withLock {
             discordDirectory.createDirectories()
 
-            val titleTemplate = templates.titleTemplate
-                ?.let { velocityEngine.templateWriteAndGet(it, discordDirectory.resolve(titleFileName)) }
-                ?: velocityEngine.loadTemplateByName(titleFileName)
+            val titleTemplate = velocityEngine.templateWriteAndGet(
+                templates.titleTemplate,
+                discordDirectory.resolve(titleFileName)
+            ) ?: velocityEngine.loadTemplateByName(titleFileName)
 
-            val titleUrlTemplate = templates.titleUrlTemplate
-                ?.let { velocityEngine.templateWriteAndGet(it, discordDirectory.resolve(titleUrlFileName)) }
-                ?: velocityEngine.loadTemplateByName(descriptionFileName)
-            val descriptionTemplate = templates.descriptionTemplate
-                ?.let { velocityEngine.templateWriteAndGet(it, discordDirectory.resolve(descriptionFileName)) }
-                ?: velocityEngine.loadTemplateByName(descriptionFileName)
-            val footerTemplate = templates.footerTemplate
-                ?.let { velocityEngine.templateWriteAndGet(it, discordDirectory.resolve(footerFileName)) }
+            val titleUrlTemplate = velocityEngine.templateWriteAndGet(
+                templates.titleUrlTemplate,
+                discordDirectory.resolve(titleUrlFileName)
+            ) ?: velocityEngine.loadTemplateByName(descriptionFileName)
+
+            val descriptionTemplate = velocityEngine.templateWriteAndGet(
+                templates.descriptionTemplate,
+                discordDirectory.resolve(descriptionFileName)
+            ) ?: velocityEngine.loadTemplateByName(descriptionFileName)
+
+            val footerTemplate = velocityEngine.templateWriteAndGet(
+                templates.footerTemplate,
+                discordDirectory.resolve(footerFileName)
+            )
 
             val fieldTemplates = templates.fieldTemplates.let { fieldTemplates ->
                 discordDirectory.listDirectoryEntries()

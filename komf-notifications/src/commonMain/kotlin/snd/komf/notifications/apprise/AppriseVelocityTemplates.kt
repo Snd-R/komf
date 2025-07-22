@@ -112,19 +112,16 @@ class AppriseVelocityTemplates(
     suspend fun updateTemplates(templates: AppriseStringTemplates) {
         templateWriteMutex.withLock {
             appriseDirectory.createDirectories()
-            val titleTemplate = templates.titleTemplate?.let { template ->
-                velocityEngine.templateWriteAndGet(
-                    template,
-                    appriseDirectory.resolve(titleFileName)
-                )
-            } ?: velocityEngine.loadTemplateByName(titleFileName)
 
-            val bodyTemplate = templates.bodyTemplate?.let { template ->
-                velocityEngine.templateWriteAndGet(
-                    template,
-                    appriseDirectory.resolve(bodyFileName)
-                )
-            } ?: velocityEngine.loadTemplateByName(bodyFileName)
+            val titleTemplate = velocityEngine.templateWriteAndGet(
+                templates.titleTemplate,
+                appriseDirectory.resolve(titleFileName)
+            ) ?: velocityEngine.loadTemplateByName(titleFileName)
+
+            val bodyTemplate = velocityEngine.templateWriteAndGet(
+                templates.bodyTemplate,
+                appriseDirectory.resolve(bodyFileName)
+            ) ?: velocityEngine.loadTemplateByName(bodyFileName)
 
             this.titleTemplate.value = titleTemplate
             this.bodyTemplate.value = bodyTemplate
