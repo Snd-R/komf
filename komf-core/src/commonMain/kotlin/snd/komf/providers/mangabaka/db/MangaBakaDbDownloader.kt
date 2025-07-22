@@ -134,8 +134,8 @@ class MangaBakaDbDownloader(
         progressFlow.emit(ProgressEvent(0, 0, "creating search index"))
         val db = Database.connect("jdbc:sqlite:$databaseFile")
         transaction(db) {
-            exec("CREATE VIRTUAL TABLE series_fts USING fts5(id, title, tokenize = 'trigram');")
-            exec("INSERT INTO series_fts SELECT id, title FROM series WHERE state='active';")
+            exec("CREATE VIRTUAL TABLE series_fts USING fts5(id, title, type, tokenize = 'trigram');")
+            exec("INSERT INTO series_fts SELECT id, title, type FROM series WHERE state='active';")
         }
     }
 }

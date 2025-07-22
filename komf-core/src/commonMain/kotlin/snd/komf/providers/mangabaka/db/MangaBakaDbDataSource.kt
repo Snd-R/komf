@@ -4,6 +4,7 @@ import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.statements.api.PreparedStatementApi
 import org.jetbrains.exposed.sql.transactions.transaction
 import snd.komf.providers.mangabaka.MangaBakaAnilistSource
 import snd.komf.providers.mangabaka.MangaBakaAnimeNewsNetworkSource
@@ -24,6 +25,7 @@ import snd.komf.providers.mangabaka.MangaBakaSources
 import snd.komf.providers.mangabaka.MangaBakaStatus
 import snd.komf.providers.mangabaka.MangaBakaType
 import snd.komf.providers.mangabaka.db.MangaBakaSeriesTable.MangaBakaDbSecondaryTitle
+import java.sql.ResultSet
 
 class MangaBakaDbDataSource(
     private val database: Database,
@@ -34,19 +36,29 @@ class MangaBakaDbDataSource(
         types: List<MangaBakaType>?
     ): List<MangaBakaSeries> {
         return transaction(database) {
-            val ftsStatement = connection.prepareStatement(
-                "SELECT * FROM series_fts WHERE title MATCH ? ORDER BY rank limit 10",
-                false
-            )
-            ftsStatement[1] = title
-            val resultSet = ftsStatement.executeQuery()
-            val ids = buildList {
-                while (resultSet.next()) add(resultSet.getInt("id"))
-            }
+            var ftsStatement: PreparedStatementApi? = null
+            var resultSet: ResultSet? = null
+            try {
+                val sqlString = buildString {
+                    append("SELECT * FROM series_fts WHERE title MATCH ?")
+                    types?.joinToString(", ") { "?" }?.let { append(" AND type in ($it)") }
+                    append(" ORDER BY rank limit 10")
+                }
 
-            MangaBakaSeriesTable.selectAll()
-                .where { MangaBakaSeriesTable.id.inList(ids) }
-                .map { it.toModel() }
+                ftsStatement = connection.prepareStatement(sqlString, false)
+                ftsStatement[1] = title
+                types?.forEachIndexed { index, value -> ftsStatement[index + 2] = value.name.lowercase() }
+
+                resultSet = ftsStatement.executeQuery()
+                val ids = buildList { while (resultSet.next()) add(resultSet.getInt("id")) }
+
+                MangaBakaSeriesTable.selectAll()
+                    .where { MangaBakaSeriesTable.id.inList(ids) }
+                    .map { it.toModel() }
+            } finally {
+                resultSet?.close()
+                ftsStatement?.closeIfPossible()
+            }
         }
     }
 
