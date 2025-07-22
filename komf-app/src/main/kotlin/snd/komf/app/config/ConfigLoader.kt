@@ -45,6 +45,8 @@ class ConfigLoader(private val yaml: Yaml) {
         val appriseConfig = config.notifications.apprise
         val discordConfig = config.notifications.discord
         val templatesDirectory = configDirectory ?: notificationConfig.templatesDirectory
+        val mangaBakaDirectory = configDirectory?.let { "$it/mangabaka" }
+            ?: config.metadataProviders.mangabakaDatabaseDir
 
         val appriseUrls = System.getenv("KOMF_APPRISE_URLS")?.ifBlank { null }
             ?.split(",")?.toList()
@@ -67,11 +69,11 @@ class ConfigLoader(private val yaml: Yaml) {
         val logLevel = System.getenv("KOMF_LOG_LEVEL")?.ifBlank { null } ?: config.logLevel
 
         val metadataProvidersConfig = config.metadataProviders
-        val malClientId = System.getenv("KOMF_METADATA_PROVIDERS_MAL_CLIENT_ID")?.ifBlank { null }?.toString()
+        val malClientId = System.getenv("KOMF_METADATA_PROVIDERS_MAL_CLIENT_ID")?.ifBlank { null }
             ?: metadataProvidersConfig.malClientId
-        val comicVineApiKey = System.getenv("KOMF_METADATA_PROVIDERS_COMIC_VINE_API_KEY")?.ifBlank { null }?.toString()
+        val comicVineApiKey = System.getenv("KOMF_METADATA_PROVIDERS_COMIC_VINE_API_KEY")?.ifBlank { null }
             ?: metadataProvidersConfig.comicVineApiKey
-        val bangumiToken = System.getenv("KOMF_METADATA_PROVIDERS_BANGUMI_TOKEN")?.ifBlank { null }?.toString()
+        val bangumiToken = System.getenv("KOMF_METADATA_PROVIDERS_BANGUMI_TOKEN")?.ifBlank { null }
             ?: metadataProvidersConfig.bangumiToken
 
         return config.copy(
@@ -91,7 +93,8 @@ class ConfigLoader(private val yaml: Yaml) {
             metadataProviders = metadataProvidersConfig.copy(
                 malClientId = malClientId,
                 comicVineApiKey = comicVineApiKey,
-                bangumiToken = bangumiToken
+                bangumiToken = bangumiToken,
+                mangabakaDatabaseDir = mangaBakaDirectory
             ),
             notifications = config.notifications.copy(
                 templatesDirectory = templatesDirectory,

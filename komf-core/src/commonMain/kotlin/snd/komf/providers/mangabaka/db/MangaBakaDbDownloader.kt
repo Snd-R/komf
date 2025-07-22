@@ -91,9 +91,7 @@ class MangaBakaDbDownloader(
             databaseFile.deleteIfExists()
             dbMetadata.delete()
             progressFlow.emit(
-                MangaBakaDownloadProgress.ErrorEvent(
-                    e.message ?: "Encountered unexpected error during database download"
-                )
+                MangaBakaDownloadProgress.ErrorEvent("${e::class.simpleName}: ${e.message}")
             )
         } finally {
             lockedMutex.unlock()
