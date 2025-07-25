@@ -48,7 +48,7 @@ class MangaBakaMetadataProvider(
     override suspend fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val id = seriesId.toMangaBakaId()
         val series = cache.get(id) { dataSource.getSeries(id) }
-        val cover = series.cover.raw?.let { fetchCover(it) }
+        val cover = fetchCover(series)
 
         return metadataMapper.toSeriesMetadata(series, cover)
     }
@@ -56,7 +56,7 @@ class MangaBakaMetadataProvider(
     override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? {
         val id = seriesId.toMangaBakaId()
         val series = cache.get(id) { dataSource.getSeries(id) }
-        return series.cover.raw?.let { fetchCover(it) }
+        return fetchCover(series)
     }
 
     override suspend fun getBookMetadata(
@@ -98,16 +98,13 @@ class MangaBakaMetadataProvider(
             nameMatcher.matches(seriesName, titles)
         }
 
-        return match?.let { series ->
-            val cover = series.cover.raw?.let { fetchCover(it) }
-            metadataMapper.toSeriesMetadata(series, cover)
-        }
+        return match?.let { series -> metadataMapper.toSeriesMetadata(series, fetchCover(series)) }
     }
 
-    private suspend fun fetchCover(url: String): Image? {
-        if (coverFetchClient == null) return null
+    private suspend fun fetchCover(series: MangaBakaSeries): Image? {
+        if (coverFetchClient == null || series.cover.default == null) return null
 
-        val response = coverFetchClient.get(url)
+        val response = coverFetchClient.get(series.cover.default)
         return Image(
             response.body(),
             response.contentType()?.let { "${it.contentType}/${it.contentSubtype}" }
