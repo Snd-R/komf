@@ -1,6 +1,7 @@
 package snd.komf.comicinfo
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.atomicfu.locks.withLock
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -13,10 +14,9 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.io.IOUtils
-import snd.komf.util.OsPlatform
-import snd.komf.util.OsPlatform.Windows
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
+import java.util.concurrent.locks.ReentrantLock
 import java.util.zip.Deflater
 import java.util.zip.ZipEntry
 import kotlin.io.path.deleteIfExists
@@ -47,68 +47,74 @@ class ComicInfoWriter private constructor(private val overrideComicInfo: Boolean
                 }
             }.build()
     }
+    private val writeLock = ReentrantLock()
 
     private val supportedExtensions = setOf("cbz", "zip")
 
     fun removeComicInfo(localPath: String) {
-        val archivePath = Path.of(localPath)
-        validate(archivePath)
+        writeLock.withLock {
+            val archivePath = Path.of(localPath)
+            validate(archivePath)
 
-        val tempFile = kotlin.io.path.createTempFile(archivePath.parent)
-        runCatching {
-            ZipFile(archivePath.toFile()).use { zip ->
-                if (zip.entries.asSequence().none { it.name == COMIC_INFO }) {
-                    tempFile.deleteIfExists()
-                    return
-                }
+            val tempFile = kotlin.io.path.createTempFile(archivePath.parent)
+            runCatching {
+                ZipFile.builder().setFile(archivePath.toFile()).get()
+                    .use { zip ->
+                        if (zip.entries.asSequence().none { it.name == COMIC_INFO }) {
+                            tempFile.deleteIfExists()
+                            return
+                        }
 
-                ZipArchiveOutputStream(tempFile).use { output ->
-                    output.setLevel(Deflater.NO_COMPRESSION)
-                    copyEntries(zip, output)
-                }
+                        ZipArchiveOutputStream(tempFile).use { output ->
+                            output.setLevel(Deflater.NO_COMPRESSION)
+                            copyEntries(zip, output)
+                        }
+                    }
+
+                copyPermissions(from = archivePath, to = tempFile)
+                tempFile.moveTo(archivePath, overwrite = true)
+            }.onFailure {
+                tempFile.deleteIfExists()
+                throw it
             }
-
-            copyPermissions(from = archivePath, to = tempFile)
-            tempFile.moveTo(archivePath, overwrite = true)
-        }.onFailure {
-            tempFile.deleteIfExists()
-            throw it
         }
     }
 
     fun writeMetadata(localPath: String, comicInfo: ComicInfo) {
-        val archivePath = Path.of(localPath)
-        validate(archivePath)
+        writeLock.withLock {
+            val archivePath = Path.of(localPath)
+            validate(archivePath)
 
-        val tempFile = kotlin.io.path.createTempFile(archivePath.parent)
-        runCatching {
-            ZipFile.builder()
-                .setFile(archivePath.toFile())
-                .get()
-                .use { zip ->
-                    val oldComicInfo = getComicInfo(zip)
+            val tempFile = kotlin.io.path.createTempFile(archivePath.parent)
+            runCatching {
+                ZipFile.builder()
+                    .setFile(archivePath.toFile())
+                    .get()
+                    .use { zip ->
+                        val oldComicInfo = getComicInfo(zip)
 
-                    val comicInfoToWrite =
-                        if (overrideComicInfo) comicInfo
-                        else oldComicInfo?.let { old -> mergeComicInfoMetadata(old, comicInfo) } ?: comicInfo
+                        val comicInfoToWrite =
+                            if (overrideComicInfo) comicInfo
+                            else oldComicInfo?.let { old -> mergeComicInfoMetadata(old, comicInfo) } ?: comicInfo
 
-                    if (oldComicInfo == comicInfoToWrite) {
-                        tempFile.deleteIfExists()
-                        return
+                        if (oldComicInfo == comicInfoToWrite) {
+                            tempFile.deleteIfExists()
+                            return
+                        }
+
+                        ZipArchiveOutputStream(tempFile).use { output ->
+                            output.setLevel(Deflater.NO_COMPRESSION)
+                            copyEntries(zip, output)
+                            putComicInfoEntry(comicInfoToWrite, output)
+                        }
                     }
 
-                    ZipArchiveOutputStream(tempFile).use { output ->
-                        output.setLevel(Deflater.NO_COMPRESSION)
-                        copyEntries(zip, output)
-                        putComicInfoEntry(comicInfoToWrite, output)
-                    }
-                }
-
-            copyPermissions(from = archivePath, to = tempFile)
-            tempFile.moveTo(archivePath, overwrite = true)
-        }.onFailure {
-            tempFile.deleteIfExists()
-            throw it
+                copyPermissions(from = archivePath, to = tempFile)
+                tempFile.moveTo(archivePath, overwrite = true)
+            }.onFailure {
+                tempFile.deleteIfExists()
+                throw it
+            }
         }
     }
 
