@@ -59,7 +59,18 @@ class MangaBakaMetadataMapper(
             MangaBakaType.OTHER -> null
         }
         val titles = listOf(SeriesTitle(series.title, null, null)) +
-                listOfNotNull(series.nativeTitle?.let { SeriesTitle(it, TitleType.NATIVE, null) })
+                listOfNotNull(
+                    series.nativeTitle?.let { SeriesTitle(it, TitleType.NATIVE, originalLanguage) },
+                    series.romanizedTitle?.let {
+                        when (originalLanguage) {
+                            "ja" -> SeriesTitle(it, ROMAJI, "ja-ro")
+                            "ko" -> SeriesTitle(it, ROMAJI, "ko-ro")
+                            "zh" -> SeriesTitle(it, ROMAJI, "zh-ro")
+                            else -> null
+                        }
+                    }
+                )
+
         val secondaryTitles = series.secondaryTitles?.flatMap { (language, titles) ->
             val titleType = when (language) {
                 originalLanguage -> TitleType.NATIVE
