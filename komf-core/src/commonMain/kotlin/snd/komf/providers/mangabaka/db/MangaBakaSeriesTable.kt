@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.json.json
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 
-private val json = Json { }
+private val json = Json.Default
 
 object MangaBakaSeriesTable : Table("series") {
     val id = integer("id")
