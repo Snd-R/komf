@@ -29,7 +29,7 @@ import snd.komf.providers.mangabaka.db.MangaBakaDownloadProgress.FinishedEvent
 import snd.komf.providers.mangabaka.db.MangaBakaDownloadProgress.ProgressEvent
 import java.io.BufferedInputStream
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.inputStream
@@ -76,7 +76,7 @@ class MangaBakaDbDownloader(
             dbMetadata.delete()
             databaseFile.deleteIfExists()
             databaseArchive.deleteIfExists()
-            databaseFile.createDirectories()
+            databaseFile.createParentDirectories()
 
             downloadDatabaseArchive()
             extractDatabaseFile()
