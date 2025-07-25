@@ -273,7 +273,7 @@ class ProvidersModule(
     )
     private val mangaBakaCoverFetchClient = baseHttpClientJson.config {
         install(HttpRequestRateLimiter) {
-            interval = 2.seconds
+            interval = 1.seconds
             eventsPerInterval = 2
             allowBurst = false
         }
