@@ -24,10 +24,10 @@ class MangaBakaDbMetadata(
 
     init {
         timestamp = runCatching { Instant.parse(timestampFile.readText()) }
-            .onFailure { logger.catching(it) }
+            .onFailure { logger.warn { "failed to find MangaBaka timestamp file" } }
             .getOrNull()
         checksum = runCatching { checksumFile.readText() }
-            .onFailure { logger.catching(it) }
+            .onFailure { logger.warn { "failed to find MangaBaka checksum file" } }
             .getOrNull()
     }
 
