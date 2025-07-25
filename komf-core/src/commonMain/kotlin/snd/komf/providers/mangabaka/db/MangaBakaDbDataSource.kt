@@ -40,14 +40,16 @@ class MangaBakaDbDataSource(
             var resultSet: ResultSet? = null
             try {
                 val sqlString = buildString {
-                    append("SELECT * FROM series_fts WHERE title MATCH ?")
+                    append("SELECT id FROM series_fts WHERE (title MATCH ? or romanized_title MATCH ? or secondary_titles_en MATCH ?)")
                     types?.joinToString(", ") { "?" }?.let { append(" AND type in ($it)") }
                     append(" ORDER BY rank limit 10")
                 }
 
                 ftsStatement = connection.prepareStatement(sqlString, false)
-                ftsStatement[1] = title
-                types?.forEachIndexed { index, value -> ftsStatement[index + 2] = value.name.lowercase() }
+                ftsStatement[1] = "\"$title\""
+                ftsStatement[2] = "\"$title\""
+                ftsStatement[3] = "\"$title\""
+                types?.forEachIndexed { index, value -> ftsStatement[index + 4] = value.name.lowercase() }
 
                 resultSet = ftsStatement.executeQuery()
                 val ids = buildList { while (resultSet.next()) add(resultSet.getInt("id")) }

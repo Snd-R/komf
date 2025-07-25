@@ -134,8 +134,46 @@ class MangaBakaDbDownloader(
         progressFlow.emit(ProgressEvent(0, 0, "creating search index"))
         val db = Database.connect("jdbc:sqlite:$databaseFile")
         transaction(db) {
-            exec("CREATE VIRTUAL TABLE series_fts USING fts5(id, title, type, tokenize = 'trigram');")
-            exec("INSERT INTO series_fts SELECT id, title, type FROM series WHERE state='active';")
+
+            exec(
+                """
+                    CREATE VIRTUAL TABLE series_fts USING fts5
+                    (
+                        id,
+                        title,
+                        native_title,
+                        romanized_title,
+                        secondary_titles_en,
+                        type,
+                        tokenize = 'trigram'
+                    );
+                """.trimIndent()
+            )
+
+            exec(
+                """
+                    INSERT INTO series_fts
+                    SELECT s.id,
+                           s.title,
+                           s.native_title,
+                           s.romanized_title,
+                           GROUP_CONCAT(json_extract(json_each.value, '$.title'), ', '),
+                           s.type
+                    FROM series s, json_each(secondary_titles_en)
+                    WHERE state = 'active'
+                    GROUP BY s.id
+                    UNION
+                    SELECT id,
+                           title,
+                           native_title,
+                           romanized_title,
+                           null,
+                           type
+                    FROM series
+                    WHERE state = 'active'
+                      AND secondary_titles_en is null;
+                """.trimIndent()
+            )
         }
     }
 }
