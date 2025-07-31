@@ -28,5 +28,5 @@ data class MalSearchResult(
 
 @Serializable
 data class MalPaging(
-    val next: String?
+    val next: String? = null
 )
