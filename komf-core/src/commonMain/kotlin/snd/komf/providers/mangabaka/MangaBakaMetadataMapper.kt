@@ -103,7 +103,7 @@ class MangaBakaMetadataMapper(
             alternativePublishers = (originalPublishers + englishPublishers) - setOfNotNull(publisher),
             genres = series.genres?.sorted() ?: emptyList(),
             tags = series.tags?.sorted() ?: emptyList(),
-            totalBookCount = series.finalChapter?.toIntOrNull(),
+            totalBookCount = series.finalVolume?.toIntOrNull(),
             authors = authors + artists,
             thumbnail = thumbnail,
             releaseDate = ReleaseDate(series.year, null, null),

@@ -99,9 +99,9 @@ class MangaBakaDbDataSource(
             contentRating = MangaBakaContentRating.valueOf(this[MangaBakaSeriesTable.contentRating].uppercase()),
             type = MangaBakaType.valueOf(this[MangaBakaSeriesTable.type].uppercase()),
             rating = this[MangaBakaSeriesTable.rating],
-            finalVolume = this[MangaBakaSeriesTable.finalVolume]?.toString(),
-            finalChapter = this[MangaBakaSeriesTable.finalChapter]?.toString(),
-            totalChapter = this[MangaBakaSeriesTable.totalChapters]?.toString(),
+            finalVolume = this[MangaBakaSeriesTable.finalVolume],
+            finalChapter = this[MangaBakaSeriesTable.finalChapter],
+            totalChapter = this[MangaBakaSeriesTable.totalChapters],
             links = this[MangaBakaSeriesTable.links],
             publishers = this[MangaBakaSeriesTable.publishers]?.map {
                 MangaBakaPublisher(
