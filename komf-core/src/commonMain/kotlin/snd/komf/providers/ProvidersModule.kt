@@ -105,6 +105,7 @@ class ProvidersModule(
             defaultNameMatcher = defaultNameMatcher,
             malClientId = config.malClientId,
             comicVineClientId = config.comicVineApiKey,
+            comicVineSearchLimit = config.comicVineSearchLimit,
             bangumiToken = config.bangumiToken,
         )
         val libraryProviders = config.libraryProviders
@@ -114,6 +115,7 @@ class ProvidersModule(
                     defaultNameMatcher = defaultNameMatcher,
                     malClientId = config.malClientId,
                     comicVineClientId = config.comicVineApiKey,
+                    comicVineSearchLimit = config.comicVineSearchLimit,
                     bangumiToken = config.bangumiToken,
                 )
             }
@@ -324,6 +326,7 @@ class ProvidersModule(
         defaultNameMatcher: NameSimilarityMatcher,
         malClientId: String?,
         comicVineClientId: String?,
+        comicVineSearchLimit: Int?,
         bangumiToken: String?,
     ): MetadataProvidersContainer {
         return MetadataProvidersContainer(
@@ -390,6 +393,7 @@ class ProvidersModule(
             comicVine = createComicVineMetadataProvider(
                 config = config.comicVine,
                 apiKey = comicVineClientId,
+                comicVineSearchLimit = comicVineSearchLimit,
                 rateLimiter = comicVineRateLimiter,
                 defaultNameMatcher = defaultNameMatcher,
             ),
@@ -690,6 +694,7 @@ class ProvidersModule(
     private fun createComicVineMetadataProvider(
         config: ProviderConfig,
         apiKey: String?,
+        comicVineSearchLimit: Int? = 10,
         rateLimiter: ComicVineRateLimiter,
         defaultNameMatcher: NameSimilarityMatcher,
     ): ComicVineMetadataProvider? {
@@ -704,6 +709,7 @@ class ProvidersModule(
                 }
             },
             apiKey = apiKey,
+            comicVineSearchLimit = comicVineSearchLimit,
             rateLimiter = rateLimiter
         )
         val metadataMapper = ComicVineMetadataMapper(

@@ -17,6 +17,7 @@ import snd.komf.util.NameSimilarityMatcher.NameMatchingMode
 data class MetadataProvidersConfig(
     val malClientId: String? = null,
     val comicVineApiKey: String? = null,
+    val comicVineSearchLimit: Int? = null,
     val bangumiToken: String? = null,
     val nameMatchingMode: NameMatchingMode = NameMatchingMode.CLOSEST_MATCH,
     val defaultProviders: ProvidersConfig = ProvidersConfig(),

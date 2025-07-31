@@ -73,6 +73,8 @@ class ConfigLoader(private val yaml: Yaml) {
             ?: metadataProvidersConfig.malClientId
         val comicVineApiKey = System.getenv("KOMF_METADATA_PROVIDERS_COMIC_VINE_API_KEY")?.ifBlank { null }
             ?: metadataProvidersConfig.comicVineApiKey
+        val comicVineSearchLimit = System.getenv("KOMF_METADATA_PROVIDERS_COMIC_VINE_SEARCH_LIMIT")?.ifBlank { null }
+            ?: metadataProvidersConfig.comicVineSearchLimit
         val bangumiToken = System.getenv("KOMF_METADATA_PROVIDERS_BANGUMI_TOKEN")?.ifBlank { null }
             ?: metadataProvidersConfig.bangumiToken
 

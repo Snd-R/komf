@@ -138,6 +138,7 @@ class AppConfigMapper {
         return MetadataProvidersConfigDto(
             malClientId = malClientId,
             comicVineClientId = comicVineClientId,
+            comicVineSearchLimit = config.comicVineSearchLimit,
             nameMatchingMode = config.nameMatchingMode.fromNameMatchingMode(),
             defaultProviders = toDto(config.defaultProviders),
             libraryProviders = config.libraryProviders

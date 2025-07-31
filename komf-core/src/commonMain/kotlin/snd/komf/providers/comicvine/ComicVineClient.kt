@@ -20,6 +20,7 @@ private const val baseUrl = "https://comicvine.gamespot.com/api"
 class ComicVineClient(
     private val ktor: HttpClient,
     private val apiKey: String,
+    private val comicVineSearchLimit: Int? = 10,
     private val rateLimiter: ComicVineRateLimiter,
 ) {
 
@@ -29,6 +30,7 @@ class ComicVineClient(
             parameter("query", name)
             parameter("format", "json")
             parameter("resources", "volume")
+            parameter("limit", comicVineSearchLimit)
             parameter("api_key", apiKey)
         }.body()
     }
