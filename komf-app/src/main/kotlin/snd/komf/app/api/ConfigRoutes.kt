@@ -32,7 +32,6 @@ private val logger = KotlinLogging.logger {}
 class ConfigRoutes(
     private val config: Flow<AppConfig>,
     private val onConfigUpdate: suspend (AppConfig) -> Unit,
-    private val onStateReload: suspend () -> Unit,
     private val mangaBakaDownloader: Flow<MangaBakaDbDownloader>,
     private val mangaBakaDbMetadata: Flow<MangaBakaDbMetadata>,
     private val json: Json,
@@ -85,8 +84,6 @@ class ConfigRoutes(
         post("/update-manga-baka-db") {
             val downloader = mangaBakaDownloader.first()
 
-            // keep going even if connection is closed
-            var closed = false
             call.respondBytesWriter(contentType = ContentType("application", "jsonl")) {
                 downloader.launchDownload().collect { event ->
                     val mappedEvent = when (event) {
@@ -99,16 +96,12 @@ class ConfigRoutes(
                         is ErrorEvent -> snd.komf.api.config.MangaBakaDownloadProgress.ErrorEvent(event.message)
                         FinishedEvent -> snd.komf.api.config.MangaBakaDownloadProgress.FinishedEvent
                     }
-                    runCatching {
-                        if (!closed) {
-                            writeStringUtf8(json.encodeToString(mappedEvent) + "\n")
-                            flush()
-                        }
-                    }.onFailure { closed = true }
+                    writeStringUtf8(json.encodeToString(mappedEvent) + "\n")
+                    flush()
                 }
             }
-            onStateReload()
-            if (!closed) call.respond(HttpStatusCode.OK)
+
+            call.respond(HttpStatusCode.OK)
         }
     }
 }

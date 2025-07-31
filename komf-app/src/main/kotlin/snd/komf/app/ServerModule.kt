@@ -45,7 +45,6 @@ import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 class ServerModule(
     serverPort: Int,
     private val onConfigUpdate: suspend (AppConfig) -> Unit,
-    private val onStateReload: suspend () -> Unit,
     private val dynamicDependencies: StateFlow<ApiDynamicDependencies>,
 ) {
 
@@ -96,7 +95,6 @@ class ServerModule(
                 ConfigRoutes(
                     config = dynamicDependencies.map { it.config },
                     onConfigUpdate = onConfigUpdate,
-                    onStateReload = onStateReload,
                     mangaBakaDownloader = dynamicDependencies.map { it.mangaBakaDownloader },
                     mangaBakaDbMetadata = dynamicDependencies.map { it.mangaBakaDbMetadata },
                     json = json,

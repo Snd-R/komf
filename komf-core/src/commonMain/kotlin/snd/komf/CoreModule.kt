@@ -15,6 +15,7 @@ import kotlin.io.path.notExists
 class CoreModule(
     private val config: MetadataProvidersConfig,
     ktor: HttpClient,
+    onStateRefresh: suspend () -> Unit,
 ) {
     private val baseHttpClient = ktor.config {
         expectSuccess = true
@@ -34,6 +35,7 @@ class CoreModule(
         databaseArchive = mangaBakaDir.resolve("mangabaka.tar.gz"),
         databaseFile = mangaBakaDatabaseFile,
         dbMetadata = mangaBakaDbMetadata,
+        onStateRefresh = onStateRefresh
     )
 
     val mangaBakaDatabase =

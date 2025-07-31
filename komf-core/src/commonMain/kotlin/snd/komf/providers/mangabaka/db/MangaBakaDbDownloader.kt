@@ -43,6 +43,7 @@ class MangaBakaDbDownloader(
     private val databaseArchive: Path,
     private val databaseFile: Path,
     private val dbMetadata: MangaBakaDbMetadata,
+    private val onStateRefresh: suspend () -> Unit,
 ) {
     private val databaseUrl = "https://api.mangabaka.dev/v1/database/series.sqlite.tar.gz"
     private val checksumUrl = "https://api.mangabaka.dev/v1/database/series.sqlite.tar.gz.sha1"
@@ -86,6 +87,7 @@ class MangaBakaDbDownloader(
             dbMetadata.setChecksum(newChecksum)
             databaseArchive.deleteIfExists()
             progressFlow.emit(FinishedEvent)
+            onStateRefresh()
 
         } catch (e: Exception) {
             logger.catching(e)

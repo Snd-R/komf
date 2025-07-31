@@ -91,7 +91,11 @@ class AppContext(private val configPath: Path? = null) {
             install(UserAgent) { agent = komfUserAgent }
         }
 
-        providersModule = CoreModule(config.metadataProviders, ktorBaseClient)
+        providersModule = CoreModule(
+            config = config.metadataProviders,
+            ktor = ktorBaseClient,
+            onStateRefresh = this::refreshState,
+        )
         notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
 
         mediaServerModule = MediaServerModule(
@@ -109,7 +113,6 @@ class AppContext(private val configPath: Path? = null) {
         serverModule = ServerModule(
             serverPort = config.server.port,
             onConfigUpdate = this::refreshState,
-            onStateReload = this::refreshState,
             dynamicDependencies = apiRoutesDependencies,
         )
 
@@ -133,7 +136,11 @@ class AppContext(private val configPath: Path? = null) {
     private fun reloadModules(config: AppConfig) {
         logger.info { "Reconfiguring application state" }
 
-        val providersModule = CoreModule(config.metadataProviders, ktorBaseClient)
+        val providersModule = CoreModule(
+            config = config.metadataProviders,
+            ktor = ktorBaseClient,
+            onStateRefresh = this::refreshState,
+        )
         val notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
         val mediaServerModule = MediaServerModule(
             komgaConfig = config.komga,
