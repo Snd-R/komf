@@ -86,7 +86,7 @@ class MangaBakaMetadataProvider(
 
         val match = searchResults.firstOrNull { series ->
             val secondaryTitles = series.secondaryTitles
-                ?.flatMap { titles -> titles.value.map { it.title } }
+                ?.flatMap { titles -> titles.value?.map { it.title } ?: emptyList() }
                 ?: emptyList()
 
             val titles = listOfNotNull(

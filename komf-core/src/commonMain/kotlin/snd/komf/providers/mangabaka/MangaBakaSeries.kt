@@ -29,7 +29,7 @@ data class MangaBakaSeries(
     @SerialName("romanized_title")
     val romanizedTitle: String? = null,
     @SerialName("secondary_titles")
-    val secondaryTitles: Map<String, List<MangaBakaSecondaryTitle>>? = null,
+    val secondaryTitles: Map<String, List<MangaBakaSecondaryTitle>?>? = null,
     val cover: MangaBakaCover,
     val authors: List<String>? = null,
     val artists: List<String>? = null,

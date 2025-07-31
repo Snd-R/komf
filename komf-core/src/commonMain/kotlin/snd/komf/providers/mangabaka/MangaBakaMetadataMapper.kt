@@ -77,7 +77,7 @@ class MangaBakaMetadataMapper(
                 "ja-ro", "ko-ro", "zh-ro" -> ROMAJI
                 else -> TitleType.LOCALIZED
             }
-            titles.map { SeriesTitle(it.title, titleType, language) }
+            titles?.map { SeriesTitle(it.title, titleType, language) } ?: emptyList()
         } ?: emptyList()
 
         val publisher = if (metadataConfig.useOriginalPublisher) originalPublishers.firstOrNull()
