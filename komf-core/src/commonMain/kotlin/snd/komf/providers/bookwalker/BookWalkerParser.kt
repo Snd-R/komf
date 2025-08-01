@@ -3,11 +3,10 @@ package snd.komf.providers.bookwalker
 import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.nodes.Document
 import com.fleeksoft.ksoup.nodes.Element
-import io.ktor.http.*
+import io.ktor.http.decodeURLPart
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
-import snd.komf.util.BookNameParser
 import snd.komf.model.BookRange
 import snd.komf.providers.bookwalker.model.BookWalkerBook
 import snd.komf.providers.bookwalker.model.BookWalkerBookId
@@ -15,6 +14,7 @@ import snd.komf.providers.bookwalker.model.BookWalkerBookListPage
 import snd.komf.providers.bookwalker.model.BookWalkerSearchResult
 import snd.komf.providers.bookwalker.model.BookWalkerSeriesBook
 import snd.komf.providers.bookwalker.model.BookWalkerSeriesId
+import snd.komf.util.BookNameParser
 import snd.komf.util.replaceFullwidthChars
 
 class BookWalkerParser {
@@ -130,10 +130,12 @@ class BookWalkerParser {
         val imageUrl = getSearchResultThumbnail(result)
         val titleElement = result.getElementsByClass("a-tile-ttl").first()!!
         val resultUrl = titleElement.child(0).attr("href")
+        val seriesId = parseSeriesId(resultUrl)
+        val bookId = if (seriesId == null) parseBookId(resultUrl) else null
 
         return BookWalkerSearchResult(
-            seriesId = parseSeriesId(resultUrl),
-            bookId = parseBookId(resultUrl),
+            seriesId = seriesId,
+            bookId = bookId,
             seriesName = parseSeriesName(titleElement.text()),
             imageUrl = imageUrl,
         )

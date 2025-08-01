@@ -217,7 +217,7 @@ class ProvidersModule(
         }
     )
     private val bookWalkerClient = BookWalkerClient(
-        baseHttpClient.config {
+        ktor = baseHttpClient.config {
             install(HttpRequestRateLimiter) {
                 interval = 10.seconds
                 eventsPerInterval = 10
@@ -226,12 +226,8 @@ class ProvidersModule(
             install(HttpRequestRetry) {
                 defaultRetry()
             }
-
-            defaultRequest {
-                cookie("safeSearch", "111")
-                cookie("glSafeSearch", "1")
-            }
-        }
+        },
+        json = json
     )
     private val mangaDexClient = MangaDexClient(
         baseHttpClientJson.config {

@@ -1,6 +1,6 @@
 package snd.komf.providers.bookwalker
 
-import io.ktor.http.*
+import io.ktor.http.encodeURLPathPart
 import snd.komf.model.Author
 import snd.komf.model.AuthorRole
 import snd.komf.model.BookMetadata
