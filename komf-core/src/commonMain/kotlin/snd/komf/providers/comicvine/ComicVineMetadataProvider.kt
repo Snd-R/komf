@@ -40,6 +40,7 @@ class ComicVineMetadataProvider(
         .expireAfterWrite(30.minutes)
         .build()
     private val startYearRegex = "\\((?<startYear>\\d{4})(-\\d{4})?\\)".toRegex()
+    private val comicIdRegex = """\[CV=(?<id>\d+)\]""".toRegex()
 
     override fun providerName() = COMIC_VINE
 
@@ -69,7 +70,18 @@ class ComicVineMetadataProvider(
         return mapper.toBookMetadata(issue, storyArcs, cover)
     }
 
+    private fun extractVolumeId(seriesName: String): Int? {
+        return comicIdRegex.find(seriesName)?.groups?.get("id")?.value?.toIntOrNull()
+    }
+
     override suspend fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
+        val extractedId = extractVolumeId(seriesName)
+
+        if (extractedId != null) {
+            val result = handleResult(client.getVolume(ComicVineVolumeId(extractedId)))
+            return mutableListOf(mapper.toSeriesSearchResult(result))
+        }
+
         val result = handleResult(
             client.searchVolume(seriesName.replace("<", "").take(400))
         )
@@ -79,6 +91,14 @@ class ComicVineMetadataProvider(
 
     override suspend fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
         val seriesName = removeParentheses(matchQuery.seriesName)
+
+        val extractedId = extractVolumeId(matchQuery.seriesName)
+
+        if (extractedId != null) {
+            val result = handleResult(client.getVolume(ComicVineVolumeId(extractedId)))
+            return mapper.toSeriesMetadata(result, null)
+        }
+
         val searchResults = handleResult(
             client.searchVolume(seriesName.replace("<", "").take(400))
         )
