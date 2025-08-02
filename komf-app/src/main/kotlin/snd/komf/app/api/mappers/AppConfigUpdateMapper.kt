@@ -75,6 +75,11 @@ class AppConfigUpdateMapper {
                 is PatchValue.Some -> apiKey.value
                 PatchValue.Unset -> config.comicVineApiKey
             },
+            comicVineSearchLimit = when (val limit = patch.comicVineSearchLimit) {
+                PatchValue.None -> null
+                is PatchValue.Some -> limit.value
+                PatchValue.Unset -> config.comicVineSearchLimit
+            },
             nameMatchingMode = when (patch.nameMatchingMode.getOrNull()) {
                 KomfNameMatchingMode.EXACT -> NameMatchingMode.EXACT
                 KomfNameMatchingMode.CLOSEST_MATCH -> NameMatchingMode.CLOSEST_MATCH
