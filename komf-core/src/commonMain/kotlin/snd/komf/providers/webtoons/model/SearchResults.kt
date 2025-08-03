@@ -41,7 +41,9 @@ data class Title(
     val lastEpisodeRegisterYmdt: Long,
     val readCount: Int
 ) {
-    fun getOriginalUrl(): String {
+    fun getOriginalUrl(): String? {
+        if (representGenre.isNullOrEmpty()) return null
+
         val titleGroupName = titleGroupName ?: seoEncoding(title)
         return "${WebtoonsClient.BASE_URL}/en/${representGenre}/${titleGroupName}/list?title_no=$titleNo"
     }
@@ -51,8 +53,11 @@ data class Title(
         return "${WebtoonsClient.BASE_URL}/en/canvas/${titleGroupName}/list?title_no=$titleNo"
     }
 
-    fun getOriginalId(): WebtoonsSeriesId {
-        return WebtoonsSeriesId(Url(getOriginalUrl()).encodedPathAndQuery)
+    fun getOriginalId(): WebtoonsSeriesId? {
+        val originalUrl = getOriginalUrl()
+        if (originalUrl.isNullOrEmpty()) return null
+
+        return WebtoonsSeriesId(Url(originalUrl).encodedPathAndQuery)
     }
 
     fun getCanvasId(): WebtoonsSeriesId {
@@ -77,7 +82,8 @@ private fun seoEncoding(input: String): String {
 
     var processedInput = replaceEncodedChars(input).lowercase()
 
-    processedInput = processedInput.replace(Regex("[`~!@#$%^&*|\\\\'\";:/?\\$\\{\\$\\$\\$\\}]"), "")
+    // /[`~!@#$%^&*|\\\'\";:\/?\(\{\[\]\}\)]/g
+    processedInput = processedInput.replace(Regex("[`~!@#$%^&*|\\\\\'\";:/?({\\[\\]})]"), "")
         .replace(" ", "-")
         .replace("_", "-")
         .replace(Regex("-+"), "-")

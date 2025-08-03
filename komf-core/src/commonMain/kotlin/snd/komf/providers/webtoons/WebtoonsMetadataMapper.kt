@@ -34,14 +34,21 @@ class WebtoonsMetadataMapper(
 ) {
     fun toSeriesSearchResult(results: Pair<Collection<Title>, Collection<Title>>): List<SeriesSearchResult> {
         // This can probably be prettier
-        return results.first.map { title ->
-            SeriesSearchResult(
-                url = title.getOriginalUrl(),
-                imageUrl = "${WebtoonsClient.IMAGE_BASE_URL}${title.thumbnailMobile}",
-                title = title.title,
-                provider = CoreProviders.WEBTOONS,
-                resultId = title.getOriginalId().value
-            )
+        return results.first.mapNotNull { title ->
+            val originalUrl = title.getOriginalUrl()
+            val resultId = title.getOriginalId()
+
+            if (originalUrl.isNullOrEmpty() || resultId == null) {
+                null
+            } else {
+                SeriesSearchResult(
+                    url = originalUrl,
+                    imageUrl = "${WebtoonsClient.IMAGE_BASE_URL}${title.thumbnailMobile}",
+                    title = title.title,
+                    provider = CoreProviders.WEBTOONS,
+                    resultId = resultId.value
+                )
+            }
         } + results.second.map { title ->
             SeriesSearchResult(
                 url = title.getCanvasUrl(),
