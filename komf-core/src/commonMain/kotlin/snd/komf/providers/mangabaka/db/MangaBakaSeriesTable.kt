@@ -17,12 +17,6 @@ object MangaBakaSeriesTable : Table("series") {
     val nativeTitle = text("native_title").nullable()
     val romanizedTitle = text("romanized_title").nullable()
     val secondaryTitlesEn = json<List<MangaBakaDbSecondaryTitle>>("secondary_titles_en", json).nullable()
-    val secondaryTitlesJa = json<List<MangaBakaDbSecondaryTitle>>("secondary_titles_ja", json).nullable()
-    val secondaryTitlesJaRo = json<List<MangaBakaDbSecondaryTitle>>("secondary_titles_ja-ro", json).nullable()
-    val secondaryTitlesEs = json<List<MangaBakaDbSecondaryTitle>>("secondary_titles_es", json).nullable()
-    val secondaryTitlesFr = json<List<MangaBakaDbSecondaryTitle>>("secondary_titles_fr", json).nullable()
-    val secondaryTitlesDe = json<List<MangaBakaDbSecondaryTitle>>("secondary_titles_de", json).nullable()
-
     val coverRawUrl = text("cover_raw").nullable()
     val coverDefaultUrl = text("cover_default").nullable()
     val coverSmalltUrl = text("cover_small").nullable()

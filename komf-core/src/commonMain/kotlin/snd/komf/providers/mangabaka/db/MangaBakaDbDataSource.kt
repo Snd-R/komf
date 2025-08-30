@@ -176,21 +176,21 @@ class MangaBakaDbDataSource(
         this[MangaBakaSeriesTable.secondaryTitlesEn]?.let { titles ->
             secondaryTitles.put("en", titles.map { it.toMangaBakaTitle() })
         }
-        this[MangaBakaSeriesTable.secondaryTitlesJa]?.let { titles ->
-            secondaryTitles.put("ja", titles.map { it.toMangaBakaTitle() })
-        }
-        this[MangaBakaSeriesTable.secondaryTitlesJaRo]?.let { titles ->
-            secondaryTitles.put("ja-ro", titles.map { it.toMangaBakaTitle() })
-        }
-        this[MangaBakaSeriesTable.secondaryTitlesEs]?.let { titles ->
-            secondaryTitles.put("es", titles.map { it.toMangaBakaTitle() })
-        }
-        this[MangaBakaSeriesTable.secondaryTitlesFr]?.let { titles ->
-            secondaryTitles.put("fr", titles.map { it.toMangaBakaTitle() })
-        }
-        this[MangaBakaSeriesTable.secondaryTitlesDe]?.let { titles ->
-            secondaryTitles.put("de", titles.map { it.toMangaBakaTitle() })
-        }
+//        this[MangaBakaSeriesTable.secondaryTitlesJa]?.let { titles ->
+//            secondaryTitles.put("ja", titles.map { it.toMangaBakaTitle() })
+//        }
+//        this[MangaBakaSeriesTable.secondaryTitlesJaRo]?.let { titles ->
+//            secondaryTitles.put("ja-ro", titles.map { it.toMangaBakaTitle() })
+//        }
+//        this[MangaBakaSeriesTable.secondaryTitlesEs]?.let { titles ->
+//            secondaryTitles.put("es", titles.map { it.toMangaBakaTitle() })
+//        }
+//        this[MangaBakaSeriesTable.secondaryTitlesFr]?.let { titles ->
+//            secondaryTitles.put("fr", titles.map { it.toMangaBakaTitle() })
+//        }
+//        this[MangaBakaSeriesTable.secondaryTitlesDe]?.let { titles ->
+//            secondaryTitles.put("de", titles.map { it.toMangaBakaTitle() })
+//        }
         return secondaryTitles
     }
 }
