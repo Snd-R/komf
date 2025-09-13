@@ -87,8 +87,10 @@ class ComicVineMetadataMapper(
         storyArcs: List<ComicVineStoryArc>,
         cover: Image?
     ): ProviderBookMetadata {
+        // If this is a oneshot (volume with only one issue), use the volume name as the title
+        val isOneshot = issue.volume?.countOfIssues == 1
         val metadata = BookMetadata(
-            title = issue.name,
+            title = if (isOneshot) issue.volume?.name else issue.name,
             summary = issue.description?.let { parseDescription(it) },
             number = issue.issueNumber?.toDoubleOrNull()?.let { BookRange(it, it) },
             numberSort = issue.issueNumber?.toDoubleOrNull(),
