@@ -1,8 +1,8 @@
 package snd.komf.mediaserver.jobs
 
-import kotlinx.datetime.Instant
 import snd.komf.mediaserver.repository.KomfJobRecord
 import snd.komf.mediaserver.repository.KomfJobRecordQueries
+import kotlin.time.Instant
 
 
 class KomfJobsRepository(

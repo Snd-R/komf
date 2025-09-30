@@ -2,9 +2,8 @@ package snd.komf.providers.mangabaka.db
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.json.json
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.json.json
 
 private val json = Json.Default
 
@@ -38,9 +37,6 @@ object MangaBakaSeriesTable : Table("series") {
     val publishers = json<List<MangaBakaDbPublisher>>("publishers", json).nullable()
     val genres = json<List<String>>("genres", json).nullable()
     val tags = json<List<String>>("tags", json).nullable()
-
-    val animeStart = text("anime_start").nullable()
-    val animeEnd = text("anime_end").nullable()
 
     val sourceAnilistId = integer("source_anilist_id").nullable()
     val sourceAnilistRating = double("source_anilist_rating").nullable()

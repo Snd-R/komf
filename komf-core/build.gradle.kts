@@ -20,6 +20,9 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
+        }
         commonMain.dependencies {
             implementation(libs.cache4k)
             implementation(libs.commons.compress)
@@ -27,7 +30,6 @@ kotlin {
             api(libs.exposed.core)
             implementation(libs.exposed.jdbc)
             implementation(libs.exposed.json)
-            implementation(libs.exposed.migration)
             implementation(libs.exposed.kotlin.datetime)
             implementation(libs.kotlin.logging)
             implementation(libs.kotlinx.coroutines.core)

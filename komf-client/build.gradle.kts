@@ -32,6 +32,9 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
+        }
         commonMain.dependencies {
             api(project(":komf-api-models"))
             implementation(libs.kotlin.logging)
@@ -47,7 +50,7 @@ kotlin {
 }
 android {
     namespace = "snd.komf"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

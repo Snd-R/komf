@@ -1,6 +1,6 @@
 package snd.komf.mediaserver.kavita
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 interface JwtConsumer {
     fun processToExpirationDateClaim(jwt: String): Instant

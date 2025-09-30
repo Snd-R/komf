@@ -1,10 +1,10 @@
 package snd.komf.mediaserver.jobs
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import snd.komf.mediaserver.model.MediaServerSeriesId
 import snd.komf.providers.CoreProviders
 import java.util.*
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 @JvmInline
 value class MetadataJobId(val value: UUID)

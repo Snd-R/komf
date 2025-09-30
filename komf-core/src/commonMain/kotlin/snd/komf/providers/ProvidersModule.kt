@@ -9,7 +9,6 @@ import io.ktor.client.plugins.cookies.ConstantCookiesStorage
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.cookie
 import io.ktor.client.request.header
 import io.ktor.http.Cookie
 import io.ktor.http.HttpStatusCode.Companion.TooManyRequests
@@ -18,7 +17,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import snd.komf.ktor.HttpRequestRateLimiter
 import snd.komf.ktor.intervalLimiter
 import snd.komf.ktor.rateLimiter

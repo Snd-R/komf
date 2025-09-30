@@ -1,11 +1,11 @@
 package snd.komf.providers.mangabaka.db
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.datetime.Instant
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.readText
+import kotlin.time.Instant
 
 
 class MangaBakaDbMetadata(

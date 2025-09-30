@@ -29,6 +29,9 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
+        }
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
@@ -38,7 +41,7 @@ kotlin {
 }
 android {
     namespace = "snd.komf"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

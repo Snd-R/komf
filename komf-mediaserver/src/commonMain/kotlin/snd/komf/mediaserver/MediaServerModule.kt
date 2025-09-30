@@ -15,8 +15,6 @@ import io.ktor.http.URLBuilder
 import io.ktor.http.appendPathSegments
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import snd.komf.comicinfo.ComicInfoWriter
 import snd.komf.ktor.komfUserAgent
@@ -61,6 +59,8 @@ import snd.komf.providers.ProvidersModule
 import snd.komga.client.KomgaClientFactory
 import java.nio.file.Path
 import java.util.*
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 class MediaServerModule(
     komgaConfig: KomgaConfig,

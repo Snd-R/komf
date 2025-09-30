@@ -3,7 +3,7 @@ package snd.komf
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.cookies.HttpCookies
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import snd.komf.ktor.komfUserAgent
 import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProvidersModule

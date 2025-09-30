@@ -1,4 +1,4 @@
-import kotlinx.datetime.Instant;
+import kotlin.time.Instant;
 import snd.komf.mediaserver.jobs.MetadataJobId;
 import snd.komf.mediaserver.jobs.MetadataJobStatus;
 import snd.komf.mediaserver.model.MediaServerSeriesId;

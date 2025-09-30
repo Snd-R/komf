@@ -1,9 +1,9 @@
 package snd.komf.api.job
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import snd.komf.api.KomfServerSeriesId
 import kotlin.jvm.JvmInline
+import kotlin.time.Instant
 
 @JvmInline
 @Serializable

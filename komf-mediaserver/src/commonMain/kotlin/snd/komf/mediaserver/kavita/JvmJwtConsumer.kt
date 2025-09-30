@@ -1,7 +1,7 @@
 package snd.komf.mediaserver.kavita
 
-import kotlinx.datetime.Instant
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
+import kotlin.time.Instant
 
 class JvmJwtConsumer : JwtConsumer {
     private val jwtConsumer = JwtConsumerBuilder().apply {
@@ -11,6 +11,6 @@ class JvmJwtConsumer : JwtConsumer {
 
     override fun processToExpirationDateClaim(jwt: String): Instant {
         val claims = jwtConsumer.processToClaims(jwt)
-        return Instant.Companion.fromEpochMilliseconds(claims.expirationTime.valueInMillis)
+        return Instant.fromEpochMilliseconds(claims.expirationTime.valueInMillis)
     }
 }
