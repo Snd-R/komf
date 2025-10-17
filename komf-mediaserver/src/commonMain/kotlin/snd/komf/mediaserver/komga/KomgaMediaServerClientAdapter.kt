@@ -100,7 +100,8 @@ class KomgaMediaServerClientAdapter(
         return komgaBookClient.getBookList(
             conditionBuilder = allOfBooks {
                 seriesId { isEqualTo(KomgaSeriesId(seriesId.value)) }
-            }
+            },
+            pageRequest = KomgaPageRequest(unpaged = true)
         ).content.map { it.toMediaServerBook() }
     }
 
