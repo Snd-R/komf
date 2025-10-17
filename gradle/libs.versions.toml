@@ -1,5 +1,5 @@
 [versions]
-app-version = "1.6.0-SNAPSHOT"
+app-version = "1.6.1"
 agp = "8.11.2"
 cache4k = "0.14.0"
 commons-text = "1.14.0"
