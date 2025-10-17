@@ -1,6 +1,7 @@
 package snd.komf.model
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
@@ -92,5 +93,5 @@ enum class PublisherType {
     LOCALIZED
 }
 
-fun LocalDate.toReleaseDate() = ReleaseDate(year = year, month = monthNumber, day = dayOfMonth)
+fun LocalDate.toReleaseDate() = ReleaseDate(year = year, month = month.number, day = day)
 

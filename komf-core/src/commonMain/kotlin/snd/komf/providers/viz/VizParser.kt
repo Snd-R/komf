@@ -25,7 +25,7 @@ class VizParser {
     private val dateFormat = LocalDate.Format {
         monthName(MonthNames.ENGLISH_FULL)
         char(' ')
-        dayOfMonth(Padding.NONE)
+        day(Padding.NONE)
         chars(", ")
         year()
     }

@@ -1,5 +1,6 @@
 package snd.komf.mediaserver.metadata
 
+import kotlinx.datetime.number
 import snd.komf.comicinfo.AgeRating
 import snd.komf.comicinfo.ComicInfo
 import snd.komf.mediaserver.model.MediaServerAuthor
@@ -92,8 +93,8 @@ class MetadataMapper {
             count = seriesMetadata?.totalBookCount,
             summary = bookMetadata?.summary,
             year = bookMetadata?.releaseDate?.year,
-            month = bookMetadata?.releaseDate?.monthNumber,
-            day = bookMetadata?.releaseDate?.dayOfMonth,
+            month = bookMetadata?.releaseDate?.month?.number,
+            day = bookMetadata?.releaseDate?.day,
             writer = authors?.filter { it.role == WRITER }
                 ?.ifEmpty { null }
                 ?.joinToString(",") { it.name },

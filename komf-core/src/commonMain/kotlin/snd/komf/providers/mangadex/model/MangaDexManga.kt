@@ -1,9 +1,9 @@
 package snd.komf.providers.mangadex.model
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
+import kotlin.time.Instant
 
 @Serializable
 data class MangaDexManga(

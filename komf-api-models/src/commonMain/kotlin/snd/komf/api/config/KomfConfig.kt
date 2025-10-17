@@ -1,6 +1,5 @@
 package snd.komf.api.config
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import snd.komf.api.KomfAuthorRole
 import snd.komf.api.KomfMediaType
@@ -9,6 +8,7 @@ import snd.komf.api.KomfReadingDirection
 import snd.komf.api.KomfUpdateMode
 import snd.komf.api.MangaBakaMode
 import snd.komf.api.MangaDexLink
+import kotlin.time.Instant
 
 @Serializable
 data class KomfConfig(

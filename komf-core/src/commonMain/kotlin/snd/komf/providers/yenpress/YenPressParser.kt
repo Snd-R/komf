@@ -19,7 +19,7 @@ class YenPressParser {
     private val dateFormat = LocalDate.Format {
         monthName(MonthNames.ENGLISH_ABBREVIATED)
         char(' ')
-        dayOfMonth()
+        day()
         chars(", ")
         year()
     }

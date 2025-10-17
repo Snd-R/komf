@@ -1,6 +1,7 @@
 package snd.komf.providers.bookwalker
 
 import io.ktor.http.encodeURLPathPart
+import kotlinx.datetime.number
 import snd.komf.model.Author
 import snd.komf.model.AuthorRole
 import snd.komf.model.BookMetadata
@@ -60,8 +61,8 @@ class BookWalkerMapper(
             thumbnail = thumbnail,
             releaseDate = ReleaseDate(
                 year = book.availableSince?.year,
-                month = book.availableSince?.monthNumber,
-                day = book.availableSince?.dayOfMonth,
+                month = book.availableSince?.month?.number,
+                day = book.availableSince?.day,
             ),
             links = listOf(WebLink("BookWalker", seriesUrl(seriesId)))
         )

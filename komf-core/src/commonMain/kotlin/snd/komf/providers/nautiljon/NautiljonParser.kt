@@ -18,7 +18,7 @@ import snd.komf.providers.nautiljon.model.NautiljonVolumeId
 
 class NautiljonParser {
     private val dateFormat = LocalDate.Format {
-        dayOfMonth()
+        day()
         char('/')
         monthNumber()
         char('/')

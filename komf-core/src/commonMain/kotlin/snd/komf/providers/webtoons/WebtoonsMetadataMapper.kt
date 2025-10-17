@@ -1,6 +1,5 @@
 package snd.komf.providers.webtoons
 
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import snd.komf.model.Author
@@ -26,6 +25,7 @@ import snd.komf.providers.webtoons.model.Episode
 import snd.komf.providers.webtoons.model.Status
 import snd.komf.providers.webtoons.model.Title
 import snd.komf.providers.webtoons.model.WebtoonsSeries
+import kotlin.time.Instant
 
 class WebtoonsMetadataMapper(
     private val metadataConfig: SeriesMetadataConfig,

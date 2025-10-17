@@ -1,6 +1,7 @@
 package snd.komf.providers.bangumi
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 import snd.komf.model.Author
 import snd.komf.model.AuthorRole
 import snd.komf.model.BookMetadata
@@ -98,8 +99,8 @@ class BangumiMetadataMapper(
             authors = getAuthors(infoBox),
             releaseDate = ReleaseDate(
                 releaseDate?.year,
-                releaseDate?.monthNumber,
-                releaseDate?.dayOfMonth
+                releaseDate?.month?.number,
+                releaseDate?.day
             ),
             links = listOf(WebLink("Bangumi", subjectUrl(subject.id))),
             score = subject.rating.score,

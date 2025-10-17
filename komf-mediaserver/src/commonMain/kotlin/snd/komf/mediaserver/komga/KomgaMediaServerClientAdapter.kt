@@ -38,13 +38,14 @@ import snd.komga.client.common.PatchValue
 import snd.komga.client.library.KomgaLibrary
 import snd.komga.client.library.KomgaLibraryClient
 import snd.komga.client.library.KomgaLibraryId
+import snd.komga.client.search.allOfBooks
+import snd.komga.client.search.allOfSeries
 import snd.komga.client.series.KomgaAlternativeTitle
 import snd.komga.client.series.KomgaSeries
 import snd.komga.client.series.KomgaSeriesClient
 import snd.komga.client.series.KomgaSeriesId
 import snd.komga.client.series.KomgaSeriesMetadata
 import snd.komga.client.series.KomgaSeriesMetadataUpdateRequest
-import snd.komga.client.series.KomgaSeriesQuery
 import snd.komga.client.series.KomgaSeriesStatus
 import snd.komga.client.series.KomgaSeriesThumbnail
 
@@ -62,9 +63,14 @@ class KomgaMediaServerClientAdapter(
     }
 
     override suspend fun getSeries(libraryId: MediaServerLibraryId, pageNumber: Int): Page<MediaServerSeries> {
-        val komgaPage = komgaSeriesClient.getAllSeries(
-            KomgaSeriesQuery(libraryIds = listOf(KomgaLibraryId(libraryId.value))),
-            KomgaPageRequest(pageIndex = pageNumber - 1, size = 500)
+        val komgaPage = komgaSeriesClient.getSeriesList(
+            conditionBuilder = allOfSeries {
+                library {
+                    isEqualTo(KomgaLibraryId(libraryId.value))
+                }
+            },
+            fulltextSearch = null,
+            pageRequest = KomgaPageRequest(pageIndex = pageNumber - 1, size = 500)
         )
         return Page(
             content = komgaPage.content.map { it.toMediaServerSeries() },
@@ -91,9 +97,10 @@ class KomgaMediaServerClientAdapter(
     }
 
     override suspend fun getBooks(seriesId: MediaServerSeriesId): Collection<MediaServerBook> {
-        return komgaSeriesClient.getAllBooksBySeries(
-            seriesId = KomgaSeriesId(seriesId.value),
-            pageRequest = KomgaPageRequest(unpaged = true)
+        return komgaBookClient.getBookList(
+            conditionBuilder = allOfBooks {
+                seriesId { isEqualTo(KomgaSeriesId(seriesId.value)) }
+            }
         ).content.map { it.toMediaServerBook() }
     }
 

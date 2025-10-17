@@ -2,6 +2,7 @@ package snd.komf.providers.hentag
 
 import io.ktor.http.*
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import snd.komf.model.Author
 import snd.komf.model.AuthorRole
@@ -65,8 +66,8 @@ class HentagMetadataMapper(
             releaseDate = book.publishedOn?.toLocalDateTime(TimeZone.UTC)?.let { date ->
                 ReleaseDate(
                     year = date.year,
-                    month = date.monthNumber,
-                    day = date.dayOfMonth
+                    month = date.month.number,
+                    day = date.day
                 )
             },
             tags = tags,

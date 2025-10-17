@@ -22,7 +22,7 @@ class BookWalkerParser {
     private val dateFormat = LocalDate.Format {
         monthName(MonthNames.ENGLISH_FULL)
         char(' ')
-        dayOfMonth()
+        day()
         chars(", ")
         year()
     }
