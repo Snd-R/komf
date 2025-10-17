@@ -76,8 +76,16 @@ data class MangaBakaSecondaryTitle(
 @Serializable
 data class MangaBakaCover(
     val raw: String? = null,
-    val default: String? = null,
-    val small: String? = null
+    val x150: MangaBakaCoverDpi? = null,
+    val x250: MangaBakaCoverDpi? = null,
+    val x350: MangaBakaCoverDpi? = null,
+)
+
+@Serializable
+data class MangaBakaCoverDpi(
+    val x1: String? = null,
+    val x2: String? = null,
+    val x3: String? = null,
 )
 
 @Serializable

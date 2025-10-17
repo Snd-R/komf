@@ -17,8 +17,7 @@ object MangaBakaSeriesTable : Table("series") {
     val romanizedTitle = text("romanized_title").nullable()
     val secondaryTitlesEn = json<List<MangaBakaDbSecondaryTitle>>("secondary_titles_en", json).nullable()
     val coverRawUrl = text("cover_raw").nullable()
-    val coverDefaultUrl = text("cover_default").nullable()
-    val coverSmalltUrl = text("cover_small").nullable()
+    val coverX350X1Url = text("cover_x350_x1").nullable()
 
     val authors = json<List<String>>("authors", json).nullable()
     val artists = json<List<String>>("artists", json).nullable()

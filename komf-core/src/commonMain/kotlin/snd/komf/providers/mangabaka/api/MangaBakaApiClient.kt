@@ -15,6 +15,10 @@ class MangaBakaApiClient(private val ktor: HttpClient) : MangaBakaDataSource {
     override suspend fun search(title: String, types: List<MangaBakaType>?): List<MangaBakaSeries> {
         return ktor.get("${baseUrl}/v1/series/search") {
             parameter("q", title)
+            parameter("content_rating", "safe")
+            parameter("content_rating", "suggestive")
+            parameter("content_rating", "erotica")
+            parameter("content_rating", "pornographic")
             types?.forEach { parameter("type", it.name.lowercase()) }
         }.body<MangaBakaSearchResponse>().data
     }

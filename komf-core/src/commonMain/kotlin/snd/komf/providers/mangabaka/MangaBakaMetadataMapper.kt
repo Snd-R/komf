@@ -121,7 +121,7 @@ class MangaBakaMetadataMapper(
     fun toSeriesSearchResult(series: MangaBakaSeries): SeriesSearchResult {
         return SeriesSearchResult(
             url = series.url(),
-            imageUrl = series.cover.small,
+            imageUrl = series.cover.x350?.x1,
             title = series.title,
             provider = CoreProviders.MANGA_BAKA,
             resultId = series.id.value.toString()

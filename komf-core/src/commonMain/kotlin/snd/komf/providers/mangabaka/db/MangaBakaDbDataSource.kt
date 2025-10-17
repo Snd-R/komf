@@ -13,6 +13,7 @@ import snd.komf.providers.mangabaka.MangaBakaAnilistSource
 import snd.komf.providers.mangabaka.MangaBakaAnimeNewsNetworkSource
 import snd.komf.providers.mangabaka.MangaBakaContentRating
 import snd.komf.providers.mangabaka.MangaBakaCover
+import snd.komf.providers.mangabaka.MangaBakaCoverDpi
 import snd.komf.providers.mangabaka.MangaBakaDataSource
 import snd.komf.providers.mangabaka.MangaBakaKitsuSource
 import snd.komf.providers.mangabaka.MangaBakaMangaDexSource
@@ -85,6 +86,9 @@ class MangaBakaDbDataSource(
     }
 
     private fun ResultRow.toModel(): MangaBakaSeries {
+        val coverX350 = this[MangaBakaSeriesTable.coverX350X1Url]
+            ?.let { MangaBakaCoverDpi(x1 = it) }
+
         return MangaBakaSeries(
             id = MangaBakaSeriesId(this[MangaBakaSeriesTable.id]),
             state = MangaBakaSeriesState.valueOf(this[MangaBakaSeriesTable.state].uppercase()),
@@ -95,8 +99,7 @@ class MangaBakaDbDataSource(
             secondaryTitles = this.getSecondaryTitles(),
             cover = MangaBakaCover(
                 raw = this[MangaBakaSeriesTable.coverRawUrl],
-                default = this[MangaBakaSeriesTable.coverDefaultUrl],
-                small = this[MangaBakaSeriesTable.coverSmalltUrl],
+                x350 = coverX350,
             ),
             authors = this[MangaBakaSeriesTable.authors],
             artists = this[MangaBakaSeriesTable.artists],

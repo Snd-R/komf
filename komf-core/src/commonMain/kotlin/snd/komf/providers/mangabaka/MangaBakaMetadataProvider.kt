@@ -102,9 +102,9 @@ class MangaBakaMetadataProvider(
     }
 
     private suspend fun fetchCover(series: MangaBakaSeries): Image? {
-        if (coverFetchClient == null || series.cover.default == null) return null
+        if (coverFetchClient == null || series.cover.x350?.x1 == null) return null
 
-        val response = coverFetchClient.get(series.cover.default)
+        val response = coverFetchClient.get(series.cover.x350.x1)
         return Image(
             response.body(),
             response.contentType()?.let { "${it.contentType}/${it.contentSubtype}" }
