@@ -139,6 +139,7 @@ class AppConfigMapper {
             malClientId = malClientId,
             comicVineClientId = comicVineClientId,
             comicVineSearchLimit = config.comicVineSearchLimit,
+            comicVineIssueName = config.comicVineIssueName,
             nameMatchingMode = config.nameMatchingMode.fromNameMatchingMode(),
             defaultProviders = toDto(config.defaultProviders),
             libraryProviders = config.libraryProviders
