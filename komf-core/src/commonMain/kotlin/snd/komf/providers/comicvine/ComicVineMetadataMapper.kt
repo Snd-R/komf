@@ -53,6 +53,17 @@ class ComicVineMetadataMapper(
         )
     }
 
+
+    fun toSeriesSearchResult(volume: ComicVineVolume): SeriesSearchResult {
+        return SeriesSearchResult(
+            url = volume.siteDetailUrl,
+            imageUrl = volume.image?.mediumUrl,
+            title = seriesTitle(volume),
+            provider = CoreProviders.COMIC_VINE,
+            resultId = volume.id.toString()
+        )
+    }
+
     fun toSeriesMetadata(
         volume: ComicVineVolume,
         cover: Image?
@@ -158,6 +169,12 @@ class ComicVineMetadataMapper(
     }
 
     private fun seriesTitle(volume: ComicVineVolumeSearch): String {
+        val publisher = volume.publisher?.name?.let { " ($it)" } ?: ""
+        val startYearString = volume.startYear?.let { " ($it)" } ?: ""
+        return "${volume.name}$startYearString$publisher"
+    }
+
+    private fun seriesTitle(volume: ComicVineVolume): String {
         val publisher = volume.publisher?.name?.let { " ($it)" } ?: ""
         val startYearString = volume.startYear?.let { " ($it)" } ?: ""
         return "${volume.name}$startYearString$publisher"
