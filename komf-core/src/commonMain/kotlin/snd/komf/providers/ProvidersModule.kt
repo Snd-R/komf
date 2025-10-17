@@ -106,6 +106,7 @@ class ProvidersModule(
             comicVineClientId = config.comicVineApiKey,
             comicVineSearchLimit = config.comicVineSearchLimit,
             comicVineIssueName = config.comicVineIssueName,
+            comicVineIdFormat = config.comicVineIdFormat,
             bangumiToken = config.bangumiToken,
         )
         val libraryProviders = config.libraryProviders
@@ -117,6 +118,7 @@ class ProvidersModule(
                     comicVineClientId = config.comicVineApiKey,
                     comicVineSearchLimit = config.comicVineSearchLimit,
                     comicVineIssueName = config.comicVineIssueName,
+                    comicVineIdFormat = config.comicVineIdFormat,
                     bangumiToken = config.bangumiToken,
                 )
             }
@@ -329,6 +331,7 @@ class ProvidersModule(
         comicVineClientId: String?,
         comicVineSearchLimit: Int?,
         comicVineIssueName: String?,
+        comicVineIdFormat: String?,
         bangumiToken: String?,
     ): MetadataProvidersContainer {
         return MetadataProvidersContainer(
@@ -397,6 +400,7 @@ class ProvidersModule(
                 apiKey = comicVineClientId,
                 comicVineSearchLimit = comicVineSearchLimit,
                 comicVineIssueName = comicVineIssueName,
+                comicVineIdFormat = comicVineIdFormat,
                 rateLimiter = comicVineRateLimiter,
                 defaultNameMatcher = defaultNameMatcher,
             ),
@@ -699,6 +703,7 @@ class ProvidersModule(
         apiKey: String?,
         comicVineSearchLimit: Int? = 10,
         comicVineIssueName: String?,
+        comicVineIdFormat: String?,
         rateLimiter: ComicVineRateLimiter,
         defaultNameMatcher: NameSimilarityMatcher,
     ): ComicVineMetadataProvider? {
@@ -730,6 +735,7 @@ class ProvidersModule(
             nameMatcher = similarityMatcher,
             fetchSeriesCovers = config.seriesMetadata.thumbnail,
             fetchBookCovers = config.bookMetadata.thumbnail,
+            idFormat = comicVineIdFormat,
         )
     }
 

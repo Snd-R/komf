@@ -182,6 +182,7 @@ metadataProviders:
   comicVineApiKey: # required for comicVine provider https://comicvine.gamespot.com/api/ env:KOMF_METADATA_PROVIDERS_COMIC_VINE_API_KEY
   comicVineSearchLimit: # define ComicVine search result Limit, default is 10
   comicVineIssueName: # string that contains "{number}" which will be replaced by the issue number ie. "Issue #{number}". Used when an issue has no name on ComicVine, default is null
+  comicVineIdFormat: # string that contains "{id}" which will serve to parse the ComicVine volume of a given book from its title or folder name ie. "[cv-{id}]" which will correctly identify '.../Uncanny X-Men Omnibus (2006) [cv-27512]' as being [4050-27512](https://comicvine.gamespot.com/uncanny-x-men-omnibus/4050-27512/)
   bangumiToken: # bangumi provider require a token to show nsfw items https://next.bgm.tv/demo/access-token  env:KOMF_METADATA_PROVIDERS_BANGUMI_TOKEN
   defaultProviders:
     mangaUpdates:
