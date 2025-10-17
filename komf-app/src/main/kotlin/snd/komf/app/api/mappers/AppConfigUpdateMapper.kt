@@ -80,6 +80,16 @@ class AppConfigUpdateMapper {
                 is PatchValue.Some -> limit.value
                 PatchValue.Unset -> config.comicVineSearchLimit
             },
+            comicVineIssueName = when (val issueName = patch.comicVineIssueName) {
+                PatchValue.None -> null
+                is PatchValue.Some -> issueName.value
+                PatchValue.Unset -> config.comicVineIssueName
+            },
+            comicVineIdFormat = when (val idFormat = patch.comicVineIdFormat) {
+                PatchValue.None -> null
+                is PatchValue.Some -> idFormat.value
+                PatchValue.Unset -> config.comicVineIdFormat
+            },
             nameMatchingMode = when (patch.nameMatchingMode.getOrNull()) {
                 KomfNameMatchingMode.EXACT -> NameMatchingMode.EXACT
                 KomfNameMatchingMode.CLOSEST_MATCH -> NameMatchingMode.CLOSEST_MATCH

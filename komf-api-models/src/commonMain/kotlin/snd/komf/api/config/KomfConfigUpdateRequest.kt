@@ -87,6 +87,8 @@ data class EventListenerConfigUpdateRequest(
 class MetadataProvidersConfigUpdateRequest(
     val comicVineClientId: PatchValue<String> = PatchValue.Unset,
     val comicVineSearchLimit: PatchValue<Int> = PatchValue.Unset,
+    val comicVineIssueName: PatchValue<String> = PatchValue.Unset,
+    val comicVineIdFormat: PatchValue<String> = PatchValue.Unset,
     val malClientId: PatchValue<String> = PatchValue.Unset,
     val nameMatchingMode: PatchValue<KomfNameMatchingMode> = PatchValue.Unset,
     val defaultProviders: PatchValue<ProvidersConfigUpdateRequest> = PatchValue.Unset,

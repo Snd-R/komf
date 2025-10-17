@@ -105,6 +105,8 @@ class ProvidersModule(
             malClientId = config.malClientId,
             comicVineClientId = config.comicVineApiKey,
             comicVineSearchLimit = config.comicVineSearchLimit,
+            comicVineIssueName = config.comicVineIssueName,
+            comicVineIdFormat = config.comicVineIdFormat,
             bangumiToken = config.bangumiToken,
         )
         val libraryProviders = config.libraryProviders
@@ -115,6 +117,8 @@ class ProvidersModule(
                     malClientId = config.malClientId,
                     comicVineClientId = config.comicVineApiKey,
                     comicVineSearchLimit = config.comicVineSearchLimit,
+                    comicVineIssueName = config.comicVineIssueName,
+                    comicVineIdFormat = config.comicVineIdFormat,
                     bangumiToken = config.bangumiToken,
                 )
             }
@@ -326,6 +330,8 @@ class ProvidersModule(
         malClientId: String?,
         comicVineClientId: String?,
         comicVineSearchLimit: Int?,
+        comicVineIssueName: String?,
+        comicVineIdFormat: String?,
         bangumiToken: String?,
     ): MetadataProvidersContainer {
         return MetadataProvidersContainer(
@@ -393,6 +399,8 @@ class ProvidersModule(
                 config = config.comicVine,
                 apiKey = comicVineClientId,
                 comicVineSearchLimit = comicVineSearchLimit,
+                comicVineIssueName = comicVineIssueName,
+                comicVineIdFormat = comicVineIdFormat,
                 rateLimiter = comicVineRateLimiter,
                 defaultNameMatcher = defaultNameMatcher,
             ),
@@ -694,6 +702,8 @@ class ProvidersModule(
         config: ProviderConfig,
         apiKey: String?,
         comicVineSearchLimit: Int? = 10,
+        comicVineIssueName: String?,
+        comicVineIdFormat: String?,
         rateLimiter: ComicVineRateLimiter,
         defaultNameMatcher: NameSimilarityMatcher,
     ): ComicVineMetadataProvider? {
@@ -714,6 +724,7 @@ class ProvidersModule(
         val metadataMapper = ComicVineMetadataMapper(
             seriesMetadataConfig = config.seriesMetadata,
             bookMetadataConfig = config.bookMetadata,
+            issueNameTemplate = comicVineIssueName,
         )
         val similarityMatcher: NameSimilarityMatcher =
             config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
@@ -724,6 +735,7 @@ class ProvidersModule(
             nameMatcher = similarityMatcher,
             fetchSeriesCovers = config.seriesMetadata.thumbnail,
             fetchBookCovers = config.bookMetadata.thumbnail,
+            idFormat = comicVineIdFormat,
         )
     }
 

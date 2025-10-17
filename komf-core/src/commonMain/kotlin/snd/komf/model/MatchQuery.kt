@@ -4,6 +4,7 @@ data class MatchQuery(
     val seriesName: String,
     val startYear: Int?,
     val bookQualifier: BookQualifier?,
+    val seriesFolder: String?,
 )
 
 data class BookQualifier(

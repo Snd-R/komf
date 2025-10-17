@@ -40,9 +40,21 @@ import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
 class ComicVineMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
     private val bookMetadataConfig: BookMetadataConfig,
+    private val issueNameTemplate: String?,
 ) {
 
     fun toSeriesSearchResult(volume: ComicVineVolumeSearch): SeriesSearchResult {
+        return SeriesSearchResult(
+            url = volume.siteDetailUrl,
+            imageUrl = volume.image?.mediumUrl,
+            title = seriesTitle(volume),
+            provider = CoreProviders.COMIC_VINE,
+            resultId = volume.id.toString()
+        )
+    }
+
+
+    fun toSeriesSearchResult(volume: ComicVineVolume): SeriesSearchResult {
         return SeriesSearchResult(
             url = volume.siteDetailUrl,
             imageUrl = volume.image?.mediumUrl,
@@ -87,10 +99,12 @@ class ComicVineMetadataMapper(
         storyArcs: List<ComicVineStoryArc>,
         cover: Image?
     ): ProviderBookMetadata {
+        val issueNumber = issue.issueNumber?.toDoubleOrNull()?.let { BookRange(it, it) }
+
         val metadata = BookMetadata(
-            title = issue.name,
+            title = issue.name ?: issueNameTemplate?.replace("{number}", issueNumber.toString()),
             summary = issue.description?.let { parseDescription(it) },
-            number = issue.issueNumber?.toDoubleOrNull()?.let { BookRange(it, it) },
+            number = issueNumber,
             numberSort = issue.issueNumber?.toDoubleOrNull(),
             releaseDate = (issue.storeDate ?: issue.coverDate)?.let { LocalDate.parse(it) },
             authors = getAuthors(issue),
@@ -155,6 +169,12 @@ class ComicVineMetadataMapper(
     }
 
     private fun seriesTitle(volume: ComicVineVolumeSearch): String {
+        val publisher = volume.publisher?.name?.let { " ($it)" } ?: ""
+        val startYearString = volume.startYear?.let { " ($it)" } ?: ""
+        return "${volume.name}$startYearString$publisher"
+    }
+
+    private fun seriesTitle(volume: ComicVineVolume): String {
         val publisher = volume.publisher?.name?.let { " ($it)" } ?: ""
         val startYearString = volume.startYear?.let { " ($it)" } ?: ""
         return "${volume.name}$startYearString$publisher"

@@ -45,3 +45,10 @@ bin/
 .ds_store
 
 database.sqlite
+
+### kotlin ###
+kls_database.db
+kls-classpath*
+
+### neovim ###
+.nvim.lua

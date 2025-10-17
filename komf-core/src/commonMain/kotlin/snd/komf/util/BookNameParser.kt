@@ -15,7 +15,9 @@ object BookNameParser {
         ".*第(?<start>\\d+(\\.\\d+)?)-?(?<end>\\d+(\\.\\d+)?)?.*話".toRegex(),
     )
     private val bookNumberRegexes = listOf(
-        "(?i)(?:\\s|#|no\\.)(?<start>[0-9]+[AB]?([.x#][0-9]+)?)(?<end>-[0-9]+([.x#][0-9]+)?)?(?:\\s\\(.*\\)\\s*)*$".toRegex()
+        "(?i)(?:\\s|#|no\\.)(?<start>[0-9]+[AB]?([.x#][0-9]+)?)(?<end>-[0-9]+([.x#][0-9]+)?)?(?:\\s\\(.*\\)\\s*)*$".toRegex(),
+        "Issue (?<start>[0-9]+[AB]?([.x#][0-9]+)?)(?<end>-[0-9]+([.x#][0-9]+)?)?".toRegex(),
+        "Volume (?<start>[0-9]+[AB]?([.x#][0-9]+)?)(?<end>-[0-9]+([.x#][0-9]+)?)?".toRegex(),
     )
     private val extraDataRegex = "\\[(?<extra>.*?)]".toRegex()
 

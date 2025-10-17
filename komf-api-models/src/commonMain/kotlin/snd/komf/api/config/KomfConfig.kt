@@ -90,6 +90,8 @@ data class MetadataProvidersConfigDto(
     val malClientId: String?,
     val comicVineClientId: String?,
     val comicVineSearchLimit: Int?,
+    val comicVineIssueName: String?,
+    val comicVineIdFormat: String?,
     val nameMatchingMode: KomfNameMatchingMode,
     val defaultProviders: ProvidersConfigDto,
     val libraryProviders: Map<String, ProvidersConfigDto>,

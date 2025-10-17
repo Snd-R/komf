@@ -381,7 +381,7 @@ class MetadataService(
         val cover = mediaServerClient.getBookThumbnail(firstBook.id)
         val releaseYear = series.metadata.releaseYear?.let { if (it == 0) null else it }
 
-        return MatchQuery(searchTitle, releaseYear, BookQualifier(firstBook.name, range, cover))
+        return MatchQuery(searchTitle, releaseYear, BookQualifier(firstBook.name, range, cover), series.url)
     }
 
     private suspend fun getSeriesMetadata(
