@@ -40,6 +40,7 @@ import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
 class ComicVineMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
     private val bookMetadataConfig: BookMetadataConfig,
+    private val issueNameTemplate: String?,
 ) {
 
     fun toSeriesSearchResult(volume: ComicVineVolumeSearch): SeriesSearchResult {
@@ -87,10 +88,12 @@ class ComicVineMetadataMapper(
         storyArcs: List<ComicVineStoryArc>,
         cover: Image?
     ): ProviderBookMetadata {
+        val issueNumber = issue.issueNumber?.toDoubleOrNull()?.let { BookRange(it, it) }
+
         val metadata = BookMetadata(
-            title = issue.name,
+            title = issue.name ?: issueNameTemplate?.replace("{number}", issueNumber.toString()),
             summary = issue.description?.let { parseDescription(it) },
-            number = issue.issueNumber?.toDoubleOrNull()?.let { BookRange(it, it) },
+            number = issueNumber,
             numberSort = issue.issueNumber?.toDoubleOrNull(),
             releaseDate = (issue.storeDate ?: issue.coverDate)?.let { LocalDate.parse(it) },
             authors = getAuthors(issue),
