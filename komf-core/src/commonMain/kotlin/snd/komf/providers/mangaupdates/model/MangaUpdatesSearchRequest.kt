@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 data class MangaUpdatesSearchRequest(
     val search: String,
     val page: Int,
-    val perPage: Int,
+    val perpage: Int,
     val type: List<SeriesType>
 )
