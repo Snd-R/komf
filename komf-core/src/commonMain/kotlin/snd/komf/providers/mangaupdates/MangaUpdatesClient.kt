@@ -31,8 +31,8 @@ class MangaUpdatesClient(
                 MangaUpdatesSearchRequest(
                     search = name,
                     page = page,
-                    perPage = perPage,
-                    types = types,
+                    perpage = perPage,
+                    type = types,
                 )
             )
         }.body<SearchResultPage>()
@@ -105,8 +105,8 @@ class MangaUpdatesClient(
     private data class MangaUpdatesSearchRequest(
         val search: String,
         val page: Int,
-        val perPage: Int,
-        val types: Collection<SeriesType>
+        val perpage: Int,
+        val type: Collection<SeriesType>
     )
 }
 
