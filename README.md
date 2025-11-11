@@ -1,18 +1,18 @@
 # Komga and Kavita Metadata Fetcher
+Download latest version from https://github.com/Snd-R/komf/releases
 
 ## Overview
+Komga and Kavita Metadata Fetcher is a tool that fetches metadata and thumbnails for your digital comic book library.\
+It
+can automatically pick up added series and update their metadata and thumbnail.\
+You can also manually search and
+identify series, or match the entire library or a series.
 
-Komga and Kavita Metadata Fetcher is a tool that fetches metadata and thumbnails for your digital comic book library. It
-can automatically pick up added series and update their metadata and thumbnail. You can also manually search and
-identify series, or match the entire library or a series. Additionally, you can install
-the [Komf userscript](https://github.com/Snd-R/komf-userscript) to add Komf integration directly to Komga and Kavita UI,
-allowing you to launch manual or automatic metadata identification.
-
-## Features
-
-- automatically pick up added series and update their metadata and thumbnail
-- manually search and identify series (http endpoints or cli commands)
-- match entire library or a series (http endpoints or cli commands)
+### Komga and Kavita webui integration
+Browser web extension will let configure komf and identify series directly from komga or kavita webui
+- [Chrome download]( https://chromewebstore.google.com/detail/komf/bhppjldobkpocplgfcimljjhdjgbpdnh)
+- [Firefox download](https://addons.mozilla.org/en-US/firefox/addon/komf/)
+- deprecated [Komf userscript](https://github.com/Snd-R/komf-userscript) is still functional, but it will not receive new updates
 
 ## Building
 
@@ -85,13 +85,6 @@ docker create \
 - start the container `docker start komf`
 
 ## Example `application.yml` Config
-
-### Important
-
-- Update modes is the way komf will update metadata.
-- If you're using anything other than API then your existing files might be modified with embedded metadata
-- Can use multiple options at once. available options are API, COMIC_INFO
-- Experimental OPF mode is available for epub books. This mode is using calibre system install to update metadate
 
 ```yml
 komga:
