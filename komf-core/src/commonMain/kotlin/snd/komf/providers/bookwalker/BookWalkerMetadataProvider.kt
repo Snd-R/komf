@@ -73,7 +73,7 @@ class BookWalkerMetadataProvider(
     }
 
     override suspend fun searchSeries(seriesName: String, limit: Int): Collection<SeriesSearchResult> {
-        val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(100)), category).take(limit)
+        val searchResults = client.searchSeries(sanitizeSearchInput(seriesName.take(150)), category).take(limit)
         val res = searchResults.map { processSearchResult(it) }
             .mapNotNull { result ->
                 getSeriesId(result)?.let { metadataMapper.toSeriesSearchResult(result, it) }
@@ -141,6 +141,7 @@ class BookWalkerMetadataProvider(
     private fun sanitizeSearchInput(name: String): String {
         return name
             .replace("[(]([^)]+)[)]".toRegex(), "")
+            .replace("\"", "")
             .trim()
     }
 
