@@ -14,6 +14,7 @@ import snd.komf.providers.mangabaka.MangaBakaAnimeNewsNetworkSource
 import snd.komf.providers.mangabaka.MangaBakaContentRating
 import snd.komf.providers.mangabaka.MangaBakaCover
 import snd.komf.providers.mangabaka.MangaBakaCoverDpi
+import snd.komf.providers.mangabaka.MangaBakaCoverRaw
 import snd.komf.providers.mangabaka.MangaBakaDataSource
 import snd.komf.providers.mangabaka.MangaBakaKitsuSource
 import snd.komf.providers.mangabaka.MangaBakaMangaDexSource
@@ -86,9 +87,6 @@ class MangaBakaDbDataSource(
     }
 
     private fun ResultRow.toModel(): MangaBakaSeries {
-        val coverX350 = this[MangaBakaSeriesTable.coverX350X1Url]
-            ?.let { MangaBakaCoverDpi(x1 = it) }
-
         return MangaBakaSeries(
             id = MangaBakaSeriesId(this[MangaBakaSeriesTable.id]),
             state = MangaBakaSeriesState.valueOf(this[MangaBakaSeriesTable.state].uppercase()),
@@ -98,8 +96,16 @@ class MangaBakaDbDataSource(
             romanizedTitle = this[MangaBakaSeriesTable.romanizedTitle],
             secondaryTitles = this.getSecondaryTitles(),
             cover = MangaBakaCover(
-                raw = this[MangaBakaSeriesTable.coverRawUrl],
-                x350 = coverX350,
+                raw = MangaBakaCoverRaw(
+                    url = this[MangaBakaSeriesTable.coverRawUrl],
+                    size = this[MangaBakaSeriesTable.coverRawSize]?.toLongOrNull(),
+                    height = this[MangaBakaSeriesTable.coverRawHeight]?.toIntOrNull(),
+                    width = this[MangaBakaSeriesTable.coverRawWidth]?.toIntOrNull(),
+                    blurhash = this[MangaBakaSeriesTable.coverRawBlurhash],
+                    thumbhash = this[MangaBakaSeriesTable.coverRawThumbhash],
+                    format = this[MangaBakaSeriesTable.coverRawFormat]
+                ),
+                x350 = this[MangaBakaSeriesTable.coverX350X1Url]?.let { MangaBakaCoverDpi(x1 = it) },
             ),
             authors = this[MangaBakaSeriesTable.authors],
             artists = this[MangaBakaSeriesTable.artists],

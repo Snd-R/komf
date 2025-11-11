@@ -75,10 +75,21 @@ data class MangaBakaSecondaryTitle(
 
 @Serializable
 data class MangaBakaCover(
-    val raw: String? = null,
+    val raw: MangaBakaCoverRaw? = null,
     val x150: MangaBakaCoverDpi? = null,
     val x250: MangaBakaCoverDpi? = null,
     val x350: MangaBakaCoverDpi? = null,
+)
+
+@Serializable
+data class MangaBakaCoverRaw(
+    val url: String?,
+    val size: Long?,
+    val height: Int?,
+    val width: Int?,
+    val blurhash: String?,
+    val thumbhash: String?,
+    val format: String?,
 )
 
 @Serializable
@@ -107,18 +118,6 @@ enum class MangaBakaStatus {
 
     @SerialName("unknown")
     UNKNOWN,
-}
-
-class MangaBakaStatusSerializer : KSerializer<MangaBakaStatus> {
-    override val descriptor = PrimitiveSerialDescriptor("MangaBakaStatus", PrimitiveKind.STRING).nullable
-
-    override fun serialize(encoder: Encoder, value: MangaBakaStatus) = encoder.encodeString(value.name.lowercase())
-
-    override fun deserialize(decoder: Decoder): MangaBakaStatus {
-        return runCatching {
-            MangaBakaStatus.valueOf(decoder.decodeString().uppercase())
-        }.getOrElse { MangaBakaStatus.UNKNOWN }
-    }
 }
 
 @Serializable
