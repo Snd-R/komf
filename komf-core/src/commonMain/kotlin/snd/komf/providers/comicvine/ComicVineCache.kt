@@ -79,7 +79,6 @@ class ComicVineCache(
             CacheTable
                 .select(CacheTable.responseCol).where {
                     (CacheTable.queryCol eq maskApiKey(url)) and
-                    @OptIn(kotlin.time.ExperimentalTime::class)
                     (CacheTable.timestampCol greater getNowTimestamp())
                 }
                 .firstOrNull()
