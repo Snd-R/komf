@@ -26,6 +26,7 @@ data class MetadataProvidersConfig(
     val defaultProviders: ProvidersConfig = ProvidersConfig(),
     val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
     val cacheDatabaseFile: String = "./cv_cache.db",
+    val cacheDatabaseExpiry: Int = 14,
 )
 
 @Serializable
