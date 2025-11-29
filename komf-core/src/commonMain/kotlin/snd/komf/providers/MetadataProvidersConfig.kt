@@ -26,6 +26,7 @@ data class MetadataProvidersConfig(
     val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
     val mangabakaDatabaseDir: String = "./mangabaka",
     val cacheDatabaseFile: String = "./cv_cache.db",
+    val cacheDatabaseExpiry: Int = 14,
 )
 
 @Serializable
