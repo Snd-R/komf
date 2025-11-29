@@ -25,6 +25,7 @@ data class MetadataProvidersConfig(
     val nameMatchingMode: NameMatchingMode = NameMatchingMode.CLOSEST_MATCH,
     val defaultProviders: ProvidersConfig = ProvidersConfig(),
     val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
+    val cacheDatabaseFile: String = "./cv_cache.db",
 )
 
 @Serializable
