@@ -30,9 +30,9 @@ class ComicVineClient(
     private val rateLimiter: ComicVineRateLimiter,
     private val cacheDatabaseFile: String,
 ) {
-    val cache = ComicVineCache(cacheDatabaseFile)
+    private val cache = ComicVineCache(cacheDatabaseFile)
 
-    fun buildUrlString(
+    private fun buildUrlString(
         url: String,
     ): String {
         val params = sortedMapOf(
@@ -49,6 +49,22 @@ class ComicVineClient(
         return "$url?$encodedParams"
     }
 
+    private suspend fun <T> getCachedApi(url: String): ComicVineSearchResult<T> {
+        val fullUrl = buildUrlString(url)
+
+        val cachedResult = cache.getEntry(fullUrl)
+
+        if (cachedResult != null) {
+            return Json.decodeFromString(cachedResult);
+        }
+
+        val response: ComicVineSearchResult<T> = ktor.get(fullUrl).body()
+
+        cache.addEntry(fullUrl, Json.encodeToString(response))
+
+        return response
+    }
+
     suspend fun searchVolume(name: String): ComicVineSearchResult<List<ComicVineVolumeSearch>> {
         rateLimiter.searchAcquire()
         return ktor.get("$baseUrl/search/") {
@@ -62,56 +78,17 @@ class ComicVineClient(
 
     suspend fun getVolume(id: ComicVineVolumeId): ComicVineSearchResult<ComicVineVolume> {
         rateLimiter.volumeAcquire()
-
-        val url = buildUrlString("$baseUrl/volume/${VOLUME.id}-${id.value}/")
-
-        val cachedResult = cache.getEntry(url)
-
-        if (cachedResult != null) {
-            return Json.decodeFromString(cachedResult);
-        }
-
-        val response: ComicVineSearchResult<ComicVineVolume> = ktor.get(url).body()
-
-        cache.addEntry(url, Json.encodeToString(response))
-
-        return response
+        return getCachedApi("$baseUrl/volume/${VOLUME.id}-${id.value}/")
     }
 
     suspend fun getIssue(id: ComicVineIssueId): ComicVineSearchResult<ComicVineIssue> {
         rateLimiter.issueAcquire()
-
-        val url = buildUrlString("$baseUrl/issue/${ISSUE.id}-${id.value}/")
-
-        val cachedResult = cache.getEntry(url)
-
-        if (cachedResult != null) {
-            return Json.decodeFromString(cachedResult);
-        }
-
-        val response: ComicVineSearchResult<ComicVineIssue> = ktor.get(url).body()
-
-        cache.addEntry(url, Json.encodeToString(response))
-
-        return response
+        return getCachedApi("$baseUrl/issue/${ISSUE.id}-${id.value}/")
     }
 
     suspend fun getStoryArc(id: ComicVineStoryArcId): ComicVineSearchResult<ComicVineStoryArc> {
         rateLimiter.storyArcAcquire()
-
-        val url = buildUrlString("$baseUrl/story_arc/${ComicVineTypeId.STORY_ARC.id}-${id.value}/")
-
-        val cachedResult = cache.getEntry(url)
-
-        if (cachedResult != null) {
-            return Json.decodeFromString(cachedResult);
-        }
-
-        val response: ComicVineSearchResult<ComicVineStoryArc> = ktor.get(url).body()
-
-        cache.addEntry(url, Json.encodeToString(response))
-
-        return response
+        return getCachedApi("$baseUrl/story_arc/${ComicVineTypeId.STORY_ARC.id}-${id.value}/")
     }
 
     suspend fun getCover(url: String): Image {
