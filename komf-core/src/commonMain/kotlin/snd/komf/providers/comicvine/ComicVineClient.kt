@@ -23,14 +23,18 @@ import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
 
 private const val baseUrl = "https://comicvine.gamespot.com/api"
 
+// TODO: handle when cacheDatabaseExpiry is 0
+// TODO: allow passing more parameters to buildUrlString
+
 class ComicVineClient(
     private val ktor: HttpClient,
     private val apiKey: String,
     private val comicVineSearchLimit: Int? = 10,
     private val rateLimiter: ComicVineRateLimiter,
     private val cacheDatabaseFile: String,
+    private val cacheDatabaseExpiry: Int,
 ) {
-    private val cache = ComicVineCache(cacheDatabaseFile)
+    private val cache = ComicVineCache(cacheDatabaseFile, cacheDatabaseExpiry)
 
     private fun buildUrlString(
         url: String,

@@ -33,7 +33,7 @@ object CacheTable : Table("cache") {
 
 class ComicVineCache(
     private val databaseFile: String,
-    private val expiry: Int = 30,
+    private val expiry: Int,
 ) {
     private val databasePath = Path.of(databaseFile)
     private val database = Database.connect("jdbc:sqlite:$databasePath", driver = "org.sqlite.JDBC")

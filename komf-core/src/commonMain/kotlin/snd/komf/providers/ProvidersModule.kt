@@ -101,6 +101,7 @@ class ProvidersModule(
             comicVineIdFormat = config.comicVineIdFormat,
             bangumiToken = config.bangumiToken,
             cacheDatabaseFile = config.cacheDatabaseFile,
+            cacheDatabaseExpiry = config.cacheDatabaseExpiry,
         )
         val libraryProviders = config.libraryProviders
             .map { (libraryId, libraryConfig) ->
@@ -114,6 +115,7 @@ class ProvidersModule(
                     comicVineIdFormat = config.comicVineIdFormat,
                     bangumiToken = config.bangumiToken,
                     cacheDatabaseFile = config.cacheDatabaseFile,
+                    cacheDatabaseExpiry = config.cacheDatabaseExpiry,
                 )
             }
             .toMap()
@@ -290,6 +292,7 @@ class ProvidersModule(
         comicVineIdFormat: String?,
         bangumiToken: String?,
         cacheDatabaseFile: String,
+        cacheDatabaseExpiry: Int,
     ): MetadataProvidersContainer {
         return MetadataProvidersContainer(
             mangaupdates = createMangaUpdatesMetadataProvider(
@@ -350,6 +353,7 @@ class ProvidersModule(
                 rateLimiter = comicVineRateLimiter,
                 defaultNameMatcher = defaultNameMatcher,
                 cacheDatabaseFile = cacheDatabaseFile,
+                cacheDatabaseExpiry = cacheDatabaseExpiry,
             ),
             comicVinePriority = config.comicVine.priority,
             mangaBaka = createMangaBakaMetadataProvider(
@@ -611,6 +615,7 @@ class ProvidersModule(
         rateLimiter: ComicVineRateLimiter,
         defaultNameMatcher: NameSimilarityMatcher,
         cacheDatabaseFile: String,
+        cacheDatabaseExpiry: Int,
     ): ComicVineMetadataProvider? {
         if (config.enabled.not()) return null
         requireNotNull(apiKey) { "Api key is not configured for ComicVine provider" }
@@ -625,7 +630,8 @@ class ProvidersModule(
             apiKey = apiKey,
             comicVineSearchLimit = comicVineSearchLimit,
             rateLimiter = rateLimiter,
-            cacheDatabaseFile = cacheDatabaseFile
+            cacheDatabaseFile = cacheDatabaseFile,
+            cacheDatabaseExpiry = cacheDatabaseExpiry,
         )
         val metadataMapper = ComicVineMetadataMapper(
             seriesMetadataConfig = config.seriesMetadata,
