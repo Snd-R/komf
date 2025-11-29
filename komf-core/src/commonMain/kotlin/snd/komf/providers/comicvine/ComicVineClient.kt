@@ -53,7 +53,7 @@ class ComicVineClient(
         return "$url?$encodedParams"
     }
 
-    private suspend fun <T> getCachedApi(url: String): ComicVineSearchResult<T> {
+    private suspend inline fun <reified T> getCachedApi(url: String): ComicVineSearchResult<T> {
         val fullUrl = buildUrlString(url)
 
         val cachedResult = cache.getEntry(fullUrl)
