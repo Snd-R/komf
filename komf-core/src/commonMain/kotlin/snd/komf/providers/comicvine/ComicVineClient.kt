@@ -23,8 +23,6 @@ import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
 
 private const val baseUrl = "https://comicvine.gamespot.com/api"
 
-// TODO: handle when cacheDatabaseExpiry is 0
-
 class ComicVineClient(
     private val ktor: HttpClient,
     private val apiKey: String,

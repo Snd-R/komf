@@ -75,6 +75,17 @@ class ComicVineCache(
     }
 
     suspend fun getEntry(url: String): String? {
+        if (expiry == 0) {
+            return transaction(db = database) {
+                CacheTable
+                    .select(CacheTable.responseCol).where {
+                        CacheTable.queryCol eq maskApiKey(url)
+                    }
+                    .firstOrNull()
+                    ?.get(CacheTable.responseCol)
+            }
+        }
+
         return transaction(db = database) {
             CacheTable
                 .select(CacheTable.responseCol).where {
