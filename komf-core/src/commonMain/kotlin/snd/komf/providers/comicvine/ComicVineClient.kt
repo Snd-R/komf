@@ -24,7 +24,6 @@ import snd.komf.providers.comicvine.model.ComicVineVolumeSearch
 private const val baseUrl = "https://comicvine.gamespot.com/api"
 
 // TODO: handle when cacheDatabaseExpiry is 0
-// TODO: allow passing more parameters to buildUrlString
 
 class ComicVineClient(
     private val ktor: HttpClient,
@@ -38,13 +37,14 @@ class ComicVineClient(
 
     private fun buildUrlString(
         url: String,
+        params: Map<String, String> = mapOf(),
     ): String {
-        val params = sortedMapOf(
+        val finalParams = sortedMapOf(
             Pair("api_key", apiKey),
             Pair("format", "json"),
-        )
+        ) + params
 
-        val encodedParams = params.entries.joinToString("&") { (key, value) ->
+        val encodedParams = finalParams.entries.joinToString("&") { (key, value) ->
             val k = URLEncoder.encode(key, StandardCharsets.UTF_8)
             val v = URLEncoder.encode(value, StandardCharsets.UTF_8)
             "$k=$v"
