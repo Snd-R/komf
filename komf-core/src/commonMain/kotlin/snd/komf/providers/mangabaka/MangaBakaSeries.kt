@@ -173,15 +173,15 @@ data class MangaBakaRelationships(
 
 @Serializable
 data class MangaBakaSources(
-    val anilist: MangaBakaAnilistSource,
+    val anilist: MangaBakaAnilistSource? = null,
     @SerialName("anime_news_network")
-    val animeNewsNetwork: MangaBakaAnimeNewsNetworkSource,
-    val kitsu: MangaBakaKitsuSource,
+    val animeNewsNetwork: MangaBakaAnimeNewsNetworkSource? = null,
+    val kitsu: MangaBakaKitsuSource? = null,
     @SerialName("manga_updates")
-    val mangaUpdates: MangaBakaMangaUpdatesSource,
-    val mangadex: MangaBakaMangaDexSource,
+    val mangaUpdates: MangaBakaMangaUpdatesSource? = null,
+    val mangadex: MangaBakaMangaDexSource? = null,
     @SerialName("my_anime_list")
-    val myAnimeList: MangaBakaMyAnimeListSource,
+    val myAnimeList: MangaBakaMyAnimeListSource? = null,
 )
 
 @Serializable
