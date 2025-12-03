@@ -73,6 +73,7 @@ class MetadataPostProcessingConfigUpdateRequest(
     val scoreTagName: PatchValue<String> = PatchValue.Unset,
     val originalPublisherTagName: PatchValue<String> = PatchValue.Unset,
     val publisherTagNames: PatchValue<List<PublisherTagNameConfigDto>> = PatchValue.Unset,
+    val titleSanitization: PatchValue<TitleSanitizationConfig> = PatchValue.Unset,
 )
 
 @Serializable

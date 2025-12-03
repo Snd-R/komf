@@ -316,6 +316,7 @@ class MediaServerModule(
             metadataMerger = MetadataMerger(mergeTags = config.mergeTags, mergeGenres = config.mergeGenres),
             libraryType = config.libraryType,
             jobTracker = jobTracker,
+            config = config,
         )
     }
 

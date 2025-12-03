@@ -1,6 +1,7 @@
 package snd.komf.mediaserver.config
 
 import kotlinx.serialization.Serializable
+import snd.komf.api.config.TitleSanitizationConfig
 import snd.komf.mediaserver.metadata.PublisherTagNameConfig
 import snd.komf.model.MediaType
 import snd.komf.model.MediaType.MANGA
@@ -72,6 +73,7 @@ data class MetadataPostProcessingConfig(
     val scoreTagName: String? = null,
     val originalPublisherTagName: String? = null,
     val publisherTagNames: List<PublisherTagNameConfig> = emptyList(),
+    val titleSanitization: TitleSanitizationConfig = TitleSanitizationConfig(),
 )
 
 @Serializable

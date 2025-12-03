@@ -432,6 +432,7 @@ class AppConfigUpdateMapper {
             publisherTagNames = patch.publisherTagNames.getOrNull()
                 ?.map { PublisherTagNameConfig(it.tagName, it.language) }
                 ?: config.publisherTagNames,
+            titleSanitization = patch.titleSanitization.getOrNull() ?: config.titleSanitization,
         )
     }
 
