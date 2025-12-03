@@ -37,9 +37,9 @@ class YenPressMetadataProvider(
 
     override suspend fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val allBooks = client.getBookList(YenPressSeriesId(seriesId.value))
-        val firstBook = allBooks.firstOrNull { it.number != null }
-            ?: (if (allBooks.size == 1) allBooks.first() else null)
-            ?: throw IllegalStateException("Can't find first book")
+        val firstBook = allBooks.firstOrNull { it.number?.start != null }
+            ?: allBooks.firstOrNull()
+            ?: throw IllegalStateException("No books found for YenPress series ${seriesId.value}")
 
         val seriesBook = client.getBook(firstBook.id)
         val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(seriesBook) else null
@@ -81,16 +81,6 @@ class YenPressMetadataProvider(
                 }
             }
             .firstOrNull { nameMatcher.matches(seriesName, seriesTitleFromBook(it.title.raw)) }
-            ?.let { getSeriesMetadata(it.id) }
-    }
-
-    private suspend fun getSeriesMetadata(seriesId: YenPressSeriesId): ProviderSeriesMetadata? {
-        val books = client.getBookList(seriesId)
-        val firstBook = books.find { book -> book.number?.start != null }
-            ?: (if (books.size == 1) books.first() else null)
-
-        val seriesBook = firstBook?.let { client.getBook(it.id) } ?: return null
-        val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(seriesBook) else null
-        return metadataMapper.toSeriesMetadata(seriesBook, books, thumbnail)
+            ?.let { getSeriesMetadata(ProviderSeriesId(it.id.value)) }
     }
 }
