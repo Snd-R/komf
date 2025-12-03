@@ -24,7 +24,7 @@ data class KodanshaBook(
 
     val creators: List<KodanshaCreator>? = null,
 
-    val readableUrl: String?,
+    val readableUrl: String? = null,
 )
 
 @JvmInline
