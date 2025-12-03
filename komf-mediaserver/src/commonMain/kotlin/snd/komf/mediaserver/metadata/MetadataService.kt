@@ -45,7 +45,7 @@ import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
 import snd.komf.providers.ProvidersModule
 import snd.komf.util.BookNameParser
-import snd.komf.mediaserver.metadata.sanitizeTitle
+import snd.komf.util.sanitizeTitle
 
 private val logger = KotlinLogging.logger {}
 
@@ -59,8 +59,10 @@ class MetadataService(
     private val libraryType: MediaType,
     private val jobTracker: KomfJobTracker,
     private val config: snd.komf.mediaserver.config.MetadataProcessingConfig,
+    private val config: snd.komf.mediaserver.config.MetadataProcessingConfig,
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val titleSanitization = config.postProcessing.titleSanitization
     private val titleSanitization = config.postProcessing.titleSanitization
 
     fun availableProviders(libraryId: MediaServerLibraryId) = metadataProviders.providers(libraryId.value)
@@ -72,8 +74,10 @@ class MetadataService(
     ): Collection<SeriesSearchResult> {
         val providers = metadataProviders.providers(libraryId.value)
         val sanitizedName = sanitizeTitle(seriesName, titleSanitization)
+        val sanitizedName = sanitizeTitle(seriesName, titleSanitization)
 
         return providers
+            .map { coroutineScope.async { it.searchSeries(sanitizedName) } }
             .map { coroutineScope.async { it.searchSeries(sanitizedName) } }
             .flatMap { it.await() }
     }
@@ -81,7 +85,9 @@ class MetadataService(
     suspend fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
         val providers = metadataProviders.defaultProvidersList()
         val sanitizedName = sanitizeTitle(seriesName, titleSanitization)
+        val sanitizedName = sanitizeTitle(seriesName, titleSanitization)
         return providers
+            .map { coroutineScope.async { it.searchSeries(sanitizedName) } }
             .map { coroutineScope.async { it.searchSeries(sanitizedName) } }
             .flatMap { it.await() }
     }
@@ -181,6 +187,21 @@ class MetadataService(
                 val bookMetadata = getBookMetadata(books, seriesMetadata, matchProvider, null, eventFlow)
                 matchProvider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
             } else {
+                val baseTitle = seriesTitle
+                val sanitizedBase = sanitizeTitle(baseTitle, titleSanitization)
+                
+                val searchTitles = buildList {
+                    add(sanitizedBase)
+                    
+                    val noParens = removeParentheses(sanitizedBase)
+                    if (noParens != sanitizedBase) add(noParens)
+                    
+                    // alt titles
+                    series.metadata.alternativeTitles.forEach { alt ->
+                        val altSanitized = sanitizeTitle(alt.title, titleSanitization)
+                        add(altSanitized)
+                    }
+                }
                 val baseTitle = seriesTitle
                 val sanitizedBase = sanitizeTitle(baseTitle, titleSanitization)
                 
