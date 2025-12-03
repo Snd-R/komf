@@ -429,9 +429,7 @@ class KomgaMediaServerClientAdapter(
         tags = patchIfNotNull(tags),
         // Komga rejects totalBookCount <= 0, so omit invalid values
         totalBookCount = patchIfNotNull(totalBookCount?.takeIf { it > 0 }),
-        links = patchIfNotNull(links?.mapNotNull { link ->
-            safeUrlOrNull(link.url)?.let { KomgaWebLink(link.label, it) }
-        }),
+        links = patchIfNotNull(links?.map { KomgaWebLink(it.label, it.url) }),
 
         statusLock = patchIfNotNull(statusLock),
         titleLock = patchIfNotNull(titleLock),
