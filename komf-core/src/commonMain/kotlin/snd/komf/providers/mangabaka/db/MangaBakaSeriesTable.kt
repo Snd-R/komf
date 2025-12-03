@@ -5,7 +5,8 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.json.json
 
-private val json = Json {
+private val json = Json.Default
+private val lenientJson = Json {
     ignoreUnknownKeys = true
 }
 
