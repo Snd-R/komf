@@ -170,9 +170,16 @@ data class MangaBakaSources(
     val anilist: MangaBakaAnilistSource? = null,
     @SerialName("anime_news_network")
     val animeNewsNetwork: MangaBakaAnimeNewsNetworkSource? = null,
+<<<<<<< HEAD
     val kitsu: MangaBakaKitsuSource?,
     @SerialName("manga_updates")
     val mangaUpdates: MangaBakaMangaUpdatesSource? = null,
+=======
+    val kitsu: MangaBakaKitsuSource? = null,
+    @SerialName("manga_updates")
+    val mangaUpdates: MangaBakaMangaUpdatesSource? = null,
+    val mangadex: MangaBakaMangaDexSource? = null,
+>>>>>>> ff65abf (fix: enhance MangaBaka series deserialization to handle optional source fields and add corresponding tests)
     @SerialName("my_anime_list")
     val myAnimeList: MangaBakaMyAnimeListSource? = null,
 )
