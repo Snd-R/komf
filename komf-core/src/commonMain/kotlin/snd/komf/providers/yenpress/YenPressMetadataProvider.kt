@@ -81,13 +81,6 @@ class YenPressMetadataProvider(
                 }
             }
             .firstOrNull { nameMatcher.matches(seriesName, seriesTitleFromBook(it.title.raw)) }
-            ?.let { getSeriesMetadata(it.id) }
-    }
-
-    override suspend fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
-    // Reuse the safe helper. If it can't build metadata, we still have to throw here
-    // because the interface is non-null, but this should only happen in weird edge cases.
-    return getSeriesMetadata(YenPressSeriesId(seriesId.value))
-        ?: throw IllegalStateException("Can't find first book for YenPress series ${seriesId.value}")
+            ?.let { getSeriesMetadata(ProviderSeriesId(it.id.value)) }
     }
 }
