@@ -37,9 +37,9 @@ class YenPressMetadataProvider(
 
     override suspend fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val allBooks = client.getBookList(YenPressSeriesId(seriesId.value))
-        val firstBook = allBooks.firstOrNull { it.number != null }
-            ?: (if (allBooks.size == 1) allBooks.first() else null)
-            ?: throw IllegalStateException("Can't find first book")
+        val firstBook = allBooks.firstOrNull { it.number?.start != null }
+            ?: allBooks.firstOrNull()
+            ?: throw IllegalStateException("Empty book list for Yen Press series ${seriesId.value}")
 
         val seriesBook = client.getBook(firstBook.id)
         val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(seriesBook) else null
