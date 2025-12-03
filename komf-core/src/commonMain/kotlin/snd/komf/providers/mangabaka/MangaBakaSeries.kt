@@ -170,9 +170,10 @@ data class MangaBakaSources(
     val anilist: MangaBakaAnilistSource? = null,
     @SerialName("anime_news_network")
     val animeNewsNetwork: MangaBakaAnimeNewsNetworkSource? = null,
-    val kitsu: MangaBakaKitsuSource?,
+    val kitsu: MangaBakaKitsuSource? = null,
     @SerialName("manga_updates")
     val mangaUpdates: MangaBakaMangaUpdatesSource? = null,
+    val mangadex: MangaBakaMangaDexSource? = null,
     @SerialName("my_anime_list")
     val myAnimeList: MangaBakaMyAnimeListSource? = null,
 )
