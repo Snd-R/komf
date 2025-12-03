@@ -117,7 +117,8 @@ class AppConfigMapper {
             fallbackToAltTitle = config.fallbackToAltTitle,
             scoreTagName = config.scoreTagName,
             originalPublisherTagName = config.originalPublisherTagName,
-            publisherTagNames = config.publisherTagNames.map { PublisherTagNameConfigDto(it.tagName, it.language) }
+            publisherTagNames = config.publisherTagNames.map { PublisherTagNameConfigDto(it.tagName, it.language) },
+            titleSanitization = config.titleSanitization
         )
     }
 
