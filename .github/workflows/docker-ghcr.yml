@@ -3,7 +3,7 @@ name: Build and publish Docker image to GHCR
 on:
   push:
     branches:
-      - master
+      - dev/komf
     paths:
       - ".github/workflows/docker-ghcr.yml"
       - "Dockerfile"
