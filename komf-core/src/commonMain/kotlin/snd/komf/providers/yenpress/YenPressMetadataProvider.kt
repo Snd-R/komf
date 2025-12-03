@@ -84,13 +84,10 @@ class YenPressMetadataProvider(
             ?.let { getSeriesMetadata(it.id) }
     }
 
-    private suspend fun getSeriesMetadata(seriesId: YenPressSeriesId): ProviderSeriesMetadata? {
-        val books = client.getBookList(seriesId)
-        val firstBook = books.find { book -> book.number?.start != null }
-            ?: (if (books.size == 1) books.first() else null)
-
-        val seriesBook = firstBook?.let { client.getBook(it.id) } ?: return null
-        val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(seriesBook) else null
-        return metadataMapper.toSeriesMetadata(seriesBook, books, thumbnail)
+    override suspend fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
+    // Reuse the safe helper. If it can't build metadata, we still have to throw here
+    // because the interface is non-null, but this should only happen in weird edge cases.
+    return getSeriesMetadata(YenPressSeriesId(seriesId.value))
+        ?: throw IllegalStateException("Can't find first book for YenPress series ${seriesId.value}")
     }
 }
