@@ -45,7 +45,7 @@ import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
 import snd.komf.providers.ProvidersModule
 import snd.komf.util.BookNameParser
-import snd.komf.util.sanitizeTitle
+import snd.komf.mediaserver.metadata.sanitizeTitle
 
 private val logger = KotlinLogging.logger {}
 

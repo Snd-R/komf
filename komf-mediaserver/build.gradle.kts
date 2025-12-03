@@ -26,6 +26,7 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(project(":komf-core"))
+            implementation(project(":komf-api-models"))
             implementation(project(":komf-notifications"))
             implementation(libs.kotlin.logging)
             implementation(libs.kotlinx.coroutines.core)
@@ -45,6 +46,9 @@ kotlin {
             implementation(libs.sqlite.jdbc)
             api(libs.komga.client)
 
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 

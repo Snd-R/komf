@@ -1,4 +1,4 @@
-package snd.komf.util
+package snd.komf.mediaserver.metadata
 
 import snd.komf.api.config.TitleSanitizationConfig
 
