@@ -1,6 +1,7 @@
 package snd.komf.mediaserver.komga
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.net.URI
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.model.MediaServerAlternativeTitle
 import snd.komf.mediaserver.model.MediaServerAuthor
@@ -50,6 +51,18 @@ import snd.komga.client.series.KomgaSeriesStatus
 import snd.komga.client.series.KomgaSeriesThumbnail
 
 private val logger = KotlinLogging.logger {}
+
+private fun safeUrlOrNull(raw: String?): String? {
+    if (raw.isNullOrBlank()) return null
+    return try {
+        // Will throw if the URL has illegal characters like '|'
+        URI(raw)
+        raw
+    } catch (e: Exception) {
+        logger.warn(e) { "Dropping invalid URL from metadata: $raw" }
+        null
+    }
+}
 
 class KomgaMediaServerClientAdapter(
     private val komgaBookClient: KomgaBookClient,
@@ -400,7 +413,9 @@ class KomgaMediaServerClientAdapter(
         tags = patchIfNotNull(tags),
         // Komga rejects totalBookCount <= 0, so omit invalid values
         totalBookCount = patchIfNotNull(totalBookCount?.takeIf { it > 0 }),
-        links = patchIfNotNull(links?.map { KomgaWebLink(it.label, it.url) }),
+        links = patchIfNotNull(links?.mapNotNull { link ->
+            safeUrlOrNull(link.url)?.let { KomgaWebLink(link.label, it) }
+        }),
 
         statusLock = patchIfNotNull(statusLock),
         titleLock = patchIfNotNull(titleLock),
@@ -448,7 +463,9 @@ class KomgaMediaServerClientAdapter(
         authors = patchIfNotNull(authors?.map { KomgaAuthor(it.name, it.role) }),
         tags = patchIfNotNull(tags),
         isbn = patchIfNotNull(isbn),
-        links = patchIfNotNull(links?.map { KomgaWebLink(it.label, it.url) }),
+        links = patchIfNotNull(links?.mapNotNull { link ->
+            safeUrlOrNull(link.url)?.let { KomgaWebLink(link.label, it) }
+        }),
 
         titleLock = patchIfNotNull(titleLock),
         summaryLock = patchIfNotNull(summaryLock),
