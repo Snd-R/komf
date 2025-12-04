@@ -1,6 +1,7 @@
 package snd.komf.mediaserver.komga
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.net.URI
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.model.MediaServerAlternativeTitle
 import snd.komf.mediaserver.model.MediaServerAuthor
@@ -50,6 +51,34 @@ import snd.komga.client.series.KomgaSeriesStatus
 import snd.komga.client.series.KomgaSeriesThumbnail
 
 private val logger = KotlinLogging.logger {}
+
+private fun safeUrlOrNull(raw: String?): String? {
+    val trimmed = raw?.trim()
+    if (trimmed.isNullOrEmpty()) return null
+
+    return try {
+        val uri = URI(trimmed)
+
+        val scheme = uri.scheme?.lowercase()
+        val host = uri.host
+
+        // Require http/https + a host, otherwise Komga will likely reject it
+        if (scheme != "http" && scheme != "https") {
+            logger.warn { "Dropping URL without http/https scheme from metadata: $trimmed" }
+            return null
+        }
+
+        if (host.isNullOrBlank()) {
+            logger.warn { "Dropping URL without host from metadata: $trimmed" }
+            return null
+        }
+
+        trimmed
+    } catch (e: Exception) {
+        logger.warn(e) { "Dropping invalid URL from metadata: $trimmed" }
+        null
+    }
+}
 
 class KomgaMediaServerClientAdapter(
     private val komgaBookClient: KomgaBookClient,
@@ -400,7 +429,9 @@ class KomgaMediaServerClientAdapter(
         tags = patchIfNotNull(tags),
         // Komga rejects totalBookCount <= 0, so omit invalid values
         totalBookCount = patchIfNotNull(totalBookCount?.takeIf { it > 0 }),
-        links = patchIfNotNull(links?.map { KomgaWebLink(it.label, it.url) }),
+        links = patchIfNotNull(links?.mapNotNull { link ->
+            safeUrlOrNull(link.url)?.let { KomgaWebLink(link.label, it) }
+        }),
 
         statusLock = patchIfNotNull(statusLock),
         titleLock = patchIfNotNull(titleLock),
@@ -448,7 +479,9 @@ class KomgaMediaServerClientAdapter(
         authors = patchIfNotNull(authors?.map { KomgaAuthor(it.name, it.role) }),
         tags = patchIfNotNull(tags),
         isbn = patchIfNotNull(isbn),
-        links = patchIfNotNull(links?.map { KomgaWebLink(it.label, it.url) }),
+        links = patchIfNotNull(links?.mapNotNull { link ->
+            safeUrlOrNull(link.url)?.let { KomgaWebLink(link.label, it) }
+        }),
 
         titleLock = patchIfNotNull(titleLock),
         summaryLock = patchIfNotNull(summaryLock),
