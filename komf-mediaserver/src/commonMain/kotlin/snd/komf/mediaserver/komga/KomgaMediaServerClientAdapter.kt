@@ -53,13 +53,29 @@ import snd.komga.client.series.KomgaSeriesThumbnail
 private val logger = KotlinLogging.logger {}
 
 private fun safeUrlOrNull(raw: String?): String? {
-    if (raw.isNullOrBlank()) return null
+    val trimmed = raw?.trim()
+    if (trimmed.isNullOrEmpty()) return null
+
     return try {
-        // Will throw if the URL has illegal characters like '|'
-        URI(raw)
-        raw
+        val uri = URI(trimmed)
+
+        val scheme = uri.scheme?.lowercase()
+        val host = uri.host
+
+        // Require http/https + a host, otherwise Komga will likely reject it
+        if (scheme != "http" && scheme != "https") {
+            logger.warn { "Dropping URL without http/https scheme from metadata: $trimmed" }
+            return null
+        }
+
+        if (host.isNullOrBlank()) {
+            logger.warn { "Dropping URL without host from metadata: $trimmed" }
+            return null
+        }
+
+        trimmed
     } catch (e: Exception) {
-        logger.warn(e) { "Dropping invalid URL from metadata: $raw" }
+        logger.warn(e) { "Dropping invalid URL from metadata: $trimmed" }
         null
     }
 }
