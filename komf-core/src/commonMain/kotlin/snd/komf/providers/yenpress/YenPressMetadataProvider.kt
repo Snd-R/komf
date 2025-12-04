@@ -39,7 +39,7 @@ class YenPressMetadataProvider(
         val allBooks = client.getBookList(YenPressSeriesId(seriesId.value))
         val firstBook = allBooks.firstOrNull { it.number?.start != null }
             ?: allBooks.firstOrNull()
-            ?: throw IllegalStateException("Empty book list for Yen Press series ${seriesId.value}")
+            ?: throw IllegalStateException("No books found for YenPress series ${seriesId.value}")
 
         val seriesBook = client.getBook(firstBook.id)
         val thumbnail = if (fetchSeriesCovers) client.getBookThumbnail(seriesBook) else null
