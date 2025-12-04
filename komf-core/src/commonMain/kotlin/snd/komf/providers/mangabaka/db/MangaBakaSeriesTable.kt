@@ -72,14 +72,16 @@ object MangaBakaSeriesTable : Table("series") {
     data class MangaBakaDbSecondaryTitle(
         val type: String,
         val title: String,
-        val note: String?,
+        // note was added later; keep optional for backward compatibility with older DB rows
+        val note: String? = null,
     )
 
     @Serializable
     data class MangaBakaDbPublisher(
         val type: String,
         val name: String,
-        val note: String?,
+        // note was added later; keep optional for backward compatibility with older DB rows
+        val note: String? = null,
     )
 }
 
