@@ -50,5 +50,8 @@ kotlin {
             implementation(libs.twelvemonkeys.imageio.jpeg)
             implementation(libs.twelvemonkeys.imageio.webp)
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }

@@ -47,8 +47,6 @@ object MangaBakaSeriesTable : Table("series") {
     val sourceAnilistRating = double("source_anilist_rating").nullable()
     val sourceAnimeNewNetworkId = integer("source_anime_news_network_id").nullable()
     val sourceAnimeNewNetworkRating = double("source_anime_news_network_rating").nullable()
-    val sourceMangaDexId = text("source_mangadex_id").nullable()
-    val sourceMangaDexRating = double("source_mangadex_rating").nullable()
     val sourceMangaUpdatesId = text("source_manga_updates_id").nullable()
     val sourceMangaUpdatesRating = double("source_manga_updates_rating").nullable()
     val sourceMyAnimeListId = integer("source_my_anime_list_id").nullable()
