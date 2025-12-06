@@ -1,13 +1,7 @@
 package snd.komf.providers.mangabaka
 
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.nullable
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlin.time.Instant
 
 private const val baseUrl = "https://mangabaka.dev"
@@ -83,13 +77,13 @@ data class MangaBakaCover(
 
 @Serializable
 data class MangaBakaCoverRaw(
-    val url: String?,
-    val size: Long?,
-    val height: Int?,
-    val width: Int?,
-    val blurhash: String?,
-    val thumbhash: String?,
-    val format: String?,
+    val url: String? = null,
+    val size: Long? = null,
+    val height: Int? = null,
+    val width: Int? = null,
+    val blurhash: String? = null,
+    val thumbhash: String? = null,
+    val format: String? = null,
 )
 
 @Serializable
@@ -122,8 +116,8 @@ enum class MangaBakaStatus {
 
 @Serializable
 data class MangaBakaAnimeInfo(
-    val start: String?,
-    val end: String?
+    val start: String? = null,
+    val end: String? = null
 )
 
 @Serializable
@@ -173,15 +167,14 @@ data class MangaBakaRelationships(
 
 @Serializable
 data class MangaBakaSources(
-    val anilist: MangaBakaAnilistSource?,
+    val anilist: MangaBakaAnilistSource? = null,
     @SerialName("anime_news_network")
-    val animeNewsNetwork: MangaBakaAnimeNewsNetworkSource?,
+    val animeNewsNetwork: MangaBakaAnimeNewsNetworkSource? = null,
     val kitsu: MangaBakaKitsuSource?,
     @SerialName("manga_updates")
-    val mangaUpdates: MangaBakaMangaUpdatesSource?,
-    val mangadex: MangaBakaMangaDexSource? = null,
+    val mangaUpdates: MangaBakaMangaUpdatesSource? = null,
     @SerialName("my_anime_list")
-    val myAnimeList: MangaBakaMyAnimeListSource?,
+    val myAnimeList: MangaBakaMyAnimeListSource? = null,
 )
 
 @Serializable
@@ -204,12 +197,6 @@ data class MangaBakaKitsuSource(
 
 @Serializable
 data class MangaBakaMangaUpdatesSource(
-    val id: String? = null,
-    val rating: Double? = null,
-)
-
-@Serializable
-data class MangaBakaMangaDexSource(
     val id: String? = null,
     val rating: Double? = null,
 )
