@@ -5,7 +5,9 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.json.json
 
-private val json = Json.Default
+private val json = Json {
+    ignoreUnknownKeys = true
+}
 
 object MangaBakaSeriesTable : Table("series") {
     val id = integer("id")
@@ -69,14 +71,14 @@ object MangaBakaSeriesTable : Table("series") {
     data class MangaBakaDbSecondaryTitle(
         val type: String,
         val title: String,
-        val note: String?,
+        val note: String? = null,
     )
 
     @Serializable
     data class MangaBakaDbPublisher(
         val type: String,
         val name: String,
-        val note: String?,
+        val note: String? = null,
     )
 }
 
