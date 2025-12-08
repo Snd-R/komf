@@ -1,8 +1,9 @@
 package snd.komf.mediaserver.komga
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import java.net.URI
+import io.ktor.http.parseUrl
 import snd.komf.mediaserver.MediaServerClient
+import snd.komf.util.toStingEncoded
 import snd.komf.mediaserver.model.MediaServerAlternativeTitle
 import snd.komf.mediaserver.model.MediaServerAuthor
 import snd.komf.mediaserver.model.MediaServerBook
@@ -57,25 +58,10 @@ private fun safeUrlOrNull(raw: String?): String? {
     if (trimmed.isNullOrEmpty()) return null
 
     return try {
-        val uri = URI(trimmed)
-
-        val scheme = uri.scheme?.lowercase()
-        val host = uri.host
-
-        // Require http/https + a host, otherwise Komga will likely reject it
-        if (scheme != "http" && scheme != "https") {
-            logger.warn { "Dropping URL without http/https scheme from metadata: $trimmed" }
-            return null
-        }
-
-        if (host.isNullOrBlank()) {
-            logger.warn { "Dropping URL without host from metadata: $trimmed" }
-            return null
-        }
-
-        trimmed
-    } catch (e: Exception) {
-        logger.warn(e) { "Dropping invalid URL from metadata: $trimmed" }
+        val url = parseUrl(trimmed)
+        url.toStingEncoded()
+    } catch (e: Throwable) {
+        logger.warn("Dropping invalid URL from metadata: {}", trimmed, e)
         null
     }
 }
