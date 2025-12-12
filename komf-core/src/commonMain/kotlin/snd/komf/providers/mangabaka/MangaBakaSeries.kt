@@ -173,9 +173,16 @@ data class MangaBakaSources(
     val kitsu: MangaBakaKitsuSource? = null,
     @SerialName("manga_updates")
     val mangaUpdates: MangaBakaMangaUpdatesSource? = null,
+    @SerialName("mangadex")
     val mangadex: MangaBakaMangaDexSource? = null,
     @SerialName("my_anime_list")
     val myAnimeList: MangaBakaMyAnimeListSource? = null,
+)
+
+@Serializable
+data class MangaBakaMangaDexSource(
+    val id: Int? = null,
+    val rating: Double? = null,
 )
 
 @Serializable
