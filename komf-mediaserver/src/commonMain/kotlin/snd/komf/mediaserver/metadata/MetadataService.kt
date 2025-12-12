@@ -230,6 +230,13 @@ class MetadataService(
             eventFlow.emit(ProviderSeriesEvent(provider.providerName()))
             val result = try {
                 provider.matchSeriesMetadata(createMatchQuery(searchTitle, series, books))
+            } catch (e: IllegalStateException) {
+                // Handle YenPress empty book list case gracefully - skip provider
+                if (e.message?.startsWith("No books found for YenPress series") == true) {
+                    logger.debug { "YenPress has no books for series, skipping provider" }
+                    return null
+                }
+                throw ProviderException(provider.providerName(), e)
             } catch (e: Exception) {
                 throw ProviderException(provider.providerName(), e)
             }
@@ -393,6 +400,12 @@ class MetadataService(
 
         return try {
             provider.getSeriesMetadata(providerSeriesId)
+        } catch (e: IllegalStateException) {
+            // Handle YenPress empty book list case - re-throw without wrapping so it can be handled differently
+            if (e.message?.startsWith("No books found for YenPress series") == true) {
+                throw e
+            }
+            throw ProviderException(provider.providerName(), e)
         } catch (e: Exception) {
             throw ProviderException(provider.providerName(), e)
         }
@@ -428,6 +441,15 @@ class MetadataService(
                     )
                 )
                 logger.catching(providerException)
+            } catch (exception: IllegalStateException) {
+                // Handle YenPress empty book list case gracefully - log at debug level instead of error
+                if (exception.message?.startsWith("No books found for YenPress series") == true) {
+                    logger.debug { "YenPress has no books for series: ${exception.message}" }
+                    // Don't emit error event, just complete silently
+                } else {
+                    eventFlow.emit(ProcessingErrorEvent("${exception::class.simpleName}: ${exception.message}"))
+                    logger.catching(exception)
+                }
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: ResponseException) {
