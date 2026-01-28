@@ -5,7 +5,8 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.json.json
 
-private val json = Json {
+private val json = Json.Default
+private val lenientJson = Json {
     ignoreUnknownKeys = true
 }
 
@@ -71,6 +72,7 @@ object MangaBakaSeriesTable : Table("series") {
     data class MangaBakaDbSecondaryTitle(
         val type: String,
         val title: String,
+        // note was added later; keep optional for backward compatibility with older DB rows
         val note: String? = null,
     )
 
@@ -78,6 +80,7 @@ object MangaBakaSeriesTable : Table("series") {
     data class MangaBakaDbPublisher(
         val type: String,
         val name: String,
+        // note was added later; keep optional for backward compatibility with older DB rows
         val note: String? = null,
     )
 }
