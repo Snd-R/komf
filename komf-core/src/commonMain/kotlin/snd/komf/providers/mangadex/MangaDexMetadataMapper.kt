@@ -172,7 +172,7 @@ class MangaDexMetadataMapper(
                 "amz" -> parseUrl(value)?.let { url -> links[AMAZON] = WebLink("Amazon", url.toStingEncoded()) }
                 "ebj" -> {
                     val url = if (value.toIntOrNull() != null) {
-                        "https://ebookjapan.yahoo.co.jp/books/${value}}"
+                        "https://ebookjapan.yahoo.co.jp/books/${value}"
                     } else {
                         parseUrl(value)?.toString()
                     }
