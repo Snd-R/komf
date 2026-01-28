@@ -23,6 +23,7 @@ import snd.komf.model.ReadingDirection
 import snd.komf.model.SeriesStatus
 import snd.komf.model.TitleType
 import snd.komf.model.WebLink
+import snd.komf.util.toValidHttpUrlOrNull
 import snd.komga.client.book.KomgaBook
 import snd.komga.client.book.KomgaBookClient
 import snd.komga.client.book.KomgaBookId
@@ -399,7 +400,7 @@ class KomgaMediaServerClientAdapter(
         genres = patchIfNotNull(genres),
         tags = patchIfNotNull(tags),
         totalBookCount = patchIfNotNull(totalBookCount),
-        links = patchIfNotNull(links?.map { KomgaWebLink(it.label, it.url) }),
+        links = patchIfNotNull(links?.sanitizeKomgaLinks()?.map { KomgaWebLink(it.label, it.url) }),
 
         statusLock = patchIfNotNull(statusLock),
         titleLock = patchIfNotNull(titleLock),
@@ -447,7 +448,7 @@ class KomgaMediaServerClientAdapter(
         authors = patchIfNotNull(authors?.map { KomgaAuthor(it.name, it.role) }),
         tags = patchIfNotNull(tags),
         isbn = patchIfNotNull(isbn),
-        links = patchIfNotNull(links?.map { KomgaWebLink(it.label, it.url) }),
+        links = patchIfNotNull(links?.sanitizeKomgaLinks()?.map { KomgaWebLink(it.label, it.url) }),
 
         titleLock = patchIfNotNull(titleLock),
         summaryLock = patchIfNotNull(summaryLock),
@@ -461,4 +462,23 @@ class KomgaMediaServerClientAdapter(
     )
 
     private fun <T> patchIfNotNull(value: T?) = value?.let { PatchValue.Some(it) } ?: PatchValue.Unset
+
+    private fun Collection<WebLink>.sanitizeKomgaLinks(): List<WebLink> {
+        return mapNotNull { link ->
+            val sanitizedUrl = link.url.toValidHttpUrlOrNull()
+            if (sanitizedUrl == null) {
+                logger.warn { "Dropping invalid Komga link label='${link.label}' url='${truncate(link.url)}' (only http/https supported)" }
+                null
+            } else if (sanitizedUrl == link.url) {
+                link
+            } else {
+                WebLink(link.label, sanitizedUrl)
+            }
+        }
+    }
+
+    private fun truncate(value: String, maxChars: Int = 200): String {
+        if (value.length <= maxChars) return value
+        return value.take(maxChars) + "…"
+    }
 }
