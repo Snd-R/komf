@@ -153,6 +153,8 @@ class AppConfigUpdateMapper {
                 ?.let { providerConfig(config.comicVine, it) } ?: config.comicVine,
             hentag = patch.hentag.getOrNull()
                 ?.let { providerConfig(config.hentag, it) } ?: config.hentag,
+            ehentai = patch.ehentai.getOrNull()
+                ?.let { providerConfig(config.ehentai, it) } ?: config.ehentai,
             mangaBaka = patch.mangaBaka.getOrNull()
                 ?.let { mangaBakaProviderConfig(config.mangaBaka, it) } ?: config.mangaBaka,
             webtoons = patch.webtoons.getOrNull()

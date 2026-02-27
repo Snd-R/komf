@@ -174,6 +174,7 @@ class AppConfigMapper {
             bangumi = toDto(config.bangumi),
             comicVine = toDto(config.comicVine),
             hentag = toDto(config.hentag),
+            ehentai = toDto(config.ehentai),
             mangaBaka = toDto(config.mangaBaka),
             webtoons = toDto(config.webtoons),
         )

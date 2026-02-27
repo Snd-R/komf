@@ -109,6 +109,7 @@ data class ProvidersConfigUpdateRequest(
     val bangumi: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val comicVine: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val hentag: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val ehentai: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val mangaBaka: PatchValue<MangaBakaConfigUpdateRequest> = PatchValue.Unset,
     val webtoons: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
 )

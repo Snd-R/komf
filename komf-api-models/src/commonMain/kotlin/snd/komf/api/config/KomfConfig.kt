@@ -118,6 +118,7 @@ data class ProvidersConfigDto(
     val bangumi: ProviderConfigDto,
     val comicVine: ProviderConfigDto,
     val hentag: ProviderConfigDto,
+    val ehentai: ProviderConfigDto,
     val mangaBaka: MangaBakaConfigDto,
     val webtoons: ProviderConfigDto,
 )
