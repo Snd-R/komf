@@ -10,6 +10,7 @@ import snd.komf.model.ProviderSeriesMetadata
 import snd.komf.model.SeriesSearchResult
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
+import snd.komf.providers.ehentai.model.EHentaiBook
 import snd.komf.util.NameSimilarityMatcher
 import kotlin.time.Duration.Companion.minutes
 

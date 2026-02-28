@@ -18,6 +18,8 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import snd.komf.model.Image
+import snd.komf.providers.ehentai.model.EHentaiBook
+import snd.komf.providers.ehentai.model.EHentaiResponse
 
 class EHentaiClient(
     private val ktor: HttpClient

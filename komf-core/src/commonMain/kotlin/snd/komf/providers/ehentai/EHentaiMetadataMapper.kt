@@ -16,6 +16,7 @@ import snd.komf.model.WebLink
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
+import snd.komf.providers.ehentai.model.EHentaiBook
 
 class EHentaiMetadataMapper(
     private val metadataConfig: SeriesMetadataConfig,

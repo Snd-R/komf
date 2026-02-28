@@ -1,4 +1,4 @@
-package snd.komf.providers.ehentai
+package snd.komf.providers.ehentai.model
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
