@@ -264,13 +264,18 @@ class ProvidersModule(
     )
 
     /* Load limiting: 4-5 sequential requests usually okay before having to wait for ~5 seconds */
-    private val ehentaiClient = EHentaiClient(
+    private val eHentaiClient = EHentaiClient(
         baseHttpClientJson.config {
             install(HttpRequestRateLimiter) {
                 interval = 6.seconds
                 eventsPerInterval = 4
                 allowBurst = true
             }
+            install(HttpRequestRetry) {
+                defaultRetry()
+            }
+        },
+        baseHttpClientJson.config {
             install(HttpRequestRetry) {
                 defaultRetry()
             }
@@ -428,12 +433,12 @@ class ProvidersModule(
                 defaultNameMatcher
             ),
             hentagPriority = config.hentag.priority,
-            ehentai = createEHentaiMetadataProvider(
-                config.ehentai,
-                ehentaiClient,
+            eHentai = createEHentaiMetadataProvider(
+                config.eHentai,
+                eHentaiClient,
                 defaultNameMatcher
             ),
-            ehentaiPriority = config.ehentai.priority,
+            eHentaiPriority = config.eHentai.priority,
             mangaBaka = createMangaBakaMetadataProvider(
                 config = config.mangaBaka,
                 datasource = when (config.mangaBaka.mode) {
@@ -785,15 +790,16 @@ class ProvidersModule(
     }
 
     private fun createEHentaiMetadataProvider(
-        config: ProviderConfig,
+        config: EHentaiConfig,
         client: EHentaiClient,
-        defaultNameMatcher: NameSimilarityMatcher
+        defaultNameMatcher: NameSimilarityMatcher,
     ): EHentaiMetadataProvider? {
         if (config.enabled.not()) return null
 
         val eHentaiMetadataMapper = EHentaiMetadataMapper(
             metadataConfig = config.seriesMetadata,
             authorRoles = config.authorRoles,
+            preferredLanguages = config.preferredLanguages,
         )
 
         val ehentaiSimilarityMatcher: NameSimilarityMatcher =
@@ -904,8 +910,8 @@ class ProvidersModule(
         private val hentag: HentagMetadataProvider?,
         private val hentagPriority: Int,
 
-        private val ehentai: EHentaiMetadataProvider?,
-        private val ehentaiPriority: Int,
+        private val eHentai: EHentaiMetadataProvider?,
+        private val eHentaiPriority: Int,
 
         private val mangaBaka: MangaBakaMetadataProvider?,
         private val mangaBakaPriority: Int,
@@ -927,7 +933,7 @@ class ProvidersModule(
             bangumi?.let { it to bangumiPriority },
             comicVine?.let { it to comicVinePriority },
             hentag?.let { it to hentagPriority },
-            ehentai?.let { it to ehentaiPriority },
+            eHentai?.let { it to eHentaiPriority },
             mangaBaka?.let { it to mangaBakaPriority },
             webtoons?.let { it to webtoonsPriority }
         )
@@ -949,7 +955,7 @@ class ProvidersModule(
                 CoreProviders.BANGUMI -> bangumi
                 CoreProviders.COMIC_VINE -> comicVine
                 CoreProviders.HENTAG -> hentag
-                CoreProviders.EHENTAI -> ehentai
+                CoreProviders.EHENTAI -> eHentai
                 CoreProviders.MANGA_BAKA -> mangaBaka
                 CoreProviders.WEBTOONS -> webtoons
             }

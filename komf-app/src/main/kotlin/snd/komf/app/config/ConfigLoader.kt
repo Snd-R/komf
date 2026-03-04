@@ -126,6 +126,7 @@ class ConfigLoader(private val yaml: Yaml) {
             config.metadataProviders.defaultProviders.bangumi.enabled.not() &&
             config.metadataProviders.defaultProviders.comicVine.enabled.not() &&
             config.metadataProviders.defaultProviders.hentag.enabled.not() &&
+            config.metadataProviders.defaultProviders.eHentai.enabled.not() &&
             config.metadataProviders.defaultProviders.mangaBaka.enabled.not() &&
             config.metadataProviders.defaultProviders.webtoons.enabled.not() &&
             config.metadataProviders.libraryProviders.isEmpty()

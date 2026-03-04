@@ -22,14 +22,20 @@ import snd.komf.providers.ehentai.model.EHentaiBook
 import snd.komf.providers.ehentai.model.EHentaiResponse
 
 class EHentaiClient(
-    private val ktor: HttpClient
+    private val apiClient: HttpClient,
+    private val imgClient: HttpClient
 ) {
-    private val apiUrl: String = "https://api.e-hentai.org/api.php"
-    private val baseUrl: String = "https://e-hentai.org"
+    companion object {
+        private const val API_URL = "https://api.e-hentai.org/api.php"
+        private const val BASE_URL = "https://e-hentai.org"
+        private const val MAX_PAGES = 3
+        private val GALLERY_REGEX = """/g/(\d+)/([a-f0-9]+)""".toRegex()
+        private val NEXT_URL_REGEX = """var\s+nexturl="([^"]+)"""".toRegex()
 
-    private val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
+        private val JSON_PARSER = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
     }
 
     suspend fun searchByGidList(
@@ -43,7 +49,7 @@ class EHentaiClient(
         return coroutineScope {
             val responses = chunks.map { chunk ->
                 async {
-                    val responseText = ktor.post(apiUrl) {
+                    val responseText = apiClient.post(API_URL) {
                         contentType(ContentType.Application.Json)
                         setBody(buildJsonObject {
                             put("method", "gdata")
@@ -58,7 +64,7 @@ class EHentaiClient(
                             put("namespace", 1)
                         })
                     }.bodyAsText()
-                    json.decodeFromString<EHentaiResponse>(responseText)
+                    JSON_PARSER.decodeFromString<EHentaiResponse>(responseText)
                 }
             }.awaitAll()
 
@@ -69,33 +75,44 @@ class EHentaiClient(
         }
     }
 
-    suspend fun searchByTitle(
-        title: String
-    ): EHentaiResponse {
-        val htmlResponse: String = ktor.get("$baseUrl/") {
-            url { parameters.append("f_search", title) }
-        }.bodyAsText()
+    suspend fun searchByTitle(title: String): EHentaiResponse {
+        val gidList = mutableListOf<Pair<Int, String>>()
+        var currentUrl: String? = null
 
-        val galleryRegex = """/g/(\d+)/([a-f0-9]+)""".toRegex()
-        val gidList = galleryRegex.findAll(htmlResponse)
-            .map { matchResult ->
-                val gid = matchResult.groupValues[1].toInt()
-                val token = matchResult.groupValues[2]
-                Pair(gid, token)
+        var currentPage = 0
+        while (currentPage < MAX_PAGES) {
+            val htmlResponse = if (currentUrl == null) {
+                apiClient.get(BASE_URL) {
+                    url { parameters.append("f_search", title) }
+                }.bodyAsText()
+            } else {
+                apiClient.get(currentUrl).bodyAsText()
             }
-            .distinct()
-            .toList()
 
-        if (gidList.isEmpty()) {
-            return EHentaiResponse(error = "Empty gidList for search: $title")
+            val gidInPage = GALLERY_REGEX.findAll(htmlResponse)
+                .map { it.groupValues[1].toInt() to it.groupValues[2] }
+                .toList()
+
+            if (gidInPage.isEmpty()) break
+            gidList.addAll(gidInPage)
+
+            currentUrl = NEXT_URL_REGEX.find(htmlResponse)
+                ?.groupValues?.get(1)
+                ?.replace("&amp;", "&") ?: break
+
+            currentPage++
         }
 
-        return searchByGidList(gidList)
+        val distinctGidList = gidList.distinct()
+        return when {
+            distinctGidList.isNotEmpty() -> searchByGidList(distinctGidList)
+            else -> EHentaiResponse(error = "Empty gidList for search: $title")
+        }
     }
 
     suspend fun getThumbnail(book: EHentaiBook): Image? {
         return book.thumb?.ifBlank { null }?.let { url ->
-            val bytes = ktor.get(url).body<ByteArray>()
+            val bytes = imgClient.get(url).body<ByteArray>()
             Image(bytes)
         }
     }
