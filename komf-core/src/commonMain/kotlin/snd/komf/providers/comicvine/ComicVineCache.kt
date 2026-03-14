@@ -22,11 +22,11 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.plus
 import kotlinx.datetime.DateTimeUnit
 
-object CacheTable : Table("cache") {
-    val queryCol = text("query")
-    override val primaryKey = PrimaryKey(queryCol)
+object QueriesTable : Table("queries") {
+    val urlCol = text("url")
+    override val primaryKey = PrimaryKey(urlCol)
 
-    val timestampCol = timestamp("timestamp")
+    val createdAtCol = timestamp("created_at")
 
     val responseCol = text("response")
 }
@@ -40,7 +40,7 @@ class ComicVineCache(
 
     init {
         transaction(db = database) {
-            SchemaUtils.create(CacheTable)
+            SchemaUtils.create(QueriesTable)
         }
     }
 
@@ -66,10 +66,10 @@ class ComicVineCache(
 
     fun addEntry(url: String, response: String) {
         transaction(db = database) {
-            CacheTable.upsert {
-                it[queryCol] = maskApiKey(url)
+            QueriesTable.upsert {
+                it[urlCol] = maskApiKey(url)
                 it[responseCol] = response
-                it[timestampCol] = getExpiryTimestamp()
+                it[createdAtCol] = getExpiryTimestamp()
             }
         }
     }
@@ -77,23 +77,23 @@ class ComicVineCache(
     suspend fun getEntry(url: String): String? {
         if (expiry == 0) {
             return transaction(db = database) {
-                CacheTable
-                    .select(CacheTable.responseCol).where {
-                        CacheTable.queryCol eq maskApiKey(url)
+                QueriesTable
+                    .select(QueriesTable.responseCol).where {
+                        QueriesTable.urlCol eq maskApiKey(url)
                     }
                     .firstOrNull()
-                    ?.get(CacheTable.responseCol)
+                    ?.get(QueriesTable.responseCol)
             }
         }
 
         return transaction(db = database) {
-            CacheTable
-                .select(CacheTable.responseCol).where {
-                    (CacheTable.queryCol eq maskApiKey(url)) and
-                    (CacheTable.timestampCol greater getNowTimestamp())
+            QueriesTable
+                .select(QueriesTable.responseCol).where {
+                    (QueriesTable.urlCol eq maskApiKey(url)) and
+                    (QueriesTable.createdAtCol greater getNowTimestamp())
                 }
                 .firstOrNull()
-                ?.get(CacheTable.responseCol)
+                ?.get(QueriesTable.responseCol)
         }
     }
 }
