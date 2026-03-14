@@ -176,7 +176,7 @@ metadataProviders:
   comicVineSearchLimit: # define ComicVine search result Limit, default is 10
   comicVineIssueName: # string that contains "{number}" which will be replaced by the issue number ie. "Issue #{number}". Used when an issue has no name on ComicVine, default is null
   cacheDatabaseFile: # cache database file location. default is "./cv_cache.db"
-  cacheDatabaseExpiry: # number of days after which an entry in the cache is considered expired. default is 14
+  cacheDatabaseExpiry: # number of days after which an entry in the cache is considered expired. set it to 0 for unlimited. default is 14
   comicVineIdFormat: # string that contains "{id}" which will serve to parse the ComicVine volume of a given book from its title or folder name ie. "[cv-{id}]" which will correctly identify '.../Uncanny X-Men Omnibus (2006) [cv-27512]' as being [4050-27512](https://comicvine.gamespot.com/uncanny-x-men-omnibus/4050-27512/)
   bangumiToken: # bangumi provider require a token to show nsfw items https://next.bgm.tv/demo/access-token  env:KOMF_METADATA_PROVIDERS_BANGUMI_TOKEN
   defaultProviders:
