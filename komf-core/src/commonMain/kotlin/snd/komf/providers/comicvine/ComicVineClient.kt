@@ -90,7 +90,10 @@ class ComicVineClient(
 
     suspend fun getStoryArc(id: ComicVineStoryArcId): ComicVineSearchResult<ComicVineStoryArc> {
         rateLimiter.storyArcAcquire()
-        return getCachedApi("$baseUrl/story_arc/${ComicVineTypeId.STORY_ARC.id}-${id.value}/")
+        return ktor.get("$baseUrl/story_arc/${ComicVineTypeId.STORY_ARC.id}-${id.value}/") {
+            parameter("format", "json")
+            parameter("api_key", apiKey)
+        }.body()
     }
 
     suspend fun getCover(url: String): Image {
