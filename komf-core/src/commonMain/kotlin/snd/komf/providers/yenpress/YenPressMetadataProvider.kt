@@ -55,6 +55,10 @@ class YenPressMetadataProvider(
         }
     }
 
+    override suspend fun clearSeriesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(YenPressBookId(bookId.id))
         val thumbnail = if (fetchBookCovers) client.getBookThumbnail(bookMetadata) else null

@@ -37,6 +37,10 @@ class MangaDexMetadataProvider(
         return series.getCoverArt()?.let { client.getCover(series.id, it.attributes.fileName) }
     }
 
+    override suspend fun clearSeriesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val cover = if (fetchBookCovers) client.getCover(MangaDexMangaId(seriesId.value), bookId.id) else null
         return metadataMapper.toBookMetadata(bookId.id, cover)

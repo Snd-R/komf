@@ -83,6 +83,30 @@ class ComicVineClient(
         return getCachedApi("$baseUrl/volume/${VOLUME.id}-${id.value}/")
     }
 
+    suspend fun clearVolumeCache(id: ComicVineVolumeId) {
+        val url = buildUrlString("$baseUrl/volume/${VOLUME.id}-${id.value}/")
+
+        val cachedResult = cache.getEntry(url)
+
+        if (cachedResult == null) {
+            return
+        }
+
+        val response: ComicVineSearchResult<ComicVineVolume> = Json.decodeFromString(cachedResult);
+
+        response.results.issues?.forEach {
+            val issueUrl = buildUrlString("$baseUrl/issue/${ISSUE.id}-${it.id}/")
+
+            val cachedIssueResult = cache.getEntry(issueUrl)
+
+            if (cachedIssueResult != null) {
+                cache.removeEntry(issueUrl)
+            }
+        }
+
+        cache.removeEntry(url)
+    }
+
     suspend fun getIssue(id: ComicVineIssueId): ComicVineSearchResult<ComicVineIssue> {
         rateLimiter.issueAcquire()
         return getCachedApi("$baseUrl/issue/${ISSUE.id}-${id.value}/")
