@@ -7,6 +7,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.datetime.*
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.upsert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -70,6 +71,14 @@ class ComicVineCache(
                 it[urlCol] = maskApiKey(url)
                 it[responseCol] = response
                 it[createdAtCol] = getExpiryTimestamp()
+            }
+        }
+    }
+
+    fun removeEntry(url: String) {
+        transaction(db = database) {
+            QueriesTable.deleteWhere {
+                QueriesTable.urlCol eq maskApiKey(url)
             }
         }
     }
