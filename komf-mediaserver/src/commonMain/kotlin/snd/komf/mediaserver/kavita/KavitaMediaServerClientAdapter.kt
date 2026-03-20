@@ -349,7 +349,7 @@ class KavitaMediaServerClientAdapter(
 
             // Set locks
             ageRatingLocked = shouldLock(currentChapter.ageRatingLocked, ageRating),
-            titleNameLocked = shouldLock(false, title),
+            titleNameLocked = shouldLock(currentChapter.titleNameLocked, title),
             genresLocked = shouldLock(currentChapter.genresLocked, genres.ifEmpty { null }),
             tagsLocked = shouldLock(currentChapter.tagsLocked, tags),
             writerLocked = shouldLock(currentChapter.writerLocked, writers.ifEmpty { null }),
@@ -363,8 +363,8 @@ class KavitaMediaServerClientAdapter(
             languageLocked = shouldLock(currentChapter.languageLocked, language),
             summaryLocked = shouldLock(currentChapter.summaryLocked, summary),
             isbnLocked = shouldLock(false, isbn),
-            releaseDateLocked = shouldLock(currentChapter.releaseYearLocked, releaseDate),
-            sortOrderLocked = shouldLock(numberSortLock ?: false, numberSort),
+            releaseDateLocked = shouldLock(currentChapter.releaseDateLocked, releaseDate),
+            sortOrderLocked = shouldLock(currentChapter.sortOrderLocked, numberSort),
 
             // Passthrough lock status for data not provided by metadata provider
             publisherLocked = currentChapter.publisherLocked,
@@ -437,11 +437,11 @@ private fun KavitaChapter.toMediaServerBookMetadata(): MediaServerBookMetadata {
         isbn = isbn.ifBlank { null },
         links = emptyList(),
 
-        titleLock = false,
+        titleLock = titleNameLocked,
         summaryLock = summaryLocked,
         numberLock = false,
-        numberSortLock = false,
-        releaseDateLock = releaseYearLocked,
+        numberSortLock = sortOrderLocked,
+        releaseDateLock = releaseDateLocked,
         authorsLock = authorsLock,
         tagsLock = tagsLocked,
         isbnLock = false,
