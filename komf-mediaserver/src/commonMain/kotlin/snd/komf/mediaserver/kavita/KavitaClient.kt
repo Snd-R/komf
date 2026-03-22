@@ -202,17 +202,6 @@ class KavitaClient(
         }
     }
 
-    suspend fun resetChapterLock(chapterId: KavitaChapterId) {
-        ktor.post("api/upload/reset-chapter-lock") {
-            contentType(ContentType.Application.Json)
-            setBody(buildJsonObject {
-                put("id", chapterId.value)
-                put("url", "")
-            })
-
-        }
-    }
-
 }
 
 data class KavitaPage<T>(

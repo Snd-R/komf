@@ -7,6 +7,7 @@ import snd.komf.mediaserver.kavita.model.KavitaAgeRating
 import snd.komf.mediaserver.kavita.model.KavitaAgeRating.UNKNOWN
 import snd.komf.mediaserver.kavita.model.KavitaAuthor
 import snd.komf.mediaserver.kavita.model.KavitaChapter
+import snd.komf.mediaserver.kavita.model.KavitaChapterId
 import snd.komf.mediaserver.kavita.model.KavitaGenre
 import snd.komf.mediaserver.kavita.model.KavitaLibrary
 import snd.komf.mediaserver.kavita.model.KavitaPublicationStatus
@@ -143,7 +144,7 @@ class KavitaMediaServerClientAdapter(
     override suspend fun deleteBookThumbnail(bookId: MediaServerBookId, thumbnailId: MediaServerThumbnailId) {}
 
     override suspend fun resetBookMetadata(bookId: MediaServerBookId, bookName: String, bookNumber: Int?) {
-        kavitaClient.resetChapterLock(bookId.toKavitaChapterId())
+        kavitaClient.updateChapterMetadata(kavitaChapterResetRequest(bookId.toKavitaChapterId()))
     }
 
     override suspend fun resetSeriesMetadata(seriesId: MediaServerSeriesId, seriesName: String) {
@@ -590,3 +591,54 @@ private fun KavitaSeries.toKavitaCoverResetRequest() = KavitaSeriesUpdateRequest
 
     coverImageLocked = false
 )
+
+private fun kavitaChapterResetRequest(chapterId: KavitaChapterId): KavitaChapterMetadataUpdateRequest {
+    return KavitaChapterMetadataUpdateRequest(
+        id = chapterId,
+        summary = null,
+        genres = emptySet(),
+        tags = emptySet(),
+        ageRating = UNKNOWN,
+        language = null,
+        weblinks = "",
+        isbn = null,
+        releaseDate = kotlinx.datetime.LocalDateTime(1970, 1, 1, 0, 0, 0),
+        titleName = null,
+        sortOrder = 0.0,
+        writers = emptySet(),
+        coverArtists = emptySet(),
+        publishers = emptySet(),
+        characters = emptySet(),
+        pencillers = emptySet(),
+        inkers = emptySet(),
+        imprints = emptySet(),
+        colorists = emptySet(),
+        letterers = emptySet(),
+        editors = emptySet(),
+        translators = emptySet(),
+        teams = emptySet(),
+        locations = emptySet(),
+        ageRatingLocked = false,
+        titleNameLocked = false,
+        genresLocked = false,
+        tagsLocked = false,
+        writerLocked = false,
+        characterLocked = false,
+        coloristLocked = false,
+        editorLocked = false,
+        inkerLocked = false,
+        imprintLocked = false,
+        lettererLocked = false,
+        pencillerLocked = false,
+        publisherLocked = false,
+        translatorLocked = false,
+        teamLocked = false,
+        locationLocked = false,
+        coverArtistLocked = false,
+        languageLocked = false,
+        summaryLocked = false,
+        isbnLocked = false,
+        releaseDateLocked = false,
+        sortOrderLocked = false,
+    )
+}
