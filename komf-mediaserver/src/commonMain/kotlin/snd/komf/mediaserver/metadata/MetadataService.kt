@@ -296,6 +296,7 @@ class MetadataService(
             else mapOf(books.first() to null)
         }
 
+        logger.debug { "Matching ${books.size} books against ${providerBooks.size} provider books" }
         return books.associateWith { book ->
             val bookExtraData = BookNameParser.getExtraData(book.name).map { it.lowercase() }
             editionBooks.keys.firstOrNull { bookExtraData.contains(it) }
@@ -303,6 +304,7 @@ class MetadataService(
             val bookNumber = getBookNumber(book.name)
             val providerBook = editionBooks[edition]
                 ?.firstOrNull { it.number != null && it.number == bookNumber }
+            logger.debug { "Book '${book.name}': parsed number=$bookNumber, matched=${providerBook != null}" }
             book to providerBook
         }.toMap()
     }
