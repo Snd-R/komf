@@ -114,6 +114,10 @@ data class ProvidersConfigUpdateDto(
     val mangaDex: ProviderConfigUpdateDto? = null,
     val bangumi: ProviderConfigUpdateDto? = null,
     val comicVine: ProviderConfigUpdateDto? = null,
+    val hentag: ProviderConfigUpdateDto? = null,
+    val mangaBaka: ProviderConfigUpdateDto? = null,
+    val webtoons: ProviderConfigUpdateDto? = null,
+    val stripInfo: ProviderConfigUpdateDto? = null,
 )
 
 @Serializable

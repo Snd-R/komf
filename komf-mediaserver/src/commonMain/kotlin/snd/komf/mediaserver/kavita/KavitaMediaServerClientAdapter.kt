@@ -499,6 +499,11 @@ private fun KavitaSeries.toKavitaCoverResetRequest() = KavitaSeriesUpdateRequest
 
 private fun MediaServerBookMetadataUpdate.toKavitaChapterMetadataUpdate(currentChapter: KavitaChapter): KavitaChapterMetadataUpdateRequest {
     val authors = authors?.groupBy { it.role.lowercase() }
+    val sanitizedIsbn = isbn
+        ?.takeIf(::isValidIsbn)
+        ?: currentChapter.isbn.takeIf(::isValidIsbn)
+        ?: ""
+
     return KavitaChapterMetadataUpdateRequest(
         id = currentChapter.id,
         summary = summary ?: currentChapter.summary,
@@ -507,7 +512,7 @@ private fun MediaServerBookMetadataUpdate.toKavitaChapterMetadataUpdate(currentC
         ageRating = currentChapter.ageRating,
         language = currentChapter.language,
         weblinks = links?.joinToString(",") { it.url } ?: currentChapter.webLinks,
-        isbn = isbn ?: currentChapter.isbn,
+        isbn = sanitizedIsbn,
         releaseDate = releaseDate?.atTime(LocalTime(0, 0, 0)) ?: currentChapter.releaseDate,
         titleName = title ?: currentChapter.titleName,
         sortOrder = numberSort ?: currentChapter.sortOrder,
@@ -572,4 +577,25 @@ private fun MediaServerBookMetadataUpdate.toKavitaChapterMetadataUpdate(currentC
         releaseDateLocked = false,
         sortOrderLocked = false
     )
+}
+
+private fun isValidIsbn(value: String): Boolean {
+    val digits = value.replace("-", "").replace(" ", "")
+    return when (digits.length) {
+        10 -> {
+            if (!digits.take(9).all { it.isDigit() }) return false
+            if (!digits[9].isDigit() && digits[9] != 'X') return false
+            val sum = digits.take(9).mapIndexed { i, c -> (10 - i) * c.digitToInt() }.sum() +
+                    (if (digits[9] == 'X') 10 else digits[9].digitToInt())
+            sum % 11 == 0
+        }
+
+        13 -> {
+            if (!digits.all { it.isDigit() }) return false
+            val sum = digits.mapIndexed { i, c -> (if (i % 2 == 0) 1 else 3) * c.digitToInt() }.sum()
+            sum % 10 == 0
+        }
+
+        else -> false
+    }
 }

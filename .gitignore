@@ -52,3 +52,6 @@ kls-classpath*
 
 ### neovim ###
 .nvim.lua
+
+### komelia web bundle (built separately, not committed) ###
+komf-app/src/main/resources/komelia/

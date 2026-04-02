@@ -43,6 +43,7 @@ data class ProvidersConfig(
     val hentag: ProviderConfig = ProviderConfig(),
     val mangaBaka: MangaBakaConfig = MangaBakaConfig(),
     val webtoons: ProviderConfig = ProviderConfig(),
+    val stripInfo: ProviderConfig = ProviderConfig(),
 )
 
 @Serializable

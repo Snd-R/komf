@@ -3,6 +3,7 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.plugins.signing.Sign
 
 plugins {
     alias(libs.plugins.androidLibrary)
@@ -93,4 +94,10 @@ mavenPublishing {
 }
 signing {
     useGpgCmd()
+}
+
+tasks.withType<Sign>().configureEach {
+    onlyIf {
+        gradle.startParameter.taskNames.none { it.contains("ToMavenLocal", ignoreCase = true) }
+    }
 }

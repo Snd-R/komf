@@ -42,6 +42,7 @@ import snd.komf.notifications.NotificationsConfig
 import snd.komf.notifications.discord.DiscordConfig
 import snd.komf.providers.AniListConfig
 import snd.komf.providers.BookMetadataConfig
+import snd.komf.providers.MangaBakaConfig
 import snd.komf.providers.MangaDexConfig
 import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProviderConfig
@@ -189,6 +190,10 @@ class DeprecatedConfigUpdateMapper {
             mangaDex = toDto(config.mangaDex),
             bangumi = toDto(config.bangumi),
             comicVine = toDto(config.comicVine),
+            hentag = toDto(config.hentag),
+            mangaBaka = toDto(config.mangaBaka),
+            webtoons = toDto(config.webtoons),
+            stripInfo = toDto(config.stripInfo),
         )
     }
 
@@ -233,6 +238,30 @@ class DeprecatedConfigUpdateMapper {
     }
 
     private fun toDto(config: MangaDexConfig): ProviderConfigDto {
+        return ProviderConfigDto(
+            nameMatchingMode = config.nameMatchingMode,
+            priority = config.priority,
+            enabled = config.enabled,
+            mediaType = config.mediaType,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+            seriesMetadata = toDto(config.seriesMetadata),
+            bookMetadata = BookMetadataConfigDto(
+                title = true,
+                summary = true,
+                number = true,
+                numberSort = true,
+                releaseDate = true,
+                authors = true,
+                tags = true,
+                isbn = true,
+                links = true,
+                thumbnail = true
+            ),
+        )
+    }
+
+    private fun toDto(config: MangaBakaConfig): ProviderConfigDto {
         return ProviderConfigDto(
             nameMatchingMode = config.nameMatchingMode,
             priority = config.priority,
@@ -354,6 +383,10 @@ class DeprecatedConfigUpdateMapper {
             mangaDex = patch.mangaDex?.let { mangaDexProviderConfig(config.mangaDex, it) } ?: config.mangaDex,
             bangumi = patch.bangumi?.let { providerConfig(config.bangumi, it) } ?: config.bangumi,
             comicVine = patch.comicVine?.let { providerConfig(config.comicVine, it) } ?: config.comicVine,
+            hentag = patch.hentag?.let { providerConfig(config.hentag, it) } ?: config.hentag,
+            mangaBaka = patch.mangaBaka?.let { mangaBakaProviderConfig(config.mangaBaka, it) } ?: config.mangaBaka,
+            webtoons = patch.webtoons?.let { providerConfig(config.webtoons, it) } ?: config.webtoons,
+            stripInfo = patch.stripInfo?.let { providerConfig(config.stripInfo, it) } ?: config.stripInfo,
         )
     }
 
@@ -404,6 +437,24 @@ class DeprecatedConfigUpdateMapper {
     }
 
     private fun mangaDexProviderConfig(config: MangaDexConfig, patch: ProviderConfigUpdateDto): MangaDexConfig {
+        return config.copy(
+            priority = patch.priority ?: config.priority,
+            enabled = patch.enabled ?: config.enabled,
+            mediaType = patch.mediaType ?: config.mediaType,
+            authorRoles = patch.authorRoles ?: config.authorRoles,
+            artistRoles = patch.artistRoles ?: config.artistRoles,
+            seriesMetadata = patch.seriesMetadata
+                ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
+                ?: config.seriesMetadata,
+            nameMatchingMode = when (val mode = patch.nameMatchingMode) {
+                PatchValue.None -> null
+                is PatchValue.Some -> mode.value
+                PatchValue.Unset -> config.nameMatchingMode
+            }
+        )
+    }
+
+    private fun mangaBakaProviderConfig(config: MangaBakaConfig, patch: ProviderConfigUpdateDto): MangaBakaConfig {
         return config.copy(
             priority = patch.priority ?: config.priority,
             enabled = patch.enabled ?: config.enabled,

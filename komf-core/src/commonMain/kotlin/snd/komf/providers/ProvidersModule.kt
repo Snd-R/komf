@@ -62,6 +62,9 @@ import snd.komf.providers.mangaupdates.MangaUpdatesMetadataProvider
 import snd.komf.providers.nautiljon.NautiljonClient
 import snd.komf.providers.nautiljon.NautiljonMetadataProvider
 import snd.komf.providers.nautiljon.NautiljonSeriesMetadataMapper
+import snd.komf.providers.stripinfo.StripInfoClient
+import snd.komf.providers.stripinfo.StripInfoMetadataMapper
+import snd.komf.providers.stripinfo.StripInfoMetadataProvider
 import snd.komf.providers.viz.VizClient
 import snd.komf.providers.viz.VizMetadataMapper
 import snd.komf.providers.viz.VizMetadataProvider
@@ -324,6 +327,19 @@ class ProvidersModule(
         }
     )
 
+    private val stripInfoClient = StripInfoClient(
+        baseHttpClient.config {
+            install(HttpRequestRateLimiter) {
+                interval = 10.seconds
+                eventsPerInterval = 5
+                allowBurst = false
+            }
+            install(HttpRequestRetry) {
+                defaultRetry()
+            }
+        }
+    )
+
     private fun createMetadataProviders(
         config: ProvidersConfig,
         defaultNameMatcher: NameSimilarityMatcher,
@@ -426,7 +442,13 @@ class ProvidersModule(
                 client = webtoonsClient,
                 defaultNameMatcher = defaultNameMatcher
             ),
-            webtoonsPriority = config.webtoons.priority
+            webtoonsPriority = config.webtoons.priority,
+            stripInfo = createStripInfoMetadataProvider(
+                config = config.stripInfo,
+                client = stripInfoClient,
+                defaultNameMatcher = defaultNameMatcher
+            ),
+            stripInfoPriority = config.stripInfo.priority
         )
     }
 
@@ -807,6 +829,31 @@ class ProvidersModule(
         )
     }
 
+    private fun createStripInfoMetadataProvider(
+        config: ProviderConfig,
+        client: StripInfoClient,
+        defaultNameMatcher: NameSimilarityMatcher,
+    ): StripInfoMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val metadataMapper = StripInfoMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
+        val similarityMatcher = config.nameMatchingMode
+            ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+
+        return StripInfoMetadataProvider(
+            client = client,
+            metadataMapper = metadataMapper,
+            nameMatcher = similarityMatcher,
+            fetchSeriesCovers = config.seriesMetadata.thumbnail,
+            fetchBookCovers = config.bookMetadata.thumbnail,
+        )
+    }
+
     class MetadataProviders(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
@@ -865,6 +912,9 @@ class ProvidersModule(
 
         private val webtoons: WebtoonsMetadataProvider?,
         private val webtoonsPriority: Int,
+
+        private val stripInfo: StripInfoMetadataProvider?,
+        private val stripInfoPriority: Int,
     ) {
 
         val providers = listOfNotNull(
@@ -881,7 +931,8 @@ class ProvidersModule(
             comicVine?.let { it to comicVinePriority },
             hentag?.let { it to hentagPriority },
             mangaBaka?.let { it to mangaBakaPriority },
-            webtoons?.let { it to webtoonsPriority }
+            webtoons?.let { it to webtoonsPriority },
+            stripInfo?.let { it to stripInfoPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -903,6 +954,7 @@ class ProvidersModule(
                 CoreProviders.HENTAG -> hentag
                 CoreProviders.MANGA_BAKA -> mangaBaka
                 CoreProviders.WEBTOONS -> webtoons
+                CoreProviders.STRIP_INFO -> stripInfo
             }
         }
     }

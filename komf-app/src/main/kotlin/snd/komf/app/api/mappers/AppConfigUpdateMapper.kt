@@ -157,6 +157,8 @@ class AppConfigUpdateMapper {
                 ?.let { mangaBakaProviderConfig(config.mangaBaka, it) } ?: config.mangaBaka,
             webtoons = patch.webtoons.getOrNull()
                 ?.let { providerConfig(config.webtoons, it) } ?: config.webtoons,
+            stripInfo = patch.stripInfo.getOrNull()
+                ?.let { providerConfig(config.stripInfo, it) } ?: config.stripInfo,
         )
     }
 

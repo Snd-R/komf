@@ -67,6 +67,7 @@ class ServerModule(
         install(DefaultHeaders) {
             header("Cross-Origin-Embedder-Policy", "require-corp")
             header("Cross-Origin-Opener-Policy", "same-origin")
+            header("Cache-Control", "no-store")
         }
         install(StatusPages) {
             exception<IllegalStateException> { call, cause ->

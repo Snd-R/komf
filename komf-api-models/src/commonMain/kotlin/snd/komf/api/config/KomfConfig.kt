@@ -120,6 +120,7 @@ data class ProvidersConfigDto(
     val hentag: ProviderConfigDto,
     val mangaBaka: MangaBakaConfigDto,
     val webtoons: ProviderConfigDto,
+    val stripInfo: ProviderConfigDto,
 )
 
 sealed interface ProviderConf {
