@@ -177,6 +177,7 @@ class AppConfigMapper {
             mangaBaka = toDto(config.mangaBaka),
             webtoons = toDto(config.webtoons),
             stripInfo = toDto(config.stripInfo),
+            lambiek = toDto(config.lambiek),
         )
     }
 

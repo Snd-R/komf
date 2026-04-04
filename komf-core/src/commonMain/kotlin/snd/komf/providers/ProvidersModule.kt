@@ -62,6 +62,9 @@ import snd.komf.providers.mangaupdates.MangaUpdatesMetadataProvider
 import snd.komf.providers.nautiljon.NautiljonClient
 import snd.komf.providers.nautiljon.NautiljonMetadataProvider
 import snd.komf.providers.nautiljon.NautiljonSeriesMetadataMapper
+import snd.komf.providers.lambiek.LambiekClient
+import snd.komf.providers.lambiek.LambiekMetadataMapper
+import snd.komf.providers.lambiek.LambiekMetadataProvider
 import snd.komf.providers.stripinfo.StripInfoClient
 import snd.komf.providers.stripinfo.StripInfoMetadataMapper
 import snd.komf.providers.stripinfo.StripInfoMetadataProvider
@@ -340,6 +343,19 @@ class ProvidersModule(
         }
     )
 
+    private val lambiekClient = LambiekClient(
+        baseHttpClient.config {
+            install(HttpRequestRateLimiter) {
+                interval = 10.seconds
+                eventsPerInterval = 5
+                allowBurst = false
+            }
+            install(HttpRequestRetry) {
+                defaultRetry()
+            }
+        }
+    )
+
     private fun createMetadataProviders(
         config: ProvidersConfig,
         defaultNameMatcher: NameSimilarityMatcher,
@@ -448,7 +464,13 @@ class ProvidersModule(
                 client = stripInfoClient,
                 defaultNameMatcher = defaultNameMatcher
             ),
-            stripInfoPriority = config.stripInfo.priority
+            stripInfoPriority = config.stripInfo.priority,
+            lambiek = createLambiekMetadataProvider(
+                config = config.lambiek,
+                client = lambiekClient,
+                defaultNameMatcher = defaultNameMatcher
+            ),
+            lambiekPriority = config.lambiek.priority
         )
     }
 
@@ -854,6 +876,31 @@ class ProvidersModule(
         )
     }
 
+    private fun createLambiekMetadataProvider(
+        config: ProviderConfig,
+        client: LambiekClient,
+        defaultNameMatcher: NameSimilarityMatcher,
+    ): LambiekMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val metadataMapper = LambiekMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
+        val similarityMatcher = config.nameMatchingMode
+            ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+
+        return LambiekMetadataProvider(
+            client = client,
+            metadataMapper = metadataMapper,
+            nameMatcher = similarityMatcher,
+            fetchSeriesCovers = config.seriesMetadata.thumbnail,
+            fetchBookCovers = config.bookMetadata.thumbnail,
+        )
+    }
+
     class MetadataProviders(
         private val defaultProviders: MetadataProvidersContainer,
         private val libraryProviders: Map<String, MetadataProvidersContainer>,
@@ -915,6 +962,9 @@ class ProvidersModule(
 
         private val stripInfo: StripInfoMetadataProvider?,
         private val stripInfoPriority: Int,
+
+        private val lambiek: LambiekMetadataProvider?,
+        private val lambiekPriority: Int,
     ) {
 
         val providers = listOfNotNull(
@@ -932,7 +982,8 @@ class ProvidersModule(
             hentag?.let { it to hentagPriority },
             mangaBaka?.let { it to mangaBakaPriority },
             webtoons?.let { it to webtoonsPriority },
-            stripInfo?.let { it to stripInfoPriority }
+            stripInfo?.let { it to stripInfoPriority },
+            lambiek?.let { it to lambiekPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -955,6 +1006,7 @@ class ProvidersModule(
                 CoreProviders.MANGA_BAKA -> mangaBaka
                 CoreProviders.WEBTOONS -> webtoons
                 CoreProviders.STRIP_INFO -> stripInfo
+                CoreProviders.LAMBIEK -> lambiek
             }
         }
     }

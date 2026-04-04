@@ -159,6 +159,8 @@ class AppConfigUpdateMapper {
                 ?.let { providerConfig(config.webtoons, it) } ?: config.webtoons,
             stripInfo = patch.stripInfo.getOrNull()
                 ?.let { providerConfig(config.stripInfo, it) } ?: config.stripInfo,
+            lambiek = patch.lambiek.getOrNull()
+                ?.let { providerConfig(config.lambiek, it) } ?: config.lambiek,
         )
     }
 

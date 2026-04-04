@@ -194,6 +194,7 @@ class DeprecatedConfigUpdateMapper {
             mangaBaka = toDto(config.mangaBaka),
             webtoons = toDto(config.webtoons),
             stripInfo = toDto(config.stripInfo),
+            lambiek = toDto(config.lambiek),
         )
     }
 
@@ -387,6 +388,7 @@ class DeprecatedConfigUpdateMapper {
             mangaBaka = patch.mangaBaka?.let { mangaBakaProviderConfig(config.mangaBaka, it) } ?: config.mangaBaka,
             webtoons = patch.webtoons?.let { providerConfig(config.webtoons, it) } ?: config.webtoons,
             stripInfo = patch.stripInfo?.let { providerConfig(config.stripInfo, it) } ?: config.stripInfo,
+            lambiek = patch.lambiek?.let { providerConfig(config.lambiek, it) } ?: config.lambiek,
         )
     }
 

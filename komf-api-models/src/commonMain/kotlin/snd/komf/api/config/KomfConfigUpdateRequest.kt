@@ -112,6 +112,7 @@ data class ProvidersConfigUpdateRequest(
     val mangaBaka: PatchValue<MangaBakaConfigUpdateRequest> = PatchValue.Unset,
     val webtoons: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val stripInfo: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val lambiek: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
 )
 
 @Serializable

@@ -100,6 +100,7 @@ fun CoreProviders.fromProvider() = when (this) {
     CoreProviders.MANGADEX -> KomfCoreProviders.MANGADEX
     CoreProviders.NAUTILJON -> KomfCoreProviders.NAUTILJON
     CoreProviders.STRIP_INFO -> KomfCoreProviders.STRIP_INFO
+    CoreProviders.LAMBIEK -> KomfCoreProviders.LAMBIEK
     CoreProviders.WEBTOONS -> KomfCoreProviders.WEBTOONS
     CoreProviders.YEN_PRESS -> KomfCoreProviders.YEN_PRESS
     CoreProviders.VIZ -> KomfCoreProviders.VIZ
@@ -118,6 +119,7 @@ fun KomfProviders.toProvider() = when (this) {
     KomfCoreProviders.MANGADEX -> CoreProviders.MANGADEX
     KomfCoreProviders.NAUTILJON -> CoreProviders.NAUTILJON
     KomfCoreProviders.STRIP_INFO -> CoreProviders.STRIP_INFO
+    KomfCoreProviders.LAMBIEK -> CoreProviders.LAMBIEK
     KomfCoreProviders.WEBTOONS -> CoreProviders.WEBTOONS
     KomfCoreProviders.YEN_PRESS -> CoreProviders.YEN_PRESS
     KomfCoreProviders.VIZ -> CoreProviders.VIZ

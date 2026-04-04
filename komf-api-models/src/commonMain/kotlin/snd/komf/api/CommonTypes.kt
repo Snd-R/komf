@@ -65,6 +65,7 @@ enum class KomfCoreProviders : KomfProviders {
     MANGADEX,
     NAUTILJON,
     STRIP_INFO,
+    LAMBIEK,
     WEBTOONS,
     YEN_PRESS,
     VIZ,

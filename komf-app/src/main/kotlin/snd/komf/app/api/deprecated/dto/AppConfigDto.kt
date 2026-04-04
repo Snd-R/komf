@@ -109,6 +109,7 @@ data class ProvidersConfigDto(
     val mangaBaka: ProviderConfigDto,
     val webtoons: ProviderConfigDto,
     val stripInfo: ProviderConfigDto,
+    val lambiek: ProviderConfigDto,
 )
 
 @Serializable
