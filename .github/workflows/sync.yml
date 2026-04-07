@@ -1,18 +1,105 @@
-# .github/workflows/sync.yml
-name: Rebase Upstream
+name: Sync Upstream To Personal PR
+
 on:
   schedule:
-  - cron: "0 0 * * 0"  # run once a week
-  workflow_dispatch:   # run manually
+    - cron: "0 0 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-upstream-personal
+  cancel-in-progress: true
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    env:
+      UPSTREAM_REPO: Snd-R/komf
+      UPSTREAM_BRANCH: master
+      SYNC_BRANCH: greg/sync
+      TARGET_BRANCH: greg/personal
     steps:
-    - uses: actions/checkout@master
-      with:
-        fetch-depth: 10  # greater than the number of commits you made
-    - uses: imba-tjd/rebase-upstream-action@master
-      with:  # all args are optional
-        upstream: Snd-R/komf
-        branch:   master
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+
+      - name: Prepare git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream and origin refs
+        run: |
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git" 2>/dev/null || true
+          git fetch --prune upstream "${UPSTREAM_BRANCH}"
+          git fetch --prune origin "${TARGET_BRANCH}" "${SYNC_BRANCH}"
+
+      - name: Update sync branch from upstream
+        run: |
+          git checkout -B "${SYNC_BRANCH}" "upstream/${UPSTREAM_BRANCH}"
+          git push --force-with-lease origin "HEAD:${SYNC_BRANCH}"
+
+      - name: Create or update sync PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = `${owner}:${process.env.SYNC_BRANCH}`;
+            const base = process.env.TARGET_BRANCH;
+            const title = `chore(sync): merge upstream/${process.env.UPSTREAM_BRANCH} into ${base}`;
+            const body = [
+              "Automated upstream sync PR.",
+              "",
+              `- Upstream: \`${process.env.UPSTREAM_REPO}\``,
+              `- Source branch: \`${process.env.SYNC_BRANCH}\``,
+              `- Target branch: \`${base}\``,
+              "",
+              "If checks pass, merge this PR into the personal branch."
+            ].join("\n");
+
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: "open",
+              head,
+              base
+            });
+
+            if (prs.data.length > 0) {
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: prs.data[0].number,
+                title,
+                body
+              });
+              core.info(`Updated existing PR #${prs.data[0].number}`);
+            } else {
+              const pr = await github.rest.pulls.create({
+                owner,
+                repo,
+                title,
+                head: process.env.SYNC_BRANCH,
+                base,
+                body
+              });
+              core.info(`Created PR #${pr.data.number}`);
+            }
+
+      - name: Conflict guidance
+        if: ${{ failure() }}
+        run: |
+          echo "Sync workflow failed. Common causes:"
+          echo "- branch protection blocked force update to ${SYNC_BRANCH}"
+          echo "- insufficient token permissions for contents/pull requests"
+          echo "- upstream branch or repo changed"
+          echo "Manual recovery:"
+          echo "1) fetch upstream and origin with prune"
+          echo "2) recreate ${SYNC_BRANCH} from upstream/${UPSTREAM_BRANCH}"
+          echo "3) push ${SYNC_BRANCH} to origin and open/update PR into ${TARGET_BRANCH}"

@@ -1,0 +1,87 @@
+name: Manual Rebase Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "Branch to rebase onto (remote/branch), for example upstream/master"
+        required: true
+        default: "upstream/master"
+      target_branch:
+        description: "Origin branch to rebase and push, for example greg/personal"
+        required: true
+        default: "greg/personal"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: manual-rebase-sync-${{ github.event.inputs.target_branch }}
+  cancel-in-progress: false
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    env:
+      UPSTREAM_REPO: Snd-R/komf
+      SOURCE_BRANCH: ${{ github.event.inputs.source_branch }}
+      TARGET_BRANCH: ${{ github.event.inputs.target_branch }}
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+
+      - name: Prepare git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Preflight guardrails
+        run: |
+          if [ -z "${SOURCE_BRANCH}" ] || [ -z "${TARGET_BRANCH}" ]; then
+            echo "source_branch and target_branch are required."
+            exit 1
+          fi
+          case "${TARGET_BRANCH}" in
+            upstream/*|master|main)
+              echo "Refusing to push to protected/unsafe target branch: ${TARGET_BRANCH}"
+              exit 1
+              ;;
+          esac
+          if [[ "${SOURCE_BRANCH}" != upstream/* && "${SOURCE_BRANCH}" != origin/* ]]; then
+            echo "source_branch must be a remote-qualified branch (upstream/* or origin/*)."
+            exit 1
+          fi
+
+      - name: Fetch remotes with prune
+        run: |
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git" 2>/dev/null || true
+          git fetch --prune upstream
+          git fetch --prune origin "${TARGET_BRANCH}"
+
+      - name: Verify source ref exists
+        run: |
+          if ! git rev-parse --verify "${SOURCE_BRANCH}" >/dev/null 2>&1; then
+            echo "Source branch does not exist: ${SOURCE_BRANCH}"
+            exit 1
+          fi
+
+      - name: Rebase target onto source
+        run: |
+          git checkout "${TARGET_BRANCH}"
+          git rebase "${SOURCE_BRANCH}"
+
+      - name: Push rebased target explicitly to origin
+        run: |
+          git push --force-with-lease origin "HEAD:${TARGET_BRANCH}"
+
+      - name: Conflict guidance
+        if: ${{ failure() }}
+        run: |
+          echo "Manual rebase failed. If this was a conflict:"
+          echo "1) Run locally: git rebase --abort"
+          echo "2) Resolve conflicts on a local branch"
+          echo "3) Re-run this workflow or push resolved branch manually"
+          echo "No pushes to upstream are ever performed by this workflow."

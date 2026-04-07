@@ -21,6 +21,23 @@ To build the application, follow these steps:
 1. Run `./gradlew :komf-app:clean :komf-app:shadowjar`.
 2. The output will be in `komf-app/build/libs`.
 
+## Upstream sync policy (personal branch)
+
+This fork follows a hybrid sync model to keep `greg/personal` current while reducing workflow breakage.
+
+- Default path: `.github/workflows/sync.yml` runs on schedule (or manual trigger) and opens/updates a PR from `greg/sync` into `greg/personal`.
+- Escalation path: `.github/workflows/rebase-sync.yml` is manual-only and used only when a rebase is explicitly desired.
+- Authoritative source branch for upstream intake: `upstream/master`.
+- Target branch for day-to-day work and release flow: `greg/personal`.
+
+### Conflict handling checklist
+
+1. Check the failed workflow logs and identify whether failure is from permissions, branch protection, or merge/rebase conflicts.
+2. If PR sync failed, recreate `greg/sync` from `upstream/master` and rerun the sync workflow.
+3. If manual rebase failed, resolve conflicts locally, verify history, then rerun manual rebase or push resolved commits to `greg/personal`.
+4. Never push to upstream directly from automation; only push to `origin`.
+5. Prefer merging the sync PR after checks pass, so sync changes remain auditable.
+
 ## Running
 
 To run the application, you can either use the JAR file or Docker Compose.
