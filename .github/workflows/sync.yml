@@ -63,6 +63,12 @@ jobs:
               "If checks pass, merge this PR into the personal branch."
             ].join("\n");
 
+            const comparison = await github.rest.repos.compareCommitsWithBasehead({
+              owner,
+              repo,
+              basehead: `${base}...${process.env.SYNC_BRANCH}`
+            });
+
             const prs = await github.rest.pulls.list({
               owner,
               repo,
@@ -70,6 +76,21 @@ jobs:
               head,
               base
             });
+
+            if (comparison.data.ahead_by === 0) {
+              if (prs.data.length > 0) {
+                await github.rest.pulls.update({
+                  owner,
+                  repo,
+                  pull_number: prs.data[0].number,
+                  state: "closed"
+                });
+                core.info(`Closed stale sync PR #${prs.data[0].number}; no commits between ${process.env.SYNC_BRANCH} and ${base}`);
+              } else {
+                core.info(`No sync PR needed; no commits between ${process.env.SYNC_BRANCH} and ${base}`);
+              }
+              return;
+            }
 
             if (prs.data.length > 0) {
               await github.rest.pulls.update({
