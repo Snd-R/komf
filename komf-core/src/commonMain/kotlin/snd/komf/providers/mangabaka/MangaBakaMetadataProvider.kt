@@ -1,9 +1,12 @@
 package snd.komf.providers.mangabaka
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.reactivecircus.cache4k.Cache
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import snd.komf.model.Image
 import snd.komf.model.MatchQuery
@@ -17,6 +20,8 @@ import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
 import kotlin.time.Duration.Companion.minutes
+
+private val logger = KotlinLogging.logger {}
 
 class MangaBakaMetadataProvider(
     private val dataSource: MangaBakaDataSource,
@@ -103,12 +108,19 @@ class MangaBakaMetadataProvider(
 
     private suspend fun fetchCover(series: MangaBakaSeries): Image? {
         if (coverFetchClient == null || series.cover.x350?.x1 == null) return null
-
-        val response = coverFetchClient.get(series.cover.x350.x1)
-        return Image(
-            response.body(),
-            response.contentType()?.let { "${it.contentType}/${it.contentSubtype}" }
-        )
+        val url = series.cover.x350.x1
+        return try {
+            val response = coverFetchClient.get(url)
+            Image(
+                response.body(),
+                response.contentType()?.let { "${it.contentType}/${it.contentSubtype}" }
+            )
+        } catch (e: ClientRequestException) {
+            if (e.response.status == HttpStatusCode.NotFound) {
+                logger.warn { "Cover image not found for series '${series.title}' (${e.response.status}), continuing without cover" }
+                null
+            } else throw e
+        }
     }
 
     private fun ProviderSeriesId.toMangaBakaId() = MangaBakaSeriesId(this.value.toInt())
