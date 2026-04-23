@@ -200,8 +200,20 @@ class MetadataService(
                 logger.info { "attempting to match series \"${seriesTitle}\" ${series.id}" }
 
                 metadataProviders.providers(series.libraryId.value).firstNotNullOfOrNull { provider ->
-                    matchSeries(series, books, searchTitles, provider, null, eventFlow)
-                        ?.let { provider to it }
+                    try {
+                        matchSeries(series, books, searchTitles, provider, null, eventFlow)
+                            ?.let { provider to it }
+                    } catch (e: ProviderException) {
+                        val cause = e.cause
+                        val errorMessage = if (cause is ResponseException) {
+                            "${cause::class.simpleName}: status code ${cause.response.status} ${cause.response.bodyAsText()}"
+                        } else {
+                            "${cause?.let { "${it::class.simpleName}: ${it.message}" } ?: "Unknown error"}"
+                        }
+                        logger.warn { "Provider ${e.provider} failed during series match, skipping: $errorMessage" }
+                        eventFlow.emit(ProviderErrorEvent(provider = e.provider, message = errorMessage))
+                        null
+                    }
                 }
             }
 
@@ -356,17 +368,28 @@ class MetadataService(
         return providers
             .map { provider ->
                 coroutineScope.async {
-                    matchSeries(
-                        series = series,
-                        books = books,
-                        searchTitles = searchTitles,
-                        provider = provider,
-                        bookEdition = edition,
-                        eventFlow = eventFlow
-                    ).also {
-                        eventFlow.emit(ProviderCompletedEvent(provider.providerName()))
+                    try {
+                        matchSeries(
+                            series = series,
+                            books = books,
+                            searchTitles = searchTitles,
+                            provider = provider,
+                            bookEdition = edition,
+                            eventFlow = eventFlow
+                        ).also {
+                            eventFlow.emit(ProviderCompletedEvent(provider.providerName()))
+                        }
+                    } catch (e: ProviderException) {
+                        val cause = e.cause
+                        val errorMessage = if (cause is ResponseException) {
+                            "${cause::class.simpleName}: status code ${cause.response.status} ${cause.response.bodyAsText()}"
+                        } else {
+                            "${cause?.let { "${it::class.simpleName}: ${it.message}" } ?: "Unknown error"}"
+                        }
+                        logger.warn { "Provider ${e.provider} failed during metadata aggregation, skipping: $errorMessage" }
+                        eventFlow.emit(ProviderErrorEvent(provider = e.provider, message = errorMessage))
+                        null
                     }
-
                 }
             }
             .mapNotNull { it.await() }
