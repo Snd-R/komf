@@ -17,7 +17,6 @@ import snd.komf.providers.mangabaka.MangaBakaCoverDpi
 import snd.komf.providers.mangabaka.MangaBakaCoverRaw
 import snd.komf.providers.mangabaka.MangaBakaDataSource
 import snd.komf.providers.mangabaka.MangaBakaKitsuSource
-import snd.komf.providers.mangabaka.MangaBakaMangaDexSource
 import snd.komf.providers.mangabaka.MangaBakaMangaUpdatesSource
 import snd.komf.providers.mangabaka.MangaBakaMyAnimeListSource
 import snd.komf.providers.mangabaka.MangaBakaPublisher
@@ -149,10 +148,6 @@ class MangaBakaDbDataSource(
                 mangaUpdates = MangaBakaMangaUpdatesSource(
                     this[MangaBakaSeriesTable.sourceMangaUpdatesId],
                     this[MangaBakaSeriesTable.sourceMangaUpdatesRating]
-                ),
-                mangadex = MangaBakaMangaDexSource(
-                    this[MangaBakaSeriesTable.sourceMangaDexId],
-                    this[MangaBakaSeriesTable.sourceMangaDexRating]
                 ),
                 myAnimeList = MangaBakaMyAnimeListSource(
                     this[MangaBakaSeriesTable.sourceMyAnimeListId],
