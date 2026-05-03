@@ -10,7 +10,6 @@ group = "io.github.snd-r"
 version = "1.0.0-SNAPSHOT"
 
 kotlin {
-    jvmToolchain(17)
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
         optIn.add("kotlin.time.ExperimentalTime")
