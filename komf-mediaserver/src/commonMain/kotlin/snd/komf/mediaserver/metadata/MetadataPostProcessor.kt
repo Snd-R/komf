@@ -1,5 +1,6 @@
 package snd.komf.mediaserver.metadata
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.Serializable
 import snd.komf.mediaserver.model.MediaServerBook
 import snd.komf.mediaserver.model.SeriesAndBookMetadata
@@ -13,6 +14,7 @@ import snd.komf.util.BookNameParser
 import snd.komf.util.replaceFullwidthChars
 import snd.komf.util.stripAccents
 
+private val logger = KotlinLogging.logger {}
 
 class MetadataPostProcessor(
     private val libraryType: MediaType,
@@ -34,7 +36,7 @@ class MetadataPostProcessor(
     fun process(metadata: SeriesAndBookMetadata): SeriesAndBookMetadata {
         val seriesMetadata = postProcessSeries(metadata.seriesMetadata)
         val bookMetadata = postProcessBooks(metadata.bookMetadata)
-
+        warnDuplicateSortNumbers(seriesMetadata, bookMetadata)
         return handleKomgaOneshot(seriesMetadata, bookMetadata)
     }
 
@@ -119,6 +121,27 @@ class MetadataPostProcessor(
             number = range ?: metadata.number,
             numberSort = range?.start ?: metadata.numberSort
         )
+    }
+
+    private fun warnDuplicateSortNumbers(
+        seriesMetadata: SeriesMetadata,
+        books: Map<MediaServerBook, BookMetadata?>
+    ) {
+        if (!orderBooks) return
+        val seriesTitle = seriesMetadata.title?.name
+            ?: seriesMetadata.titles.firstOrNull()?.name
+            ?: "unknown"
+
+        books.entries
+            .mapNotNull { (book, meta) -> meta?.numberSort?.let { it to book.name } }
+            .groupBy({ it.first }, { it.second })
+            .forEach { (number, names) ->
+                if (names.size > 1) {
+                    logger.warn {
+                        "Sort conflict in \"$seriesTitle\": sort number $number assigned to multiple books: ${names.joinToString()}"
+                    }
+                }
+            }
     }
 
     private fun chooseSeriesTitle(series: SeriesMetadata): SeriesTitle? {
