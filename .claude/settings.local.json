@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.kt$\")",
+      "Bash(xargs grep *)",
+      "Bash(gh pr create --repo Snd-R/komf --head gregoryn22:claude/naughty-wright-33903c --base master --title 'MangaBaka: handle 404 cover image fetch gracefully' --body ' *)",
+      "Bash(gh pr *)"
+    ]
+  }
+}
