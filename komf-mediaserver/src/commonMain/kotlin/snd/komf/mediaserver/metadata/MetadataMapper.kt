@@ -19,7 +19,7 @@ import snd.komf.model.AuthorRole.WRITER
 import snd.komf.model.BookMetadata
 import snd.komf.model.SeriesMetadata
 
-class MetadataMapper {
+class MetadataMapper(private val respectBookNumberLock: Boolean = false) {
 
     fun toBookMetadataUpdate(
         bookMetadata: BookMetadata?,
@@ -31,6 +31,14 @@ class MetadataMapper {
                 ?: seriesMetadata?.authors?.ifEmpty { null })
                 ?.map { author -> MediaServerAuthor(author.name, author.role.name) }
 
+            val number = if (respectBookNumberLock)
+                getIfNotLockedOrEmpty(bookMetadata?.number?.toString(), numberLock)
+            else bookMetadata?.number?.toString()
+
+            val numberSort = if (respectBookNumberLock)
+                getIfNotLockedOrEmpty(bookMetadata?.number?.start, numberSortLock)
+            else bookMetadata?.number?.start
+
             MediaServerBookMetadataUpdate(
                 title = getIfNotLockedOrEmpty(bookMetadata?.title, titleLock),
 
@@ -41,9 +49,8 @@ class MetadataMapper {
                 isbn = getIfNotLockedOrEmpty(bookMetadata?.isbn, isbnLock),
                 links = getIfNotLockedOrEmpty(bookMetadata?.links, linksLock),
 
-                // ignore lock since we can't know if komf was the one to lock number
-                number = bookMetadata?.number?.toString(),
-                numberSort = bookMetadata?.number?.start,
+                number = number,
+                numberSort = numberSort,
 
                 // lock if number is not null; do not unlock if was locked
                 numberLock = numberLock || bookMetadata?.number != null,

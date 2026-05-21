@@ -71,6 +71,7 @@ class MetadataPostProcessingConfigUpdateDto(
     val seriesTitleLanguage: PatchValue<String> = PatchValue.Unset,
 
     val orderBooks: Boolean? = null,
+    val respectBookNumberLock: Boolean? = null,
     val alternativeSeriesTitles: Boolean? = null,
     val alternativeSeriesTitleLanguages: List<String>? = null,
 

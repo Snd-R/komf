@@ -59,6 +59,9 @@ class ConfigLoader(private val yaml: Yaml) {
         val komgaBaseUri = System.getenv("KOMF_KOMGA_BASE_URI")?.ifBlank { null } ?: komgaConfig.baseUri
         val komgaUser = System.getenv("KOMF_KOMGA_USER")?.ifBlank { null } ?: komgaConfig.komgaUser
         val komgaPassword = System.getenv("KOMF_KOMGA_PASSWORD")?.ifBlank { null } ?: komgaConfig.komgaPassword
+        val komgaRespectBookNumberLock = System.getenv("KOMF_KOMGA_RESPECT_BOOK_NUMBER_LOCK")
+            ?.toBooleanStrictOrNull()
+            ?: komgaConfig.metadataUpdate.default.postProcessing.respectBookNumberLock
 
         val kavitaConfig = config.kavita
         val kavitaBaseUri = System.getenv("KOMF_KAVITA_BASE_URI")?.ifBlank { null } ?: kavitaConfig.baseUri
@@ -82,7 +85,14 @@ class ConfigLoader(private val yaml: Yaml) {
             komga = komgaConfig.copy(
                 baseUri = komgaBaseUri,
                 komgaUser = komgaUser,
-                komgaPassword = komgaPassword
+                komgaPassword = komgaPassword,
+                metadataUpdate = komgaConfig.metadataUpdate.copy(
+                    default = komgaConfig.metadataUpdate.default.copy(
+                        postProcessing = komgaConfig.metadataUpdate.default.postProcessing.copy(
+                            respectBookNumberLock = komgaRespectBookNumberLock
+                        )
+                    )
+                )
             ),
             kavita = kavitaConfig.copy(
                 baseUri = kavitaBaseUri,
