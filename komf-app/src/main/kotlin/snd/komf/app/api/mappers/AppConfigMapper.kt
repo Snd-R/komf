@@ -112,6 +112,7 @@ class AppConfigMapper {
             alternativeSeriesTitles = config.alternativeSeriesTitles,
             alternativeSeriesTitleLanguages = config.alternativeSeriesTitleLanguages,
             orderBooks = config.orderBooks,
+            respectBookNumberLock = config.respectBookNumberLock,
             readingDirectionValue = config.readingDirectionValue?.fromReadingDirection(),
             languageValue = config.languageValue,
             fallbackToAltTitle = config.fallbackToAltTitle,

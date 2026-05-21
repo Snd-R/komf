@@ -67,6 +67,7 @@ data class MetadataPostProcessingConfig(
     val fallbackToAltTitle: Boolean = false,
 
     val orderBooks: Boolean = false,
+    val respectBookNumberLock: Boolean = false,
     val readingDirectionValue: ReadingDirection? = null,
     val languageValue: String? = null,
 

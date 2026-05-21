@@ -130,6 +130,7 @@ class DeprecatedConfigUpdateMapper {
             alternativeSeriesTitles = config.alternativeSeriesTitles,
             alternativeSeriesTitleLanguages = config.alternativeSeriesTitleLanguages,
             orderBooks = config.orderBooks,
+            respectBookNumberLock = config.respectBookNumberLock,
             readingDirectionValue = config.readingDirectionValue,
             languageValue = config.languageValue,
             fallbackToAltTitle = config.fallbackToAltTitle
@@ -568,6 +569,7 @@ class DeprecatedConfigUpdateMapper {
             alternativeSeriesTitleLanguages = patch.alternativeSeriesTitleLanguages
                 ?: config.alternativeSeriesTitleLanguages,
             orderBooks = patch.orderBooks ?: config.orderBooks,
+            respectBookNumberLock = patch.respectBookNumberLock ?: config.respectBookNumberLock,
             readingDirectionValue = when (val readingDirection = patch.readingDirectionValue) {
                 PatchValue.None -> null
                 is PatchValue.Some -> readingDirection.value

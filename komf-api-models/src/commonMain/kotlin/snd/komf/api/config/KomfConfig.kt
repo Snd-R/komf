@@ -69,6 +69,7 @@ data class MetadataPostProcessingConfigDto(
     val alternativeSeriesTitles: Boolean?,
     val alternativeSeriesTitleLanguages: List<String>,
     val orderBooks: Boolean,
+    val respectBookNumberLock: Boolean,
     val readingDirectionValue: KomfReadingDirection?,
     val languageValue: String?,
     val fallbackToAltTitle: Boolean,

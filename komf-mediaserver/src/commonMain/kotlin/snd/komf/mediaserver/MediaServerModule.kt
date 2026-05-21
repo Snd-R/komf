@@ -346,7 +346,7 @@ class MediaServerModule(
             mediaServerClient = mediaServerClient,
             seriesThumbnailsRepository = seriesThumbnailsRepository,
             bookThumbnailsRepository = bookThumbnailsRepository,
-            metadataUpdateMapper = MetadataMapper(),
+            metadataUpdateMapper = MetadataMapper(respectBookNumberLock = config.postProcessing.respectBookNumberLock),
             postProcessor = postProcessor,
             comicInfoWriter = ComicInfoWriter.Companion.getInstance(config.overrideComicInfo),
 
