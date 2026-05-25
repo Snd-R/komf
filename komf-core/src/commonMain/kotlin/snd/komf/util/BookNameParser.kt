@@ -64,8 +64,9 @@ object BookNameParser {
     fun getBookNumber(name: String): BookRange? {
         val processed = preprocess(name)
         // Strip bracket content before fallback number detection to avoid
-        // release group names or edition info containing digits contaminating the match
-        val stripped = squareBracketRegex.replace(parenRegex.replace(processed, " "), " ")
+        // release group names or edition info containing digits contaminating the match.
+        // Trim trailing whitespace so the $-anchored first regex still matches after stripping.
+        val stripped = squareBracketRegex.replace(parenRegex.replace(processed, " "), " ").trim()
         return getBookNumber(stripped, bookNumberRegexes)
     }
 
