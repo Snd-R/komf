@@ -70,6 +70,10 @@ class BookWalkerMetadataProvider(
         throw UnsupportedOperationException()
     }
 
+    override suspend fun clearSeriesIssuesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = bookCache.get(BookWalkerBookId(bookId.id)) { client.getBook(BookWalkerBookId(bookId.id)) }
         val bookCover = if (fetchBookCovers) fetchCover(bookMetadata) else null

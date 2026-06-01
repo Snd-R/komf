@@ -42,6 +42,7 @@ class DeprecatedMetadataRoutes(
                 resetSeriesRoute()
                 resetLibraryRoute()
                 clearSeriesCacheRoute()
+                clearSeriesIssuesCacheRoute()
             }
         }
     }
@@ -131,6 +132,34 @@ class DeprecatedMetadataRoutes(
                         .first()
                         .metadataServiceFor(libraryId)
                         .clearSeriesCache(
+                            libraryId,
+                            CoreProviders.COMIC_VINE,
+                            ProviderSeriesId(providerSeriesId),
+                        )
+
+                    call.respond(HttpStatusCode.Accepted, "")
+                }
+            }
+
+            call.respond(HttpStatusCode.NoContent, "")
+        }
+    }
+
+    private fun Route.clearSeriesIssuesCacheRoute() {
+        post("/cache/library/{libraryId}/series/{seriesId}/clearissues") {
+            val libraryId = call.parameters.getOrFail("libraryId")
+            val seriesId = MediaServerSeriesId(call.parameters.getOrFail("seriesId"))
+            val series = mediaServerClient
+                .first()
+                .getSeries(MediaServerSeriesId(seriesId.value))
+
+            series.metadata.links.forEach {
+                if (it.url.contains("comicvine.gamespot.com")) {
+                    val providerSeriesId = it.url.trimEnd('/').substringAfterLast('-')
+                    metadataServiceProvider
+                        .first()
+                        .metadataServiceFor(libraryId)
+                        .clearSeriesIssuesCache(
                             libraryId,
                             CoreProviders.COMIC_VINE,
                             ProviderSeriesId(providerSeriesId),

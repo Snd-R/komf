@@ -49,6 +49,10 @@ class VizMetadataProvider(
         throw UnsupportedOperationException()
     }
 
+    override suspend fun clearSeriesIssuesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = getBook(VizBookId(bookId.id))
         val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.coverUrl) else null
