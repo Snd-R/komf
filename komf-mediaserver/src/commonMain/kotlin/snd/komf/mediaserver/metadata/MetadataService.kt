@@ -145,6 +145,17 @@ class MetadataService(
         }
     }
 
+    fun clearSeriesIssuesCache(
+        libraryId: String,
+        providerName: CoreProviders,
+        providerSeriesId: ProviderSeriesId,
+    ) {
+        coroutineScope.launch {
+            val provider = metadataProviders.provider(libraryId, providerName) ?: throw RuntimeException()
+            provider.clearSeriesIssuesCache(providerSeriesId)
+        }
+    }
+
     fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
         coroutineScope.launch {
             var errorCount = 0

@@ -67,6 +67,10 @@ class ComicVineMetadataProvider(
         client.clearVolumeCache(providerSeriesId.toComicVineVolumeId())
     }
 
+    override suspend fun clearSeriesIssuesCache(providerSeriesId: ProviderSeriesId) {
+        client.clearVolumeIssuesCache(providerSeriesId.toComicVineVolumeId())
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val issue = handleResult(client.getIssue(bookId.toComicVineIssueId()))
         val storyArcs = issue.storyArcCredits?.let { credits ->

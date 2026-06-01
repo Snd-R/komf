@@ -46,6 +46,10 @@ class AniListMetadataProvider(
         throw UnsupportedOperationException()
     }
 
+    override suspend fun clearSeriesIssuesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         throw UnsupportedOperationException()
     }
