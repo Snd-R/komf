@@ -50,6 +50,10 @@ class BangumiMetadataProvider(
         throw UnsupportedOperationException()
     }
 
+    override suspend fun clearSeriesIssuesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val book = client.getSubject(bookId.id.toLong())
         val thumbnail = if (fetchSeriesCovers) client.getThumbnail(book) else null
