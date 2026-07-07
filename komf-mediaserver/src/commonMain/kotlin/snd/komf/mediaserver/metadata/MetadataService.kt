@@ -70,14 +70,32 @@ class MetadataService(
         val providers = metadataProviders.providers(libraryId.value)
 
         return providers
-            .map { coroutineScope.async { it.searchSeries(seriesName) } }
+            .map { provider ->
+                coroutineScope.async {
+                    try {
+                        provider.searchSeries(seriesName)
+                    } catch (e: Exception) {
+                        logger.error(e) { "search failed for provider ${provider.providerName()}" }
+                        emptyList()
+                    }
+                }
+            }
             .flatMap { it.await() }
     }
 
     suspend fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
         val providers = metadataProviders.defaultProvidersList()
         return providers
-            .map { coroutineScope.async { it.searchSeries(seriesName) } }
+            .map { provider ->
+                coroutineScope.async {
+                    try {
+                        provider.searchSeries(seriesName)
+                    } catch (e: Exception) {
+                        logger.error(e) { "search failed for provider ${provider.providerName()}" }
+                        emptyList()
+                    }
+                }
+            }
             .flatMap { it.await() }
     }
 
@@ -231,7 +249,9 @@ class MetadataService(
             val result = try {
                 provider.matchSeriesMetadata(createMatchQuery(searchTitle, series, books))
             } catch (e: Exception) {
-                throw ProviderException(provider.providerName(), e)
+                logger.error(e) { "match failed for provider ${provider.providerName()}" }
+                eventFlow.emit(ProviderErrorEvent(provider.providerName(), "${e::class.simpleName}: ${e.message}"))
+                null
             }
 
             if (result != null) {
@@ -268,7 +288,8 @@ class MetadataService(
             }.toMap()
 
         } catch (e: Exception) {
-            throw ProviderException(provider.providerName(), e)
+            logger.error(e) { "book metadata fetch failed for provider ${provider.providerName()}" }
+            metadataMatch.mapValues { it.value?.let { null } }
         }
     }
 
@@ -333,17 +354,22 @@ class MetadataService(
         return providers
             .map { provider ->
                 coroutineScope.async {
-                    matchSeries(
-                        series = series,
-                        books = books,
-                        searchTitles = searchTitles,
-                        provider = provider,
-                        bookEdition = edition,
-                        eventFlow = eventFlow
-                    ).also {
-                        eventFlow.emit(ProviderCompletedEvent(provider.providerName()))
+                    try {
+                        matchSeries(
+                            series = series,
+                            books = books,
+                            searchTitles = searchTitles,
+                            provider = provider,
+                            bookEdition = edition,
+                            eventFlow = eventFlow
+                        ).also {
+                            eventFlow.emit(ProviderCompletedEvent(provider.providerName()))
+                        }
+                    } catch (e: Exception) {
+                        logger.error(e) { "aggregation failed for provider ${provider.providerName()}" }
+                        eventFlow.emit(ProviderErrorEvent(provider.providerName(), "${e::class.simpleName}: ${e.message}"))
+                        null
                     }
-
                 }
             }
             .mapNotNull { it.await() }
