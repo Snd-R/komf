@@ -45,8 +45,8 @@ class MangaBakaDbDownloader(
     private val dbMetadata: MangaBakaDbMetadata,
     private val onStateRefresh: suspend () -> Unit,
 ) {
-    private val databaseUrl = "https://api.mangabaka.dev/v1/database/series.sqlite.tar.gz"
-    private val checksumUrl = "https://api.mangabaka.dev/v1/database/series.sqlite.tar.gz.sha1"
+    private val databaseUrl = "https://api.mangabaka.org/v1/database/series.sqlite.tar.gz"
+    private val checksumUrl = "https://api.mangabaka.org/v1/database/series.sqlite.tar.gz.sha1"
 
     private val progressFlow = MutableSharedFlow<MangaBakaDownloadProgress>(
         replay = 1,
