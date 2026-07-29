@@ -10,7 +10,7 @@ import snd.komf.providers.mangabaka.MangaBakaSeriesId
 import snd.komf.providers.mangabaka.MangaBakaType
 
 class MangaBakaApiClient(private val ktor: HttpClient) : MangaBakaDataSource {
-    private val baseUrl = "https://api.mangabaka.dev"
+    private val baseUrl = "https://api.mangabaka.org"
 
     override suspend fun search(title: String, types: List<MangaBakaType>?): List<MangaBakaSeries> {
         return ktor.get("${baseUrl}/v1/series/search") {
