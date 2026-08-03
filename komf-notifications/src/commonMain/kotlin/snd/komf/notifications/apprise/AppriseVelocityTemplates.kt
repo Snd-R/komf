@@ -1,7 +1,5 @@
 package snd.komf.notifications.apprise
 
-import kotlinx.atomicfu.AtomicRef
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.apache.velocity.Template
@@ -14,6 +12,7 @@ import snd.komf.notifications.VelocityTemplates.templateFromString
 import snd.komf.notifications.VelocityTemplates.templateWriteAndGet
 import snd.komf.notifications.VelocityTemplates.toVelocityContext
 import java.util.*
+import kotlin.concurrent.atomics.AtomicReference
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
@@ -48,22 +47,22 @@ class AppriseVelocityTemplates(
         init(properties)
     }
     private val templateWriteMutex = Mutex()
-    private val titleTemplate: AtomicRef<Template?>
-    private val bodyTemplate: AtomicRef<Template?>
+    private val titleTemplate: AtomicReference<Template?>
+    private val bodyTemplate: AtomicReference<Template?>
 
     init {
         val titleTemplate = velocityEngine.loadTemplateByName(titleFileName)
         val bodyTemplate = velocityEngine.loadTemplateByName(bodyFileName)
 
-        this.titleTemplate = atomic(titleTemplate)
-        this.bodyTemplate = atomic(bodyTemplate)
+        this.titleTemplate = AtomicReference(titleTemplate)
+        this.bodyTemplate = AtomicReference(bodyTemplate)
     }
 
     fun render(context: NotificationContext): AppriseRenderResult {
         return render(
             context = context,
-            titleTemplate = titleTemplate.value,
-            bodyTemplate = bodyTemplate.value
+            titleTemplate = titleTemplate.load(),
+            bodyTemplate = bodyTemplate.load()
         )
     }
 
@@ -123,8 +122,8 @@ class AppriseVelocityTemplates(
                 appriseDirectory.resolve(bodyFileName)
             ) ?: velocityEngine.loadTemplateByName(bodyFileName)
 
-            this.titleTemplate.value = titleTemplate
-            this.bodyTemplate.value = bodyTemplate
+            this.titleTemplate.store(titleTemplate)
+            this.bodyTemplate.store(bodyTemplate)
 
         }
     }

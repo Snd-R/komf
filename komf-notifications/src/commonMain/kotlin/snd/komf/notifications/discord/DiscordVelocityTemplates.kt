@@ -1,7 +1,5 @@
 package snd.komf.notifications.discord
 
-import kotlinx.atomicfu.AtomicRef
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.apache.velocity.Template
@@ -16,6 +14,7 @@ import snd.komf.notifications.VelocityTemplates.toVelocityContext
 import snd.komf.notifications.discord.model.EmbedField
 import java.nio.file.Path
 import java.util.*
+import kotlin.concurrent.atomics.AtomicReference
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
@@ -83,11 +82,11 @@ class DiscordVelocityTemplates(templateDirectory: String) {
 
     private val templateWriteMutex = Mutex()
 
-    private val titleTemplate: AtomicRef<Template?>
-    private val titleUrlTemplate: AtomicRef<Template?>
-    private val descriptionTemplate: AtomicRef<Template?>
-    private val footerTemplate: AtomicRef<Template?>
-    private val fieldTemplates: AtomicRef<List<FieldTemplates>>
+    private val titleTemplate: AtomicReference<Template?>
+    private val titleUrlTemplate: AtomicReference<Template?>
+    private val descriptionTemplate: AtomicReference<Template?>
+    private val footerTemplate: AtomicReference<Template?>
+    private val fieldTemplates: AtomicReference<List<FieldTemplates>>
 
     init {
         val titleTemplate = velocityEngine.loadTemplateByName(titleFileName)
@@ -103,21 +102,21 @@ class DiscordVelocityTemplates(templateDirectory: String) {
                 )
             }
 
-        this.titleTemplate = atomic(titleTemplate)
-        this.titleUrlTemplate = atomic(titleUrlTemplate)
-        this.descriptionTemplate = atomic(descriptionTemplate)
-        this.footerTemplate = atomic(footerTemplate)
-        this.fieldTemplates = atomic(fieldTemplates)
+        this.titleTemplate = AtomicReference(titleTemplate)
+        this.titleUrlTemplate = AtomicReference(titleUrlTemplate)
+        this.descriptionTemplate = AtomicReference(descriptionTemplate)
+        this.footerTemplate = AtomicReference(footerTemplate)
+        this.fieldTemplates = AtomicReference(fieldTemplates)
     }
 
     fun render(context: NotificationContext): DiscordRenderResult {
         return render(
             context = context,
-            titleTemplate = titleTemplate.value,
-            titleUrlTemplate = titleUrlTemplate.value,
-            descriptionTemplate = descriptionTemplate.value,
-            fieldTemplates = fieldTemplates.value,
-            footerTemplate = footerTemplate.value
+            titleTemplate = titleTemplate.load(),
+            titleUrlTemplate = titleUrlTemplate.load(),
+            descriptionTemplate = descriptionTemplate.load(),
+            fieldTemplates = fieldTemplates.load(),
+            footerTemplate = footerTemplate.load()
         )
     }
 
@@ -252,11 +251,11 @@ class DiscordVelocityTemplates(templateDirectory: String) {
                 }
             }
 
-            this.titleTemplate.value = titleTemplate
-            this.titleUrlTemplate.value = titleUrlTemplate
-            this.descriptionTemplate.value = descriptionTemplate
-            this.footerTemplate.value = footerTemplate
-            this.fieldTemplates.value = fieldTemplates
+            this.titleTemplate.store(titleTemplate)
+            this.titleUrlTemplate.store(titleUrlTemplate)
+            this.descriptionTemplate.store(descriptionTemplate)
+            this.footerTemplate.store(footerTemplate)
+            this.fieldTemplates.store(fieldTemplates)
         }
     }
 

@@ -1,10 +1,8 @@
 package snd.komf.comicinfo
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.atomicfu.locks.withLock
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlDeclMode
-import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
@@ -19,6 +17,7 @@ import java.nio.file.Path
 import java.util.concurrent.locks.ReentrantLock
 import java.util.zip.Deflater
 import java.util.zip.ZipEntry
+import kotlin.concurrent.withLock
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.extension
 import kotlin.io.path.getPosixFilePermissions
@@ -31,12 +30,12 @@ private val logger = KotlinLogging.logger {}
 
 class ComicInfoWriter private constructor(private val overrideComicInfo: Boolean) {
 
-    @OptIn(ExperimentalXmlUtilApi::class, XmlUtilInternal::class)
-    private val xml = XML {
-        indent = 2
+    @OptIn(ExperimentalXmlUtilApi::class)
+    private val xml = XML.v1 {
+        indentString = "  "
         xmlDeclMode = XmlDeclMode.Charset
         xmlVersion = XmlVersion.XML10
-        policy = DefaultXmlSerializationPolicy.Builder()
+        policy = DefaultXmlSerializationPolicy.Builder10()
             .apply {
                 pedantic = false
                 autoPolymorphic = false
