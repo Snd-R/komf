@@ -206,6 +206,7 @@ class MangaDexMetadataMapper(
 
         val books = covers
             .filter { it.attributes.locale in coverLanguages }
+            .sortedBy { coverLanguages.indexOf(it.attributes.locale) }
             .groupBy { it.attributes.volume }.values
             .map { coverArtToBook(it.first()) }
 
