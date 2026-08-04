@@ -235,6 +235,12 @@ metadataProviders:
       # Datasource used for metadata retrieval. DATABASE mode will only work if MangaBaka database is installed
       # API or DATABASE 
       mode: API
+    eHentai:
+      priority: 150
+      enabled: false
+      preferredLanguages:
+        - "en"
+        - "ja"
 
 server:
   port: 8085 # or env:KOMF_SERVER_PORT

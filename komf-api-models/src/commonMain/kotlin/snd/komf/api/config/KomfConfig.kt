@@ -118,6 +118,7 @@ data class ProvidersConfigDto(
     val bangumi: ProviderConfigDto,
     val comicVine: ProviderConfigDto,
     val hentag: ProviderConfigDto,
+    val eHentai: EHentaiConfigDto,
     val mangaBaka: MangaBakaConfigDto,
     val webtoons: ProviderConfigDto,
 )
@@ -145,6 +146,21 @@ data class ProviderConfigDto(
 
     override val authorRoles: Collection<KomfAuthorRole>,
     override val artistRoles: Collection<KomfAuthorRole>,
+) : ProviderConf
+
+@Serializable
+data class EHentaiConfigDto(
+    override val priority: Int,
+    override val enabled: Boolean,
+    override val seriesMetadata: SeriesMetadataConfigDto,
+    override val bookMetadata: BookMetadataConfigDto,
+    override val nameMatchingMode: KomfNameMatchingMode?,
+    override val mediaType: KomfMediaType,
+
+    override val authorRoles: Collection<KomfAuthorRole>,
+    override val artistRoles: Collection<KomfAuthorRole>,
+
+    val preferredLanguages: List<String>,
 ) : ProviderConf
 
 @Serializable
