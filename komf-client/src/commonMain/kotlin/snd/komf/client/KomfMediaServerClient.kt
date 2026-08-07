@@ -11,7 +11,7 @@ class KomfMediaServerClient(
     private val ktor: HttpClient,
     mediaServer: MediaServer
 ) {
-    private val mediaServerApiPrefix = "/api/${mediaServer.name.lowercase()}/media-server"
+    private val mediaServerApiPrefix = "api/${mediaServer.name.lowercase()}/media-server"
 
     suspend fun checkConnection(): KomfMediaServerConnectionResponse {
         return ktor.get("$mediaServerApiPrefix/connected").body()

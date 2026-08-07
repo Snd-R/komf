@@ -20,10 +20,10 @@ class KomfMetadataClient(
     private val ktor: HttpClient,
     mediaServer: MediaServer
 ) {
-    private val metadataApiPrefix = "/api/${mediaServer.name.lowercase()}/metadata"
+    private val metadataApiPrefix = "api/${mediaServer.name.lowercase()}/metadata"
 
     suspend fun getProviders(): List<String> {
-        return ktor.get("/api/metadata/providers").body()
+        return ktor.get("api/metadata/providers").body()
     }
 
     suspend fun searchSeries(

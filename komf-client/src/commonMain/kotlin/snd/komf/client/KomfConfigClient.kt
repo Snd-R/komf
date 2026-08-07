@@ -25,11 +25,11 @@ class KomfConfigClient(
 ) {
 
     suspend fun getConfig(): KomfConfig {
-        return ktor.get("/api/config").body()
+        return ktor.get("api/config").body()
     }
 
     suspend fun updateConfig(request: KomfConfigUpdateRequest) {
-        ktor.patch("/api/config") {
+        ktor.patch("api/config") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -38,7 +38,7 @@ class KomfConfigClient(
     fun updateMangaBakaDb(): Flow<MangaBakaDownloadProgress> {
         return flow {
             runCatching {
-                ktor.preparePost("/api/update-manga-baka-db").execute { response ->
+                ktor.preparePost("api/update-manga-baka-db").execute { response ->
                     val channel = response.bodyAsChannel()
                     while (!channel.isClosedForRead) {
                         val message = channel.readUTF8Line()

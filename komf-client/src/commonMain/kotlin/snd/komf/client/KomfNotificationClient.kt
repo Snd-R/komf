@@ -15,25 +15,25 @@ class KomfNotificationClient(
     private val ktor: HttpClient,
 ) {
     suspend fun getDiscordTemplates(): KomfDiscordTemplates {
-        return ktor.get("/api/notifications/discord/templates").body()
+        return ktor.get("api/notifications/discord/templates").body()
     }
 
     suspend fun updateDiscordTemplates(templates: KomfDiscordTemplates): KomfDiscordTemplates {
-        return ktor.post("/api/notifications/discord/templates") {
+        return ktor.post("api/notifications/discord/templates") {
             contentType(ContentType.Application.Json)
             setBody(templates)
         }.body()
     }
 
     suspend fun renderDiscord(request: KomfDiscordRequest): KomfDiscordRenderResult {
-        return ktor.post("/api/notifications/discord/render") {
+        return ktor.post("api/notifications/discord/render") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
     }
 
     suspend fun sendDiscord(request: KomfDiscordRequest) {
-        ktor.post("/api/notifications/discord/send") {
+        ktor.post("api/notifications/discord/send") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -41,25 +41,25 @@ class KomfNotificationClient(
 
 
     suspend fun getAppriseTemplates(): KomfAppriseTemplates {
-        return ktor.get("/api/notifications/apprise/templates").body()
+        return ktor.get("api/notifications/apprise/templates").body()
     }
 
     suspend fun updateAppriseTemplates(templates: KomfAppriseTemplates): KomfAppriseTemplates {
-        return ktor.post("/api/notifications/apprise/templates") {
+        return ktor.post("api/notifications/apprise/templates") {
             contentType(ContentType.Application.Json)
             setBody(templates)
         }.body()
     }
 
     suspend fun renderApprise(request: KomfAppriseRequest): KomfAppriseRenderResult {
-        return ktor.post("/api/notifications/apprise/render") {
+        return ktor.post("api/notifications/apprise/render") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
     }
 
     suspend fun sendApprise(request: KomfAppriseRequest) {
-        ktor.post("/api/notifications/apprise/send") {
+        ktor.post("api/notifications/apprise/send") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
