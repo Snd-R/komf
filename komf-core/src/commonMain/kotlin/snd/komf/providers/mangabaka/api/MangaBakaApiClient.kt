@@ -17,7 +17,7 @@ class MangaBakaApiClient(private val ktor: HttpClient) : MangaBakaDataSource {
         types: List<MangaBakaType>?,
         typesNot: List<MangaBakaType>?
     ): List<MangaBakaSeries> {
-        return ktor.get("${baseUrl}/v2/series/search") {
+        return ktor.get("${baseUrl}/v1/series/search") {
             parameter("q", title)
             types?.forEach { parameter("type", it.name.lowercase()) }
             typesNot?.forEach { parameter("type_not", it.name.lowercase()) }
@@ -25,6 +25,6 @@ class MangaBakaApiClient(private val ktor: HttpClient) : MangaBakaDataSource {
     }
 
     override suspend fun getSeries(id: MangaBakaSeriesId): MangaBakaSeries {
-        return ktor.get("${baseUrl}/v2/series/${id}").body<MangaBakaResponse>().data
+        return ktor.get("${baseUrl}/v1/series/${id}").body<MangaBakaResponse>().data
     }
 }

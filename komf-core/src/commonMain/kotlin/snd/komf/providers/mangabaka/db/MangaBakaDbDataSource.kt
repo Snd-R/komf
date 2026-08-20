@@ -13,6 +13,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import snd.komf.providers.mangabaka.MangaBakaAnimeInfo
 import snd.komf.providers.mangabaka.MangaBakaContentRating
 import snd.komf.providers.mangabaka.MangaBakaCover
+import snd.komf.providers.mangabaka.MangaBakaCoverDpi
+import snd.komf.providers.mangabaka.MangaBakaCoverRaw
 import snd.komf.providers.mangabaka.MangaBakaDataSource
 import snd.komf.providers.mangabaka.MangaBakaPublishedDate
 import snd.komf.providers.mangabaka.MangaBakaPublisher
@@ -92,11 +94,16 @@ class MangaBakaDbDataSource(
             state = MangaBakaSeriesState.valueOf(this[MangaBakaSeriesTable.state].uppercase()),
             mergedWith = this[MangaBakaSeriesTable.mergedWith],
             cover = MangaBakaCover(
-                blurhash = this[MangaBakaSeriesTable.coverRawBlurhash],
-                height = this[MangaBakaSeriesTable.coverRawHeight],
-                width = this[MangaBakaSeriesTable.coverRawWidth],
-                raw = this[MangaBakaSeriesTable.coverRawUrl],
-                x350 = this[MangaBakaSeriesTable.coverX350X1Url],
+                raw = MangaBakaCoverRaw(
+                    url = this[MangaBakaSeriesTable.coverRawUrl],
+                    size = this[MangaBakaSeriesTable.coverRawSize],
+                    height = this[MangaBakaSeriesTable.coverRawHeight],
+                    width = this[MangaBakaSeriesTable.coverRawWidth],
+                    blurhash = this[MangaBakaSeriesTable.coverRawBlurhash],
+                    thumbhash = this[MangaBakaSeriesTable.coverRawThumbhash],
+                    format = this[MangaBakaSeriesTable.coverRawFormat]
+                ),
+                x350 = this[MangaBakaSeriesTable.coverX350X1Url]?.let { MangaBakaCoverDpi(x1 = it) },
             ),
             authors = this[MangaBakaSeriesTable.authors],
             artists = this[MangaBakaSeriesTable.artists],
@@ -109,17 +116,17 @@ class MangaBakaDbDataSource(
             ),
             status = MangaBakaStatus.valueOf(this[MangaBakaSeriesTable.status].uppercase()),
             isLicensed = this[MangaBakaSeriesTable.isLicenced],
+            hasAnime = this[MangaBakaSeriesTable.hasAnime],
             anime = MangaBakaAnimeInfo(
-                exists = this[MangaBakaSeriesTable.hasAnime],
                 start = this[MangaBakaSeriesTable.anime_start],
                 end = this[MangaBakaSeriesTable.anime_end]
             ),
             contentRating = MangaBakaContentRating.valueOf(this[MangaBakaSeriesTable.contentRating].uppercase()),
             type = MangaBakaType.valueOf(this[MangaBakaSeriesTable.type].uppercase()),
             rating = this[MangaBakaSeriesTable.rating],
-            finalVolume = this[MangaBakaSeriesTable.finalVolume]?.toInt(),
-            totalChapters = this[MangaBakaSeriesTable.totalChapters]?.toInt(),
-            links = this[MangaBakaSeriesTable.linksV2],
+            finalVolume = this[MangaBakaSeriesTable.finalVolume],
+            totalChapters = this[MangaBakaSeriesTable.totalChapters],
+            linksV2 = this[MangaBakaSeriesTable.linksV2],
             publishers = this[MangaBakaSeriesTable.publishers]?.map {
                 MangaBakaPublisher(
                     name = it.name,
@@ -128,9 +135,9 @@ class MangaBakaDbDataSource(
                 )
             },
             titles = this[MangaBakaSeriesTable.titles],
-            tags = this[MangaBakaSeriesTable.tagsV2],
+            tagsV2 = this[MangaBakaSeriesTable.tagsV2],
             lastUpdatedAt = Instant.parse(this[MangaBakaSeriesTable.lastUpdatedAt]),
-            relationships = this[MangaBakaSeriesTable.relationshipsV2],
+            relationshipsV2 = this[MangaBakaSeriesTable.relationshipsV2],
         )
     }
 }

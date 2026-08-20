@@ -73,7 +73,7 @@ class MangaBakaMetadataMapper(
         val publisher = if (metadataConfig.useOriginalPublisher) originalPublishers.firstOrNull()
         else englishPublishers.firstOrNull() ?: originalPublishers.firstOrNull()
 
-        val links = series.links?.mapNotNull { link ->
+        val links = series.linksV2?.mapNotNull { link ->
             parseUrl(link.url)?.let { url ->
                 WebLink(
                     link.nameDisplay,
@@ -82,7 +82,7 @@ class MangaBakaMetadataMapper(
             }
         }?.sortedBy { it.label } ?: emptyList()
 
-        val allTags = series.tags ?: emptyList()
+        val allTags = series.tagsV2 ?: emptyList()
         val genres = allTags.filter { it.isGenre }.map { it.name }
         val tags = allTags.filterNot { it.isGenre }.map { it.name }
 
@@ -94,7 +94,7 @@ class MangaBakaMetadataMapper(
             alternativePublishers = (originalPublishers + englishPublishers) - setOfNotNull(publisher),
             genres = genres,
             tags = tags,
-            totalBookCount = series.finalVolume,
+            totalBookCount = series.finalVolume?.toIntOrNull(),
             authors = authors + artists,
             thumbnail = thumbnail,
             releaseDate = ReleaseDate(
@@ -115,7 +115,7 @@ class MangaBakaMetadataMapper(
     fun toSeriesSearchResult(series: MangaBakaSeries): SeriesSearchResult {
         return SeriesSearchResult(
             url = series.url(),
-            imageUrl = series.cover.x350,
+            imageUrl = series.cover.x350?.x1,
             title = getPrimaryTitle(series),
             provider = CoreProviders.MANGA_BAKA,
             resultId = series.id.value.toString()

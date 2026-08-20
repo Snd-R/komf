@@ -17,7 +17,7 @@ object MangaBakaSeriesTable : Table("series") {
     val id = integer("id")
     val type = text("type")
     val coverRawUrl = text("cover_raw_url").nullable()
-    val coverRawSize = integer("cover_raw_size").nullable()
+    val coverRawSize = long("cover_raw_size").nullable()
     val coverRawWidth = integer("cover_raw_width").nullable()
     val coverRawFormat = text("cover_raw_format").nullable()
     val coverRawHeight = integer("cover_raw_height").nullable()

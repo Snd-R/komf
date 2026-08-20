@@ -16,7 +16,9 @@ value class MangaBakaSeriesId(val value: Int) {
 @Serializable
 data class MangaBakaSeries(
     val id: MangaBakaSeriesId,
-    val anime: MangaBakaAnimeInfo,
+    @SerialName("has_anime")
+    val hasAnime: Boolean,
+    val anime: MangaBakaAnimeInfo? = null,
     val artists: List<String>? = null,
     val authors: List<String>? = null,
     @SerialName("content_rating")
@@ -24,7 +26,7 @@ data class MangaBakaSeries(
     val cover: MangaBakaCover,
     val description: String? = null,
     @SerialName("final_volume")
-    val finalVolume: Int? = null,
+    val finalVolume: String? = null,
     @SerialName("is_licensed")
     val isLicensed: Boolean,
     @SerialName("last_updated_at")
@@ -35,12 +37,15 @@ data class MangaBakaSeries(
     val state: MangaBakaSeriesState,
     val status: MangaBakaStatus,
     @SerialName("total_chapters")
-    val totalChapters: Int? = null,
+    val totalChapters: String? = null,
     val type: MangaBakaType,
-    val links: List<MangaBakaLink>? = null,
+    @SerialName("links_v2")
+    val linksV2: List<MangaBakaLink>? = null,
     val published: MangaBakaPublishedDate? = null,
-    val relationships: List<MangaBakaRelationship>? = null,
-    val tags: List<MangaBakaTags>? = null,
+    @SerialName("relationships_v2")
+    val relationshipsV2: List<MangaBakaRelationship>? = null,
+    @SerialName("tags_v2")
+    val tagsV2: List<MangaBakaTags>? = null,
     val titles: List<MangaBakaTitle>? = null,
 
     ) {
@@ -174,13 +179,28 @@ data class MangaBakaPublishedDate(
 
 @Serializable
 data class MangaBakaCover(
-    val blurhash: String? = null,
+    val raw: MangaBakaCoverRaw? = null,
+    val x150: MangaBakaCoverDpi? = null,
+    val x250: MangaBakaCoverDpi? = null,
+    val x350: MangaBakaCoverDpi? = null,
+)
+
+@Serializable
+data class MangaBakaCoverRaw(
+    val url: String? = null,
+    val size: Long? = null,
     val height: Int? = null,
     val width: Int? = null,
-    val raw: String? = null,
-    val x150: String? = null,
-    val x250: String? = null,
-    val x350: String? = null,
+    val blurhash: String? = null,
+    val thumbhash: String? = null,
+    val format: String? = null,
+)
+
+@Serializable
+data class MangaBakaCoverDpi(
+    val x1: String? = null,
+    val x2: String? = null,
+    val x3: String? = null,
 )
 
 @Serializable
@@ -206,7 +226,6 @@ enum class MangaBakaStatus {
 
 @Serializable
 data class MangaBakaAnimeInfo(
-    val exists: Boolean,
     val start: String? = null,
     val end: String? = null
 )
