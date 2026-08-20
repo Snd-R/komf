@@ -1,5 +1,6 @@
 package snd.komf.providers.mangabaka.db
 
+import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.TextColumnType
 import org.jetbrains.exposed.v1.core.eq
@@ -9,26 +10,17 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.statements.api.JdbcPreparedStatementApi
 import org.jetbrains.exposed.v1.jdbc.statements.jdbc.JdbcResult
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import snd.komf.providers.mangabaka.MangaBakaAnilistSource
-import snd.komf.providers.mangabaka.MangaBakaAnimeNewsNetworkSource
+import snd.komf.providers.mangabaka.MangaBakaAnimeInfo
 import snd.komf.providers.mangabaka.MangaBakaContentRating
 import snd.komf.providers.mangabaka.MangaBakaCover
-import snd.komf.providers.mangabaka.MangaBakaCoverDpi
-import snd.komf.providers.mangabaka.MangaBakaCoverRaw
 import snd.komf.providers.mangabaka.MangaBakaDataSource
-import snd.komf.providers.mangabaka.MangaBakaKitsuSource
-import snd.komf.providers.mangabaka.MangaBakaMangaUpdatesSource
-import snd.komf.providers.mangabaka.MangaBakaMyAnimeListSource
+import snd.komf.providers.mangabaka.MangaBakaPublishedDate
 import snd.komf.providers.mangabaka.MangaBakaPublisher
-import snd.komf.providers.mangabaka.MangaBakaRelationships
-import snd.komf.providers.mangabaka.MangaBakaSecondaryTitle
 import snd.komf.providers.mangabaka.MangaBakaSeries
 import snd.komf.providers.mangabaka.MangaBakaSeriesId
 import snd.komf.providers.mangabaka.MangaBakaSeriesState
-import snd.komf.providers.mangabaka.MangaBakaSources
 import snd.komf.providers.mangabaka.MangaBakaStatus
 import snd.komf.providers.mangabaka.MangaBakaType
-import snd.komf.providers.mangabaka.db.MangaBakaSeriesTable.MangaBakaDbSecondaryTitle
 import kotlin.time.Instant
 
 class MangaBakaDbDataSource(
@@ -37,26 +29,35 @@ class MangaBakaDbDataSource(
 
     override suspend fun search(
         title: String,
-        types: List<MangaBakaType>?
+        types: List<MangaBakaType>?,
+        typesNot: List<MangaBakaType>?
     ): List<MangaBakaSeries> {
         return transaction(database) {
             var ftsStatement: JdbcPreparedStatementApi? = null
             var result: JdbcResult? = null
             try {
                 val sqlString = buildString {
-                    append("SELECT id FROM series_fts WHERE (title MATCH ? OR native_title MATCH ? OR romanized_title MATCH ? OR secondary_titles_en MATCH ?)")
-                    types?.joinToString(", ") { "?" }?.let { append(" AND type in ($it)") }
+                    append("SELECT id FROM series_fts WHERE titles MATCH ?")
+                    types?.joinToString(", ") { "?" }?.let { append(" AND type IN ($it)") }
+                    typesNot?.joinToString(", ") { "?" }?.let { append(" AND type NOT IN ($it)") }
                     append(" ORDER BY rank LIMIT 10")
                 }
 
                 ftsStatement = connection.prepareStatement(sqlString, false)
                 ftsStatement.set(1, "\"$title\"", TextColumnType())
-                ftsStatement.set(2, "\"$title\"", TextColumnType())
-                ftsStatement.set(3, "\"$title\"", TextColumnType())
-                ftsStatement.set(4, "\"$title\"", TextColumnType())
-                types?.forEachIndexed { index, value ->
+                var statementCurrentIndex = 1
+                types?.forEach { value ->
+                    statementCurrentIndex += 1
                     ftsStatement.set(
-                        index + 5,
+                        statementCurrentIndex,
+                        value.name.lowercase(),
+                        TextColumnType()
+                    )
+                }
+                typesNot?.forEach { value ->
+                    statementCurrentIndex += 1
+                    ftsStatement.set(
+                        statementCurrentIndex,
                         value.name.lowercase(),
                         TextColumnType()
                     )
@@ -90,37 +91,35 @@ class MangaBakaDbDataSource(
             id = MangaBakaSeriesId(this[MangaBakaSeriesTable.id]),
             state = MangaBakaSeriesState.valueOf(this[MangaBakaSeriesTable.state].uppercase()),
             mergedWith = this[MangaBakaSeriesTable.mergedWith],
-            title = this[MangaBakaSeriesTable.title],
-            nativeTitle = this[MangaBakaSeriesTable.nativeTitle],
-            romanizedTitle = this[MangaBakaSeriesTable.romanizedTitle],
-            secondaryTitles = this.getSecondaryTitles(),
             cover = MangaBakaCover(
-                raw = MangaBakaCoverRaw(
-                    url = this[MangaBakaSeriesTable.coverRawUrl],
-                    size = this[MangaBakaSeriesTable.coverRawSize]?.toLongOrNull(),
-                    height = this[MangaBakaSeriesTable.coverRawHeight]?.toIntOrNull(),
-                    width = this[MangaBakaSeriesTable.coverRawWidth]?.toIntOrNull(),
-                    blurhash = this[MangaBakaSeriesTable.coverRawBlurhash],
-                    thumbhash = this[MangaBakaSeriesTable.coverRawThumbhash],
-                    format = this[MangaBakaSeriesTable.coverRawFormat]
-                ),
-                x350 = this[MangaBakaSeriesTable.coverX350X1Url]?.let { MangaBakaCoverDpi(x1 = it) },
+                blurhash = this[MangaBakaSeriesTable.coverRawBlurhash],
+                height = this[MangaBakaSeriesTable.coverRawHeight],
+                width = this[MangaBakaSeriesTable.coverRawWidth],
+                raw = this[MangaBakaSeriesTable.coverRawUrl],
+                x350 = this[MangaBakaSeriesTable.coverX350X1Url],
             ),
             authors = this[MangaBakaSeriesTable.authors],
             artists = this[MangaBakaSeriesTable.artists],
             description = this[MangaBakaSeriesTable.description],
-            year = this[MangaBakaSeriesTable.year],
+            published = MangaBakaPublishedDate(
+                endDate = this[MangaBakaSeriesTable.publishedEndDate]?.let { LocalDate.parse(it) },
+                endDateIsEstimated = this[MangaBakaSeriesTable.publishedEndDateIsEstimated],
+                startDate = this[MangaBakaSeriesTable.publishedStartDate]?.let { LocalDate.parse(it) },
+                startDateIsEstimated = this[MangaBakaSeriesTable.publishedStartDateIsEstimated],
+            ),
             status = MangaBakaStatus.valueOf(this[MangaBakaSeriesTable.status].uppercase()),
             isLicensed = this[MangaBakaSeriesTable.isLicenced],
-            hasAnime = this[MangaBakaSeriesTable.hasAnime],
-            anime = null,
+            anime = MangaBakaAnimeInfo(
+                exists = this[MangaBakaSeriesTable.hasAnime],
+                start = this[MangaBakaSeriesTable.anime_start],
+                end = this[MangaBakaSeriesTable.anime_end]
+            ),
             contentRating = MangaBakaContentRating.valueOf(this[MangaBakaSeriesTable.contentRating].uppercase()),
             type = MangaBakaType.valueOf(this[MangaBakaSeriesTable.type].uppercase()),
             rating = this[MangaBakaSeriesTable.rating],
-            finalVolume = this[MangaBakaSeriesTable.finalVolume],
-            finalChapter = this[MangaBakaSeriesTable.finalChapter],
-            totalChapter = this[MangaBakaSeriesTable.totalChapters],
-            links = this[MangaBakaSeriesTable.links],
+            finalVolume = this[MangaBakaSeriesTable.finalVolume]?.toInt(),
+            totalChapters = this[MangaBakaSeriesTable.totalChapters]?.toInt(),
+            links = this[MangaBakaSeriesTable.linksV2],
             publishers = this[MangaBakaSeriesTable.publishers]?.map {
                 MangaBakaPublisher(
                     name = it.name,
@@ -128,68 +127,10 @@ class MangaBakaDbDataSource(
                     type = it.type
                 )
             },
-            genres = this[MangaBakaSeriesTable.genres],
-            tags = this[MangaBakaSeriesTable.tags],
+            titles = this[MangaBakaSeriesTable.titles],
+            tags = this[MangaBakaSeriesTable.tagsV2],
             lastUpdatedAt = Instant.parse(this[MangaBakaSeriesTable.lastUpdatedAt]),
-            relationships = this.mapRelationships(),
-            source = MangaBakaSources(
-                anilist = MangaBakaAnilistSource(
-                    this[MangaBakaSeriesTable.sourceAnilistId],
-                    this[MangaBakaSeriesTable.sourceAnilistRating]
-                ),
-                animeNewsNetwork = MangaBakaAnimeNewsNetworkSource(
-                    this[MangaBakaSeriesTable.sourceAnimeNewNetworkId],
-                    this[MangaBakaSeriesTable.sourceAnimeNewNetworkRating]
-                ),
-                kitsu = MangaBakaKitsuSource(
-                    this[MangaBakaSeriesTable.sourceKitsuId],
-                    this[MangaBakaSeriesTable.sourceKitsuRating]
-                ),
-                mangaUpdates = MangaBakaMangaUpdatesSource(
-                    this[MangaBakaSeriesTable.sourceMangaUpdatesId],
-                    this[MangaBakaSeriesTable.sourceMangaUpdatesRating]
-                ),
-                myAnimeList = MangaBakaMyAnimeListSource(
-                    this[MangaBakaSeriesTable.sourceMyAnimeListId],
-                    this[MangaBakaSeriesTable.sourceMyAnimeListRating]
-                )
-            )
+            relationships = this[MangaBakaSeriesTable.relationshipsV2],
         )
-    }
-
-    private fun ResultRow.mapRelationships(): MangaBakaRelationships? {
-        val mainStory = this[MangaBakaSeriesTable.relationshipsMainStory]
-        val adaptation = this[MangaBakaSeriesTable.relationshipsAdaptation]
-        val prequel = this[MangaBakaSeriesTable.relationshipsPrequel]
-        val sequel = this[MangaBakaSeriesTable.relationshipsSequel]
-        val sideStory = this[MangaBakaSeriesTable.relationshipsSideStory]
-        val spinOff = this[MangaBakaSeriesTable.relationshipsSpinOff]
-        val alternative = this[MangaBakaSeriesTable.relationshipsAlternative]
-        val other = this[MangaBakaSeriesTable.relationshipsOther]
-        if (mainStory == null && adaptation == null && prequel == null && sequel == null && sideStory == null && spinOff == null && alternative == null && other == null) {
-            return null
-        }
-        return MangaBakaRelationships(
-            mainStory = mainStory,
-            adaptation = adaptation,
-            prequel = prequel,
-            sequel = sequel,
-            sideStory = sideStory,
-            spinOff = spinOff,
-            alternative = alternative,
-            other = other
-        )
-    }
-
-    private fun ResultRow.getSecondaryTitles(): Map<String, List<MangaBakaSecondaryTitle>> {
-        val secondaryTitles = mutableMapOf<String, List<MangaBakaSecondaryTitle>>()
-
-        fun MangaBakaDbSecondaryTitle.toMangaBakaTitle() =
-            MangaBakaSecondaryTitle(type = this.type, title = this.title)
-
-        this[MangaBakaSeriesTable.secondaryTitlesEn]?.let { titles ->
-            secondaryTitles.put("en", titles.map { it.toMangaBakaTitle() })
-        }
-        return secondaryTitles
     }
 }

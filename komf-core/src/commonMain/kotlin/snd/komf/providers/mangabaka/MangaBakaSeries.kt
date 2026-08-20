@@ -1,10 +1,11 @@
 package snd.komf.providers.mangabaka
 
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
-private const val baseUrl = "https://mangabaka.dev"
+private const val baseUrl = "https://mangabaka.org"
 
 @JvmInline
 @Serializable
@@ -15,82 +16,171 @@ value class MangaBakaSeriesId(val value: Int) {
 @Serializable
 data class MangaBakaSeries(
     val id: MangaBakaSeriesId,
-    val state: MangaBakaSeriesState,
-    val mergedWith: Int? = null,
-    val title: String,
-    @SerialName("native_title")
-    val nativeTitle: String? = null,
-    @SerialName("romanized_title")
-    val romanizedTitle: String? = null,
-    @SerialName("secondary_titles")
-    val secondaryTitles: Map<String, List<MangaBakaSecondaryTitle>?>? = null,
-    val cover: MangaBakaCover,
-    val authors: List<String>? = null,
+    val anime: MangaBakaAnimeInfo,
     val artists: List<String>? = null,
-    val description: String? = null,
-    val year: Int? = null,
-    val status: MangaBakaStatus,
-
-    @SerialName("is_licensed")
-    val isLicensed: Boolean,
-    @SerialName("has_anime")
-    val hasAnime: Boolean? = null,
-    val anime: MangaBakaAnimeInfo? = null,
-
+    val authors: List<String>? = null,
     @SerialName("content_rating")
     val contentRating: MangaBakaContentRating,
-    val type: MangaBakaType,
-
-    val rating: Double? = null,
+    val cover: MangaBakaCover,
+    val description: String? = null,
     @SerialName("final_volume")
-    val finalVolume: String? = null,
-    @SerialName("final_chapter")
-    val finalChapter: String? = null,
-    @SerialName("total_chapter")
-    val totalChapter: String? = null,
-
-    val links: List<String>? = null,
-    val publishers: List<MangaBakaPublisher>? = null,
-    val genres: List<String>? = null,
-    val tags: List<String>? = null,
+    val finalVolume: Int? = null,
+    @SerialName("is_licensed")
+    val isLicensed: Boolean,
     @SerialName("last_updated_at")
     val lastUpdatedAt: Instant? = null,
-    val relationships: MangaBakaRelationships? = null,
-    val source: MangaBakaSources
-) {
+    val mergedWith: Int? = null,
+    val publishers: List<MangaBakaPublisher>? = null,
+    val rating: Double? = null,
+    val state: MangaBakaSeriesState,
+    val status: MangaBakaStatus,
+    @SerialName("total_chapters")
+    val totalChapters: Int? = null,
+    val type: MangaBakaType,
+    val links: List<MangaBakaLink>? = null,
+    val published: MangaBakaPublishedDate? = null,
+    val relationships: List<MangaBakaRelationship>? = null,
+    val tags: List<MangaBakaTags>? = null,
+    val titles: List<MangaBakaTitle>? = null,
+
+    ) {
     fun url() = "$baseUrl/${id.value}"
 }
 
+@JvmInline
 @Serializable
-data class MangaBakaSecondaryTitle(
-    val type: String,
+value class MangaBakaTagId(val value: Int) {
+    override fun toString() = value.toString()
+}
+
+@Serializable
+data class MangaBakaTags(
+    val id: MangaBakaTagId,
+    @SerialName("content_rating")
+    val contentRating: MangaBakaContentRating,
+    val description: String? = null,
+    @SerialName("is_spoiler")
+    val isSpoiler: Boolean? = null,
+    val level: Int,
+    val name: String,
+    @SerialName("name_path")
+    val namePath: String,
+    @SerialName("parent_id")
+    val parentId: MangaBakaTagId? = null,
+    @SerialName("series_count")
+    val seriesCount: Int,
+    val impliedByTagIds: List<MangaBakaTagId> = emptyList(),
+    @SerialName("is_explicit")
+    val isExplicit: Boolean = false,
+    @SerialName("is_genre")
+    val isGenre: Boolean = false,
+    val mergedWith: Int? = null,
+    val weight: MangaBakaTagWeight = MangaBakaTagWeight.UNWEIGHTED,
+)
+
+enum class MangaBakaTagWeight {
+    @SerialName("core")
+    CORE,
+
+    @SerialName("defining")
+    DEFINING,
+
+    @SerialName("recurrent")
+    RECURRENT,
+
+    @SerialName("incidental")
+    INCIDENTAL,
+
+    @SerialName("unweighted")
+    UNWEIGHTED
+
+}
+
+@Serializable
+data class MangaBakaTitle(
+    val language: String,
     val title: String,
+    val traits: List<MangaBakaTitleTrait>,
+    @SerialName("is_primary")
+    val isPrimary: Boolean? = null,
+    val note: String? = null
+)
+
+enum class MangaBakaTitleTrait {
+    @SerialName("official")
+    OFFICIAL,
+
+    @SerialName("native")
+    NATIVE,
+
+    @SerialName("alternative")
+    ALTERNATIVE
+}
+
+@JvmInline
+@Serializable
+value class MangaBakaLinkId(val value: String) {
+    override fun toString() = value
+}
+
+@Serializable
+data class MangaBakaLink(
+    val id: MangaBakaLinkId,
+    val language: String,
+    val name: String,
+    @SerialName("name_display")
+    val nameDisplay: String,
+    val type: MangaBakaLinkType,
+    val url: String,
+)
+
+enum class MangaBakaLinkType {
+    @SerialName("retailer")
+    RETAILER,
+
+    @SerialName("publisher")
+    PUBLISHER,
+
+    @SerialName("webplatform")
+    WEBPLATFORM,
+
+    @SerialName("info")
+    INFO,
+
+    @SerialName("social")
+    SOCIAL,
+
+    @SerialName("news")
+    NEWS,
+
+    @SerialName("piracy")
+    PIRACY,
+
+    @SerialName("other")
+    OTHER,
+}
+
+@Serializable
+data class MangaBakaPublishedDate(
+    @SerialName("end_date")
+    val endDate: LocalDate? = null,
+    @SerialName("end_date_is_esitmated")
+    val endDateIsEstimated: Boolean? = null,
+    @SerialName("start_date")
+    val startDate: LocalDate? = null,
+    @SerialName("start_date_is_estimated")
+    val startDateIsEstimated: Boolean? = null,
 )
 
 @Serializable
 data class MangaBakaCover(
-    val raw: MangaBakaCoverRaw? = null,
-    val x150: MangaBakaCoverDpi? = null,
-    val x250: MangaBakaCoverDpi? = null,
-    val x350: MangaBakaCoverDpi? = null,
-)
-
-@Serializable
-data class MangaBakaCoverRaw(
-    val url: String? = null,
-    val size: Long? = null,
+    val blurhash: String? = null,
     val height: Int? = null,
     val width: Int? = null,
-    val blurhash: String? = null,
-    val thumbhash: String? = null,
-    val format: String? = null,
-)
-
-@Serializable
-data class MangaBakaCoverDpi(
-    val x1: String? = null,
-    val x2: String? = null,
-    val x3: String? = null,
+    val raw: String? = null,
+    val x150: String? = null,
+    val x250: String? = null,
+    val x350: String? = null,
 )
 
 @Serializable
@@ -116,6 +206,7 @@ enum class MangaBakaStatus {
 
 @Serializable
 data class MangaBakaAnimeInfo(
+    val exists: Boolean,
     val start: String? = null,
     val end: String? = null
 )
@@ -149,60 +240,106 @@ data class MangaBakaPublisher(
     val type: String? = null
 )
 
+@JvmInline
+@Serializable
+value class MangaBakaRelationshipId(val value: String) {
+    override fun toString() = value
+}
 
 @Serializable
-data class MangaBakaRelationships(
-    @SerialName("main_story")
-    val mainStory: List<Int>? = null,
-    val adaptation: List<Int>? = null,
-    val prequel: List<Int>? = null,
-    val sequel: List<Int>? = null,
+data class MangaBakaRelationship(
+    val id: MangaBakaRelationshipId,
+    val chronology: MangaBakaRelationshipChronology,
+    @SerialName("is_manual")
+    val isManual: Boolean,
+    val note: String? = null,
+    @SerialName("relation_type")
+    val relationType: MangaBakaRelationType,
+    @SerialName("to_series_id")
+    val toSeriesId: MangaBakaSeriesId
+)
+
+enum class MangaBakaRelationType {
+    @SerialName("adaptation")
+    ADAPTATION,
+
+    @SerialName("alternative")
+    ALTERNATIVE,
+
+    @SerialName("cameo")
+    CAMEO,
+
+    @SerialName("character_focus")
+    CHARACTER_FOCUS,
+
+    @SerialName("compilation")
+    COMPILATION,
+
+    @SerialName("contains")
+    CONTAINS,
+
+    @SerialName("crossover")
+    CROSSOVER,
+
+    @SerialName("expansion")
+    EXPANSION,
+
+    @SerialName("main")
+    MAIN,
+
+    @SerialName("other")
+    OTHER,
+
+    @SerialName("parent")
+    PARENT,
+
+    @SerialName("parody")
+    PARODY,
+
+    @SerialName("prequel")
+    PREQUEL,
+
+    @SerialName("reboot")
+    REBOOT,
+
+    @SerialName("remake")
+    REMAKE,
+
+    @SerialName("sequel")
+    SEQUEL,
+
+    @SerialName("series")
+    SERIES,
+
     @SerialName("side_story")
-    val sideStory: List<Int>? = null,
-    @SerialName("spin_off")
-    val spinOff: List<Int>? = null,
-    val alternative: List<Int>? = null,
-    val other: List<Int>? = null,
-)
+    SIDE_STORY,
 
-@Serializable
-data class MangaBakaSources(
-    val anilist: MangaBakaAnilistSource? = null,
-    @SerialName("anime_news_network")
-    val animeNewsNetwork: MangaBakaAnimeNewsNetworkSource? = null,
-    val kitsu: MangaBakaKitsuSource? = null,
-    @SerialName("manga_updates")
-    val mangaUpdates: MangaBakaMangaUpdatesSource? = null,
-    @SerialName("my_anime_list")
-    val myAnimeList: MangaBakaMyAnimeListSource? = null,
-)
+    @SerialName("source")
+    SOURCE,
+
+    @SerialName("spin_off")
+    SPIN_OFF,
+
+    @SerialName("summary")
+    SUMMARY,
+
+    @SerialName("uncollected")
+    UNCOLLECTED,
+}
+
+enum class MangaBakaRelationshipChronology {
+    @SerialName("narrative")
+    NARRATIVE,
+
+    @SerialName("release")
+    RELEASE,
+
+    @SerialName("unknown")
+    UNKNOWN
+}
 
 @Serializable
 data class MangaBakaAnilistSource(
-    val id: Int? = null,
-    val rating: Double? = null,
-)
-
-@Serializable
-data class MangaBakaAnimeNewsNetworkSource(
-    val id: Int? = null,
-    val rating: Double? = null,
-)
-
-@Serializable
-data class MangaBakaKitsuSource(
-    val id: Int? = null,
-    val rating: Double? = null,
-)
-
-@Serializable
-data class MangaBakaMangaUpdatesSource(
-    val id: String? = null,
-    val rating: Double? = null,
-)
-
-@Serializable
-data class MangaBakaMyAnimeListSource(
     val id: Int? = null,
     val rating: Double? = null,
 )

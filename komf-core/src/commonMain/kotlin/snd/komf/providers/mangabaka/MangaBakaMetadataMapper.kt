@@ -2,6 +2,7 @@ package snd.komf.providers.mangabaka
 
 import com.fleeksoft.ksoup.Ksoup
 import io.ktor.http.parseUrl
+import kotlinx.datetime.number
 import snd.komf.model.Author
 import snd.komf.model.AuthorRole
 import snd.komf.model.Image
@@ -15,11 +16,11 @@ import snd.komf.model.SeriesSearchResult
 import snd.komf.model.SeriesStatus
 import snd.komf.model.SeriesTitle
 import snd.komf.model.TitleType
-import snd.komf.model.TitleType.ROMAJI
 import snd.komf.model.WebLink
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
+import snd.komf.providers.mangabaka.MangaBakaTitleTrait.NATIVE
 import snd.komf.util.toStingEncoded
 
 
@@ -51,63 +52,56 @@ class MangaBakaMetadataMapper(
             ?.map { Publisher(it, PublisherType.LOCALIZED, "en") }?.toSet()
             ?: emptySet()
 
-        val originalLanguage = when (series.type) {
-            MangaBakaType.MANGA -> "ja"
-            MangaBakaType.NOVEL -> null
-            MangaBakaType.MANHWA -> "ko"
-            MangaBakaType.MANHUA -> "zh"
-            MangaBakaType.OEL -> "en"
-            MangaBakaType.OTHER -> null
-        }
-        val titles = listOf(SeriesTitle(series.title, null, null)) +
-                listOfNotNull(
-                    series.nativeTitle?.let { SeriesTitle(it, TitleType.NATIVE, originalLanguage) },
-                    series.romanizedTitle?.let {
-                        when (originalLanguage) {
-                            "ja" -> SeriesTitle(it, ROMAJI, "ja-ro")
-                            "ko" -> SeriesTitle(it, ROMAJI, "ko-ro")
-                            "zh" -> SeriesTitle(it, ROMAJI, "zh-ro")
-                            else -> null
-                        }
-                    }
-                )
 
-        val secondaryTitles = series.secondaryTitles?.flatMap { (language, titles) ->
-            val titleType = when (language) {
-                originalLanguage -> TitleType.NATIVE
-                "ja-ro", "ko-ro", "zh-ro" -> ROMAJI
-                else -> TitleType.LOCALIZED
-            }
-            titles?.map { SeriesTitle(it.title, titleType, language) } ?: emptyList()
-        } ?: emptyList()
+        val allTitles = series.titles?.sortedByDescending { it.isPrimary } ?: emptyList()
+        val nativeTitle = allTitles.firstOrNull { title ->
+            title.traits.any { it == NATIVE } && !title.language.endsWith("-Latn")
+        }
+        val titles = allTitles.sortedByDescending { it.isPrimary }.map { title ->
+            val romanized = title.title.endsWith("-Latn")
+            SeriesTitle(
+                name = title.title,
+                type = when {
+                    title == nativeTitle -> TitleType.NATIVE
+                    romanized -> TitleType.ROMAJI
+                    else -> TitleType.LOCALIZED
+                },
+                language = title.language.replace("-Latn", "-ro")
+            )
+        }
 
         val publisher = if (metadataConfig.useOriginalPublisher) originalPublishers.firstOrNull()
         else englishPublishers.firstOrNull() ?: originalPublishers.firstOrNull()
 
-        val links = (series.links ?: emptyList()).mapNotNull { link ->
-            when {
-                link.startsWith("https://anilist.co") -> WebLink("AniList", link)
-                link.startsWith("https://kitsu.app") -> WebLink("Kitsu", link)
-                link.startsWith("https://myanimelist.net") -> WebLink("MyAnimeList", link)
-                link.startsWith("https://www.anime-planet.com") -> WebLink("Anime-Planet", link)
-                link.startsWith("https://www.novelupdates.com") -> WebLink("NovelUpdates", link)
-                link.startsWith("https://mangabaka.dev") -> WebLink("MangaBaka", link)
-                else -> parseUrl(link)?.let { url -> WebLink(url.host.removePrefix("www."), url.toStingEncoded()) }
+        val links = series.links?.mapNotNull { link ->
+            parseUrl(link.url)?.let { url ->
+                WebLink(
+                    link.nameDisplay,
+                    url.toStingEncoded()
+                )
             }
-        }.sortedBy { it.label }
+        }?.sortedBy { it.label } ?: emptyList()
+
+        val allTags = series.tags ?: emptyList()
+        val genres = allTags.filter { it.isGenre }.map { it.name }
+        val tags = allTags.filterNot { it.isGenre }.map { it.name }
 
         val metadata = SeriesMetadata(
             status = status,
-            titles = titles + secondaryTitles,
+            titles = titles,
             summary = series.description?.let { Ksoup.parse(it).wholeText() },
             publisher = publisher,
             alternativePublishers = (originalPublishers + englishPublishers) - setOfNotNull(publisher),
-            genres = series.genres?.sorted() ?: emptyList(),
-            tags = series.tags?.sorted() ?: emptyList(),
-            totalBookCount = series.finalVolume?.toIntOrNull(),
+            genres = genres,
+            tags = tags,
+            totalBookCount = series.finalVolume,
             authors = authors + artists,
             thumbnail = thumbnail,
-            releaseDate = ReleaseDate(series.year, null, null),
+            releaseDate = ReleaseDate(
+                series.published?.startDate?.year,
+                series.published?.startDate?.month?.number,
+                series.published?.startDate?.day
+            ),
             links = links,
             score = series.rating
         )
@@ -121,10 +115,20 @@ class MangaBakaMetadataMapper(
     fun toSeriesSearchResult(series: MangaBakaSeries): SeriesSearchResult {
         return SeriesSearchResult(
             url = series.url(),
-            imageUrl = series.cover.x350?.x1,
-            title = series.title,
+            imageUrl = series.cover.x350,
+            title = getPrimaryTitle(series),
             provider = CoreProviders.MANGA_BAKA,
             resultId = series.id.value.toString()
         )
+    }
+
+    private fun getPrimaryTitle(series: MangaBakaSeries): String {
+        if (series.titles == null) return ""
+        val nativeTitle = series.titles.firstOrNull { title -> title.traits.any { it == NATIVE } }
+        if (nativeTitle != null) return nativeTitle.title
+        val primaryEnglish = series.titles.firstOrNull { it.language == "en" && it.isPrimary == true }
+        if (primaryEnglish != null) return primaryEnglish.title
+
+        return series.titles.first().title
     }
 }

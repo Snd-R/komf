@@ -10,7 +10,7 @@ fun main(vararg args: String) {
     runCatching {
         val configFile = args.firstOrNull()?.let { Path.of(it) }
         val configDir = System.getenv("KOMF_CONFIG_DIR")?.let { Path.of(it) }
-        AppContext(configDir?: configFile)
+        AppContext(configDir ?: configFile)
     }.getOrElse {
         logger.error(it) { "Failed to start the app" }
         exitProcess(1)
