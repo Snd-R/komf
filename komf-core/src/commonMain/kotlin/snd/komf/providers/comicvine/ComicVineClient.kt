@@ -3,6 +3,12 @@ package snd.komf.providers.comicvine
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.http.URLBuilder
+import io.ktor.http.ParametersBuilder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import kotlin.text.Regex
+import kotlinx.serialization.json.Json
 import snd.komf.model.Image
 import snd.komf.providers.comicvine.ComicVineClient.ComicVineTypeId.ISSUE
 import snd.komf.providers.comicvine.ComicVineClient.ComicVineTypeId.VOLUME
@@ -22,7 +28,44 @@ class ComicVineClient(
     private val apiKey: String,
     private val comicVineSearchLimit: Int? = 10,
     private val rateLimiter: ComicVineRateLimiter,
+    private val cacheDatabaseFile: String,
+    private val cacheDatabaseExpiry: Int,
 ) {
+    private val cache = ComicVineCache(cacheDatabaseFile, cacheDatabaseExpiry)
+
+    private fun buildUrlString(
+        url: String,
+        params: Map<String, String> = mapOf(),
+    ): String {
+        val finalParams = sortedMapOf(
+            Pair("api_key", apiKey),
+            Pair("format", "json"),
+        ) + params
+
+        val encodedParams = finalParams.entries.joinToString("&") { (key, value) ->
+            val k = URLEncoder.encode(key, StandardCharsets.UTF_8)
+            val v = URLEncoder.encode(value, StandardCharsets.UTF_8)
+            "$k=$v"
+        }
+
+        return "$url?$encodedParams"
+    }
+
+    private suspend inline fun <reified T> getCachedApi(url: String): ComicVineSearchResult<T> {
+        val fullUrl = buildUrlString(url)
+
+        val cachedResult = cache.getEntry(fullUrl)
+
+        if (cachedResult != null) {
+            return Json.decodeFromString(cachedResult);
+        }
+
+        val response: ComicVineSearchResult<T> = ktor.get(fullUrl).body()
+
+        cache.addEntry(fullUrl, Json.encodeToString(response))
+
+        return response
+    }
 
     suspend fun searchVolume(name: String): ComicVineSearchResult<List<ComicVineVolumeSearch>> {
         rateLimiter.searchAcquire()
@@ -37,18 +80,48 @@ class ComicVineClient(
 
     suspend fun getVolume(id: ComicVineVolumeId): ComicVineSearchResult<ComicVineVolume> {
         rateLimiter.volumeAcquire()
-        return ktor.get("$baseUrl/volume/${VOLUME.id}-${id.value}/") {
-            parameter("format", "json")
-            parameter("api_key", apiKey)
-        }.body()
+        return getCachedApi("$baseUrl/volume/${VOLUME.id}-${id.value}/")
+    }
+
+    suspend fun clearVolumeCache(id: ComicVineVolumeId) {
+        val url = buildUrlString("$baseUrl/volume/${VOLUME.id}-${id.value}/")
+
+        val cachedResult = cache.getEntry(url)
+
+        if (cachedResult == null) {
+            return
+        }
+
+        cache.removeEntry(url)
+    }
+
+    suspend fun clearVolumeIssuesCache(id: ComicVineVolumeId) {
+        val url = buildUrlString("$baseUrl/volume/${VOLUME.id}-${id.value}/")
+
+        val cachedResult = cache.getEntry(url)
+        val response: ComicVineSearchResult<ComicVineVolume>
+
+        if (cachedResult == null) {
+            response = getCachedApi(url)
+        }
+        else {
+            response = Json.decodeFromString(cachedResult);
+        }
+
+        response.results.issues?.forEach {
+            val issueUrl = buildUrlString("$baseUrl/issue/${ISSUE.id}-${it.id}/")
+
+            val cachedIssueResult = cache.getEntry(issueUrl)
+
+            if (cachedIssueResult != null) {
+                cache.removeEntry(issueUrl)
+            }
+        }
     }
 
     suspend fun getIssue(id: ComicVineIssueId): ComicVineSearchResult<ComicVineIssue> {
         rateLimiter.issueAcquire()
-        return ktor.get("$baseUrl/issue/${ISSUE.id}-${id.value}/") {
-            parameter("format", "json")
-            parameter("api_key", apiKey)
-        }.body()
+        return getCachedApi("$baseUrl/issue/${ISSUE.id}-${id.value}/")
     }
 
     suspend fun getStoryArc(id: ComicVineStoryArcId): ComicVineSearchResult<ComicVineStoryArc> {
@@ -57,7 +130,6 @@ class ComicVineClient(
             parameter("format", "json")
             parameter("api_key", apiKey)
         }.body()
-
     }
 
     suspend fun getCover(url: String): Image {

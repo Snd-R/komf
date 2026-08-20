@@ -38,6 +38,14 @@ class KodanshaMetadataProvider(
         return getThumbnail(series.thumbnails?.firstOrNull()?.url)
     }
 
+    override suspend fun clearSeriesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
+    override suspend fun clearSeriesIssuesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(KodanshaBookId(bookId.id.toInt())).response
         val thumbnail = if (fetchBookCovers) getThumbnail(bookMetadata.thumbnails.firstOrNull()?.url) else null

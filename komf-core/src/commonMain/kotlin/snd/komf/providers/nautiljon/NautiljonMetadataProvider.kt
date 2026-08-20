@@ -38,6 +38,14 @@ class NautiljonMetadataProvider(
         return client.getSeriesThumbnail(series)
     }
 
+    override suspend fun clearSeriesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
+    override suspend fun clearSeriesIssuesCache(providerSeriesId: ProviderSeriesId) {
+        throw UnsupportedOperationException()
+    }
+
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
         val bookMetadata = client.getBook(NautiljonSeriesId(seriesId.value), NautiljonVolumeId(bookId.id))
         val thumbnail = if (fetchBookCovers) client.getVolumeThumbnail(bookMetadata) else null
