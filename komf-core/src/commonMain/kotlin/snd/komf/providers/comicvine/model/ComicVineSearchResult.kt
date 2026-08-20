@@ -15,6 +15,6 @@ class ComicVineSearchResult<T>(
     @SerialName("status_code")
     val statusCode: Int,
     val results: T,
-    val version: String,
+    val version: String? = null,
 )
 
