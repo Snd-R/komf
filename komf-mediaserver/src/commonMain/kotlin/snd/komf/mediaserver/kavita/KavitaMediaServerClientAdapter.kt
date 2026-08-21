@@ -288,7 +288,8 @@ private fun KavitaSeriesMetadata.toMediaServerSeriesMetadata(series: KavitaSerie
         status = status,
         title = series.name,
         titleSort = series.sortName,
-        alternativeTitles = series.localizedName?.let { listOf(MediaServerAlternativeTitle("Localized", it)) }
+        alternativeTitles = series.localizedName?.takeIf { it.isNotBlank() }
+            ?.let { listOf(MediaServerAlternativeTitle("Localized", it)) }
             ?: emptyList(),
         summary = summary ?: "",
         readingDirection = null,
