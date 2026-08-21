@@ -106,21 +106,28 @@ data class MangaBakaDatabaseDto(
 
 @Serializable
 data class ProvidersConfigDto(
+    val mangaBaka: MangaBakaConfigDto,
+    val bookWalker: ProviderConfigDto,
+    val mangaDex: MangaDexConfigDto,
     val mangaUpdates: ProviderConfigDto,
     val mal: ProviderConfigDto,
+    val comicVine: ProviderConfigDto,
 
     @Deprecated("to be removed")
     val nautiljon: ProviderConfigDto,
+    @Deprecated("to be removed")
     val aniList: AniListConfigDto,
+    @Deprecated("to be removed")
     val yenPress: ProviderConfigDto,
+    @Deprecated("to be removed")
     val kodansha: ProviderConfigDto,
+    @Deprecated("to be removed")
     val viz: ProviderConfigDto,
-    val bookWalker: ProviderConfigDto,
-    val mangaDex: MangaDexConfigDto,
+    @Deprecated("to be removed")
     val bangumi: ProviderConfigDto,
-    val comicVine: ProviderConfigDto,
+    @Deprecated("to be removed")
     val hentag: ProviderConfigDto,
-    val mangaBaka: MangaBakaConfigDto,
+    @Deprecated("to be removed")
     val webtoons: ProviderConfigDto,
 )
 

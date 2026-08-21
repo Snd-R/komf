@@ -162,19 +162,20 @@ class AppConfigMapper {
 
     private fun toDto(config: ProvidersConfig): ProvidersConfigDto {
         return ProvidersConfigDto(
-            mangaUpdates = toDto(config.mangaUpdates),
-            mal = toDto(config.mal),
-            nautiljon = toDto(ProviderConfig()),
-            aniList = toDto(config.aniList),
-            yenPress = toDto(config.yenPress),
-            kodansha = toDto(config.kodansha),
-            viz = toDto(config.viz),
+            mangaBaka = toDto(config.mangaBaka),
             bookWalker = toDto(config.bookWalker),
             mangaDex = toDto(config.mangaDex),
-            bangumi = toDto(config.bangumi),
+            mangaUpdates = toDto(config.mangaUpdates),
+            aniList = toDto(config.aniList),
+            mal = toDto(config.mal),
             comicVine = toDto(config.comicVine),
-            hentag = toDto(config.hentag),
-            mangaBaka = toDto(config.mangaBaka),
+
+            nautiljon = toDto(ProviderConfig()),
+            yenPress = toDto(config.yenPress),
+            kodansha = toDto(ProviderConfig()),
+            viz = toDto(config.viz),
+            bangumi = toDto(config.bangumi),
+            hentag = toDto(ProviderConfig()),
             webtoons = toDto(config.webtoons),
         )
     }

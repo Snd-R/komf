@@ -97,20 +97,27 @@ class MetadataProvidersConfigUpdateRequest(
 
 @Serializable
 data class ProvidersConfigUpdateRequest(
-    val mangaUpdates: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
-    val mal: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
-    @Deprecated("to be removed")
-    val nautiljon: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
-    val aniList: PatchValue<AniListConfigUpdateRequest> = PatchValue.Unset,
-    val yenPress: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
-    val kodansha: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
-    val viz: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val mangaBaka: PatchValue<MangaBakaConfigUpdateRequest> = PatchValue.Unset,
     val bookWalker: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val mangaDex: PatchValue<MangaDexConfigUpdateRequest> = PatchValue.Unset,
-    val bangumi: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val mangaUpdates: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val aniList: PatchValue<AniListConfigUpdateRequest> = PatchValue.Unset,
+    val mal: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val comicVine: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+
+    @Deprecated("to be removed")
+    val nautiljon: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    @Deprecated("to be removed")
+    val yenPress: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    @Deprecated("to be removed")
+    val kodansha: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    @Deprecated("to be removed")
+    val viz: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    @Deprecated("to be removed")
+    val bangumi: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    @Deprecated("to be removed")
     val hentag: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
-    val mangaBaka: PatchValue<MangaBakaConfigUpdateRequest> = PatchValue.Unset,
+    @Deprecated("to be removed")
     val webtoons: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
 )
 

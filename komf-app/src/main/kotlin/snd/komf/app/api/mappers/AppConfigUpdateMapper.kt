@@ -137,8 +137,6 @@ class AppConfigUpdateMapper {
                 ?.let { aniListProviderConfig(config.aniList, it) } ?: config.aniList,
             yenPress = patch.yenPress.getOrNull()
                 ?.let { providerConfig(config.yenPress, it) } ?: config.yenPress,
-            kodansha = patch.kodansha.getOrNull()
-                ?.let { providerConfig(config.kodansha, it) } ?: config.kodansha,
             viz = patch.viz.getOrNull()
                 ?.let { providerConfig(config.viz, it) } ?: config.viz,
             bookWalker = patch.bookWalker.getOrNull()
@@ -149,8 +147,6 @@ class AppConfigUpdateMapper {
                 ?.let { providerConfig(config.bangumi, it) } ?: config.bangumi,
             comicVine = patch.comicVine.getOrNull()
                 ?.let { providerConfig(config.comicVine, it) } ?: config.comicVine,
-            hentag = patch.hentag.getOrNull()
-                ?.let { providerConfig(config.hentag, it) } ?: config.hentag,
             mangaBaka = patch.mangaBaka.getOrNull()
                 ?.let { mangaBakaProviderConfig(config.mangaBaka, it) } ?: config.mangaBaka,
             webtoons = patch.webtoons.getOrNull()
