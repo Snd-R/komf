@@ -164,7 +164,7 @@ class AppConfigMapper {
         return ProvidersConfigDto(
             mangaUpdates = toDto(config.mangaUpdates),
             mal = toDto(config.mal),
-            nautiljon = toDto(config.nautiljon),
+            nautiljon = toDto(ProviderConfig()),
             aniList = toDto(config.aniList),
             yenPress = toDto(config.yenPress),
             kodansha = toDto(config.kodansha),

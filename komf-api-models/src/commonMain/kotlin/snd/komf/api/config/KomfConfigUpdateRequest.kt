@@ -99,6 +99,7 @@ class MetadataProvidersConfigUpdateRequest(
 data class ProvidersConfigUpdateRequest(
     val mangaUpdates: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val mal: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    @Deprecated("to be removed")
     val nautiljon: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val aniList: PatchValue<AniListConfigUpdateRequest> = PatchValue.Unset,
     val yenPress: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,

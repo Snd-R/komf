@@ -31,7 +31,6 @@ data class MetadataProvidersConfig(
 data class ProvidersConfig(
     val mangaUpdates: ProviderConfig = ProviderConfig(),
     val mal: ProviderConfig = ProviderConfig(),
-    val nautiljon: ProviderConfig = ProviderConfig(),
     val aniList: AniListConfig = AniListConfig(),
     val yenPress: ProviderConfig = ProviderConfig(),
     val kodansha: ProviderConfig = ProviderConfig(),

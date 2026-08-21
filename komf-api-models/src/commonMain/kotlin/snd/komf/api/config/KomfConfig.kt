@@ -108,6 +108,8 @@ data class MangaBakaDatabaseDto(
 data class ProvidersConfigDto(
     val mangaUpdates: ProviderConfigDto,
     val mal: ProviderConfigDto,
+
+    @Deprecated("to be removed")
     val nautiljon: ProviderConfigDto,
     val aniList: AniListConfigDto,
     val yenPress: ProviderConfigDto,

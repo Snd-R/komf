@@ -133,8 +133,6 @@ class AppConfigUpdateMapper {
                 ?.let { providerConfig(config.mangaUpdates, it) } ?: config.mangaUpdates,
             mal = patch.mal.getOrNull()
                 ?.let { providerConfig(config.mal, it) } ?: config.mal,
-            nautiljon = patch.nautiljon.getOrNull()
-                ?.let { providerConfig(config.nautiljon, it) } ?: config.nautiljon,
             aniList = patch.aniList.getOrNull()
                 ?.let { aniListProviderConfig(config.aniList, it) } ?: config.aniList,
             yenPress = patch.yenPress.getOrNull()

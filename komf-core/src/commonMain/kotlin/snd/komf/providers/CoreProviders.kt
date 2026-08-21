@@ -11,6 +11,7 @@ enum class CoreProviders {
     MANGA_UPDATES,
     MANGADEX,
     MANGA_BAKA,
+    @Deprecated("removed")
     NAUTILJON,
     WEBTOONS,
     YEN_PRESS,

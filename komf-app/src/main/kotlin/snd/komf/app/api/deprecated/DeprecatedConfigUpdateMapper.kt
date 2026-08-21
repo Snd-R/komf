@@ -180,7 +180,7 @@ class DeprecatedConfigUpdateMapper {
         return ProvidersConfigDto(
             mangaUpdates = toDto(config.mangaUpdates),
             mal = toDto(config.mal),
-            nautiljon = toDto(config.nautiljon),
+            nautiljon = toDto(ProviderConfig()),
             aniList = toDto(config.aniList),
             yenPress = toDto(config.yenPress),
             kodansha = toDto(config.kodansha),
@@ -345,7 +345,6 @@ class DeprecatedConfigUpdateMapper {
         return config.copy(
             mangaUpdates = patch.mangaUpdates?.let { providerConfig(config.mangaUpdates, it) } ?: config.mangaUpdates,
             mal = patch.mal?.let { providerConfig(config.mal, it) } ?: config.mal,
-            nautiljon = patch.nautiljon?.let { providerConfig(config.nautiljon, it) } ?: config.nautiljon,
             aniList = patch.aniList?.let { aniListProviderConfig(config.aniList, it) } ?: config.aniList,
             yenPress = patch.yenPress?.let { providerConfig(config.yenPress, it) } ?: config.yenPress,
             kodansha = patch.kodansha?.let { providerConfig(config.kodansha, it) } ?: config.kodansha,

@@ -116,7 +116,6 @@ class ConfigLoader(private val yaml: Yaml) {
         if (
             config.metadataProviders.defaultProviders.mangaUpdates.enabled.not() &&
             config.metadataProviders.defaultProviders.mal.enabled.not() &&
-            config.metadataProviders.defaultProviders.nautiljon.enabled.not() &&
             config.metadataProviders.defaultProviders.aniList.enabled.not() &&
             config.metadataProviders.defaultProviders.yenPress.enabled.not() &&
             config.metadataProviders.defaultProviders.kodansha.enabled.not() &&

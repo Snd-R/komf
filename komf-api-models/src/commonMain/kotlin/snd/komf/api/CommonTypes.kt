@@ -63,6 +63,7 @@ enum class KomfCoreProviders : KomfProviders {
     MANGA_BAKA,
     MANGA_UPDATES,
     MANGADEX,
+    @Deprecated("Removed")
     NAUTILJON,
     WEBTOONS,
     YEN_PRESS,
