@@ -3,7 +3,8 @@ package snd.komf.mediaserver.kavita
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.http.*
+import io.ktor.http.URLBuilder
+import io.ktor.http.appendPathSegments
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -58,9 +59,10 @@ class KavitaEventHandler(
         hubConnection.on("NotificationProgress", ::processProgressNotification, NotificationProgressEvent::class.java)
         hubConnection.on("CoverUpdate", ::processCoverUpdate, CoverUpdateEvent::class.java)
         hubConnection.on("SeriesRemoved", ::seriesRemoved, SeriesRemovedEvent::class.java)
-
         hubConnection.onClosed { reconnect(hubConnection) }
-        registerInvocations(hubConnection)
+        // need to add all invocation targets in order to avoid errors in logs
+        // register noop handlers
+        noopEvents.forEach { hubConnection.on(it, {}, Any::class.java) }
 
         Completable.defer {
             hubConnection.start()
@@ -105,6 +107,7 @@ class KavitaEventHandler(
                 "started" -> {
                     lock.withLock { this.lastScan = clock.now() }
                 }
+
                 "ended" -> {
                     lock.withLock {
                         val volumes = volumesChanged.toList()
@@ -160,29 +163,49 @@ class KavitaEventHandler(
         eventListeners.forEach { it.onBooksAdded(bookEvents) }
     }
 
-    private fun registerInvocations(hubConnection: HubConnection) {
-        // need to add all invocation targets in order to avoid errors in logs
-        // register noop handlers
-        hubConnection.on("BackupDatabaseProgress", { }, Object::class.java)
-        hubConnection.on("BookThemeProgress", { }, Object::class.java)
-        hubConnection.on("ConvertBookmarksProgress", { }, Object::class.java)
-        hubConnection.on("CleanupProgress", { }, Object::class.java)
-        hubConnection.on("CoverUpdateProgress", { }, Object::class.java)
-        hubConnection.on("DownloadProgress", { }, Object::class.java)
-        hubConnection.on("Error", { }, Object::class.java)
-        hubConnection.on("FileScanProgress", { }, Object::class.java)
-        hubConnection.on("Info", { }, Object::class.java)
-        hubConnection.on("LibraryModified", { }, Object::class.java)
-        hubConnection.on("OnlineUsers", { }, Object::class.java)
-        hubConnection.on("ScanSeries", { }, Object::class.java)
-        hubConnection.on("ScanProgress", { }, Object::class.java)
-        hubConnection.on("SendingToDevice", { }, Object::class.java)
-        hubConnection.on("SeriesAdded", { }, Object::class.java)
-        hubConnection.on("SeriesAddedToCollection", { }, Object::class.java)
-        hubConnection.on("SiteThemeProgress", { }, Object::class.java)
-        hubConnection.on("UpdateAvailable", { }, Object::class.java)
-        hubConnection.on("UserUpdate", { }, Object::class.java)
-        hubConnection.on("UserProgressUpdate", { }, Object::class.java)
-        hubConnection.on("WordCountAnalyzerProgress", { }, Object::class.java)
-    }
+    private val noopEvents = listOf(
+        "UpdateAvailable",
+        "ScanSeries",
+        "CoverUpdateProgress",
+        "SeriesAdded",
+        "OnlineUsers",
+        "CollectionUpdated",
+        "BackupDatabaseProgress",
+        "CleanupProgress",
+        "DownloadProgress",
+        "SiteThemeProgress",
+        "BookThemeProgress",
+        "FileScanProgress",
+        "Error",
+        "ScanProgress",
+        "LibraryModified",
+        "UserProgressUpdate",
+        "UserUpdate",
+        "ConvertBookmarksProgress",
+        "ConvertBookmarksProgress",
+        "WordCountAnalyzerProgress",
+        "Info",
+        "SendingToDevice",
+        "ScrobblingKeyExpired",
+        "DashboardUpdate",
+        "SideNavUpdate",
+        "SiteThemeUpdated",
+        "SmartCollectionSync",
+        "ChapterRemoved",
+        "ChapterUpdated",
+        "VolumeRemoved",
+        "PersonMerged",
+        "ExternalMatchRateLimitError",
+        "AnnotationUpdate",
+        "ReadingSessionUpdate",
+        "ReadingSessionClose",
+        "AuthKeyUpdate",
+        "AuthKeyDeleted",
+        "ReadingListUpdated",
+        "SeriesUpdated",
+        "ScrobbleProviderUpdated",
+        "LicenseInfoUpdate",
+        "ExternalMetadataUpdate",
+        "RerunMetadataMappingsProgress"
+    )
 }
