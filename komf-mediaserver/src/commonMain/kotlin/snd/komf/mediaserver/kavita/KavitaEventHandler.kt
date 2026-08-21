@@ -100,14 +100,19 @@ class KavitaEventHandler(
     }
 
     private fun processProgressNotification(notification: NotificationProgressEvent) {
-        if (notification.name == "ScanProgress" && notification.eventType == "ended") {
-            val now = clock.now()
-            val lastScan = this.lastScan
-            lock.withLock {
-                val volumes = volumesChanged.toList()
-                eventHandlerScope.launch { processEvents(volumes, lastScan) }
-                volumesChanged.clear()
-                this.lastScan = now
+        if (notification.name == "ScanProgress") {
+            when (notification.eventType) {
+                "started" -> {
+                    lock.withLock { this.lastScan = clock.now() }
+                }
+                "ended" -> {
+                    lock.withLock {
+                        val volumes = volumesChanged.toList()
+                        val lastScan = this.lastScan
+                        eventHandlerScope.launch { processEvents(volumes, lastScan) }
+                        volumesChanged.clear()
+                    }
+                }
             }
         }
     }
