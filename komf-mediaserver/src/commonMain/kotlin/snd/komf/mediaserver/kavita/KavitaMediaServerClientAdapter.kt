@@ -172,7 +172,7 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
 
     override suspend fun refreshMetadata(libraryId: MediaServerLibraryId, seriesId: MediaServerSeriesId) {
         kavitaClient.scanLibrary(libraryId.toKavitaLibraryId())
-        kavitaClient.scanSeries(seriesId.toKavitaSeriesId())
+        kavitaClient.scanSeries(libraryId.toKavitaLibraryId(), seriesId.toKavitaSeriesId())
     }
 }
 

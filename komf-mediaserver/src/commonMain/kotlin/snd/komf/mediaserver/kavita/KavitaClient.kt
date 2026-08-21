@@ -1,10 +1,15 @@
 package snd.komf.mediaserver.kavita
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
@@ -127,7 +132,8 @@ class KavitaClient(
         val response = ktor.get("api/series/volume") {
             parameter("volumeId", volumeId.value)
         }
-        if (response.status == HttpStatusCode.NoContent) throw snd.komf.mediaserver.kavita.KavitaResourceNotFoundException()
+        if (response.status == HttpStatusCode.NoContent || response.status == HttpStatusCode.NotFound)
+            throw KavitaResourceNotFoundException()
 
         return response.body()
     }
@@ -136,7 +142,9 @@ class KavitaClient(
         val response = ktor.get("api/series/chapter") {
             parameter("chapterId", chapterId.value)
         }
-        if (response.status == HttpStatusCode.NoContent) throw snd.komf.mediaserver.kavita.KavitaResourceNotFoundException()
+        if (response.status == HttpStatusCode.NoContent || response.status == HttpStatusCode.NotFound)
+            throw KavitaResourceNotFoundException()
+
         return response.body()
     }
 
@@ -172,11 +180,13 @@ class KavitaClient(
         return ktor.get("api/library/libraries").body()
     }
 
-    suspend fun scanSeries(seriesId: KavitaSeriesId) {
+    suspend fun scanSeries(libraryId: KavitaLibraryId, seriesId: KavitaSeriesId) {
         ktor.post("api/series/scan") {
             contentType(ContentType.Application.Json)
-            setBody(buildJsonObject { put("seriesId", seriesId.value) })
-
+            setBody(buildJsonObject {
+                put("libraryId", libraryId.value)
+                put("seriesId", seriesId.value)
+            })
         }
     }
 
@@ -187,13 +197,9 @@ class KavitaClient(
     }
 
     suspend fun resetChapterLock(chapterId: KavitaChapterId) {
-        ktor.post("api/upload/reset-chapter-lock") {
+        ktor.post("api/upload/chapter") {
             contentType(ContentType.Application.Json)
-            setBody(buildJsonObject {
-                put("id", chapterId.value)
-                put("url", "")
-            })
-
+            setBody(KavitaCoverUploadRequest(id = chapterId.value, url = "", lockCover = false))
         }
     }
 
