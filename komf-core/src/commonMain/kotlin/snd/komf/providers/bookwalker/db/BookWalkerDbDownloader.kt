@@ -1,4 +1,4 @@
-package snd.komf.providers.bookwalker
+package snd.komf.providers.bookwalker.db
 
 import com.github.luben.zstd.ZstdInputStream
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -25,10 +25,18 @@ import snd.komf.model.DownloadProgress
 import snd.komf.model.DownloadProgress.FinishedEvent
 import snd.komf.model.DownloadProgress.ProgressEvent
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption.CREATE
+import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
+import java.nio.file.StandardOpenOption.WRITE
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.inputStream
 import kotlin.io.path.outputStream
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
+import kotlin.text.Charsets.UTF_8
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 private val logger = KotlinLogging.logger { }
 
@@ -47,6 +55,12 @@ class BookWalkerDbDownloader(
     )
     private val downloadMutex = Mutex()
     private val downloadScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val timestampFile = databaseWorkDirectory.resolve("timestamp")
+
+    @Volatile
+    var downloadTimestamp: Instant? = runCatching { Instant.parse(timestampFile.readText()) }.getOrNull()
+        private set
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun launchDownload(): Flow<DownloadProgress> {
@@ -74,6 +88,10 @@ class BookWalkerDbDownloader(
             downloadDatabaseArchive()
             extractDatabaseFile()
             createSearchIndex()
+
+            val now = Clock.System.now()
+            downloadTimestamp = now
+            timestampFile.writeText(now.toString(), UTF_8, CREATE, WRITE, TRUNCATE_EXISTING)
 
             databaseArchive.deleteIfExists()
             progressFlow.emit(FinishedEvent)

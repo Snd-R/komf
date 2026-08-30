@@ -1,4 +1,4 @@
-package snd.komf.providers.bookwalker.repository.tables
+package snd.komf.providers.bookwalker.db.tables
 
 import kotlinx.serialization.json.Json
 

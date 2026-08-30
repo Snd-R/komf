@@ -20,7 +20,7 @@ import snd.komf.providers.bookwalker.model.BookWalkerBookId
 import snd.komf.providers.bookwalker.model.BookWalkerContentType
 import snd.komf.providers.bookwalker.model.BookWalkerImage
 import snd.komf.providers.bookwalker.model.BookWalkerSeriesId
-import snd.komf.providers.bookwalker.repository.BookWalkerSeriesRepository
+import snd.komf.providers.bookwalker.db.BookWalkerSeriesRepository
 import snd.komf.util.NameSimilarityMatcher
 
 class BookWalkerMetadataProvider(

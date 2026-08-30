@@ -47,7 +47,9 @@ class AppContext(private val configPath: Path? = null) {
     private var mediaServerModule: MediaServerModule
     private var notificationsModule: NotificationsModule
 
-    private var apiRoutesDependencies: MutableStateFlow<ApiDynamicDependencies>
+    private val apiRoutesDependencies: MutableStateFlow<ApiRouteDependencies>
+
+    private val configDir = configPath?.let { if (it.isDirectory()) it else it.parent } ?: Path.of("./")
 
     private val yaml = Yaml(
         configuration = YamlConfiguration(
@@ -93,6 +95,7 @@ class AppContext(private val configPath: Path? = null) {
 
         providersModule = CoreModule(
             config = config.metadataProviders,
+            workDir = configDir,
             ktor = ktorBaseClient,
             onStateRefresh = this::refreshState,
         )
@@ -113,7 +116,7 @@ class AppContext(private val configPath: Path? = null) {
         serverModule = ServerModule(
             serverPort = config.server.port,
             onConfigUpdate = this::refreshState,
-            dynamicDependencies = apiRoutesDependencies,
+            dependencies = apiRoutesDependencies,
         )
 
         serverModule.startServer()
@@ -138,6 +141,7 @@ class AppContext(private val configPath: Path? = null) {
 
         val providersModule = CoreModule(
             config = config.metadataProviders,
+            workDir = configDir,
             ktor = ktorBaseClient,
             onStateRefresh = this::refreshState,
         )
@@ -161,7 +165,7 @@ class AppContext(private val configPath: Path? = null) {
         apiRoutesDependencies.value = createApiRoutesDependencies()
     }
 
-    private fun createApiRoutesDependencies() = ApiDynamicDependencies(
+    private fun createApiRoutesDependencies() = ApiRouteDependencies(
         config = this.appConfig,
         jobTracker = mediaServerModule.jobTracker,
         jobsRepository = mediaServerModule.jobRepository,

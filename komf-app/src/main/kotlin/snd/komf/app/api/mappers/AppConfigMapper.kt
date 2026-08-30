@@ -41,16 +41,22 @@ import snd.komf.providers.ProviderConfig
 import snd.komf.providers.ProvidersConfig
 import snd.komf.providers.SeriesMetadataConfig
 import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
+import kotlin.time.Instant
 
 class AppConfigMapper {
     private val maskedPlaceholder = "********"
 
     fun toDto(
         config: AppConfig,
-        mangaBakaDbMetadata: MangaBakaDbMetadata
+        mangaBakaDbMetadata: MangaBakaDbMetadata,
+        bookWalkerDbTimestamp: Instant?
     ): KomfConfig {
         return KomfConfig(
-            metadataProviders = toDto(config.metadataProviders, mangaBakaDbMetadata),
+            metadataProviders = toDto(
+                config = config.metadataProviders,
+                mangaBakaDbMetadata = mangaBakaDbMetadata,
+                bookWalkerDbTimestamp = bookWalkerDbTimestamp
+            ),
             komga = toDto(config.komga),
             kavita = toDto(config.kavita),
             notifications = toDto(config.notifications),
@@ -123,7 +129,8 @@ class AppConfigMapper {
 
     private fun toDto(
         config: MetadataProvidersConfig,
-        mangaBakaDbMetadata: MangaBakaDbMetadata
+        mangaBakaDbMetadata: MangaBakaDbMetadata,
+        bookWalkerDbTimestamp: Instant?
     ): MetadataProvidersConfigDto {
         val malClientId = config.malClientId?.let { clientId ->
             if (clientId.length < 32) maskedPlaceholder
@@ -147,6 +154,7 @@ class AppConfigMapper {
                 .map { (libraryId, config) -> libraryId to toDto(config) }
                 .toMap(),
             mangaBakaDatabase = toDto(mangaBakaDbMetadata),
+            bookWalkerDownloadDate = bookWalkerDbTimestamp
         )
     }
 

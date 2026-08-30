@@ -1,5 +1,5 @@
 [versions]
-app-version = "1.6.2"
+app-version = "1.7.0-SNAPSHOT"
 agp = "9.1.1"
 android-compileSdk = "37"
 android-targetSdk = "37"

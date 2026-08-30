@@ -25,7 +25,6 @@ data class MetadataProvidersConfig(
     val nameMatchingMode: NameMatchingMode = NameMatchingMode.CLOSEST_MATCH,
     val defaultProviders: ProvidersConfig = ProvidersConfig(),
     val libraryProviders: Map<String, ProvidersConfig> = emptyMap(),
-    val mangabakaDatabaseDir: String = "./mangabaka",
 )
 
 @Serializable

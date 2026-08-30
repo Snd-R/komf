@@ -29,7 +29,7 @@ import snd.komf.providers.bangumi.BangumiMetadataMapper
 import snd.komf.providers.bangumi.BangumiMetadataProvider
 import snd.komf.providers.bookwalker.BookWalkerMapper
 import snd.komf.providers.bookwalker.BookWalkerMetadataProvider
-import snd.komf.providers.bookwalker.repository.BookWalkerSeriesRepository
+import snd.komf.providers.bookwalker.db.BookWalkerSeriesRepository
 import snd.komf.providers.comicvine.ComicVineClient
 import snd.komf.providers.comicvine.ComicVineMetadataMapper
 import snd.komf.providers.comicvine.ComicVineMetadataProvider

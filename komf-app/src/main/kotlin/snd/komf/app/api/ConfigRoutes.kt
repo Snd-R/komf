@@ -26,7 +26,7 @@ import snd.komf.app.config.AppConfig
 import snd.komf.model.DownloadProgress.ErrorEvent
 import snd.komf.model.DownloadProgress.FinishedEvent
 import snd.komf.model.DownloadProgress.ProgressEvent
-import snd.komf.providers.bookwalker.BookWalkerDbDownloader
+import snd.komf.providers.bookwalker.db.BookWalkerDbDownloader
 import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
 import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 
@@ -58,7 +58,8 @@ class ConfigRoutes(
             call.respond(
                 configMapper.toDto(
                     config = config.first(),
-                    mangaBakaDbMetadata = mangaBakaDbMetadata.first()
+                    mangaBakaDbMetadata = mangaBakaDbMetadata.first(),
+                    bookWalkerDbTimestamp = bookWalkerDbDownloader.first().downloadTimestamp
                 )
             )
         }

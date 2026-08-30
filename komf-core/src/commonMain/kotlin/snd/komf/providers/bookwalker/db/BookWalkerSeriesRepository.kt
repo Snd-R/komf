@@ -1,4 +1,4 @@
-package snd.komf.providers.bookwalker.repository
+package snd.komf.providers.bookwalker.db
 
 import org.jetbrains.exposed.v1.core.IntegerColumnType
 import org.jetbrains.exposed.v1.core.JoinType
@@ -25,15 +25,15 @@ import snd.komf.providers.bookwalker.model.BookWalkerSeries
 import snd.komf.providers.bookwalker.model.BookWalkerSeriesId
 import snd.komf.providers.bookwalker.model.BookWalkerTag
 import snd.komf.providers.bookwalker.model.BookWalkerTagId
-import snd.komf.providers.bookwalker.repository.tables.ContributorsTable
-import snd.komf.providers.bookwalker.repository.tables.ImagesTable
-import snd.komf.providers.bookwalker.repository.tables.ProductContributorsTable
-import snd.komf.providers.bookwalker.repository.tables.ProductExternalIdsTable
-import snd.komf.providers.bookwalker.repository.tables.ProductTagsTable
-import snd.komf.providers.bookwalker.repository.tables.ProductsTable
-import snd.komf.providers.bookwalker.repository.tables.SeriesTable
-import snd.komf.providers.bookwalker.repository.tables.SeriesTagsTable
-import snd.komf.providers.bookwalker.repository.tables.TagsTable
+import snd.komf.providers.bookwalker.db.tables.ContributorsTable
+import snd.komf.providers.bookwalker.db.tables.ImagesTable
+import snd.komf.providers.bookwalker.db.tables.ProductContributorsTable
+import snd.komf.providers.bookwalker.db.tables.ProductExternalIdsTable
+import snd.komf.providers.bookwalker.db.tables.ProductTagsTable
+import snd.komf.providers.bookwalker.db.tables.ProductsTable
+import snd.komf.providers.bookwalker.db.tables.SeriesTable
+import snd.komf.providers.bookwalker.db.tables.SeriesTagsTable
+import snd.komf.providers.bookwalker.db.tables.TagsTable
 import kotlin.time.Instant
 
 class BookWalkerSeriesRepository(

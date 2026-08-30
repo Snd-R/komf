@@ -45,8 +45,6 @@ class ConfigLoader(private val yaml: Yaml) {
         val appriseConfig = config.notifications.apprise
         val discordConfig = config.notifications.discord
         val templatesDirectory = configDirectory ?: notificationConfig.templatesDirectory
-        val mangaBakaDirectory = configDirectory?.let { "$it/mangabaka" }
-            ?: config.metadataProviders.mangabakaDatabaseDir
 
         val appriseUrls = System.getenv("KOMF_APPRISE_URLS")?.ifBlank { null }
             ?.split(",")?.toList()
@@ -96,7 +94,6 @@ class ConfigLoader(private val yaml: Yaml) {
                 malClientId = malClientId,
                 comicVineApiKey = comicVineApiKey,
                 bangumiToken = bangumiToken,
-                mangabakaDatabaseDir = mangaBakaDirectory
             ),
             notifications = config.notifications.copy(
                 templatesDirectory = templatesDirectory,

@@ -96,6 +96,7 @@ data class MetadataProvidersConfigDto(
     val defaultProviders: ProvidersConfigDto,
     val libraryProviders: Map<String, ProvidersConfigDto>,
     val mangaBakaDatabase: MangaBakaDatabaseDto?,
+    val bookWalkerDownloadDate: Instant?
 )
 
 @Serializable
@@ -110,13 +111,12 @@ data class ProvidersConfigDto(
     val bookWalker: ProviderConfigDto,
     val mangaDex: MangaDexConfigDto,
     val mangaUpdates: ProviderConfigDto,
+    val aniList: AniListConfigDto,
     val mal: ProviderConfigDto,
     val comicVine: ProviderConfigDto,
 
     @Deprecated("to be removed")
     val nautiljon: ProviderConfigDto,
-    @Deprecated("to be removed")
-    val aniList: AniListConfigDto,
     @Deprecated("to be removed")
     val yenPress: ProviderConfigDto,
     @Deprecated("to be removed")

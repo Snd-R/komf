@@ -1,4 +1,4 @@
-package snd.komf.providers.bookwalker.repository.tables
+package snd.komf.providers.bookwalker.db.tables
 
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.json.json

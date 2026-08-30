@@ -39,14 +39,14 @@ import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
-import snd.komf.providers.bookwalker.BookWalkerDbDownloader
+import snd.komf.providers.bookwalker.db.BookWalkerDbDownloader
 import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
 import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 
 class ServerModule(
     serverPort: Int,
     private val onConfigUpdate: suspend (AppConfig) -> Unit,
-    private val dynamicDependencies: StateFlow<ApiDynamicDependencies>,
+    private val dependencies: StateFlow<ApiRouteDependencies>,
 ) {
 
     private val configMapper = DeprecatedConfigUpdateMapper()
@@ -94,45 +94,45 @@ class ServerModule(
 
             route("/api") {
                 ConfigRoutes(
-                    config = dynamicDependencies.map { it.config },
+                    config = dependencies.map { it.config },
                     onConfigUpdate = onConfigUpdate,
-                    mangaBakaDownloader = dynamicDependencies.map { it.mangaBakaDownloader },
-                    mangaBakaDbMetadata = dynamicDependencies.map { it.mangaBakaDbMetadata },
-                    bookWalkerDbDownloader = dynamicDependencies.map { it.bookWalkerDbDownloader },
+                    mangaBakaDownloader = dependencies.map { it.mangaBakaDownloader },
+                    mangaBakaDbMetadata = dependencies.map { it.mangaBakaDbMetadata },
+                    bookWalkerDbDownloader = dependencies.map { it.bookWalkerDbDownloader },
                     json = json,
                 ).registerRoutes(this)
                 JobRoutes(
-                    jobTracker = dynamicDependencies.map { it.jobTracker },
-                    jobsRepository = dynamicDependencies.map { it.jobsRepository },
+                    jobTracker = dependencies.map { it.jobTracker },
+                    jobsRepository = dependencies.map { it.jobsRepository },
                     json = json
                 ).registerRoutes(this)
 
                 NotificationRoutes(
-                    discordService = dynamicDependencies.map { it.discordService },
-                    discordRenderer = dynamicDependencies.map { it.discordRenderer },
-                    appriseService = dynamicDependencies.map { it.appriseService },
-                    appriseRenderer = dynamicDependencies.map { it.appriseRenderer }
+                    discordService = dependencies.map { it.discordService },
+                    discordRenderer = dependencies.map { it.discordRenderer },
+                    appriseService = dependencies.map { it.appriseService },
+                    appriseRenderer = dependencies.map { it.appriseRenderer }
                 ).registerRoutes(this)
 
                 route("/komga") {
                     MetadataRoutes(
-                        metadataServiceProvider = dynamicDependencies.map { it.komgaMetadataServiceProvider },
-                        mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient },
+                        metadataServiceProvider = dependencies.map { it.komgaMetadataServiceProvider },
+                        mediaServerClient = dependencies.map { it.komgaMediaServerClient },
                     ).registerRoutes(this)
 
                     MediaServerRoutes(
-                        mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient }
+                        mediaServerClient = dependencies.map { it.komgaMediaServerClient }
                     ).registerRoutes(this)
                 }
 
                 route("/kavita") {
                     MetadataRoutes(
-                        metadataServiceProvider = dynamicDependencies.map { it.kavitaMetadataServiceProvider },
-                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient },
+                        metadataServiceProvider = dependencies.map { it.kavitaMetadataServiceProvider },
+                        mediaServerClient = dependencies.map { it.kavitaMediaServerClient },
                     ).registerRoutes(this)
 
                     MediaServerRoutes(
-                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient }
+                        mediaServerClient = dependencies.map { it.kavitaMediaServerClient }
                     ).registerRoutes(this)
                 }
             }
@@ -141,21 +141,21 @@ class ServerModule(
 
     private fun registerDeprecatedRoutes(application: Application) {
         DeprecatedConfigRoutes(
-            config = dynamicDependencies.map { it.config },
+            config = dependencies.map { it.config },
             onConfigUpdate = onConfigUpdate,
             configMapper = configMapper
         ).registerRoutes(application)
 
         DeprecatedMetadataRoutes(
-            metadataServiceProvider = dynamicDependencies.map { it.komgaMetadataServiceProvider },
-            mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient },
-            jobTracker = dynamicDependencies.map { it.jobTracker },
+            metadataServiceProvider = dependencies.map { it.komgaMetadataServiceProvider },
+            mediaServerClient = dependencies.map { it.komgaMediaServerClient },
+            jobTracker = dependencies.map { it.jobTracker },
             serverType = KOMGA
         ).registerRoutes(application)
         DeprecatedMetadataRoutes(
-            metadataServiceProvider = dynamicDependencies.map { it.kavitaMetadataServiceProvider },
-            mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient },
-            jobTracker = dynamicDependencies.map { it.jobTracker },
+            metadataServiceProvider = dependencies.map { it.kavitaMetadataServiceProvider },
+            mediaServerClient = dependencies.map { it.kavitaMediaServerClient },
+            jobTracker = dependencies.map { it.jobTracker },
             serverType = KAVITA
         ).registerRoutes(application)
     }
@@ -165,7 +165,7 @@ class ServerModule(
     }
 }
 
-class ApiDynamicDependencies(
+class ApiRouteDependencies(
     val config: AppConfig,
     val jobTracker: KomfJobTracker,
     val jobsRepository: KomfJobsRepository,
