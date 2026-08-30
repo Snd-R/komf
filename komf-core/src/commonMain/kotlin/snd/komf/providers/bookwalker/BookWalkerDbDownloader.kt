@@ -1,11 +1,10 @@
-package snd.komf.providers.mangabaka.db
+package snd.komf.providers.bookwalker
 
+import com.github.luben.zstd.ZstdInputStream
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
-import io.ktor.client.request.get
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
-import io.ktor.client.statement.bodyAsText
 import io.ktor.utils.io.counted
 import io.ktor.utils.io.readRemaining
 import kotlinx.coroutines.CoroutineScope
@@ -18,8 +17,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.io.readByteArray
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.io.IOUtils
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -27,27 +24,22 @@ import snd.komf.model.DOWNLOAD_BUFFER_SIZE
 import snd.komf.model.DownloadProgress
 import snd.komf.model.DownloadProgress.FinishedEvent
 import snd.komf.model.DownloadProgress.ProgressEvent
-import java.io.BufferedInputStream
 import java.nio.file.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
-import kotlin.io.path.exists
 import kotlin.io.path.inputStream
 import kotlin.io.path.outputStream
-import kotlin.time.Clock
 
 private val logger = KotlinLogging.logger { }
 
-class MangaBakaDbDownloader(
+class BookWalkerDbDownloader(
     private val ktor: HttpClient,
-    private val databaseArchive: Path,
+    private val databaseWorkDirectory: Path,
     private val databaseFile: Path,
-    private val dbMetadata: MangaBakaDbMetadata,
     private val onStateRefresh: suspend () -> Unit,
 ) {
-    private val databaseUrl = "https://api.mangabaka.org/v1/database/series.sqlite.tar.gz"
-    private val checksumUrl = "https://api.mangabaka.org/v1/database/series.sqlite.tar.gz.sha1"
-
+    private val databaseArchive = databaseWorkDirectory.resolve("bkwk-db.sqlite.zst")
+    private val databaseUrl = "https://static.bookwalker.com/data/bkwk-db.sqlite.zst"
     private val progressFlow = MutableSharedFlow<DownloadProgress>(
         replay = 1,
         extraBufferCapacity = 1000,
@@ -60,45 +52,39 @@ class MangaBakaDbDownloader(
     fun launchDownload(): Flow<DownloadProgress> {
         if (downloadMutex.tryLock()) {
             progressFlow.resetReplayCache()
-            downloadScope.launch { doDownload(lockedMutex = downloadMutex) }
+            downloadScope.launch {
+                try {
+                    doDownload()
+                } finally {
+                    downloadMutex.unlock()
+                }
+            }
         }
 
         return progressFlow
     }
 
-    private suspend fun doDownload(lockedMutex: Mutex) {
+    private suspend fun doDownload() {
         try {
-            progressFlow.emit(ProgressEvent(0, 0, checksumUrl))
-            val newChecksum = ktor.get(checksumUrl).bodyAsText()
-            if (databaseFile.exists() && dbMetadata.isValid() && dbMetadata.checksum == newChecksum) {
-                progressFlow.emit(FinishedEvent)
-                return
-            }
-            dbMetadata.delete()
+
+            progressFlow.emit(ProgressEvent(0, 0, databaseUrl))
             databaseFile.deleteIfExists()
-            databaseArchive.deleteIfExists()
             databaseFile.createParentDirectories()
 
             downloadDatabaseArchive()
             extractDatabaseFile()
             createSearchIndex()
 
-            dbMetadata.setTimestamp(Clock.System.now())
-            dbMetadata.setChecksum(newChecksum)
             databaseArchive.deleteIfExists()
             progressFlow.emit(FinishedEvent)
             onStateRefresh()
-
         } catch (e: Exception) {
             logger.catching(e)
             databaseArchive.deleteIfExists()
             databaseFile.deleteIfExists()
-            dbMetadata.delete()
             progressFlow.emit(
                 DownloadProgress.ErrorEvent("${e::class.simpleName}: ${e.message}")
             )
-        } finally {
-            lockedMutex.unlock()
         }
     }
 
@@ -124,19 +110,15 @@ class MangaBakaDbDownloader(
 
     private suspend fun extractDatabaseFile() {
         progressFlow.emit(ProgressEvent(0, 0, "extracting $databaseArchive"))
-        TarArchiveInputStream(GzipCompressorInputStream(BufferedInputStream(databaseArchive.inputStream())))
-            .use { archiveStream ->
-                // take only first entry
-                archiveStream.nextEntry
-                IOUtils.copyLarge(archiveStream, databaseFile.outputStream())
-            }
+        val zstdInput = ZstdInputStream(databaseArchive.inputStream())
+        IOUtils.copyLarge(zstdInput, databaseFile.outputStream())
+
     }
 
     private suspend fun createSearchIndex() {
         progressFlow.emit(ProgressEvent(0, 0, "creating search index"))
         val db = Database.connect("jdbc:sqlite:$databaseFile")
         transaction(db) {
-
             exec(
                 """
                     CREATE VIRTUAL TABLE series_fts USING fts5
@@ -153,15 +135,12 @@ class MangaBakaDbDownloader(
                 """
                     INSERT INTO series_fts
                     SELECT s.id,
-                           GROUP_CONCAT(json_extract(json_each.value, '$.title'), ', '),
+                           GROUP_CONCAT(json_each.value, ', '),
                            s.type
-                    FROM series s, json_each(titles)
-                    WHERE state = 'active'
+                    FROM series s, json_each(alt_titles)
                     GROUP BY s.id;
                 """.trimIndent()
             )
         }
     }
 }
-
-

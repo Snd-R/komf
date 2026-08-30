@@ -39,6 +39,7 @@ import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
+import snd.komf.providers.bookwalker.BookWalkerDbDownloader
 import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
 import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 
@@ -97,6 +98,7 @@ class ServerModule(
                     onConfigUpdate = onConfigUpdate,
                     mangaBakaDownloader = dynamicDependencies.map { it.mangaBakaDownloader },
                     mangaBakaDbMetadata = dynamicDependencies.map { it.mangaBakaDbMetadata },
+                    bookWalkerDbDownloader = dynamicDependencies.map { it.bookWalkerDbDownloader },
                     json = json,
                 ).registerRoutes(this)
                 JobRoutes(
@@ -176,5 +178,6 @@ class ApiDynamicDependencies(
     val appriseService: AppriseCliService,
     val appriseRenderer: AppriseVelocityTemplates,
     val mangaBakaDownloader: MangaBakaDbDownloader,
-    val mangaBakaDbMetadata: MangaBakaDbMetadata
+    val mangaBakaDbMetadata: MangaBakaDbMetadata,
+    val bookWalkerDbDownloader: BookWalkerDbDownloader,
 )

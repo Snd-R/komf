@@ -7,6 +7,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import snd.komf.ktor.komfUserAgent
 import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProvidersModule
+import snd.komf.providers.bookwalker.BookWalkerDbDownloader
 import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
 import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 import kotlin.io.path.Path
@@ -42,5 +43,24 @@ class CoreModule(
         if (mangaBakaDatabaseFile.notExists()) null
         else Database.connect("jdbc:sqlite:$mangaBakaDatabaseFile")
 
-    val metadataProviders = ProvidersModule(config, baseHttpClient, mangaBakaDatabase).getMetadataProviders()
+
+    private val bookWalkerDir = Path("./bookwalker")
+    private val bookWalkerDatabaseFile = bookWalkerDir.resolve("bkwk-db.sqlite")
+    val bookWalkerDbDownloader = BookWalkerDbDownloader(
+        baseHttpClient,
+        databaseWorkDirectory = bookWalkerDir,
+        databaseFile = bookWalkerDatabaseFile,
+        onStateRefresh = onStateRefresh
+    )
+    val bookWalkerDatabase =
+        if (bookWalkerDatabaseFile.notExists()) null
+        else Database.connect("jdbc:sqlite:$bookWalkerDatabaseFile")
+
+
+    val metadataProviders = ProvidersModule(
+        config,
+        baseHttpClient,
+        mangaBakaDatabase,
+        bookWalkerDatabase,
+    ).getMetadataProviders()
 }

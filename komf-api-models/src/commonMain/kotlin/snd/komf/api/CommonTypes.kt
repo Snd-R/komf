@@ -64,8 +64,6 @@ enum class KomfCoreProviders : KomfProviders {
     @Deprecated("to be removed")
     BANGUMI,
     @Deprecated("to be removed")
-    HENTAG,
-    @Deprecated("to be removed")
     YEN_PRESS,
     @Deprecated("to be removed")
     VIZ,
@@ -75,6 +73,8 @@ enum class KomfCoreProviders : KomfProviders {
     NAUTILJON,
     @Deprecated("Removed")
     KODANSHA,
+    @Deprecated("Removed")
+    HENTAG,
 }
 
 data class UnknownKomfProvider(val name: String) : KomfProviders

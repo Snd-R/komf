@@ -4,21 +4,21 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed interface MangaBakaDownloadProgress {
+sealed interface DownloadProgress {
     @Serializable
     @SerialName("ProgressEvent")
     data class ProgressEvent(
         val total: Long,
         val completed: Long,
         val info: String? = null,
-    ) : MangaBakaDownloadProgress
+    ) : DownloadProgress
 
     @Serializable
     @SerialName("FinishedEvent")
-    data object FinishedEvent : MangaBakaDownloadProgress
+    data object FinishedEvent : DownloadProgress
 
     @Serializable
     @SerialName("ErrorEvent")
-    data class ErrorEvent(val message: String) : MangaBakaDownloadProgress
+    data class ErrorEvent(val message: String) : DownloadProgress
 }
 

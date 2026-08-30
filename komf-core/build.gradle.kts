@@ -38,6 +38,7 @@ kotlin {
             implementation(libs.sqlite.jdbc)
             implementation(libs.xmlutil.core)
             implementation(libs.xmlutil.serialization)
+            implementation(libs.zstd.jni)
 
 
             implementation(libs.twelvemonkeys.imageio.core)

@@ -27,9 +27,9 @@ import snd.komf.providers.anilist.AniListMetadataProvider
 import snd.komf.providers.bangumi.BangumiClient
 import snd.komf.providers.bangumi.BangumiMetadataMapper
 import snd.komf.providers.bangumi.BangumiMetadataProvider
-import snd.komf.providers.bookwalker.BookWalkerClient
 import snd.komf.providers.bookwalker.BookWalkerMapper
 import snd.komf.providers.bookwalker.BookWalkerMetadataProvider
+import snd.komf.providers.bookwalker.repository.BookWalkerSeriesRepository
 import snd.komf.providers.comicvine.ComicVineClient
 import snd.komf.providers.comicvine.ComicVineMetadataMapper
 import snd.komf.providers.comicvine.ComicVineMetadataProvider
@@ -72,6 +72,7 @@ class ProvidersModule(
     private val config: MetadataProvidersConfig,
     baseHttpClient: HttpClient,
     mangaBakaDatabase: Database?,
+    bookWalkerDatabase: Database?,
 ) {
 
     private val json = Json {
@@ -187,19 +188,19 @@ class ProvidersModule(
             }
         }
     )
-    private val bookWalkerClient = BookWalkerClient(
-        ktor = baseHttpClient.config {
-            install(HttpRequestRateLimiter) {
-                interval = 10.seconds
-                eventsPerInterval = 10
-                allowBurst = true
-            }
-            install(HttpRequestRetry) {
-                defaultRetry()
-            }
-        },
-        json = json
-    )
+
+    private val bookWalkerCoverClient = baseHttpClientJson.config {
+        install(HttpRequestRateLimiter) {
+            interval = 1.seconds
+            eventsPerInterval = 2
+            allowBurst = false
+        }
+        install(HttpRequestRetry) {
+            defaultRetry()
+        }
+    }
+    private val bookWalkerRepository = bookWalkerDatabase?.let { BookWalkerSeriesRepository(it) }
+
     private val mangaDexClient = MangaDexClient(
         baseHttpClientJson.config {
             install(HttpRequestRateLimiter) {
@@ -319,9 +320,10 @@ class ProvidersModule(
             ),
             vizPriority = config.viz.priority,
             bookwalker = createBookWalkerMetadataProvider(
-                config.bookWalker,
-                bookWalkerClient,
-                defaultNameMatcher
+                config = config.bookWalker,
+                defaultNameMatcher = defaultNameMatcher,
+                httpClient = bookWalkerCoverClient,
+                repository = bookWalkerRepository
             ),
             bookwalkerPriority = config.bookWalker.priority,
             mangaDex = createMangaDexMetadataProvider(
@@ -504,10 +506,15 @@ class ProvidersModule(
 
     private fun createBookWalkerMetadataProvider(
         config: ProviderConfig,
-        client: BookWalkerClient,
         defaultNameMatcher: NameSimilarityMatcher,
+        httpClient: HttpClient,
+        repository: BookWalkerSeriesRepository?,
     ): BookWalkerMetadataProvider? {
         if (config.enabled.not()) return null
+        if (repository == null) {
+            logger.warn { "Failed to find BookWalker database. Disabling BookWalker provider" }
+            return null
+        }
 
         val bookWalkerMapper = BookWalkerMapper(
             seriesMetadataConfig = config.seriesMetadata,
@@ -519,12 +526,13 @@ class ProvidersModule(
             ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
 
         return BookWalkerMetadataProvider(
-            client,
-            bookWalkerMapper,
-            similarityMatcher,
-            config.seriesMetadata.thumbnail,
-            config.bookMetadata.thumbnail,
-            config.mediaType
+            metadataMapper = bookWalkerMapper,
+            repository = repository,
+            nameMatcher = similarityMatcher,
+            fetchSeriesCovers = config.seriesMetadata.thumbnail,
+            fetchBookCovers = config.bookMetadata.thumbnail,
+            httpClient = httpClient,
+            mediaType = config.mediaType
         )
     }
 

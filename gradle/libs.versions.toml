@@ -31,6 +31,7 @@ tika = "3.3.2"
 twelveMonkeys = "3.14.0"
 velocity = "2.4.1"
 xmlutil = "1.0.2"
+zstd-jni = "1.5.7-15"
 
 [libraries]
 cache4k = { module = "io.github.reactivecircus.cache4k:cache4k", version.ref = "cache4k" }
@@ -79,6 +80,7 @@ twelvemonkeys-imageio-webp = { module = "com.twelvemonkeys.imageio:imageio-webp"
 velocity-core = { module = "org.apache.velocity:velocity-engine-core", version.ref = "velocity" }
 xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "xmlutil" }
 xmlutil-serialization = { module = "io.github.pdvrieze.xmlutil:serialization", version.ref = "xmlutil" }
+zstd-jni = { module = "com.github.luben:zstd-jni", version.ref = "zstd-jni" }
 
 [plugins]
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
