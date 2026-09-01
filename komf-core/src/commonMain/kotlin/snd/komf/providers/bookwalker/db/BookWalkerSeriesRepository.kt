@@ -47,14 +47,15 @@ class BookWalkerSeriesRepository(
 
             try {
                 val sqlString = buildString {
-                    append("SELECT id FROM series_fts WHERE titles MATCH ?")
+                    append("SELECT id FROM series_fts WHERE (title MATCH ? or alt_titles MATCH ?)")
                     contentTypes.ifEmpty { null }?.joinToString(", ") { "?" }?.let { append(" AND type IN (${it})") }
                     append(" ORDER BY rank LIMIT 10")
                 }
 
                 ftsStatement = connection.prepareStatement(sqlString, false)
                 ftsStatement.set(1, "\"$title\"", TextColumnType())
-                var statementCurrentIndex = 1
+                ftsStatement.set(2, "\"$title\"", TextColumnType())
+                var statementCurrentIndex = 2
                 contentTypes.forEach { type ->
                     statementCurrentIndex += 1
                     ftsStatement.set(

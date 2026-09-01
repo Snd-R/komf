@@ -142,7 +142,8 @@ class BookWalkerDbDownloader(
                     CREATE VIRTUAL TABLE series_fts USING fts5
                     (
                         id,
-                        titles,
+                        title,
+                        alt_titles,
                         type,
                         tokenize = 'trigram'
                     );
@@ -152,9 +153,7 @@ class BookWalkerDbDownloader(
             exec(
                 """
                     INSERT INTO series_fts
-                    SELECT s.id,
-                           GROUP_CONCAT(json_each.value, ', '),
-                           s.type
+                    SELECT s.id, s.title, GROUP_CONCAT(json_each.value, ', '), s.type
                     FROM series s, json_each(alt_titles)
                     GROUP BY s.id;
                 """.trimIndent()
