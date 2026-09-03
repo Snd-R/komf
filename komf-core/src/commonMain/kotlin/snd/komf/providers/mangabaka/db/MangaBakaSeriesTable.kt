@@ -16,6 +16,7 @@ private val json = Json {
 object MangaBakaSeriesTable : Table("series") {
     val id = integer("id")
     val type = text("type")
+    val canonicalUrl = text("canonical_url")
     val coverRawUrl = text("cover_raw_url").nullable()
     val coverRawSize = long("cover_raw_size").nullable()
     val coverRawWidth = integer("cover_raw_width").nullable()
@@ -48,5 +49,12 @@ object MangaBakaSeriesTable : Table("series") {
     val totalChapters = text("total_chapters").nullable()
     val lastUpdatedAt = text("last_updated_at")
     val relationshipsV2 = json<List<MangaBakaRelationship>>("relationships_v2", json).nullable()
+    val sourceKitsuId = integer("source_kitsu_id").nullable()
+    val sourceAniListId = integer("source_anilist_id").nullable()
+    val sourceShikimoriId = integer("source_shikimori_id").nullable()
+    val sourceAnimePlanetId = text("source_anime_planet_id").nullable()
+    val sourceMangaUpdatesId = text("source_manga_updates_id").nullable()
+    val sourceMyAnimeListId = integer("source_my_anime_list_id").nullable()
+    val sourceAnimeNewsNetworkId = integer("source_anime_news_network_id").nullable()
 }
 

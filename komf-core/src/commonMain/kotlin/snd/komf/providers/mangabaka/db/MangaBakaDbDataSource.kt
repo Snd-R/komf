@@ -10,17 +10,25 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.statements.api.JdbcPreparedStatementApi
 import org.jetbrains.exposed.v1.jdbc.statements.jdbc.JdbcResult
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import snd.komf.providers.mangabaka.MangaBakaAniListSource
 import snd.komf.providers.mangabaka.MangaBakaAnimeInfo
+import snd.komf.providers.mangabaka.MangaBakaAnimeNewsNetworkSource
+import snd.komf.providers.mangabaka.MangaBakaAnimePlanetSource
 import snd.komf.providers.mangabaka.MangaBakaContentRating
 import snd.komf.providers.mangabaka.MangaBakaCover
 import snd.komf.providers.mangabaka.MangaBakaCoverDpi
 import snd.komf.providers.mangabaka.MangaBakaCoverRaw
 import snd.komf.providers.mangabaka.MangaBakaDataSource
+import snd.komf.providers.mangabaka.MangaBakaKitsuSource
+import snd.komf.providers.mangabaka.MangaBakaMangaUpdatesSource
+import snd.komf.providers.mangabaka.MangaBakaMyAnimeListSource
 import snd.komf.providers.mangabaka.MangaBakaPublishedDate
 import snd.komf.providers.mangabaka.MangaBakaPublisher
 import snd.komf.providers.mangabaka.MangaBakaSeries
 import snd.komf.providers.mangabaka.MangaBakaSeriesId
 import snd.komf.providers.mangabaka.MangaBakaSeriesState
+import snd.komf.providers.mangabaka.MangaBakaShikimoriSource
+import snd.komf.providers.mangabaka.MangaBakaSource
 import snd.komf.providers.mangabaka.MangaBakaStatus
 import snd.komf.providers.mangabaka.MangaBakaType
 import kotlin.time.Instant
@@ -93,6 +101,7 @@ class MangaBakaDbDataSource(
             id = MangaBakaSeriesId(this[MangaBakaSeriesTable.id]),
             state = MangaBakaSeriesState.valueOf(this[MangaBakaSeriesTable.state].uppercase()),
             mergedWith = this[MangaBakaSeriesTable.mergedWith],
+            canonicalUrl = this[MangaBakaSeriesTable.canonicalUrl],
             cover = MangaBakaCover(
                 raw = MangaBakaCoverRaw(
                     url = this[MangaBakaSeriesTable.coverRawUrl],
@@ -138,6 +147,43 @@ class MangaBakaDbDataSource(
             tagsV2 = this[MangaBakaSeriesTable.tagsV2],
             lastUpdatedAt = Instant.parse(this[MangaBakaSeriesTable.lastUpdatedAt]),
             relationshipsV2 = this[MangaBakaSeriesTable.relationshipsV2],
+            source = MangaBakaSource(
+                anilist = MangaBakaAniListSource(
+                    id = this[MangaBakaSeriesTable.sourceAniListId],
+                    rating = null,
+                    ratingNormalized = null
+                ),
+                animeNewsNetwork = MangaBakaAnimeNewsNetworkSource(
+                    id = this[MangaBakaSeriesTable.sourceAnimeNewsNetworkId],
+                    rating = null,
+                    ratingNormalized = null
+                ),
+                animePlanet = MangaBakaAnimePlanetSource(
+                    id = this[MangaBakaSeriesTable.sourceAnimePlanetId],
+                    rating = null,
+                    ratingNormalized = null
+                ),
+                kitsu = MangaBakaKitsuSource(
+                    id = this[MangaBakaSeriesTable.sourceKitsuId],
+                    rating = null,
+                    ratingNormalized = null
+                ),
+                mangaUpdates = MangaBakaMangaUpdatesSource(
+                    id = this[MangaBakaSeriesTable.sourceMangaUpdatesId],
+                    rating = null,
+                    ratingNormalized = null
+                ),
+                myAnimeList = MangaBakaMyAnimeListSource(
+                    id = this[MangaBakaSeriesTable.sourceMyAnimeListId],
+                    rating = null,
+                    ratingNormalized = null
+                ),
+                shikimori = MangaBakaShikimoriSource(
+                    id = this[MangaBakaSeriesTable.sourceShikimoriId],
+                    rating = null,
+                    ratingNormalized = null
+                ),
+            )
         )
     }
 }

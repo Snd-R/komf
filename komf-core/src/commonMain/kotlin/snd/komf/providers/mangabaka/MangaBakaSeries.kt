@@ -21,6 +21,8 @@ data class MangaBakaSeries(
     val anime: MangaBakaAnimeInfo? = null,
     val artists: List<String>? = null,
     val authors: List<String>? = null,
+    @SerialName("canonical_url")
+    val canonicalUrl: String,
     @SerialName("content_rating")
     val contentRating: MangaBakaContentRating,
     val cover: MangaBakaCover,
@@ -47,8 +49,9 @@ data class MangaBakaSeries(
     @SerialName("tags_v2")
     val tagsV2: List<MangaBakaTags>? = null,
     val titles: List<MangaBakaTitle>? = null,
+    val source: MangaBakaSource
 
-    ) {
+) {
     fun url() = "$baseUrl/${id.value}"
 }
 
@@ -358,12 +361,6 @@ enum class MangaBakaRelationshipChronology {
 }
 
 @Serializable
-data class MangaBakaAnilistSource(
-    val id: Int? = null,
-    val rating: Double? = null,
-)
-
-@Serializable
 enum class MangaBakaSeriesState {
     @SerialName("active")
     ACTIVE,
@@ -389,3 +386,74 @@ enum class MangaBakaContentRating {
     @SerialName("pornographic")
     PORNOGRAPHIC,
 }
+
+@Serializable
+data class MangaBakaSource(
+    val anilist: MangaBakaAniListSource,
+    @SerialName("anime_news_network")
+    val animeNewsNetwork: MangaBakaAnimeNewsNetworkSource,
+    @SerialName("anime_planet")
+    val animePlanet: MangaBakaAnimePlanetSource,
+    val kitsu: MangaBakaKitsuSource,
+    @SerialName("manga_updates")
+    val mangaUpdates: MangaBakaMangaUpdatesSource,
+    @SerialName("my_anime_list")
+    val myAnimeList: MangaBakaMyAnimeListSource,
+    val shikimori: MangaBakaShikimoriSource,
+)
+
+@Serializable
+data class MangaBakaAniListSource(
+    val id: Int?,
+    val rating: Double?,
+    @SerialName("rating_normalized")
+    val ratingNormalized: Int?
+)
+
+@Serializable
+data class MangaBakaAnimeNewsNetworkSource(
+    val id: Int?,
+    val rating: Double?,
+    @SerialName("rating_normalized")
+    val ratingNormalized: Int?
+)
+
+@Serializable
+data class MangaBakaAnimePlanetSource(
+    val id: String?,
+    val rating: Double?,
+    @SerialName("rating_normalized")
+    val ratingNormalized: Int?
+)
+
+@Serializable
+data class MangaBakaKitsuSource(
+    val id: Int?,
+    val rating: Double?,
+    @SerialName("rating_normalized")
+    val ratingNormalized: Int?
+)
+
+@Serializable
+data class MangaBakaMangaUpdatesSource(
+    val id: String?,
+    val rating: Double?,
+    @SerialName("rating_normalized")
+    val ratingNormalized: Int?
+)
+
+@Serializable
+data class MangaBakaMyAnimeListSource(
+    val id: Int?,
+    val rating: Double?,
+    @SerialName("rating_normalized")
+    val ratingNormalized: Int?
+)
+
+@Serializable
+data class MangaBakaShikimoriSource(
+    val id: Int?,
+    val rating: Double?,
+    @SerialName("rating_normalized")
+    val ratingNormalized: Int?
+)

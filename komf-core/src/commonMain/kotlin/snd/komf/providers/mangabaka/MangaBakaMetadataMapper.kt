@@ -73,7 +73,49 @@ class MangaBakaMetadataMapper(
         val publisher = if (metadataConfig.useOriginalPublisher) originalPublishers.firstOrNull()
         else englishPublishers.firstOrNull() ?: originalPublishers.firstOrNull()
 
-        val links = series.linksV2?.mapNotNull { link ->
+        val sourceLinks = listOfNotNull(
+            WebLink(
+                "MangaBaka",
+                series.canonicalUrl
+            ),
+            series.source.anilist.id?.let {
+                WebLink(
+                    "AniList",
+                    "https://anilist.co/manga/$it"
+                )
+            },
+            series.source.animeNewsNetwork.id?.let {
+                WebLink(
+                    "AnimeNewsNetwork",
+                    "https://www.animenewsnetwork.com/encyclopedia/manga.php?id=$it"
+                )
+            },
+            series.source.animePlanet.id?.let {
+                WebLink(
+                    "AnimePlanet",
+                    "https://www.anime-planet.com/manga/$it"
+                )
+            },
+            series.source.kitsu.id?.let {
+                WebLink(
+                    "Kitsu",
+                    "https://kitsu.app/manga/$it"
+                )
+            },
+            series.source.mangaUpdates.id?.let {
+                WebLink(
+                    "MangaUpdates",
+                    "https://www.mangaupdates.com/series/$it"
+                )
+            },
+            series.source.shikimori.id?.let {
+                WebLink(
+                    "Shikimori",
+                    "https://shikimori.one/mangas/$it"
+                )
+            },
+        )
+        val officialLinks = series.linksV2?.mapNotNull { link ->
             parseUrl(link.url)?.let { url ->
                 WebLink(
                     link.nameDisplay,
@@ -102,7 +144,7 @@ class MangaBakaMetadataMapper(
                 series.published?.startDate?.month?.number,
                 series.published?.startDate?.day
             ),
-            links = links,
+            links = officialLinks + sourceLinks,
             score = series.rating
         )
 
