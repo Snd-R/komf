@@ -116,6 +116,7 @@ class DeprecatedConfigUpdateMapper {
             mergeGenres = config.mergeGenres,
             bookCovers = config.bookCovers,
             seriesCovers = config.seriesCovers,
+            fallbackUseSeriesCoverForBook = config.fallbackUseSeriesCoverForBook,
             overrideExistingCovers = config.overrideExistingCovers,
             lockCovers = config.lockCovers,
             updateModes = config.updateModes,
@@ -542,6 +543,7 @@ class DeprecatedConfigUpdateMapper {
             mergeGenres = patch.mergeGenres ?: config.mergeGenres,
             bookCovers = patch.bookCovers ?: config.bookCovers,
             seriesCovers = patch.seriesCovers ?: config.seriesCovers,
+            fallbackUseSeriesCoverForBook = patch.fallbackUseSeriesCoverForBook ?: config.fallbackUseSeriesCoverForBook,
             overrideExistingCovers = patch.overrideExistingCovers ?: config.overrideExistingCovers,
             updateModes = patch.updateModes ?: config.updateModes,
             postProcessing = patch.postProcessing
