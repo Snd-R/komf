@@ -27,11 +27,11 @@ class KomfConfigClient(
 ) {
 
     suspend fun getConfig(): KomfConfig {
-        return ktor.get("/api/config").body()
+        return ktor.get("api/config").body()
     }
 
     suspend fun updateConfig(request: KomfConfigUpdateRequest) {
-        ktor.patch("/api/config") {
+        ktor.patch("api/config") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -40,7 +40,7 @@ class KomfConfigClient(
     fun updateMangaBakaDb(): Flow<DownloadProgress> {
         return flow {
             runCatching {
-                ktor.preparePost("/api/update-manga-baka-db").execute { response ->
+                ktor.preparePost("api/update-manga-baka-db").execute { response ->
                     streamProgressEvents(response.bodyAsChannel())
                 }
             }.onFailure {
@@ -52,7 +52,7 @@ class KomfConfigClient(
     fun updateBookWalkerDb(): Flow<DownloadProgress> {
         return flow {
             runCatching {
-                ktor.preparePost("/api/update-book-walker-db").execute { response ->
+                ktor.preparePost("api/update-book-walker-db").execute { response ->
                     streamProgressEvents(response.bodyAsChannel())
                 }
             }.onFailure {

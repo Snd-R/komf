@@ -29,7 +29,7 @@ class KomfClientFactory private constructor(private val builder: Builder) {
     private val ktor: HttpClient = (builder.ktor ?: HttpClient()).config {
         expectSuccess = true
         builder.cookieStorage?.let { install(HttpCookies) { storage = it } }
-        defaultRequest { url(baseUrl()) }
+        defaultRequest { url(baseUrl().trimEnd('/') + "/") }
         install(ContentNegotiation) { json(json) }
         install(SSE)
     }
