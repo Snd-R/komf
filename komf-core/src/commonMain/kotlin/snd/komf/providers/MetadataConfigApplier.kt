@@ -13,6 +13,7 @@ object MetadataConfigApplier {
             ProviderSeriesMetadata(
                 id = id,
                 books = getIfEnabled(books, config.books) ?: emptyList(),
+                matchedAltTitle = matchedAltTitle,
                 metadata = SeriesMetadata(
                     status = getIfEnabled(metadata.status, config.status),
                     title = getIfEnabled(metadata.title, config.title),

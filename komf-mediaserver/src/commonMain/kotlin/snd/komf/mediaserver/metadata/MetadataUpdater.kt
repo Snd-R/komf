@@ -93,13 +93,20 @@ class MetadataUpdater(
         processedMetadata: SeriesAndBookMetadata
     ) {
         val bookIdToWriteSeriesMetadata = bookToWriteSeriesMetadata(unprocessedMetadata.bookMetadata)
+        // Prefer the explicit matched alt title (Tier 3 search result); fall back to any
+        // language-tagged title from the unprocessed metadata (e.g. the ja-ro primary title
+        // from MangaUpdates). Post-processing strips titles when alternativeSeriesTitles=false,
+        // so we must source this from the unprocessed metadata.
+        val localizedSeriesName = unprocessedMetadata.matchedAltTitle
+            ?: unprocessedMetadata.seriesMetadata.titles.find { it.language != null }?.name
 
         processedMetadata.bookMetadata.forEach { (book, metadata) ->
             updateBookMetadata(
                 book,
                 metadata,
                 processedMetadata.seriesMetadata,
-                book.id == bookIdToWriteSeriesMetadata
+                book.id == bookIdToWriteSeriesMetadata,
+                localizedSeriesName,
             )
         }
     }
@@ -108,7 +115,8 @@ class MetadataUpdater(
         book: MediaServerBook,
         metadata: BookMetadata?,
         seriesMeta: SeriesMetadata,
-        writeSeriesMetadata: Boolean
+        writeSeriesMetadata: Boolean,
+        localizedSeriesName: String? = null,
     ) {
         logger.info { "updating book ${book.name}" }
         updateModes.forEach { mode ->
@@ -124,7 +132,15 @@ class MetadataUpdater(
                         if (writeSeriesMetadata) metadataUpdateMapper.toSeriesComicInfo(seriesMeta, metadata)
                         else metadataUpdateMapper.toComicInfo(metadata, seriesMeta)
 
-                    comicInfo?.let { comicInfoWriter.writeMetadata(book.url, it) }
+                    // The post-processor strips titles when alternativeSeriesTitles=false, so
+                    // the mapper produces localizedSeries=null. Patch it from the value we
+                    // computed from the unprocessed metadata so Kavita's scanner never resets
+                    // series.LocalizedName to empty on rescan.
+                    val patchedComicInfo = if (localizedSeriesName != null)
+                        comicInfo?.copy(localizedSeries = comicInfo.localizedSeries ?: localizedSeriesName)
+                    else comicInfo
+
+                    patchedComicInfo?.let { comicInfoWriter.writeMetadata(book.url, it) }
                 }
 
 //                UpdateMode.OPF -> {
