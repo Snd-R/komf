@@ -15,6 +15,10 @@ interface MetadataProvider {
 
     suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image?
 
+    suspend fun clearSeriesCache(providerSeriesId: ProviderSeriesId)
+
+    suspend fun clearSeriesIssuesCache(providerSeriesId: ProviderSeriesId)
+
     suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata
 
     suspend fun searchSeries(seriesName: String, limit: Int = 5): Collection<SeriesSearchResult>
