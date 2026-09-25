@@ -32,7 +32,7 @@ class KomfJobClient(
 ) {
 
     suspend fun getJob(jobId: KomfMetadataJobId): KomfMetadataJob {
-        return ktor.get("/api/jobs/$jobId").body()
+        return ktor.get("api/jobs/$jobId").body()
     }
 
     suspend fun getJobs(
@@ -40,7 +40,7 @@ class KomfJobClient(
         page: Int? = null,
         pageSize: Int? = null,
     ): KomfPage<List<KomfMetadataJob>> {
-        return ktor.get("/api/jobs") {
+        return ktor.get("api/jobs") {
             status?.let { parameter("status", status.name) }
             page?.let { parameter("page", page) }
             pageSize?.let { parameter("pageSize", pageSize) }
@@ -48,12 +48,12 @@ class KomfJobClient(
     }
 
     suspend fun getJobEvents(jobId: KomfMetadataJobId): Flow<KomfMetadataJobEvent> {
-        return ktor.sseSession("/api/jobs/${jobId.value}/events").incoming
+        return ktor.sseSession("api/jobs/${jobId.value}/events").incoming
             .map { json.toKomfEvent(it.event, it.data) }
     }
 
     suspend fun deleteAll() {
-        ktor.delete("/api/jobs/all")
+        ktor.delete("api/jobs/all")
     }
 
 
