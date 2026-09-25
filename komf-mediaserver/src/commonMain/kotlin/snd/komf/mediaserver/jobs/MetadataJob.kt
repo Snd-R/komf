@@ -2,16 +2,16 @@ package snd.komf.mediaserver.jobs
 
 import snd.komf.mediaserver.model.MediaServerSeriesId
 import snd.komf.providers.CoreProviders
-import java.util.*
 import kotlin.time.Clock
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @JvmInline
-value class MetadataJobId(val value: UUID)
+value class MetadataJobId(val value: Uuid)
 
 data class MetadataJob(
     val seriesId: MediaServerSeriesId,
-    val id: MetadataJobId = MetadataJobId(UUID.randomUUID()),
+    val id: MetadataJobId = MetadataJobId(Uuid.random()),
     val status: MetadataJobStatus = MetadataJobStatus.RUNNING,
     val message: String? = null,
 

@@ -11,6 +11,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readLine
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
@@ -45,6 +47,7 @@ class KomfConfigClient(
                 }
             }.onFailure {
                 emit(ErrorEvent(it.message ?: "Unexpected error"))
+                currentCoroutineContext().ensureActive()
             }
         }
     }
@@ -57,6 +60,7 @@ class KomfConfigClient(
                 }
             }.onFailure {
                 emit(ErrorEvent(it.message ?: "Unexpected error"))
+                currentCoroutineContext().ensureActive()
             }
         }
     }

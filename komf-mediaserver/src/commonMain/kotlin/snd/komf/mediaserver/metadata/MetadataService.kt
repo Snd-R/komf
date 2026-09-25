@@ -24,7 +24,7 @@ import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderCompletedEvent
 import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderErrorEvent
 import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderSeriesEvent
 import snd.komf.mediaserver.jobs.MetadataJobId
-import snd.komf.mediaserver.metadata.repository.SeriesMatchRepository
+import snd.komf.mediaserver.match.repository.SeriesMatchRepository
 import snd.komf.mediaserver.model.MediaServerBook
 import snd.komf.mediaserver.model.MediaServerLibraryId
 import snd.komf.mediaserver.model.MediaServerSeries

@@ -1,5 +1,7 @@
 package snd.komf.app
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.client.HttpClient
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -8,6 +10,7 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.CompressedFileType
 import io.ktor.server.http.content.staticResources
+import io.ktor.server.plugins.cachingheaders.CachingHeaders
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
@@ -22,6 +25,7 @@ import kotlinx.serialization.json.Json
 import snd.komf.api.KomfErrorResponse
 import snd.komf.app.api.ConfigRoutes
 import snd.komf.app.api.JobRoutes
+import snd.komf.app.api.MangaBakaRoutes
 import snd.komf.app.api.MediaServerRoutes
 import snd.komf.app.api.MetadataRoutes
 import snd.komf.app.api.NotificationRoutes
@@ -29,10 +33,12 @@ import snd.komf.app.api.deprecated.DeprecatedConfigRoutes
 import snd.komf.app.api.deprecated.DeprecatedConfigUpdateMapper
 import snd.komf.app.api.deprecated.DeprecatedMetadataRoutes
 import snd.komf.app.config.AppConfig
+import snd.komf.mangabaka.external.MangaBakaDbDownloader
+import snd.komf.mangabaka.repository.MangaBakaRepository
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.jobs.KomfJobTracker
-import snd.komf.mediaserver.jobs.KomfJobsRepository
+import snd.komf.mediaserver.jobs.repository.KomfJobsRepository
 import snd.komf.mediaserver.model.MediaServer.KAVITA
 import snd.komf.mediaserver.model.MediaServer.KOMGA
 import snd.komf.notifications.apprise.AppriseCliService
@@ -40,8 +46,8 @@ import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
 import snd.komf.providers.bookwalker.db.BookWalkerDbDownloader
-import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
-import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
+
+private val logger = KotlinLogging.logger { }
 
 class ServerModule(
     serverPort: Int,
@@ -69,8 +75,11 @@ class ServerModule(
             header("Cross-Origin-Embedder-Policy", "require-corp")
             header("Cross-Origin-Opener-Policy", "same-origin")
         }
+
+        install(CachingHeaders)
         install(StatusPages) {
             exception<IllegalStateException> { call, cause ->
+                logger.catching(cause)
                 call.respond(
                     HttpStatusCode.InternalServerError,
                     KomfErrorResponse("${cause::class.simpleName} :${cause.message}")
@@ -79,6 +88,14 @@ class ServerModule(
             exception<IllegalArgumentException> { call, cause ->
                 call.respond(
                     HttpStatusCode.BadRequest,
+                    KomfErrorResponse("${cause::class.simpleName} :${cause.message}")
+                )
+            }
+
+            exception<Throwable> { call, cause ->
+                logger.catching(cause)
+                call.respond(
+                    HttpStatusCode.InternalServerError,
                     KomfErrorResponse("${cause::class.simpleName} :${cause.message}")
                 )
             }
@@ -97,7 +114,7 @@ class ServerModule(
                     config = dependencies.map { it.config },
                     onConfigUpdate = onConfigUpdate,
                     mangaBakaDownloader = dependencies.map { it.mangaBakaDownloader },
-                    mangaBakaDbMetadata = dependencies.map { it.mangaBakaDbMetadata },
+                    mangaBakaRepository = dependencies.map { it.mangaBakaRepository },
                     bookWalkerDbDownloader = dependencies.map { it.bookWalkerDbDownloader },
                     json = json,
                 ).registerRoutes(this)
@@ -135,6 +152,12 @@ class ServerModule(
                         mediaServerClient = dependencies.map { it.kavitaMediaServerClient }
                     ).registerRoutes(this)
                 }
+
+                MangaBakaRoutes(
+                    mangaBakaRepository = dependencies.map { it.mangaBakaRepository },
+                    httpClient = dependencies.map { it.httpClient }
+                ).registerRoutes(this)
+
             }
         }
     }
@@ -178,6 +201,7 @@ class ApiRouteDependencies(
     val appriseService: AppriseCliService,
     val appriseRenderer: AppriseVelocityTemplates,
     val mangaBakaDownloader: MangaBakaDbDownloader,
-    val mangaBakaDbMetadata: MangaBakaDbMetadata,
     val bookWalkerDbDownloader: BookWalkerDbDownloader,
+    val mangaBakaRepository: MangaBakaRepository,
+    val httpClient: HttpClient,
 )

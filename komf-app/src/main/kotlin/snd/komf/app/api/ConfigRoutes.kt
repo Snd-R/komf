@@ -11,9 +11,14 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.utils.io.writeStringUtf8
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.transformWhile
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
@@ -23,12 +28,13 @@ import snd.komf.api.config.KomfConfigUpdateRequest
 import snd.komf.app.api.mappers.AppConfigMapper
 import snd.komf.app.api.mappers.AppConfigUpdateMapper
 import snd.komf.app.config.AppConfig
+import snd.komf.mangabaka.external.MangaBakaDbDownloader
+import snd.komf.mangabaka.repository.MangaBakaRepository
 import snd.komf.model.DownloadProgress.ErrorEvent
 import snd.komf.model.DownloadProgress.FinishedEvent
 import snd.komf.model.DownloadProgress.ProgressEvent
 import snd.komf.providers.bookwalker.db.BookWalkerDbDownloader
-import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
-import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
+import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -36,7 +42,7 @@ class ConfigRoutes(
     private val config: Flow<AppConfig>,
     private val onConfigUpdate: suspend (AppConfig) -> Unit,
     private val mangaBakaDownloader: Flow<MangaBakaDbDownloader>,
-    private val mangaBakaDbMetadata: Flow<MangaBakaDbMetadata>,
+    private val mangaBakaRepository: Flow<MangaBakaRepository>,
     private val bookWalkerDbDownloader: Flow<BookWalkerDbDownloader>,
     private val json: Json,
 ) {
@@ -58,7 +64,7 @@ class ConfigRoutes(
             call.respond(
                 configMapper.toDto(
                     config = config.first(),
-                    mangaBakaDbMetadata = mangaBakaDbMetadata.first(),
+                    mangaBakaDbMetadata = mangaBakaRepository.first().getImportMetadata(),
                     bookWalkerDbTimestamp = bookWalkerDbDownloader.first().downloadTimestamp
                 )
             )
@@ -91,22 +97,46 @@ class ConfigRoutes(
             val downloader = mangaBakaDownloader.first()
 
             call.respondBytesWriter(contentType = ContentType("application", "jsonl")) {
-                downloader.launchDownload().transformWhile { event ->
-                    emit(event)
-                    event is ProgressEvent
-                }.collect { event ->
-                    val mappedEvent = when (event) {
-                        is ProgressEvent -> DownloadProgress.ProgressEvent(
-                            event.total,
-                            event.completed,
-                            event.info
-                        )
-
-                        is ErrorEvent -> DownloadProgress.ErrorEvent(event.message)
-                        FinishedEvent -> DownloadProgress.FinishedEvent
+                val writeMutex = Mutex()
+                coroutineScope {
+                    val heartbeat = async {
+                        while (isActive) {
+                            delay(15.seconds)
+                            logger.info { "emit heartbeat" }
+                            writeMutex.withLock {
+                                val heartbeat: DownloadProgress = DownloadProgress.HeartbeatEvent
+                                writeStringUtf8(json.encodeToString(heartbeat) + "\n")
+                                flush()
+                            }
+                        }
                     }
-                    writeStringUtf8(json.encodeToString(mappedEvent) + "\n")
-                    flush()
+
+                    launch {
+                        try {
+                            downloader.launchDownload().transformWhile { event ->
+                                emit(event)
+                                event is ProgressEvent
+                            }.collect { event ->
+                                val mappedEvent: DownloadProgress = when (event) {
+                                    is ProgressEvent -> DownloadProgress.ProgressEvent(
+                                        event.total,
+                                        event.completed,
+                                        event.info
+                                    )
+
+                                    is ErrorEvent -> DownloadProgress.ErrorEvent(event.message)
+                                    FinishedEvent -> DownloadProgress.FinishedEvent
+                                }
+
+                                writeMutex.withLock {
+                                    writeStringUtf8(json.encodeToString(mappedEvent) + "\n")
+                                    flush()
+                                }
+                            }
+                        } finally {
+                            heartbeat.cancel()
+                        }
+                    }
                 }
             }
 

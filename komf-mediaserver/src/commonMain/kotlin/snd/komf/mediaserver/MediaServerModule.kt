@@ -1,9 +1,7 @@
 package snd.komf.mediaserver
 
-import app.cash.sqldelight.ColumnAdapter
-import app.cash.sqldelight.EnumColumnAdapter
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -16,6 +14,10 @@ import io.ktor.http.appendPathSegments
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.flywaydb.core.Flyway
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.sqlite.SQLiteConfig
+import org.sqlite.SQLiteDataSource
 import snd.komf.comicinfo.ComicInfoWriter
 import snd.komf.ktor.komfUserAgent
 import snd.komf.mediaserver.config.DatabaseConfig
@@ -24,8 +26,7 @@ import snd.komf.mediaserver.config.KomgaConfig
 import snd.komf.mediaserver.config.MetadataProcessingConfig
 import snd.komf.mediaserver.config.MetadataUpdateConfig
 import snd.komf.mediaserver.jobs.KomfJobTracker
-import snd.komf.mediaserver.jobs.KomfJobsRepository
-import snd.komf.mediaserver.jobs.MetadataJobId
+import snd.komf.mediaserver.jobs.repository.KomfJobsRepository
 import snd.komf.mediaserver.kavita.JvmJwtConsumer
 import snd.komf.mediaserver.kavita.KavitaAuthClient
 import snd.komf.mediaserver.kavita.KavitaClient
@@ -34,33 +35,22 @@ import snd.komf.mediaserver.kavita.KavitaMediaServerClientAdapter
 import snd.komf.mediaserver.kavita.KavitaTokenProvider
 import snd.komf.mediaserver.komga.KomgaEventHandler
 import snd.komf.mediaserver.komga.KomgaMediaServerClientAdapter
+import snd.komf.mediaserver.match.repository.BookThumbnailsRepository
+import snd.komf.mediaserver.match.repository.SeriesMatchRepository
+import snd.komf.mediaserver.match.repository.SeriesThumbnailsRepository
 import snd.komf.mediaserver.metadata.MetadataEventHandler
 import snd.komf.mediaserver.metadata.MetadataMapper
 import snd.komf.mediaserver.metadata.MetadataMerger
 import snd.komf.mediaserver.metadata.MetadataPostProcessor
 import snd.komf.mediaserver.metadata.MetadataService
 import snd.komf.mediaserver.metadata.MetadataUpdater
-import snd.komf.mediaserver.metadata.repository.BookThumbnailsRepository
-import snd.komf.mediaserver.metadata.repository.SeriesMatchRepository
-import snd.komf.mediaserver.metadata.repository.SeriesThumbnailsRepository
 import snd.komf.mediaserver.model.MediaServer
-import snd.komf.mediaserver.model.MediaServerBookId
-import snd.komf.mediaserver.model.MediaServerSeriesId
-import snd.komf.mediaserver.model.MediaServerThumbnailId
-import snd.komf.mediaserver.repository.BookThumbnail
-import snd.komf.mediaserver.repository.Database
-import snd.komf.mediaserver.repository.KomfJobRecord
-import snd.komf.mediaserver.repository.SeriesMatch
-import snd.komf.mediaserver.repository.SeriesThumbnail
-import snd.komf.model.ProviderSeriesId
 import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.discord.DiscordWebhookService
 import snd.komf.providers.ProvidersModule
 import snd.komga.client.KomgaClientFactory
 import java.nio.file.Path
-import java.util.*
 import kotlin.time.Clock
-import kotlin.time.Instant
 
 class MediaServerModule(
     komgaConfig: KomgaConfig,
@@ -73,14 +63,14 @@ class MediaServerModule(
     private val metadataProviders: ProvidersModule.MetadataProviders,
 ) {
     private val mediaServerDatabase = createDatabase(Path.of(databaseConfig.file))
-    val jobRepository = KomfJobsRepository(mediaServerDatabase.komfJobRecordQueries)
+    val jobRepository = KomfJobsRepository(mediaServerDatabase)
     val jobTracker = KomfJobTracker(jobRepository)
 
     val komgaClient: KomgaMediaServerClientAdapter
     val komgaMetadataServiceProvider: MetadataServiceProvider
     private val komgaBookThumbnailRepository: BookThumbnailsRepository
     private val komgaSerThumbnailsRepository: SeriesThumbnailsRepository
-    private val komgaSeriesMatchRepository: SeriesMatchRepository
+    val komgaSeriesMatchRepository: SeriesMatchRepository
     private val komgaMetadataEventHandler: MetadataEventHandler
     private val komgaNotificationsHandler: NotificationsEventHandler?
     private val komgaEventHandler: KomgaEventHandler
@@ -89,7 +79,7 @@ class MediaServerModule(
     val kavitaMetadataServiceProvider: MetadataServiceProvider
     private val kavitaBookThumbnailRepository: BookThumbnailsRepository
     private val kavitaSerThumbnailsRepository: SeriesThumbnailsRepository
-    private val kavitaSeriesMatchRepository: SeriesMatchRepository
+    val kavitaSeriesMatchRepository: SeriesMatchRepository
     private val kavitaKtorBase: HttpClient
     private val kavitaAuthClient: KavitaAuthClient
     private val kavitaTokenProvider: KavitaTokenProvider
@@ -115,15 +105,15 @@ class MediaServerModule(
             komgaConfig.thumbnailSizeLimit
         )
         komgaBookThumbnailRepository = BookThumbnailsRepository(
-            mediaServerDatabase.bookThumbnailQueries,
+            mediaServerDatabase,
             MediaServer.KOMGA
         )
         komgaSerThumbnailsRepository = SeriesThumbnailsRepository(
-            mediaServerDatabase.seriesThumbnailQueries,
+            mediaServerDatabase,
             MediaServer.KOMGA
         )
         komgaSeriesMatchRepository = SeriesMatchRepository(
-            mediaServerDatabase.seriesMatchQueries,
+            mediaServerDatabase,
             MediaServer.KOMGA
         )
         komgaMetadataServiceProvider = createMetadataServiceProvider(
@@ -166,15 +156,15 @@ class MediaServerModule(
 
 
         kavitaBookThumbnailRepository = BookThumbnailsRepository(
-            mediaServerDatabase.bookThumbnailQueries,
+            mediaServerDatabase,
             MediaServer.KAVITA
         )
         kavitaSerThumbnailsRepository = SeriesThumbnailsRepository(
-            mediaServerDatabase.seriesThumbnailQueries,
+            mediaServerDatabase,
             MediaServer.KAVITA
         )
         kavitaSeriesMatchRepository = SeriesMatchRepository(
-            mediaServerDatabase.seriesMatchQueries,
+            mediaServerDatabase,
             MediaServer.KAVITA
         )
         kavitaKtorBase = ktorBaseClient.config {
@@ -358,71 +348,27 @@ class MediaServerModule(
     }
 
     fun createDatabase(file: Path): Database {
-
-        val dbDriver: SqlDriver =
-            JdbcSqliteDriver(
-                url = "jdbc:sqlite:${file}",
-                schema = Database.Companion.Schema,
-                migrateEmptySchema = true
-            )
-        val database = Database(
-            dbDriver,
-            BookThumbnailAdapter = BookThumbnail.Adapter(
-                bookIdAdapter = BookIdAdapter,
-                seriesIdAdapter = SeriesIdAdapter,
-                thumbnailIdAdapter = ThumbnailIdAdapter,
-                mediaServerAdapter = EnumColumnAdapter()
-            ),
-            KomfJobRecordAdapter = KomfJobRecord.Adapter(
-                idAdapter = MetadataJobIdAdapter,
-                seriesIdAdapter = SeriesIdAdapter,
-                statusAdapter = EnumColumnAdapter(),
-                startedAtAdapter = InstantAdapter,
-                finishedAtAdapter = InstantAdapter,
-            ),
-            SeriesMatchAdapter = SeriesMatch.Adapter(
-                seriesIdAdapter = SeriesIdAdapter,
-                typeAdapter = EnumColumnAdapter(),
-                mediaServerAdapter = EnumColumnAdapter(),
-                providerAdapter = EnumColumnAdapter(),
-                providerSeriesIdAdapter = ProviderSeriesIdIdAdapter,
-            ),
-            SeriesThumbnailAdapter = SeriesThumbnail.Adapter(
-                seriesIdAdapter = SeriesIdAdapter,
-                thumbnailIdAdapter = ThumbnailIdAdapter,
-                mediaServerAdapter = EnumColumnAdapter()
-            ),
+        val config = SQLiteConfig().apply {
+            enforceForeignKeys(true)
+            busyTimeout = 5_000
+        }
+        val datasource = HikariDataSource(
+            HikariConfig().apply {
+                dataSource = SQLiteDataSource(config).apply { url = "jdbc:sqlite:${file}" }
+                poolName = "app db pool"
+                maximumPoolSize = 1
+            }
         )
-        return database
-    }
+        Flyway(
+            Flyway.configure(MediaServerModule::class.java.classLoader)
+                .loggers("slf4j")
+                .dataSource(datasource)
+                .locations("db/migration")
+                .baselineOnMigrate(true)
+        ).migrate()
 
-    private object SeriesIdAdapter : ColumnAdapter<MediaServerSeriesId, String> {
-        override fun decode(databaseValue: String) = MediaServerSeriesId(databaseValue)
-        override fun encode(value: MediaServerSeriesId) = value.value
-    }
-
-    private object BookIdAdapter : ColumnAdapter<MediaServerBookId, String> {
-        override fun decode(databaseValue: String) = MediaServerBookId(databaseValue)
-        override fun encode(value: MediaServerBookId) = value.value
-    }
-
-    private object ThumbnailIdAdapter : ColumnAdapter<MediaServerThumbnailId, String> {
-        override fun decode(databaseValue: String) = MediaServerThumbnailId(databaseValue)
-        override fun encode(value: MediaServerThumbnailId) = value.value
-    }
-
-    private object ProviderSeriesIdIdAdapter : ColumnAdapter<ProviderSeriesId, String> {
-        override fun decode(databaseValue: String) = ProviderSeriesId(databaseValue)
-        override fun encode(value: ProviderSeriesId) = value.value
-    }
-
-    private object MetadataJobIdAdapter : ColumnAdapter<MetadataJobId, String> {
-        override fun decode(databaseValue: String) = MetadataJobId(UUID.fromString(databaseValue))
-        override fun encode(value: MetadataJobId) = value.value.toString()
-    }
-
-    private object InstantAdapter : ColumnAdapter<Instant, Long> {
-        override fun decode(databaseValue: Long) = Instant.fromEpochMilliseconds(databaseValue)
-        override fun encode(value: Instant) = value.toEpochMilliseconds()
+        return Database.connect(
+            datasource = datasource,
+        )
     }
 }

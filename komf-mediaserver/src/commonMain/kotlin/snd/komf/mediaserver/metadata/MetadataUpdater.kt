@@ -3,6 +3,8 @@ package snd.komf.mediaserver.metadata
 import io.github.oshai.kotlinlogging.KotlinLogging
 import snd.komf.comicinfo.ComicInfoWriter
 import snd.komf.mediaserver.MediaServerClient
+import snd.komf.mediaserver.match.repository.BookThumbnailsRepository
+import snd.komf.mediaserver.match.repository.SeriesThumbnailsRepository
 import snd.komf.mediaserver.model.MediaServerBook
 import snd.komf.mediaserver.model.MediaServerBookId
 import snd.komf.mediaserver.model.MediaServerLibraryId
@@ -10,8 +12,6 @@ import snd.komf.mediaserver.model.MediaServerSeries
 import snd.komf.mediaserver.model.MediaServerSeriesId
 import snd.komf.mediaserver.model.MediaServerThumbnailId
 import snd.komf.mediaserver.model.SeriesAndBookMetadata
-import snd.komf.mediaserver.metadata.repository.BookThumbnailsRepository
-import snd.komf.mediaserver.metadata.repository.SeriesThumbnailsRepository
 import snd.komf.model.BookMetadata
 import snd.komf.model.Image
 import snd.komf.model.SeriesMetadata
@@ -126,13 +126,6 @@ class MetadataUpdater(
 
                     comicInfo?.let { comicInfoWriter.writeMetadata(book.url, it) }
                 }
-
-//                UpdateMode.OPF -> {
-//                    if (book.deleted) return@forEach
-//
-//                    if (writeSeriesMetadata) epubWriter.writeSeriesMetadata(Path.of(book.url), seriesMeta, metadata)
-//                    else epubWriter.writeMetadata(Path.of(book.url), seriesMeta, metadata)
-//                }
             }
         }
 

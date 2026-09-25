@@ -21,6 +21,8 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import snd.komf.ktor.HttpRequestRateLimiter
 import snd.komf.ktor.intervalLimiter
 import snd.komf.ktor.rateLimiter
+import snd.komf.mangabaka.external.MangaBakaApiClient
+import snd.komf.mangabaka.repository.MangaBakaRepository
 import snd.komf.providers.anilist.AniListClient
 import snd.komf.providers.anilist.AniListMetadataMapper
 import snd.komf.providers.anilist.AniListMetadataProvider
@@ -38,10 +40,9 @@ import snd.komf.providers.mal.MalClient
 import snd.komf.providers.mal.MalMetadataMapper
 import snd.komf.providers.mal.MalMetadataProvider
 import snd.komf.providers.mangabaka.MangaBakaDataSource
+import snd.komf.providers.mangabaka.MangaBakaDbDataSource
 import snd.komf.providers.mangabaka.MangaBakaMetadataMapper
 import snd.komf.providers.mangabaka.MangaBakaMetadataProvider
-import snd.komf.providers.mangabaka.api.MangaBakaApiClient
-import snd.komf.providers.mangabaka.db.MangaBakaDbDataSource
 import snd.komf.providers.mangadex.MangaDexClient
 import snd.komf.providers.mangadex.MangaDexMetadataMapper
 import snd.komf.providers.mangadex.MangaDexMetadataProvider
@@ -71,7 +72,8 @@ private val logger = KotlinLogging.logger { }
 class ProvidersModule(
     private val config: MetadataProvidersConfig,
     baseHttpClient: HttpClient,
-    mangaBakaDatabase: Database?,
+    private val mangaBakaApiClient: MangaBakaApiClient,
+    mangaBakaRepository: MangaBakaRepository?,
     bookWalkerDatabase: Database?,
 ) {
 
@@ -214,18 +216,6 @@ class ProvidersModule(
         }
     )
 
-    private val mangaBakaClient = MangaBakaApiClient(
-        baseHttpClientJson.config {
-            install(HttpRequestRateLimiter) {
-                interval = 1.seconds
-                eventsPerInterval = 1
-                allowBurst = false
-            }
-            install(HttpRequestRetry) {
-                defaultRetry()
-            }
-        }
-    )
     private val mangaBakaCoverFetchClient = baseHttpClientJson.config {
         install(HttpRequestRateLimiter) {
             interval = 1.seconds
@@ -237,8 +227,7 @@ class ProvidersModule(
         }
     }
 
-
-    private val mangaBakaDbDataSource = mangaBakaDatabase?.let { MangaBakaDbDataSource(it) }
+    val mangaBakaDbDataSource = mangaBakaRepository?.let { MangaBakaDbDataSource(it) }
 
     private val webtoonsClient = WebtoonsClient(
         baseHttpClientJson.config {
@@ -351,7 +340,7 @@ class ProvidersModule(
             mangaBaka = createMangaBakaMetadataProvider(
                 config = config.mangaBaka,
                 datasource = when (config.mangaBaka.mode) {
-                    MangaBakaMode.API -> mangaBakaClient
+                    MangaBakaMode.API -> mangaBakaApiClient
                     MangaBakaMode.DATABASE -> mangaBakaDbDataSource
                 },
                 coverFetchClient = mangaBakaCoverFetchClient,

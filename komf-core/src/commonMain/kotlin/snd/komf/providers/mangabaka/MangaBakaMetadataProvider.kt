@@ -5,6 +5,9 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.contentType
+import snd.komf.mangabaka.model.MangaBakaSeries
+import snd.komf.mangabaka.model.MangaBakaSeriesId
+import snd.komf.mangabaka.model.MangaBakaType
 import snd.komf.model.Image
 import snd.komf.model.MatchQuery
 import snd.komf.model.MediaType
@@ -104,5 +107,5 @@ class MangaBakaMetadataProvider(
         )
     }
 
-    private fun ProviderSeriesId.toMangaBakaId() = MangaBakaSeriesId(this.value.toInt())
+    private fun ProviderSeriesId.toMangaBakaId() = MangaBakaSeriesId(this.value.toLong())
 }

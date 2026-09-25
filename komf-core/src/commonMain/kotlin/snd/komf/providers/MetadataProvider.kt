@@ -17,7 +17,7 @@ interface MetadataProvider {
 
     suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata
 
-    suspend fun searchSeries(seriesName: String, limit: Int = 5): Collection<SeriesSearchResult>
+    suspend fun searchSeries(seriesName: String, limit: Int = 20): Collection<SeriesSearchResult>
 
     suspend fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata?
 }

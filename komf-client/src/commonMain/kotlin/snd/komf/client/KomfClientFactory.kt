@@ -22,6 +22,7 @@ class KomfClientFactory private constructor(private val builder: Builder) {
     fun mediaServerClient(mediaServer: MediaServer) = KomfMediaServerClient(ktor, mediaServer)
     fun jobClient() = KomfJobClient(ktor = ktor, json = json)
     fun notificationClient() = KomfNotificationClient(ktor = ktor)
+    fun mangaBaka() = KomfMangaBakaClient(ktor = ktor)
 
 
     private val baseUrl: () -> String = builder.baseUrl

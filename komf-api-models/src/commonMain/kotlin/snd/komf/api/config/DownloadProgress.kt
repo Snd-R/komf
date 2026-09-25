@@ -20,5 +20,9 @@ sealed interface DownloadProgress {
     @Serializable
     @SerialName("ErrorEvent")
     data class ErrorEvent(val message: String) : DownloadProgress
+
+    @Serializable
+    @SerialName("HeartbeatEvent")
+    data object HeartbeatEvent : DownloadProgress
 }
 

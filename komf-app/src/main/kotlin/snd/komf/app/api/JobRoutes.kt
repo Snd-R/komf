@@ -29,7 +29,6 @@ import snd.komf.api.job.providerErrorEventName
 import snd.komf.api.job.providerSeriesEventName
 import snd.komf.app.api.mappers.fromProvider
 import snd.komf.mediaserver.jobs.KomfJobTracker
-import snd.komf.mediaserver.jobs.KomfJobsRepository
 import snd.komf.mediaserver.jobs.MetadataJob
 import snd.komf.mediaserver.jobs.MetadataJobEvent.CompletionEvent
 import snd.komf.mediaserver.jobs.MetadataJobEvent.PostProcessingStartEvent
@@ -40,7 +39,8 @@ import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderErrorEvent
 import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderSeriesEvent
 import snd.komf.mediaserver.jobs.MetadataJobId
 import snd.komf.mediaserver.jobs.MetadataJobStatus
-import java.util.*
+import snd.komf.mediaserver.jobs.repository.KomfJobsRepository
+import kotlin.uuid.Uuid
 
 class JobRoutes(
     private val jobTracker: Flow<KomfJobTracker>,
@@ -58,7 +58,7 @@ class JobRoutes(
 
     private fun Route.metadataEventFlowRoute() {
         sse("/{jobId}/events") {
-            val jobId = UUID.fromString(call.parameters.getOrFail("jobId"))
+            val jobId = Uuid.parseHexDash(call.parameters.getOrFail("jobId"))
 
             val eventFlow = jobTracker.first().getMetadataJobEvents(MetadataJobId(jobId))
             if (eventFlow == null) {
@@ -105,7 +105,7 @@ class JobRoutes(
 
     private fun Route.getJobRoute() {
         get("/{jobId}") {
-            val jobId = UUID.fromString(call.parameters.getOrFail("jobId"))
+            val jobId = Uuid.parseHexDash(call.parameters.getOrFail("jobId"))
             val job = jobsRepository.first().get(MetadataJobId(jobId))
                 ?: return@get call.response.status(HttpStatusCode.NotFound)
 
@@ -125,9 +125,9 @@ class JobRoutes(
             val status = runCatching { call.queryParameters["status"]?.let { MetadataJobStatus.valueOf(it) } }
                 .getOrElse { return@get call.respond(HttpStatusCode.BadRequest, "") }
 
-            val limit = runCatching { call.queryParameters["pageSize"]?.toLong() }
+            val limit = runCatching { call.queryParameters["pageSize"]?.toInt() }
                 .getOrElse { return@get call.respond(HttpStatusCode.BadRequest, "") }
-                ?: 1000L
+                ?: 1000
 
             val page = runCatching { call.queryParameters["page"]?.toLong() }
                 .getOrElse { return@get call.respond(HttpStatusCode.BadRequest, "") }

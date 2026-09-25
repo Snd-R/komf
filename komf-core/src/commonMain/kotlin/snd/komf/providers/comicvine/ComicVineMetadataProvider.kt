@@ -2,8 +2,8 @@ package snd.komf.providers.comicvine
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.reactivecircus.cache4k.Cache
-import io.ktor.client.plugins.*
-import io.ktor.http.*
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.http.HttpStatusCode
 import snd.komf.model.BookQualifier
 import snd.komf.model.Image
 import snd.komf.model.MatchQuery
@@ -69,7 +69,6 @@ class ComicVineMetadataProvider(
             credits.map { arc ->
                 val id = ComicVineStoryArcId(arc.id)
                 storyArcCache.get(id) {
-                    println("story arc cache miss")
                     client.getStoryArc(id).results
                 }
             }

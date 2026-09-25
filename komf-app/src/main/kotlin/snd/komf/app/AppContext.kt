@@ -178,8 +178,9 @@ class AppContext(private val configPath: Path? = null) {
         appriseService = notificationsModule.appriseService,
         appriseRenderer = notificationsModule.appriseVelocityRenderer,
         mangaBakaDownloader = providersModule.mangaBakaDatabaseDownloader,
-        mangaBakaDbMetadata = providersModule.mangaBakaDbMetadata,
-        bookWalkerDbDownloader = providersModule.bookWalkerDbDownloader
+        mangaBakaRepository = providersModule.mangaBakaRepository,
+        bookWalkerDbDownloader = providersModule.bookWalkerDbDownloader,
+        httpClient = ktorBaseClient
     )
 
     private suspend fun writeConfig(config: AppConfig) {

@@ -23,6 +23,7 @@ import snd.komf.api.config.ProvidersConfigDto
 import snd.komf.api.config.PublisherTagNameConfigDto
 import snd.komf.api.config.SeriesMetadataConfigDto
 import snd.komf.app.config.AppConfig
+import snd.komf.mangabaka.model.MangaBakaImportMetadata
 import snd.komf.mediaserver.config.EventListenerConfig
 import snd.komf.mediaserver.config.KavitaConfig
 import snd.komf.mediaserver.config.KomgaConfig
@@ -40,7 +41,6 @@ import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProviderConfig
 import snd.komf.providers.ProvidersConfig
 import snd.komf.providers.SeriesMetadataConfig
-import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 import kotlin.time.Instant
 
 class AppConfigMapper {
@@ -48,7 +48,7 @@ class AppConfigMapper {
 
     fun toDto(
         config: AppConfig,
-        mangaBakaDbMetadata: MangaBakaDbMetadata,
+        mangaBakaDbMetadata: MangaBakaImportMetadata?,
         bookWalkerDbTimestamp: Instant?
     ): KomfConfig {
         return KomfConfig(
@@ -129,7 +129,7 @@ class AppConfigMapper {
 
     private fun toDto(
         config: MetadataProvidersConfig,
-        mangaBakaDbMetadata: MangaBakaDbMetadata,
+        mangaBakaDbMetadata: MangaBakaImportMetadata?,
         bookWalkerDbTimestamp: Instant?
     ): MetadataProvidersConfigDto {
         val malClientId = config.malClientId?.let { clientId ->
@@ -158,13 +158,11 @@ class AppConfigMapper {
         )
     }
 
-    fun toDto(metadata: MangaBakaDbMetadata): MangaBakaDatabaseDto? {
-        val timestamp = metadata.timestamp
-        val checksum = metadata.checksum
-        return if (timestamp == null || checksum == null) null
-        else MangaBakaDatabaseDto(
-            downloadTimestamp = timestamp,
-            checksum = checksum
+    fun toDto(metadata: MangaBakaImportMetadata?): MangaBakaDatabaseDto? {
+        if (metadata == null) return null
+        return MangaBakaDatabaseDto(
+            downloadTimestamp = metadata.timestamp,
+            checksum = metadata.checksum
         )
     }
 

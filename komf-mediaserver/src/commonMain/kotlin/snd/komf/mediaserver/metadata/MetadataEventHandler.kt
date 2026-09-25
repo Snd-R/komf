@@ -12,9 +12,9 @@ import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.SeriesEvent
 import snd.komf.mediaserver.jobs.KomfJobTracker
 import snd.komf.mediaserver.jobs.MetadataJobEvent
-import snd.komf.mediaserver.metadata.repository.BookThumbnailsRepository
-import snd.komf.mediaserver.metadata.repository.SeriesMatchRepository
-import snd.komf.mediaserver.metadata.repository.SeriesThumbnailsRepository
+import snd.komf.mediaserver.match.repository.BookThumbnailsRepository
+import snd.komf.mediaserver.match.repository.SeriesMatchRepository
+import snd.komf.mediaserver.match.repository.SeriesThumbnailsRepository
 import snd.komf.mediaserver.model.MediaServerSeriesId
 import java.util.function.Predicate
 import kotlin.time.Duration.Companion.minutes

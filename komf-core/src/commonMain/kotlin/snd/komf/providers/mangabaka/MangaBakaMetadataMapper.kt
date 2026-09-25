@@ -3,6 +3,9 @@ package snd.komf.providers.mangabaka
 import com.fleeksoft.ksoup.Ksoup
 import io.ktor.http.parseUrl
 import kotlinx.datetime.number
+import snd.komf.mangabaka.model.MangaBakaSeries
+import snd.komf.mangabaka.model.MangaBakaStatus
+import snd.komf.mangabaka.model.MangaBakaTitleTrait.NATIVE
 import snd.komf.model.Author
 import snd.komf.model.AuthorRole
 import snd.komf.model.Image
@@ -20,7 +23,6 @@ import snd.komf.model.WebLink
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataConfigApplier
 import snd.komf.providers.SeriesMetadataConfig
-import snd.komf.providers.mangabaka.MangaBakaTitleTrait.NATIVE
 import snd.komf.util.toStingEncoded
 
 
@@ -105,6 +107,12 @@ class MangaBakaMetadataMapper(
             series.source.mangaUpdates.id?.let {
                 WebLink(
                     "MangaUpdates",
+                    "https://www.mangaupdates.com/series/$it"
+                )
+            },
+            series.source.myAnimeList.id?.let {
+                WebLink(
+                    "MyAnimeList",
                     "https://www.mangaupdates.com/series/$it"
                 )
             },
