@@ -68,17 +68,25 @@ class MetadataService(
         libraryId: MediaServerLibraryId
     ): Collection<SeriesSearchResult> {
         val providers = metadataProviders.providers(libraryId.value)
-
-        return providers
-            .map { coroutineScope.async { it.searchSeries(seriesName) } }
-            .flatMap { it.await() }
+        return searchSeriesMetadata(seriesName, providers)
     }
 
     suspend fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
         val providers = metadataProviders.defaultProvidersList()
+        return searchSeriesMetadata(seriesName, providers)
+    }
+
+    private suspend fun searchSeriesMetadata(
+        seriesName: String,
+        providers: Collection<MetadataProvider>
+    ): Collection<SeriesSearchResult> {
         return providers
-            .map { coroutineScope.async { it.searchSeries(seriesName) } }
-            .flatMap { it.await() }
+            .map { provider -> provider to coroutineScope.async { provider.searchSeries(seriesName) } }
+            .flatMap { (provider, deferred) ->
+                runCatching { deferred.await() }
+                    .onFailure { e -> logger.error(e) { "search failed for provider ${provider.providerName()}" } }
+                    .getOrDefault(emptyList())
+            }
     }
 
     suspend fun getSeriesCover(
