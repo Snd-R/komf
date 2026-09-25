@@ -1,6 +1,7 @@
 package snd.komf.mediaserver.jobs.repository
 
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.lessEq
@@ -51,6 +52,7 @@ class KomfJobsRepository(
         return transaction(database) {
             KomfJobsTable.selectAll()
                 .apply { if (status != null) where { KomfJobsTable.status.eq(status.name) } }
+                .orderBy(KomfJobsTable.startedAt, SortOrder.DESC)
                 .limit(limit)
                 .offset(offset)
                 .map { it.fromRecord() }

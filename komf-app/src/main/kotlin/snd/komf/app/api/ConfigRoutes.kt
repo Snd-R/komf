@@ -102,7 +102,6 @@ class ConfigRoutes(
                     val heartbeat = async {
                         while (isActive) {
                             delay(15.seconds)
-                            logger.info { "emit heartbeat" }
                             writeMutex.withLock {
                                 val heartbeat: DownloadProgress = DownloadProgress.HeartbeatEvent
                                 writeStringUtf8(json.encodeToString(heartbeat) + "\n")

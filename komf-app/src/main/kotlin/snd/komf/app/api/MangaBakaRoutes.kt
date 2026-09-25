@@ -1,6 +1,5 @@
 package snd.komf.app.api
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -31,9 +30,6 @@ import snd.komf.app.api.mappers.toDto
 import snd.komf.mangabaka.model.MangaBakaSeriesId
 import snd.komf.mangabaka.repository.MangaBakaRepository
 import snd.komf.model.KomgaSeriesId
-import kotlin.time.measureTimedValue
-
-private val logger = KotlinLogging.logger { }
 
 class MangaBakaRoutes(
     private val mangaBakaRepository: Flow<MangaBakaRepository>,
@@ -78,17 +74,9 @@ class MangaBakaRoutes(
     }
 
     private suspend fun RoutingContext.batch() {
-        val params = measureTimedValue {
-            call.receive<List<String>>()
-        }.also { logger.info { "received ${it.value.size} id params in ${it.duration}" } }.value
-
-        val ids = measureTimedValue {
-            params.map { KomgaSeriesId(it) }
-        }.also { logger.info { "converted id params in ${it.duration}" } }.value
-
-        val series = measureTimedValue { mangaBakaRepository.first().findAllLinked(ids) }
-            .also { logger.info { "sqlite query finished in ${it.duration}" } }
-            .value
+        val params = call.receive<List<String>>()
+        val ids = params.map { KomgaSeriesId(it) }
+        val series = mangaBakaRepository.first().findAllLinked(ids)
         call.respond(HttpStatusCode.OK, series.map { it.toDto() })
     }
 
@@ -109,14 +97,8 @@ class MangaBakaRoutes(
 
     private suspend fun RoutingContext.search() {
         val title = call.request.queryParameters.getOrFail("title")
-        val series = try {
-            mangaBakaRepository.first().search(title)
-        } catch (e: Exception) {
-            logger.catching(e)
-            throw e
-        }
-        val dto = series.map { it.toDto() }
-        call.respond(HttpStatusCode.OK, dto)
+        val series = mangaBakaRepository.first().search(title)
+        call.respond(HttpStatusCode.OK, series.map { it.toDto() })
     }
 
     private suspend fun RoutingContext.match() {

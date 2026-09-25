@@ -220,7 +220,6 @@ class MangaBakaRepository(private val database: Database) {
         var relationships: Map<Long, List<MangaBakaRelationship>>
         var titles: Map<Long, List<MangaBakaTitle>>
         var tags: Map<Long, List<MangaBakaSeriesTag>>
-        var allTags: Map<Long, List<MangaBakaSeriesTag>>
         measureTime {
             seriesIds = rows.map { it[SeriesTable.id] }
             if (seriesIds.isEmpty()) {
@@ -233,7 +232,6 @@ class MangaBakaRepository(private val database: Database) {
             relationships = selectRelationships(seriesIds)
             titles = selectTitles(seriesIds)
             tags = selectTags(seriesIds)
-//            allTags = tags.map { (id, tags) -> id to withMissingTags(tags) }.toMap()
         }.also { logger.info { "fetched ${seriesIds.size} list data in $it" } }
 
         return rows.map { row ->
@@ -297,22 +295,6 @@ class MangaBakaRepository(private val database: Database) {
             .selectAll()
             .where { SeriesTagsTable.seriesId.inList(seriesIds) }
             .groupBy({ it[SeriesTagsTable.seriesId] }, { it.toBakaSeriesTag() })
-    }
-
-    private fun withMissingTags(tags: List<MangaBakaSeriesTag>): List<MangaBakaSeriesTag> {
-        val tagsById = tags.associateBy { it.id }.toMutableMap()
-        val missingTags = HashSet<MangaBakaSeriesTag>()
-        var tagsToScan = tags
-        for (i in 0 until 5) {
-            val orphans = tagsToScan.filter { tag -> tag.parentId != null && tagsById[tag.parentId] == null }
-            if (orphans.isEmpty()) break
-            val missing = findTagsByIds(ids = orphans.mapNotNull { it.parentId })
-            missing.forEach { tagsById[it.id] = it }
-            missingTags.addAll(missing)
-            tagsToScan = missing
-        }
-
-        return tags + missingTags
     }
 
     private fun findTagsByIds(ids: List<MangaBakaTagId>): List<MangaBakaSeriesTag> {
