@@ -6,4 +6,5 @@ import snd.komf.model.SeriesMetadata
 data class SeriesAndBookMetadata(
     val seriesMetadata: SeriesMetadata,
     val bookMetadata: Map<MediaServerBook, BookMetadata?>,
+    val matchedAltTitle: String? = null,
 )
