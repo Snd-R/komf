@@ -57,6 +57,7 @@ object MangaBakaSeriesImportTable : Table("series") {
     val totalChapters = text("total_chapters").nullable()
     val lastUpdatedAt = text("last_updated_at")
     val relationshipsV2 = json<List<MangaBakaRelationship>>("relationships_v2", json).nullable()
+    val originalLanguage = text("original_language").nullable()
     val sourceKitsuId = integer("source_kitsu_id").nullable()
     val sourceKitsuRating = double("source_kitsu_rating").nullable()
     val sourceKitsuRatingNormalized = integer("source_kitsu_rating_normalized").nullable()

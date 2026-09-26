@@ -97,6 +97,7 @@ fun MangaBakaSeries.toDto(): KomfMangaBakaSeries {
         isLicensed = this.isLicensed,
         lastUpdatedAt = this.lastUpdatedAt,
         mergedWith = this.mergedWith,
+        originalLanguage = this.originalLanguage,
         publishers = this.publishers?.map { publisher ->
             MangaBakaPublisher(
                 name = publisher.name,

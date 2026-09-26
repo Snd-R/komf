@@ -220,6 +220,7 @@ class MangaBakaDbDownloader(
                             import.published_start_date_is_estimated,
                             import.published_end_date,
                             import.published_end_date_is_estimated,
+                            import.original_language,
                             UPPER(import.state),
                             import.merged_with,
                             import.last_updated_at,

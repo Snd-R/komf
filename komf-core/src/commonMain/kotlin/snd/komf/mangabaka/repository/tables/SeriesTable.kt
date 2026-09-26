@@ -20,6 +20,7 @@ object SeriesTable : Table("series") {
     val publishedStartDateIsEstimated = bool("published_start_date_is_estimated").nullable()
     val publishedEndDate = text("published_end_date").nullable()
     val publishedEndDateIsEstimated = bool("published_end_date_is_estimated").nullable()
+    val originalLanguage = text("original_language").nullable()
 
     val state = text("state")
     val mergedWith = long("merged_with").nullable()
@@ -33,7 +34,8 @@ object SeriesTable : Table("series") {
     val coverRawFormat = text("cover_raw_format").nullable()
     val coverRawBlurhash = text("cover_raw_blurhash").nullable()
     val coverRawThumbhash = text("cover_raw_thumbhash").nullable()
-//    val coverX150X1 = text("cover_x150_x1").nullable()
+
+    //    val coverX150X1 = text("cover_x150_x1").nullable()
 //    val coverX150X2 = text("cover_x150_x2").nullable()
 //    val coverX150X3 = text("cover_x150_x3").nullable()
 //    val coverX250X1 = text("cover_x250_x1").nullable()

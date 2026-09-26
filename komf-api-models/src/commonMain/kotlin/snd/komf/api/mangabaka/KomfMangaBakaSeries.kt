@@ -34,6 +34,7 @@ data class KomfMangaBakaSeries(
     val isLicensed: Boolean,
     val lastUpdatedAt: Instant?,
     val mergedWith: Long?,
+    val originalLanguage: String?,
     val publishers: List<MangaBakaPublisher>?,
     val rating: Double?,
     val state: MangaBakaSeriesState,

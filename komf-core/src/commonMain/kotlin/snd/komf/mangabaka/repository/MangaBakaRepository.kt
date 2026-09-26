@@ -449,6 +449,7 @@ class MangaBakaRepository(private val database: Database) {
             tagsV2 = tags,
             lastUpdatedAt = Instant.parse(this[SeriesTable.lastUpdatedAt]),
             relationshipsV2 = relationships,
+            originalLanguage = this[SeriesTable.originalLanguage],
             source = MangaBakaSource(
                 anilist = MangaBakaAniListSource(
                     id = this[SeriesTable.sourceAniListId],

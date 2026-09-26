@@ -34,6 +34,8 @@ data class MangaBakaSeries(
     @SerialName("last_updated_at")
     val lastUpdatedAt: Instant? = null,
     val mergedWith: Long? = null,
+    @SerialName("original_language")
+    val originalLanguage: String? = null,
     val publishers: List<MangaBakaPublisher>? = null,
     val rating: Double? = null,
     val state: MangaBakaSeriesState,
