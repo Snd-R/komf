@@ -1,6 +1,5 @@
 package snd.komf.mangabaka.repository
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.v1.core.Exists
 import org.jetbrains.exposed.v1.core.JoinType
@@ -65,9 +64,6 @@ import snd.komf.mangabaka.repository.tables.TagsTable
 import snd.komf.mangabaka.repository.tables.TitlesTable
 import snd.komf.model.KomgaSeriesId
 import kotlin.time.Instant
-import kotlin.time.measureTime
-
-private val logger = KotlinLogging.logger { }
 
 class MangaBakaRepository(private val database: Database) {
 
@@ -212,27 +208,17 @@ class MangaBakaRepository(private val database: Database) {
     private fun Query.fetch(): List<Pair<ResultRow, MangaBakaSeries>> {
         val rows = this.toList()
 
-        var seriesIds: List<Long>
-        var authors: Map<Long, List<String>>
-        var artists: Map<Long, List<String>>
-        var links: Map<Long, List<MangaBakaLink>>
-        var publishers: Map<Long, List<MangaBakaPublisher>>
-        var relationships: Map<Long, List<MangaBakaRelationship>>
-        var titles: Map<Long, List<MangaBakaTitle>>
-        var tags: Map<Long, List<MangaBakaSeriesTag>>
-        measureTime {
-            seriesIds = rows.map { it[SeriesTable.id] }
-            if (seriesIds.isEmpty()) {
-                return emptyList()
-            }
-            authors = selectAuthors(seriesIds)
-            artists = selectArtists(seriesIds)
-            links = selectLinks(seriesIds)
-            publishers = selectPublishers(seriesIds)
-            relationships = selectRelationships(seriesIds)
-            titles = selectTitles(seriesIds)
-            tags = selectTags(seriesIds)
-        }.also { logger.info { "fetched ${seriesIds.size} list data in $it" } }
+        val seriesIds = rows.map { it[SeriesTable.id] }
+        if (seriesIds.isEmpty()) {
+            return emptyList()
+        }
+        val authors = selectAuthors(seriesIds)
+        val artists = selectArtists(seriesIds)
+        val links = selectLinks(seriesIds)
+        val publishers = selectPublishers(seriesIds)
+        val relationships = selectRelationships(seriesIds)
+        val titles = selectTitles(seriesIds)
+        val tags = selectTags(seriesIds)
 
         return rows.map { row ->
             val seriesId = row[SeriesTable.id]
