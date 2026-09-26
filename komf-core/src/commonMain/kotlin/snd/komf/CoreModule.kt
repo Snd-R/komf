@@ -48,7 +48,7 @@ class CoreModule(
                 json(Json { ignoreUnknownKeys = true })
             }
             install(HttpRequestRateLimiter) {
-                interval = 1.seconds
+                interval = 2.seconds
                 eventsPerInterval = 1
                 allowBurst = false
             }
