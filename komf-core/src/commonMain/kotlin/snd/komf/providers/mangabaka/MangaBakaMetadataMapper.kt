@@ -113,7 +113,7 @@ class MangaBakaMetadataMapper(
             series.source.myAnimeList.id?.let {
                 WebLink(
                     "MyAnimeList",
-                    "https://www.mangaupdates.com/series/$it"
+                    "https://myanimelist.net/manga/$it"
                 )
             },
             series.source.shikimori.id?.let {
