@@ -36,6 +36,7 @@ class MetadataPostProcessor(
         val bookMetadata = postProcessBooks(metadata.bookMetadata)
 
         return handleKomgaOneshot(seriesMetadata, bookMetadata)
+            .copy(matchedAltTitle = metadata.matchedAltTitle)
     }
 
     private fun postProcessSeries(series: SeriesMetadata): SeriesMetadata {

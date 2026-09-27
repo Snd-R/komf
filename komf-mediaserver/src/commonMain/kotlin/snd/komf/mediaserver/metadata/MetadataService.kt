@@ -29,6 +29,7 @@ import snd.komf.mediaserver.model.MediaServerBook
 import snd.komf.mediaserver.model.MediaServerLibraryId
 import snd.komf.mediaserver.model.MediaServerSeries
 import snd.komf.mediaserver.model.MediaServerSeriesId
+import snd.komf.mediaserver.model.MediaServerSeriesMetadataUpdate
 import snd.komf.mediaserver.model.SeriesAndBookMetadata
 import snd.komf.model.BookMetadata
 import snd.komf.model.BookQualifier
@@ -41,6 +42,7 @@ import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
 import snd.komf.model.SeriesBook
 import snd.komf.model.SeriesSearchResult
+import snd.komf.model.SeriesTitle
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
 import snd.komf.providers.ProvidersModule
@@ -211,6 +213,17 @@ class MetadataService(
 
             eventFlow.emit(PostProcessingStartEvent)
             metadataUpdateService.updateMetadata(series, metadata)
+
+            matchResult.second.matchedAltTitle?.let { altTitle ->
+                logger.info { "writing matched provider title \"$altTitle\" as localized name for series \"$seriesTitle\" ${series.id}" }
+                mediaServerClient.updateSeriesMetadata(
+                    series.id,
+                    MediaServerSeriesMetadataUpdate(
+                        alternativeTitles = listOf(SeriesTitle(name = altTitle, type = null, language = "ja-ro"))
+                    )
+                )
+            }
+
             logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
         }
 
@@ -238,7 +251,7 @@ class MetadataService(
             if (result != null) {
                 logger.info { "found match: \"${result.metadata.titles.firstOrNull()?.name}\" from ${provider.providerName()}  ${result.id}" }
                 val bookMetadata = getBookMetadata(books, result, provider, bookEdition, eventFlow)
-                return SeriesAndBookMetadata(result.metadata, bookMetadata)
+                return SeriesAndBookMetadata(result.metadata, bookMetadata, result.matchedAltTitle)
             }
         }
         return null

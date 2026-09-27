@@ -83,12 +83,26 @@ class MangaUpdatesMetadataProvider(
         val seriesName = matchQuery.seriesName
         val searchResults = client.searchSeries(seriesName.take(400), seriesTypes).results.map { it.record }
 
-        return searchResults
+        // Tier 1: match against primary title
+        val primaryMatch = searchResults
             .firstOrNull { nameMatcher.matches(seriesName, it.title.removeSuffix(" (Novel)")) }
-            ?.let {
-                val series = client.getSeries(it.id)
+        if (primaryMatch != null) {
+            val series = client.getSeries(primaryMatch.id)
+            val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
+            return metadataMapper.toSeriesMetadata(series, thumbnail)
+        }
+
+        // Tier 3: fetch full records and match against associated names
+        for (result in searchResults) {
+            val series = client.getSeries(result.id)
+            val associatedMatch = series.associated.firstOrNull { nameMatcher.matches(seriesName, it.title) }
+            if (associatedMatch != null) {
                 val thumbnail = if (fetchSeriesCovers) client.getThumbnail(series) else null
-                metadataMapper.toSeriesMetadata(series, thumbnail)
+                return metadataMapper.toSeriesMetadata(series, thumbnail)
+                    .copy(matchedAltTitle = series.title)
             }
+        }
+
+        return null
     }
 }

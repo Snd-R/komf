@@ -45,6 +45,7 @@ data class ProviderSeriesMetadata(
     val id: ProviderSeriesId,
     val metadata: SeriesMetadata,
     val books: List<SeriesBook> = emptyList(),
+    val matchedAltTitle: String? = null,
 )
 
 @Serializable
