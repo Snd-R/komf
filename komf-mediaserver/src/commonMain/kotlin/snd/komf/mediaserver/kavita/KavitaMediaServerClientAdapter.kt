@@ -331,9 +331,13 @@ private fun MediaServerSeriesMetadataUpdate.toKavitaSeriesMetadataUpdate(current
         SeriesStatus.COMPLETED -> KavitaPublicationStatus.COMPLETED
         null -> null
     }
+    // Kavita has no primary publisher: it sorts publishers by name and its series
+    // header shows only the first. Writing the alternatives as well would let the
+    // alphabet, not the provider's choice (e.g. useOriginalPublisher), decide
+    // which one is displayed, so they are only used when no publisher was chosen.
     val publishers =
         if (publisher == null && alternativePublishers == null) currentMetadata.publishers
-        else ((alternativePublishers ?: emptyList()) + listOfNotNull(publisher))
+        else listOfNotNull(publisher).ifEmpty { alternativePublishers?.toList() ?: emptyList() }
             .map { KavitaAuthor(id = 0, name = it) }.toSet()
 
     val authors = authors?.groupBy { it.role.lowercase() }
