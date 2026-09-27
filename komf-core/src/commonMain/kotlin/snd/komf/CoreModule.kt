@@ -23,6 +23,7 @@ import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProvidersModule
 import snd.komf.providers.bookwalker.db.BookWalkerDbDownloader
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.notExists
 import kotlin.time.Duration.Companion.seconds
@@ -40,7 +41,7 @@ class CoreModule(
 
     }
 
-    private val mangaBakaDir = workDir.resolve("mangabaka")
+    private val mangaBakaDir = workDir.resolve("mangabaka").also { it.createDirectories() }
     private val mangaBakaDatabaseFile = mangaBakaDir.resolve("mangabaka2.sqlite")
     val mangaBakaApiClient = MangaBakaApiClient(
         ktor.config {
@@ -100,6 +101,11 @@ class CoreModule(
     val metadataProviders = providersModule.getMetadataProviders()
 
     private fun createMangaBakaDatabase(file: Path): Database {
+        // old db files TODO remove later
+        mangaBakaDir.resolve("mangabaka.sqlite").deleteIfExists()
+        mangaBakaDir.resolve("checksum.sha1").deleteIfExists()
+        mangaBakaDir.resolve("timestamp").deleteIfExists()
+
         val config = SQLiteConfig().apply {
             enforceForeignKeys(true)
             setJournalMode(SQLiteConfig.JournalMode.DELETE)
@@ -108,20 +114,15 @@ class CoreModule(
         val datasource = HikariDataSource(
             HikariConfig().apply {
                 dataSource = SQLiteDataSource(config).apply { url = "jdbc:sqlite:${file}" }
-                poolName = "app db pool"
+                poolName = "mangabaka db pool"
                 maximumPoolSize = 1
             }
         )
-        // old db files TODO remove later
-        mangaBakaDir.resolve("mangabaka.sqlite").deleteIfExists()
-        mangaBakaDir.resolve("checksum.sha1").deleteIfExists()
-        mangaBakaDir.resolve("timestamp").deleteIfExists()
         Flyway(
             Flyway.configure(CoreModule::class.java.classLoader)
                 .loggers("slf4j")
                 .dataSource(datasource)
                 .locations("db/mangabaka")
-                .baselineOnMigrate(true)
         ).migrate()
 
         return Database.connect(
