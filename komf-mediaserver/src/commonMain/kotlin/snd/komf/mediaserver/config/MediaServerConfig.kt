@@ -49,6 +49,7 @@ data class MetadataProcessingConfig(
 
     val bookCovers: Boolean = false,
     val seriesCovers: Boolean = false,
+    val fallbackUseSeriesCoverForBook: Boolean = false,
     val overrideExistingCovers: Boolean = true,
     var lockCovers: Boolean = true,
     val updateModes: List<UpdateMode> = listOf(API),

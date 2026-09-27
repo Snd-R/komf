@@ -377,6 +377,7 @@ class AppConfigUpdateMapper {
             mergeGenres = patch.mergeGenres.getOrNull() ?: config.mergeGenres,
             bookCovers = patch.bookCovers.getOrNull() ?: config.bookCovers,
             seriesCovers = patch.seriesCovers.getOrNull() ?: config.seriesCovers,
+            fallbackUseSeriesCoverForBook = patch.fallbackUseSeriesCoverForBook.getOrNull() ?: config.fallbackUseSeriesCoverForBook,
             overrideExistingCovers = patch.overrideExistingCovers.getOrNull() ?: config.overrideExistingCovers,
             lockCovers = patch.lockCovers.getOrNull() ?: config.lockCovers,
             updateModes = patch.updateModes.getOrNull()?.map { it.toUpdateMode() } ?: config.updateModes,
