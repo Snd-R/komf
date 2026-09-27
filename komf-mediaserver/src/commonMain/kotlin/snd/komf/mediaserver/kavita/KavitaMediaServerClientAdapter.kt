@@ -145,7 +145,7 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
 
     override suspend fun resetSeriesMetadata(seriesId: MediaServerSeriesId, seriesName: String) {
         val series = kavitaClient.getSeries(seriesId.toKavitaSeriesId())
-        kavitaClient.updateSeries(series.toKavitaCoverResetRequest())
+        kavitaClient.updateSeries(series.toKavitaResetRequest())
         kavitaClient.updateSeriesMetadata(kavitaSeriesResetRequest(seriesId.toKavitaSeriesId()))
     }
 
@@ -487,6 +487,19 @@ private fun KavitaSeries.toKavitaTitleUpdate(newSortName: String?, newLocalizedN
 
         coverImageLocked = coverImageLocked
     )
+
+// Reverts what komf writes through toKavitaTitleUpdate, matching the Komga reset:
+// the sort name goes back to the series name and the localized name is cleared
+// (left null, which Kavita stores as-is).
+private fun KavitaSeries.toKavitaResetRequest() = KavitaSeriesUpdateRequest(
+    id = id,
+    localizedName = null,
+    sortName = name,
+    sortNameLocked = false,
+    localizedNameLocked = false,
+
+    coverImageLocked = false
+)
 
 private fun KavitaSeries.toKavitaCoverResetRequest() = KavitaSeriesUpdateRequest(
     id = id,
