@@ -2,6 +2,7 @@ package snd.komf
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.UserAgent
@@ -28,6 +29,8 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.notExists
 import kotlin.time.Duration.Companion.seconds
 
+private val logger = KotlinLogging.logger {}
+
 class CoreModule(
     private val config: MetadataProvidersConfig,
     workDir: Path,
@@ -41,7 +44,7 @@ class CoreModule(
 
     }
 
-    private val mangaBakaDir = workDir.resolve("mangabaka").also { it.createDirectories() }
+    private val mangaBakaDir = workDir.resolve("mangabaka")
     private val mangaBakaDatabaseFile = mangaBakaDir.resolve("mangabaka2.sqlite")
     val mangaBakaApiClient = MangaBakaApiClient(
         ktor.config {
@@ -102,9 +105,11 @@ class CoreModule(
 
     private fun createMangaBakaDatabase(file: Path): Database {
         // old db files TODO remove later
-        mangaBakaDir.resolve("mangabaka.sqlite").deleteIfExists()
-        mangaBakaDir.resolve("checksum.sha1").deleteIfExists()
-        mangaBakaDir.resolve("timestamp").deleteIfExists()
+        mangaBakaDir.createDirectories()
+        listOf("mangabaka.sqlite", "checksum.sha1", "timestamp").forEach { name ->
+            runCatching { mangaBakaDir.resolve(name).deleteIfExists() }
+                .onFailure { logger.warn(it) { "Failed to delete legacy file $name" } }
+        }
 
         val config = SQLiteConfig().apply {
             enforceForeignKeys(true)
@@ -123,6 +128,7 @@ class CoreModule(
                 .loggers("slf4j")
                 .dataSource(datasource)
                 .locations("db/mangabaka")
+                .baselineOnMigrate(true)
         ).migrate()
 
         return Database.connect(

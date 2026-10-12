@@ -139,6 +139,7 @@ class AppContext(private val configPath: Path? = null) {
 
     private fun reloadModules(config: AppConfig) {
         logger.info { "Reconfiguring application state" }
+        setLogLevel(config)
 
         val providersModule = CoreModule(
             config = config.metadataProviders,
@@ -204,14 +205,15 @@ class AppContext(private val configPath: Path? = null) {
     }
 
     private fun setLogLevel(config: AppConfig) {
-        val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
-        val targetLevel = Level.valueOf(config.logLevel.uppercase())
-        val rootLogger = loggerContext.getLogger(ROOT_LOGGER_NAME)
-        rootLogger.level = targetLevel
-
-        if (targetLevel == Level.INFO) {
-            loggerContext.getLogger("com.zaxxer").level = Level.WARN
-            loggerContext.getLogger("org.flywaydb").level = Level.WARN
+        val loggerContext = LoggerFactory.getILoggerFactory() as? LoggerContext ?: return
+        val targetLevel = Level.toLevel(config.logLevel, null) ?: run {
+            logger.warn { "Invalid log level '${config.logLevel}', falling back to INFO" }
+            Level.INFO
         }
+        loggerContext.getLogger(ROOT_LOGGER_NAME).level = targetLevel
+
+        val noisyLevel = if (targetLevel == Level.INFO) Level.WARN else null
+        loggerContext.getLogger("com.zaxxer").level = noisyLevel
+        loggerContext.getLogger("org.flywaydb").level = noisyLevel
     }
 }
