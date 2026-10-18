@@ -99,6 +99,7 @@ class MetadataService(
         edition: String?
     ): MetadataJobId {
         val jobId = launchJob(seriesId) { eventFlow ->
+            val bookFailures = BookFailures()
             val series = mediaServerClient.getSeries(seriesId)
             val books = mediaServerClient.getBooks(seriesId)
             val seriesTitle = series.metadata.title.ifBlank { series.name }
@@ -107,7 +108,7 @@ class MetadataService(
                 metadataProviders.provider(series.libraryId.value, providerName) ?: throw RuntimeException()
 
             val seriesMetadata = getSeriesMetadata(provider, providerSeriesId, eventFlow)
-            val bookMetadata = getBookMetadata(books, seriesMetadata, provider, edition, eventFlow)
+            val bookMetadata = getBookMetadata(books, seriesMetadata, provider, edition, eventFlow, bookFailures)
             eventFlow.emit(ProviderCompletedEvent(providerName))
 
             val metadata = if (aggregateMetadata) {
@@ -117,6 +118,7 @@ class MetadataService(
                     metadata = SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata),
                     providers = metadataProviders.providers(series.libraryId.value).filter { it != provider },
                     edition = edition,
+                    bookFailures = bookFailures,
                     eventFlow = eventFlow
                 )
             } else SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
@@ -130,6 +132,7 @@ class MetadataService(
                 providerSeriesId = providerSeriesId,
             )
             logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
+            bookFailures.toErrorEvent()?.let { eventFlow.emit(it) }
         }
         return jobId
     }
@@ -162,6 +165,7 @@ class MetadataService(
     ): MetadataJobId {
 
         val jobId = launchJob(seriesId) { eventFlow ->
+            val bookFailures = BookFailures()
             val series = mediaServerClient.getSeries(seriesId)
             val books = mediaServerClient.getBooks(seriesId)
             val seriesTitle = series.metadata.title.ifBlank { series.name }
@@ -173,7 +177,7 @@ class MetadataService(
             val matchResult = if (existingMatch != null && matchProvider != null) {
                 logger.info { "using ${matchProvider.providerName()} from previous manual identification for $seriesTitle ${series.id}" }
                 val seriesMetadata = getSeriesMetadata(matchProvider, existingMatch.providerSeriesId, eventFlow)
-                val bookMetadata = getBookMetadata(books, seriesMetadata, matchProvider, null, eventFlow)
+                val bookMetadata = getBookMetadata(books, seriesMetadata, matchProvider, null, eventFlow, bookFailures)
                 matchProvider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
             } else {
                 val noParensTitle = removeParentheses(seriesTitle).let { if (it == seriesTitle) null else it }
@@ -185,7 +189,7 @@ class MetadataService(
                 logger.info { "attempting to match series \"${seriesTitle}\" ${series.id}" }
 
                 metadataProviders.providers(series.libraryId.value).firstNotNullOfOrNull { provider ->
-                    matchSeries(series, books, searchTitles, provider, null, eventFlow)
+                    matchSeries(series, books, searchTitles, provider, null, bookFailures, eventFlow)
                         ?.let { provider to it }
                 }
             }
@@ -204,6 +208,7 @@ class MetadataService(
                         metadata = metadata,
                         providers = metadataProviders.providers(series.libraryId.value).filter { it != provider },
                         edition = null,
+                        bookFailures = bookFailures,
                         eventFlow = eventFlow
                     )
                 } else metadata
@@ -212,6 +217,7 @@ class MetadataService(
             eventFlow.emit(PostProcessingStartEvent)
             metadataUpdateService.updateMetadata(series, metadata)
             logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
+            bookFailures.toErrorEvent()?.let { eventFlow.emit(it) }
         }
 
         return jobId
@@ -223,6 +229,7 @@ class MetadataService(
         searchTitles: Collection<String>,
         provider: MetadataProvider,
         bookEdition: String?,
+        bookFailures: BookFailures,
         eventFlow: MutableSharedFlow<MetadataJobEvent>
     ): SeriesAndBookMetadata? {
         for (searchTitle in searchTitles) {
@@ -237,7 +244,7 @@ class MetadataService(
 
             if (result != null) {
                 logger.info { "found match: \"${result.metadata.titles.firstOrNull()?.name}\" from ${provider.providerName()}  ${result.id}" }
-                val bookMetadata = getBookMetadata(books, result, provider, bookEdition, eventFlow)
+                val bookMetadata = getBookMetadata(books, result, provider, bookEdition, eventFlow, bookFailures)
                 return SeriesAndBookMetadata(result.metadata, bookMetadata)
             }
         }
@@ -250,27 +257,28 @@ class MetadataService(
         provider: MetadataProvider,
         bookEdition: String?,
         eventFlow: MutableSharedFlow<MetadataJobEvent>,
+        bookFailures: BookFailures,
     ): Map<MediaServerBook, BookMetadata?> {
         val metadataMatch = associateBookMetadata(books, seriesMeta.books, bookEdition)
 
         val fetchSize = metadataMatch.filterValues { it != null }.size
         var progress = 1
-        return try {
-            metadataMatch.map { (book, seriesBookMeta) ->
-                if (seriesBookMeta != null) {
-                    logger.info { "(${provider.providerName()}) fetching metadata for book ${seriesBookMeta.name}" }
-                    eventFlow.emit(ProviderBookEvent(provider.providerName(), fetchSize, progress))
-                    progress += 1
-
-                    book to provider.getBookMetadata(seriesMeta.id, seriesBookMeta.id).metadata
-                } else {
-                    book to null
-                }
-            }.toMap()
-
-        } catch (e: Exception) {
-            throw ProviderException(provider.providerName(), e)
+        val result = fetchEach(metadataMatch) { _, seriesBookMeta ->
+            logger.info { "(${provider.providerName()}) fetching metadata for book ${seriesBookMeta.name}" }
+            eventFlow.emit(ProviderBookEvent(provider.providerName(), fetchSize, progress.coerceAtMost(fetchSize)))
+            progress += 1
+            provider.getBookMetadata(seriesMeta.id, seriesBookMeta.id).metadata
         }
+
+        result.failures.forEach { (book, error) ->
+            logger.warn(error) { "(${provider.providerName()}) failed to fetch metadata for book ${book.name}" }
+        }
+        bookFailures.record(
+            provider = provider.providerName(),
+            attempted = fetchSize,
+            failed = result.failures.mapKeys { (book, _) -> book.name },
+        )
+        return result.values
     }
 
     private fun associateBookMetadata(
@@ -323,6 +331,7 @@ class MetadataService(
         metadata: SeriesAndBookMetadata,
         providers: Collection<MetadataProvider>,
         edition: String?,
+        bookFailures: BookFailures,
         eventFlow: MutableSharedFlow<MetadataJobEvent>
     ): SeriesAndBookMetadata {
         if (providers.isEmpty()) return metadata
@@ -341,6 +350,7 @@ class MetadataService(
                         searchTitles = searchTitles,
                         provider = provider,
                         bookEdition = edition,
+                        bookFailures = bookFailures,
                         eventFlow = eventFlow
                     ).also {
                         eventFlow.emit(ProviderCompletedEvent(provider.providerName()))
@@ -415,13 +425,7 @@ class MetadataService(
             try {
                 block(eventFlow)
             } catch (providerException: ProviderException) {
-                val errorMessage = providerException.cause?.let { cause ->
-                    if (cause is ResponseException) {
-                        "${cause::class.simpleName}: status code ${cause.response.status} ${cause.response.bodyAsText()}"
-                    } else {
-                        "${cause::class.simpleName}: ${cause.message}"
-                    }
-                } ?: "Unknown error"
+                val errorMessage = providerException.cause?.let { describeError(it) } ?: "Unknown error"
 
                 eventFlow.emit(
                     ProviderErrorEvent(
