@@ -9,6 +9,7 @@ import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -17,11 +18,17 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(ExperimentalCoroutinesApi::class)
 class SlidingWindowRateLimiterTest {
 
-    private fun TestScope.limiter(capacity: Int, window: Duration, minSpacing: Duration = Duration.ZERO) =
+    private fun TestScope.limiter(
+        capacity: Int,
+        window: Duration,
+        minSpacing: Duration = Duration.ZERO,
+        burst: Int = capacity,
+    ) =
         SlidingWindowRateLimiter(
             capacity = capacity,
             window = window,
             minSpacing = minSpacing,
+            burst = burst,
             timeSource = testScheduler.timeSource,
         )
 
@@ -66,6 +73,31 @@ class SlidingWindowRateLimiterTest {
         times.windowed(6).forEach {
             assertTrue(it.last() - it.first() >= 60.minutes.inWholeMilliseconds, "6 grants within one hour: $it")
         }
+    }
+
+    @Test
+    fun burstIsImmediateThenGrantsAreEvenlyPaced() = runTest {
+        val limiter = limiter(capacity = 100, window = 100.minutes, burst = 10)
+        val times = List(13) { limiter.acquire(); currentTime }
+
+        val minute = 1.minutes.inWholeMilliseconds
+        assertEquals(List(10) { 0L } + listOf(minute, 2 * minute, 3 * minute), times)
+    }
+
+    @Test
+    fun pacedGrantsNeverExceedCapacityInAnyRollingWindow() = runTest {
+        val limiter = limiter(capacity = 5, window = 60.minutes, burst = 2)
+        val times = List(30) { limiter.acquire(); currentTime }
+
+        times.windowed(6).forEach {
+            assertTrue(it.last() - it.first() >= 60.minutes.inWholeMilliseconds, "6 grants within one hour: $it")
+        }
+    }
+
+    @Test
+    fun rejectsBurstOutsideCapacity() {
+        assertFailsWith<IllegalArgumentException> { SlidingWindowRateLimiter(capacity = 5, window = 1.minutes, burst = 0) }
+        assertFailsWith<IllegalArgumentException> { SlidingWindowRateLimiter(capacity = 5, window = 1.minutes, burst = 6) }
     }
 
     @Test

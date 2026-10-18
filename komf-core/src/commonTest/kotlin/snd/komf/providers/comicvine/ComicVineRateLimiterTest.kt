@@ -122,4 +122,23 @@ class ComicVineRateLimiterTest {
         assertTrue(sameResource.await() >= 60.minutes.inWholeMilliseconds)
         assertTrue(rejected.await() >= 60.minutes.inWholeMilliseconds)
     }
+
+    @Test
+    fun spacesCallsAcrossAllResources() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        val times = mutableListOf<Long>()
+        val calls = listOf<suspend (suspend () -> Unit) -> Unit>(
+            { limiter.search { it() } },
+            { limiter.volume { it() } },
+            { limiter.issue { it() } },
+            { limiter.storyArc { it() } },
+        )
+
+        calls.flatMap { call -> List(3) { async { call { times += currentTime } } } }.forEach { it.await() }
+
+        assertEquals(12, times.size)
+        times.sorted().zipWithNext().forEach { (a, b) ->
+            assertTrue(b - a >= 1.seconds.inWholeMilliseconds, "calls $a and $b ms apart")
+        }
+    }
 }

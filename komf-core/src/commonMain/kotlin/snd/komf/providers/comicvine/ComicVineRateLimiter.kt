@@ -21,6 +21,12 @@ class ComicVineRateLimiter(
     private val volumeLimiter = apiLimiter(timeSource)
     private val issueLimiter = apiLimiter(timeSource)
     private val storyArcLimiter = apiLimiter(timeSource)
+    private val keyGate = SlidingWindowRateLimiter(
+        capacity = 3600,
+        window = 60.minutes,
+        minSpacing = 1.seconds,
+        timeSource = timeSource,
+    )
     private val coverLimiter = CoverLimiter()
 
     suspend fun <T> search(request: suspend () -> T): T = withLimit("search", searchLimiter, request)
@@ -36,6 +42,7 @@ class ComicVineRateLimiter(
     ): T {
         while (true) {
             limiter.acquire()
+            keyGate.acquire()
             try {
                 return request().also { limiter.onSuccess() }
             } catch (e: ClientRequestException) {
@@ -47,11 +54,12 @@ class ComicVineRateLimiter(
         }
     }
 
-    // ComicVine allows 200 requests per resource per rolling hour; other clients may share the API key
+    // ComicVine allows 200 requests per resource per rolling hour; other clients may share the API key.
+    // Calls are also spaced key-wide (keyGate): velocity detection blocks the whole key, not one resource.
     private fun apiLimiter(timeSource: TimeSource.WithComparableMarks) = SlidingWindowRateLimiter(
         capacity = 190,
         window = 60.minutes,
-        minSpacing = 1.seconds,
+        burst = 10,
         timeSource = timeSource,
     )
 
