@@ -61,6 +61,9 @@ class SlidingWindowRateLimiter(
         until - now
     }
 
+    /** Number of cooldowns started since the last [onSuccess]. */
+    suspend fun consecutiveCooldowns(): Int = mutex.withLock { consecutiveCooldowns }
+
     suspend fun onSuccess() = mutex.withLock { consecutiveCooldowns = 0 }
 
     private fun waitTime(now: ComparableTimeMark): Duration {

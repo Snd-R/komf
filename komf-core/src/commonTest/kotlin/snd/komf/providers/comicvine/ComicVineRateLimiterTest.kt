@@ -57,6 +57,39 @@ class ComicVineRateLimiterTest {
     }
 
     @Test
+    fun exhaustedResourceFailsFollowingRequestsWithoutWaiting() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        assertFailsWith<ClientRequestException> { limiter.issue<String> { throw rateLimited } }
+        val timeAfterFirst = currentTime
+        var calls = 0
+
+        assertFailsWith<ClientRequestException> {
+            limiter.issue<String> { calls++; throw rateLimited }
+        }
+
+        assertEquals(1, calls)
+        assertTrue(currentTime - timeAfterFirst < 1.minutes.inWholeMilliseconds)
+    }
+
+    @Test
+    fun successRestoresCooldownsOfExhaustedResource() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        assertFailsWith<ClientRequestException> { limiter.issue<String> { throw rateLimited } }
+        assertEquals("ok", limiter.issue { "ok" })
+        val start = currentTime
+        var calls = 0
+
+        val result = limiter.issue {
+            if (calls++ == 0) throw rateLimited
+            "ok"
+        }
+
+        assertEquals("ok", result)
+        assertEquals(2, calls)
+        assertTrue(currentTime - start >= 1.minutes.inWholeMilliseconds)
+    }
+
+    @Test
     fun otherErrorsAreNotRetried() = runTest {
         val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
         var calls = 0

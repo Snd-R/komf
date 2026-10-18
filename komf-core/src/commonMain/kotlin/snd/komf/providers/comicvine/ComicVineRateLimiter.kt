@@ -34,15 +34,14 @@ class ComicVineRateLimiter(
         limiter: SlidingWindowRateLimiter,
         request: suspend () -> T,
     ): T {
-        var cooldowns = 0
         while (true) {
             limiter.acquire()
             try {
                 return request().also { limiter.onSuccess() }
             } catch (e: ClientRequestException) {
-                if (e.response.status.value != RATE_LIMITED_STATUS || cooldowns == maxCooldowns) throw e
-                cooldowns++
+                if (e.response.status.value != RATE_LIMITED_STATUS || limiter.consecutiveCooldowns() >= maxCooldowns) throw e
                 val pause = limiter.onRateLimited()
+                val cooldowns = limiter.consecutiveCooldowns()
                 logger.warn { "ComicVine $resource rate limit hit, pausing ${pause.inWholeMinutes}m (cooldown $cooldowns of $maxCooldowns)" }
             }
         }

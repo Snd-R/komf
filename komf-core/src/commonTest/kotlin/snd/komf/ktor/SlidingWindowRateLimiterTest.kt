@@ -1,6 +1,8 @@
 package snd.komf.ktor
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
@@ -28,6 +30,29 @@ class SlidingWindowRateLimiterTest {
         val limiter = limiter(capacity = 3, window = 10.minutes)
         val times = List(4) { limiter.acquire(); currentTime }
         assertEquals(listOf(0L, 0L, 0L, 10.minutes.inWholeMilliseconds), times)
+    }
+
+    @Test
+    fun concurrentCallersAreGrantedOneWindowApart() = runTest {
+        val limiter = limiter(capacity = 1, window = 10.minutes)
+        val times = List(10) { async { limiter.acquire(); currentTime } }.awaitAll().sorted()
+
+        assertEquals(List(10) { it * 10.minutes.inWholeMilliseconds }, times)
+    }
+
+    @Test
+    fun countsConsecutiveCooldownsUntilSuccess() = runTest {
+        val limiter = limiter(capacity = 100, window = 60.minutes)
+        assertEquals(0, limiter.consecutiveCooldowns())
+        limiter.onRateLimited()
+        advanceTimeBy(5.minutes)
+        limiter.onRateLimited()
+        assertEquals(1, limiter.consecutiveCooldowns())
+        limiter.acquire()
+        limiter.onRateLimited()
+        assertEquals(2, limiter.consecutiveCooldowns())
+        limiter.onSuccess()
+        assertEquals(0, limiter.consecutiveCooldowns())
     }
 
     @Test
