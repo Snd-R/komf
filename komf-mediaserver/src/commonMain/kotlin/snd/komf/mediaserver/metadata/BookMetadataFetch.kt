@@ -4,6 +4,8 @@ import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.CancellationException
 import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderErrorEvent
+import snd.komf.mediaserver.model.MediaServerBook
+import snd.komf.mediaserver.model.MediaServerBookId
 import snd.komf.providers.CoreProviders
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
@@ -46,24 +48,30 @@ internal suspend fun <K, M : Any, V : Any> fetchEach(
 }
 
 internal class BookFailures {
-    private class Failure(val provider: CoreProviders, val bookName: String, val error: Exception)
+    private class Failure(val provider: CoreProviders, val book: MediaServerBook, val error: Exception)
 
     private val failures = ConcurrentLinkedQueue<Failure>()
     private val attempted = AtomicInteger()
 
-    fun record(provider: CoreProviders, attempted: Int, failed: Map<String, Exception>) {
+    fun record(provider: CoreProviders, attempted: Int, failed: Map<MediaServerBook, Exception>) {
         this.attempted.addAndGet(attempted)
-        failed.forEach { (bookName, error) -> failures.add(Failure(provider, bookName, error)) }
+        failed.forEach { (book, error) -> failures.add(Failure(provider, book, error)) }
     }
+
+    fun failedBookIds(): Set<MediaServerBookId> = failures.mapTo(mutableSetOf()) { it.book.id }
 
     suspend fun toErrorEvent(): ProviderErrorEvent? {
         val first = failures.peek() ?: return null
         return ProviderErrorEvent(
             provider = first.provider,
-            message = "${failures.size} of ${attempted.get()} books failed. ${first.bookName}: ${describeError(first.error)}"
+            message = "${failures.size} of ${attempted.get()} books failed. ${first.book.name}: ${describeError(first.error)}"
         )
     }
 }
+
+/** Drops books that failed in some provider and still have no metadata, so a failure never overwrites existing data. */
+internal fun <V : Any> Map<MediaServerBook, V?>.withoutFailedBlanks(failed: Set<MediaServerBookId>): Map<MediaServerBook, V?> =
+    filter { (book, value) -> value != null || book.id !in failed }
 
 internal suspend fun describeError(cause: Throwable): String =
     if (cause is ResponseException) {

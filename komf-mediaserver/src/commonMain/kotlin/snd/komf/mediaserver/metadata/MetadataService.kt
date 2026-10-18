@@ -124,7 +124,10 @@ class MetadataService(
             } else SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
 
             eventFlow.emit(PostProcessingStartEvent)
-            metadataUpdateService.updateMetadata(series, metadata)
+            metadataUpdateService.updateMetadata(
+                series,
+                metadata.copy(bookMetadata = metadata.bookMetadata.withoutFailedBlanks(bookFailures.failedBookIds()))
+            )
             seriesMatchRepository.save(
                 seriesId = series.id,
                 type = MANUAL,
@@ -216,7 +219,10 @@ class MetadataService(
             }
 
             eventFlow.emit(PostProcessingStartEvent)
-            metadataUpdateService.updateMetadata(series, metadata)
+            metadataUpdateService.updateMetadata(
+                series,
+                metadata.copy(bookMetadata = metadata.bookMetadata.withoutFailedBlanks(bookFailures.failedBookIds()))
+            )
             logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
             bookFailures.toErrorEvent()?.let { eventFlow.emit(it) }
         }
@@ -275,7 +281,7 @@ class MetadataService(
         bookFailures.record(
             provider = provider.providerName(),
             attempted = fetchSize,
-            failed = result.failures.mapKeys { (book, _) -> book.name },
+            failed = result.failures,
         )
         return result.values
     }

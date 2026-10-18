@@ -1,8 +1,10 @@
 package snd.komf.mediaserver.metadata
 
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import snd.komf.mediaserver.jobs.MetadataJobEvent
 import snd.komf.mediaserver.jobs.MetadataJobEvent.CompletionEvent
 import snd.komf.mediaserver.jobs.MetadataJobEvent.ProcessingErrorEvent
 import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderBookEvent
@@ -56,5 +58,15 @@ class LibraryMatchTest {
     @Test
     fun eventsAfterCompletionAreIgnored() = runTest {
         assertFalse(flowOf(CompletionEvent, ProcessingErrorEvent("late")).endedWithError())
+    }
+
+    @Test
+    fun errorEmittedBeforeCollectionStartsIsSeen() = runTest {
+        val events = MutableSharedFlow<MetadataJobEvent>(replay = Int.MAX_VALUE)
+        events.emit(ProviderBookEvent(COMIC_VINE, 2, 1))
+        events.emit(ProviderErrorEvent(COMIC_VINE, "1 of 2 books failed"))
+        events.emit(CompletionEvent)
+
+        assertTrue(events.endedWithError())
     }
 }
