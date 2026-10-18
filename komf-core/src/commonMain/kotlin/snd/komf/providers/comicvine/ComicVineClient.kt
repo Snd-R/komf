@@ -25,39 +25,42 @@ class ComicVineClient(
 ) {
 
     suspend fun searchVolume(name: String): ComicVineSearchResult<List<ComicVineVolumeSearch>> {
-        rateLimiter.searchAcquire()
-        return ktor.get("$baseUrl/search/") {
-            parameter("query", name)
-            parameter("format", "json")
-            parameter("resources", "volume")
-            parameter("limit", comicVineSearchLimit)
-            parameter("api_key", apiKey)
-        }.body()
+        return rateLimiter.search {
+            ktor.get("$baseUrl/search/") {
+                parameter("query", name)
+                parameter("format", "json")
+                parameter("resources", "volume")
+                parameter("limit", comicVineSearchLimit)
+                parameter("api_key", apiKey)
+            }.body()
+        }
     }
 
     suspend fun getVolume(id: ComicVineVolumeId): ComicVineSearchResult<ComicVineVolume> {
-        rateLimiter.volumeAcquire()
-        return ktor.get("$baseUrl/volume/${VOLUME.id}-${id.value}/") {
-            parameter("format", "json")
-            parameter("api_key", apiKey)
-        }.body()
+        return rateLimiter.volume {
+            ktor.get("$baseUrl/volume/${VOLUME.id}-${id.value}/") {
+                parameter("format", "json")
+                parameter("api_key", apiKey)
+            }.body()
+        }
     }
 
     suspend fun getIssue(id: ComicVineIssueId): ComicVineSearchResult<ComicVineIssue> {
-        rateLimiter.issueAcquire()
-        return ktor.get("$baseUrl/issue/${ISSUE.id}-${id.value}/") {
-            parameter("format", "json")
-            parameter("api_key", apiKey)
-        }.body()
+        return rateLimiter.issue {
+            ktor.get("$baseUrl/issue/${ISSUE.id}-${id.value}/") {
+                parameter("format", "json")
+                parameter("api_key", apiKey)
+            }.body()
+        }
     }
 
     suspend fun getStoryArc(id: ComicVineStoryArcId): ComicVineSearchResult<ComicVineStoryArc> {
-        rateLimiter.storyArcAcquire()
-        return ktor.get("$baseUrl/story_arc/${ComicVineTypeId.STORY_ARC.id}-${id.value}/") {
-            parameter("format", "json")
-            parameter("api_key", apiKey)
-        }.body()
-
+        return rateLimiter.storyArc {
+            ktor.get("$baseUrl/story_arc/${ComicVineTypeId.STORY_ARC.id}-${id.value}/") {
+                parameter("format", "json")
+                parameter("api_key", apiKey)
+            }.body()
+        }
     }
 
     suspend fun getCover(url: String): Image {
