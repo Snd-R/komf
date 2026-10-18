@@ -10,8 +10,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.jobs.KomfJobTracker
@@ -133,38 +133,39 @@ class MetadataService(
             )
             logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
             bookFailures.toErrorEvent()?.let { eventFlow.emit(it) }
-        }
+        }.id
         return jobId
     }
 
     fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
         coroutineScope.launch {
-            var errorCount = 0
-            var pageNumber = 1
-            do {
-                val page = mediaServerClient.getSeries(libraryId, pageNumber)
-                page.content.forEach {
-                    runCatching {
-                        jobTracker.getMetadataJobEvents(matchSeriesMetadata(it.id))
-                            ?.takeWhile { it !is CompletionEvent }
-                            ?.collect()
-                    }
-                        .onFailure {
-                            logger.error(it) { }
-                            errorCount += 1
-                        }
-                }
-                pageNumber++
-            } while (page.pageNumber != page.totalPages && page.content.isNotEmpty())
-            logger.info { "Finished library scan. Encountered $errorCount errors" }
+            val seriesIds = flow {
+                var pageNumber = 1
+                do {
+                    val page = mediaServerClient.getSeries(libraryId, pageNumber)
+                    page.content.forEach { emit(it.id) }
+                    pageNumber++
+                } while (page.pageNumber != page.totalPages && page.content.isNotEmpty())
+            }
+
+            val result = matchWithRetryPass(seriesIds) { seriesId ->
+                runCatching { !launchSeriesMatch(seriesId).events.endedWithError() }
+                    .onFailure { logger.error(it) { } }
+                    .getOrDefault(false)
+            }
+            if (result.failedFirstPass.isNotEmpty()) {
+                logger.info { "Retried ${result.failedFirstPass.size} failed series, ${result.stillFailed.size} still failed" }
+            }
+            logger.info { "Finished library scan. Encountered ${result.stillFailed.size} errors" }
         }
     }
 
-    fun matchSeriesMetadata(
-        seriesId: MediaServerSeriesId,
-    ): MetadataJobId {
+    fun matchSeriesMetadata(seriesId: MediaServerSeriesId): MetadataJobId = launchSeriesMatch(seriesId).id
 
-        val jobId = launchJob(seriesId) { eventFlow ->
+    private fun launchSeriesMatch(
+        seriesId: MediaServerSeriesId,
+    ): LaunchedJob {
+        return launchJob(seriesId) { eventFlow ->
             val bookFailures = BookFailures()
             val series = mediaServerClient.getSeries(seriesId)
             val books = mediaServerClient.getBooks(seriesId)
@@ -219,8 +220,6 @@ class MetadataService(
             logger.info { "finished metadata update of series \"${seriesTitle}\" ${series.id}" }
             bookFailures.toErrorEvent()?.let { eventFlow.emit(it) }
         }
-
-        return jobId
     }
 
     private suspend fun matchSeries(
@@ -414,7 +413,7 @@ class MetadataService(
     private fun launchJob(
         seriesId: MediaServerSeriesId,
         block: suspend (eventFlow: MutableSharedFlow<MetadataJobEvent>) -> Unit
-    ): MetadataJobId {
+    ): LaunchedJob {
         val eventFlow = MutableSharedFlow<MetadataJobEvent>(
             replay = Int.MAX_VALUE,
             onBufferOverflow = BufferOverflow.DROP_OLDEST
@@ -451,9 +450,10 @@ class MetadataService(
             }
         }
 
-        return jobId
+        return LaunchedJob(jobId, eventFlow)
     }
 
+    private class LaunchedJob(val id: MetadataJobId, val events: SharedFlow<MetadataJobEvent>)
 
     private class ProviderException(
         val provider: CoreProviders,
