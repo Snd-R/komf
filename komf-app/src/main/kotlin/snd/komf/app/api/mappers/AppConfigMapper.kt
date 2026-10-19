@@ -104,6 +104,7 @@ class AppConfigMapper {
             mergeGenres = config.mergeGenres,
             bookCovers = config.bookCovers,
             seriesCovers = config.seriesCovers,
+            fallbackUseSeriesCoverForBook = config.fallbackUseSeriesCoverForBook,
             overrideExistingCovers = config.overrideExistingCovers,
             lockCovers = config.lockCovers,
             updateModes = config.updateModes.map { it.fromUpdateMode() },
