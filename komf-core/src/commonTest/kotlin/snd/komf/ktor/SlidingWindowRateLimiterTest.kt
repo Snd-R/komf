@@ -134,19 +134,19 @@ class SlidingWindowRateLimiterTest {
     }
 
     @Test
-    fun repeatedCooldownsWaitFullWindowUntilSuccess() = runTest {
+    fun repeatedCooldownsRecheckUntilSuccess() = runTest {
         val limiter = limiter(capacity = 100, window = 60.minutes)
         limiter.acquire()
         advanceTimeBy(30.minutes)
         assertEquals(30.minutes, limiter.onRateLimited())
         limiter.acquire()
 
-        assertEquals(60.minutes, limiter.onRateLimited())
+        assertEquals(5.minutes, limiter.onRateLimited())
         limiter.acquire()
         limiter.onSuccess()
 
         advanceTimeBy(30.minutes)
-        assertEquals(30.minutes, limiter.onRateLimited())
+        assertEquals(25.minutes, limiter.onRateLimited())
     }
 
     @Test
@@ -160,6 +160,14 @@ class SlidingWindowRateLimiterTest {
         assertEquals(45.minutes, limiter.onRateLimited())
 
         limiter.acquire()
+        assertEquals(5.minutes, limiter.onRateLimited())
+    }
+
+    @Test
+    fun firstCooldownWithoutRecentGrantsThenRechecks() = runTest {
+        val limiter = limiter(capacity = 100, window = 60.minutes)
         assertEquals(60.minutes, limiter.onRateLimited())
+        limiter.acquire()
+        assertEquals(5.minutes, limiter.onRateLimited())
     }
 }

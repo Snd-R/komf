@@ -13,7 +13,7 @@ import kotlin.time.TimeSource
  * evenly at one per `window / capacity` after an initial burst of [burst] permits.
  *
  * When the server rejects a request anyway, [onRateLimited] pauses every caller: the first time until
- * the oldest grant leaves the window, then for a full window on each further rejection until [onSuccess].
+ * the oldest grant leaves the window, then for [recheckInterval] on each further rejection until [onSuccess].
  */
 class SlidingWindowRateLimiter(
     private val capacity: Int,
@@ -21,6 +21,7 @@ class SlidingWindowRateLimiter(
     private val minSpacing: Duration = Duration.ZERO,
     private val burst: Int = capacity,
     private val minCooldown: Duration = 1.minutes,
+    private val recheckInterval: Duration = 5.minutes,
     private val timeSource: TimeSource.WithComparableMarks = TimeSource.Monotonic,
 ) {
     private val mutex = Mutex()
@@ -61,8 +62,10 @@ class SlidingWindowRateLimiter(
         val oldest = grants.firstOrNull()
         val until = if (consecutiveCooldowns == 0 && oldest != null) {
             maxOf(now + minCooldown, oldest + window)
-        } else {
+        } else if (consecutiveCooldowns == 0) {
             now + window
+        } else {
+            now + recheckInterval
         }
         consecutiveCooldowns++
         blockedUntil = until

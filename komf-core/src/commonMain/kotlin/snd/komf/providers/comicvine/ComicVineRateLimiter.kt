@@ -15,7 +15,8 @@ private const val RATE_LIMITED_STATUS = 420
 
 class ComicVineRateLimiter(
     timeSource: TimeSource.WithComparableMarks = TimeSource.Monotonic,
-    private val maxCooldowns: Int = 3,
+    // The first cooldown, then 12 five-minute rechecks: up to an hour past the first estimate.
+    private val maxCooldowns: Int = 13,
 ) {
     private val searchLimiter = apiLimiter(timeSource)
     private val volumeLimiter = apiLimiter(timeSource)

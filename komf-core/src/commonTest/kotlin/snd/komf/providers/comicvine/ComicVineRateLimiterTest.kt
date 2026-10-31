@@ -53,7 +53,8 @@ class ComicVineRateLimiterTest {
         assertFailsWith<ClientRequestException> {
             limiter.issue<String> { calls++; throw rateLimited }
         }
-        assertEquals(4, calls)
+        assertEquals(14, calls)
+        assertEquals(120.minutes.inWholeMilliseconds, currentTime)
     }
 
     @Test
