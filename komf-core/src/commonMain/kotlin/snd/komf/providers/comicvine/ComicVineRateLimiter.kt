@@ -55,7 +55,8 @@ class ComicVineRateLimiter(
         }
     }
 
-    // ComicVine allows 200 requests per resource per rolling hour; other clients may share the API key.
+    // ComicVine allows 200 requests per resource per hour, but its reset timer can move back and keep the count,
+    // so a 420 can still arrive under this cap. Other clients may share the API key.
     // Calls are also spaced key-wide (keyGate): velocity detection blocks the whole key, not one resource.
     private fun apiLimiter(timeSource: TimeSource.WithComparableMarks) = SlidingWindowRateLimiter(
         capacity = 190,
