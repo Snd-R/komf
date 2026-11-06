@@ -1,0 +1,145 @@
+package snd.komf.providers.comicvine
+
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class ComicVineRateLimiterTest {
+
+    private fun responseException(status: Int): ClientRequestException = runBlocking {
+        val client = HttpClient(MockEngine { respond("", HttpStatusCode(status, "")) }) { expectSuccess = true }
+        assertFailsWith<ClientRequestException> { client.get("http://comicvine.test/") }
+    }
+
+    private val rateLimited = responseException(420)
+    private val notFound = responseException(404)
+
+    @Test
+    fun retriesSameRequestAfterCooldown() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        val calls = mutableListOf<Long>()
+
+        val result = limiter.issue {
+            calls += currentTime
+            if (calls.size == 1) throw rateLimited
+            "ok"
+        }
+
+        assertEquals("ok", result)
+        assertEquals(listOf(0L, 60.minutes.inWholeMilliseconds), calls)
+    }
+
+    @Test
+    fun givesUpAfterMaxCooldowns() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        var calls = 0
+
+        assertFailsWith<ClientRequestException> {
+            limiter.issue<String> { calls++; throw rateLimited }
+        }
+        assertEquals(14, calls)
+        assertEquals(120.minutes.inWholeMilliseconds, currentTime)
+    }
+
+    @Test
+    fun exhaustedResourceFailsFollowingRequestsWithoutWaiting() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        assertFailsWith<ClientRequestException> { limiter.issue<String> { throw rateLimited } }
+        val timeAfterFirst = currentTime
+        var calls = 0
+
+        assertFailsWith<ClientRequestException> {
+            limiter.issue<String> { calls++; throw rateLimited }
+        }
+
+        assertEquals(1, calls)
+        assertTrue(currentTime - timeAfterFirst < 1.minutes.inWholeMilliseconds)
+    }
+
+    @Test
+    fun successRestoresCooldownsOfExhaustedResource() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        assertFailsWith<ClientRequestException> { limiter.issue<String> { throw rateLimited } }
+        assertEquals("ok", limiter.issue { "ok" })
+        val start = currentTime
+        var calls = 0
+
+        val result = limiter.issue {
+            if (calls++ == 0) throw rateLimited
+            "ok"
+        }
+
+        assertEquals("ok", result)
+        assertEquals(2, calls)
+        assertTrue(currentTime - start >= 1.minutes.inWholeMilliseconds)
+    }
+
+    @Test
+    fun otherErrorsAreNotRetried() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        var calls = 0
+
+        assertFailsWith<ClientRequestException> {
+            limiter.volume<String> { calls++; throw notFound }
+        }
+        assertEquals(1, calls)
+    }
+
+    @Test
+    fun cooldownPausesSameResourceOnly() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        var first = true
+
+        val rejected = async {
+            limiter.issue {
+                if (first) {
+                    first = false
+                    throw rateLimited
+                }
+                currentTime
+            }
+        }
+        advanceTimeBy(10.seconds)
+        val sameResource = async { limiter.issue { currentTime } }
+        val otherResource = async { limiter.volume { currentTime } }
+
+        assertEquals(10.seconds.inWholeMilliseconds, otherResource.await())
+        assertTrue(sameResource.await() >= 60.minutes.inWholeMilliseconds)
+        assertTrue(rejected.await() >= 60.minutes.inWholeMilliseconds)
+    }
+
+    @Test
+    fun spacesCallsAcrossAllResources() = runTest {
+        val limiter = ComicVineRateLimiter(timeSource = testScheduler.timeSource)
+        val times = mutableListOf<Long>()
+        val calls = listOf<suspend (suspend () -> Unit) -> Unit>(
+            { limiter.search { it() } },
+            { limiter.volume { it() } },
+            { limiter.issue { it() } },
+            { limiter.storyArc { it() } },
+        )
+
+        calls.flatMap { call -> List(3) { async { call { times += currentTime } } } }.forEach { it.await() }
+
+        assertEquals(12, times.size)
+        times.sorted().zipWithNext().forEach { (a, b) ->
+            assertTrue(b - a >= 1.seconds.inWholeMilliseconds, "calls $a and $b ms apart")
+        }
+    }
+}
